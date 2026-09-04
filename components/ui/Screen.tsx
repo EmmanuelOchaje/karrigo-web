@@ -29,10 +29,7 @@ export function Screen({
   return (
     <div
       data-theme={resolved}
-      className={cn(
-        "bg-bg text-text font-[var(--body-weight)] flex flex-1 flex-col",
-        className,
-      )}
+      className={cn("bg-bg text-text", className)}
     >
       {children}
     </div>
