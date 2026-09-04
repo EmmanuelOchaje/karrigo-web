@@ -20,7 +20,7 @@ export function SiteNav({ mode = "light" }: { mode?: "light" | "dark" }) {
       <nav className="px-screen-x gap-xl mx-auto flex max-w-[1100px] items-center py-md">
         <Logo />
 
-        <div className="gap-xl text-body-med text-text-secondary hidden md:flex">
+        <div className="gap-xl text-site-body text-text-secondary hidden md:flex">
           {links.map((link) => (
             <Link key={link.label} href={link.href} className="hover:text-text">
               {link.label}
@@ -31,7 +31,7 @@ export function SiteNav({ mode = "light" }: { mode?: "light" | "dark" }) {
         <div className="gap-md ml-auto flex items-center">
           <Link
             href="/login"
-            className="text-body-med text-text-secondary hover:text-text hidden sm:block"
+            className="text-site-body text-text-secondary hover:text-text hidden sm:block"
           >
             Log in
           </Link>

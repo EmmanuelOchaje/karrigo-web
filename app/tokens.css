@@ -10,6 +10,8 @@
   --duration-normal: 220ms;
   --duration-slow: 400ms;
   --default-transition-timing-function: ease-out;
+  --stagger: 70ms;
+  --rise: 14px;
 }
 
 :root,
@@ -132,6 +134,51 @@
   --text-price--line-height: 17px;
   --text-price--letter-spacing: -0.2px;
   --text-price--font-weight: 600;
+
+  --text-hero: 54px;
+  --text-hero--line-height: 54px;
+  --text-hero--letter-spacing: -2.6px;
+  --text-hero--font-weight: 600;
+
+  --text-hero-small: 36px;
+  --text-hero-small--line-height: 38px;
+  --text-hero-small--letter-spacing: -1.6px;
+  --text-hero-small--font-weight: 600;
+
+  --text-section: 32px;
+  --text-section--line-height: 36px;
+  --text-section--letter-spacing: -1.4px;
+  --text-section--font-weight: 600;
+
+  --text-section-small: 24px;
+  --text-section-small--line-height: 28px;
+  --text-section-small--letter-spacing: -1px;
+  --text-section-small--font-weight: 600;
+
+  --text-lede: 17px;
+  --text-lede--line-height: 28px;
+  --text-lede--letter-spacing: 0px;
+  --text-lede--font-weight: 400;
+
+  --text-site-body: 15px;
+  --text-site-body--line-height: 25px;
+  --text-site-body--letter-spacing: 0px;
+  --text-site-body--font-weight: 400;
+
+  --text-site-label: 13px;
+  --text-site-label--line-height: 18px;
+  --text-site-label--letter-spacing: 0px;
+  --text-site-label--font-weight: 500;
+
+  --text-stat: 24px;
+  --text-stat--line-height: 28px;
+  --text-stat--letter-spacing: -1px;
+  --text-stat--font-weight: 600;
+
+  --text-eyebrow: 12px;
+  --text-eyebrow--line-height: 16px;
+  --text-eyebrow--letter-spacing: 1.4px;
+  --text-eyebrow--font-weight: 600;
 
   --spacing-xs: 4px;
   --spacing-sm: 8px;

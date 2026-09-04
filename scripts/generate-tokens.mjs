@@ -8,6 +8,7 @@ import {
   bodyWeightByMode,
   font,
   type,
+  marketingType,
   space,
   radius,
   size,
@@ -45,6 +46,8 @@ ${["fast", "normal", "slow"]
   .map((k) => `  --duration-${k}: ${motion[k]}ms;`)
   .join("\n")}
   --default-transition-timing-function: ${motion.easing};
+  --stagger: ${motion.stagger}ms;
+  --rise: ${motion.rise}px;
 }
 
 :root,
@@ -64,7 +67,7 @@ ${colorNames.map((n) => `  --color-${n}: var(--${n});`).join("\n")}
   --font-weight-body: var(--body-weight);
   --shadow-card: var(--card-shadow);
 
-${Object.entries(type)
+${Object.entries({ ...type, ...marketingType })
   .map(([name, t]) =>
     [
       `  --text-${kebab(name)}: ${t.size}px;`,

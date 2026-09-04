@@ -18,12 +18,12 @@ export function KitchenCard({ kitchen }: { kitchen: Kitchen }) {
         {kitchen.emoji}
       </div>
 
-      <div className="text-h3 mt-sm">{kitchen.name}</div>
-      <div className="text-caption text-text-secondary mt-xs">
+      <div className="text-h2 mt-sm">{kitchen.name}</div>
+      <div className="text-site-label text-text-secondary mt-xs">
         {kitchen.cuisine} · {kitchen.area}
       </div>
 
-      <div className="text-caption text-text-secondary mt-sm gap-sm flex flex-wrap items-center">
+      <div className="text-site-label text-text-secondary mt-sm gap-sm flex flex-wrap items-center">
         {shut ? (
           <span>{kitchen.closedUntil}</span>
         ) : (

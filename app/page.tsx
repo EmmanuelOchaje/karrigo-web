@@ -15,37 +15,39 @@ export default function HomePage() {
 
       {/* Hero — dark, one action above the fold: type where you are. */}
       <Screen mode="dark">
-        <div className="px-screen-x gap-xxl mx-auto grid max-w-[1100px] items-center py-xxl md:grid-cols-[1.05fr_.95fr]">
+        <div className="px-screen-x gap-xxl mx-auto grid min-h-[90svh] max-w-[1100px] items-center py-xxl md:grid-cols-[1.05fr_.95fr]">
           <div>
-            <h1 className="text-[2.35rem] leading-[1.02] font-semibold tracking-[-0.05em]">
+            <h1 className="text-hero-small md:text-hero rise">
               Makurdi eats.
               <br />
               <span className="text-accent-text">We deliver.</span>
             </h1>
 
-            <p className="text-body text-text-secondary mt-md max-w-[44ch]">
+            <p className="text-lede text-text-secondary rise rise-1 mt-lg max-w-[44ch]">
               Order from kitchens around you and follow your rider from the pot to
               your gate.
             </p>
 
-            <AddressForm className="mt-xl max-w-[26rem]" />
+            <AddressForm className="rise rise-2 mt-xl max-w-[28rem]" />
 
-            <p className="text-caption text-text-tertiary mt-sm">
+            <p className="text-site-label text-text-tertiary rise rise-3 mt-md">
               No street address? A landmark works — our riders know Makurdi.
             </p>
 
-            <dl className="border-border mt-xl gap-xl flex flex-wrap border-t pt-lg">
+            <dl className="border-border rise rise-4 mt-xl gap-xl flex flex-wrap border-t pt-lg">
               {heroStats.map((stat) => (
                 <div key={stat.label}>
-                  <dt className="text-h2 text-accent-text">{stat.value}</dt>
-                  <dd className="text-caption text-text-secondary">{stat.label}</dd>
+                  <dt className="text-stat text-accent-text">{stat.value}</dt>
+                  <dd className="text-site-label text-text-secondary">
+                    {stat.label}
+                  </dd>
                 </div>
               ))}
             </dl>
           </div>
 
           {/* The product itself, not a stock mockup. */}
-          <div className="justify-self-center md:justify-self-end">
+          <div className="rise rise-5 justify-self-center md:justify-self-end">
             <div className="border-surface-raised w-[220px] overflow-hidden rounded-[28px] border-[6px]">
               <Screen mode="light">
                 <div className="border-border px-md border-b py-sm">
@@ -83,12 +85,12 @@ export default function HomePage() {
 
       {/* Real kitchens, real prices, on the marketing page. */}
       <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl">
-        <p className="text-label text-text-tertiary tracking-[0.12em] uppercase">
-          Open right now
-        </p>
-        <h2 className="text-h1 mt-xs">Kitchens in Makurdi</h2>
+        <p className="text-eyebrow text-text-tertiary rise uppercase">Open right now</p>
+        <h2 className="text-section-small md:text-section rise rise-1 mt-xs">
+          Kitchens in Makurdi
+        </h2>
 
-        <div className="gap-md mt-lg grid sm:grid-cols-2 md:grid-cols-3">
+        <div className="gap-md rise rise-2 mt-lg grid sm:grid-cols-2 md:grid-cols-3">
           {openKitchens.map((kitchen) => (
             <KitchenCard key={kitchen.slug} kitchen={kitchen} />
           ))}
@@ -101,19 +103,21 @@ export default function HomePage() {
 
       <section className="bg-surface">
         <div className="px-screen-x mx-auto max-w-[1100px] py-xxl">
-          <p className="text-label text-text-tertiary tracking-[0.12em] uppercase">
-            How it works
-          </p>
-          <h2 className="text-h1 mt-xs">Four steps, no app needed</h2>
+          <p className="text-eyebrow text-text-tertiary uppercase">How it works</p>
+          <h2 className="text-section-small md:text-section mt-xs">
+            Four steps, no app needed
+          </h2>
 
           <ol className="gap-lg mt-lg grid sm:grid-cols-2 md:grid-cols-4">
             {steps.map((step, index) => (
               <li key={step.title}>
-                <span className="bg-accent text-on-accent grid size-[26px] place-items-center rounded-[8px] text-sm font-bold">
+                <span className="bg-accent text-on-accent grid size-[30px] place-items-center rounded-[8px] text-base font-bold">
                   {index + 1}
                 </span>
-                <h3 className="text-h3 mt-sm">{step.title}</h3>
-                <p className="text-caption text-text-secondary mt-xs">{step.body}</p>
+                <h3 className="text-h2 mt-sm">{step.title}</h3>
+                <p className="text-site-body text-text-secondary mt-xs">
+                  {step.body}
+                </p>
               </li>
             ))}
           </ol>
@@ -124,8 +128,8 @@ export default function HomePage() {
       <section className="grid md:grid-cols-2">
         <Screen mode="dark" className="px-screen-x py-xxl">
           <div className="mx-auto max-w-[34rem] md:ml-auto md:mr-0 md:max-w-[26rem]">
-            <h2 className="text-h1">Put your kitchen on M-Kart</h2>
-            <p className="text-body text-text-secondary mt-sm">
+            <h2 className="text-section-small md:text-section">Put your kitchen on M-Kart</h2>
+            <p className="text-lede text-text-secondary mt-sm">
               You cook. We handle orders, riders and money.
             </p>
             <ul className="mt-md gap-sm flex flex-col">
@@ -136,7 +140,7 @@ export default function HomePage() {
                 "Mark a dish finished yourself, any time",
                 "Live within a week of signing",
               ].map((item) => (
-                <li key={item} className="text-body-med gap-sm flex">
+                <li key={item} className="text-site-body gap-sm flex">
                   <span aria-hidden className="text-accent-text font-bold">
                     ✓
                   </span>
@@ -152,8 +156,8 @@ export default function HomePage() {
 
         <div className="bg-accent text-on-accent px-screen-x py-xxl">
           <div className="mx-auto max-w-[34rem] md:mr-auto md:ml-0 md:max-w-[26rem]">
-            <h2 className="text-h1">Ride with M-Kart</h2>
-            <p className="text-body mt-sm opacity-80">
+            <h2 className="text-section-small md:text-section">Ride with M-Kart</h2>
+            <p className="text-lede mt-sm opacity-80">
               Know Makurdi roads? Start earning this week.
             </p>
             <ul className="mt-md gap-sm flex flex-col">
@@ -164,7 +168,7 @@ export default function HomePage() {
                 "Bring a bike, a rider's card and a phone",
                 "Fuel guarantee during your first two weeks",
               ].map((item) => (
-                <li key={item} className="text-body-med gap-sm flex">
+                <li key={item} className="text-site-body gap-sm flex">
                   <span aria-hidden className="font-bold">
                     ✓
                   </span>

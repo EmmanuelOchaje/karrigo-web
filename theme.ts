@@ -152,6 +152,24 @@ export const type = {
   price:   { size: 13, lineHeight: 17, letterSpacing: -0.2, weight: '600' },
 } as const;
 
+/**
+ * The scale above is phone-sized — it is the app's. The marketing site is read
+ * on desktop as often as on a phone, so it gets its own, larger scale. Each
+ * entry has a `-small` sibling for narrow screens; pair them as
+ * `text-hero-small md:text-hero`.
+ */
+export const marketingType = {
+  hero:          { size: 54, lineHeight: 54, letterSpacing: -2.6, weight: '600' },
+  heroSmall:     { size: 36, lineHeight: 38, letterSpacing: -1.6, weight: '600' },
+  section:       { size: 32, lineHeight: 36, letterSpacing: -1.4, weight: '600' },
+  sectionSmall:  { size: 24, lineHeight: 28, letterSpacing: -1.0, weight: '600' },
+  lede:          { size: 17, lineHeight: 28, letterSpacing: 0,    weight: '400' },
+  siteBody:      { size: 15, lineHeight: 25, letterSpacing: 0,    weight: '400' },
+  siteLabel:     { size: 13, lineHeight: 18, letterSpacing: 0,    weight: '500' },
+  stat:          { size: 24, lineHeight: 28, letterSpacing: -1.0, weight: '600' },
+  eyebrow:       { size: 12, lineHeight: 16, letterSpacing: 1.4,  weight: '600' },
+} as const;
+
 /** Body copy is 300 on dark, 400 on light — thin type disappears on white. */
 export const bodyWeightByMode = { dark: '300', light: '400' } as const;
 
@@ -166,6 +184,13 @@ export const shadow = {
   dark:  null,
 } as const;
 
-export const motion = { fast:150, normal:220, slow:400, easing:'ease-out' } as const;
+export const motion = {
+  fast:150, normal:220, slow:400, easing:'ease-out',
+  /** Gap between staggered entrance animations. Keep it small — this is a
+   *  content site, not a showreel, and every delay is a delay to reading. */
+  stagger: 70,
+  /** How far an element travels as it fades in. */
+  rise: 14,
+} as const;
 
 export default { dark, light, rules, modeByScreen, font, type, space, radius, size, shadow, motion };

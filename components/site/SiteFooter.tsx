@@ -35,7 +35,7 @@ export function SiteFooter() {
         <div className="gap-xl grid sm:grid-cols-2 md:grid-cols-4">
           <div>
             <Logo />
-            <p className="text-caption text-text-secondary mt-sm max-w-[28ch]">
+            <p className="text-site-label text-text-secondary mt-sm max-w-[28ch]">
               Food delivery in Makurdi, Benue State. Cooked locally, carried by
               riders who know the roads.
             </p>
@@ -51,7 +51,7 @@ export function SiteFooter() {
                   <li key={link.label}>
                     <Link
                       href={link.href}
-                      className="text-body-med text-text-secondary hover:text-text"
+                      className="text-site-body text-text-secondary hover:text-text"
                     >
                       {link.label}
                     </Link>
