@@ -120,3 +120,73 @@ export const steps = [
     body: "Follow your rider on a map and call them if needed.",
   },
 ];
+
+export const benefits = [
+  {
+    icon: "⌖",
+    title: "Landmarks, not addresses",
+    body: "“Behind BSU main gate” is a real address here. Our riders know Makurdi, so you never drag a pin on a map.",
+  },
+  {
+    icon: "🍲",
+    title: "Kitchens you already know",
+    body: "The bukkas and spots you would walk to anyway — not a list of places that pay to be at the top.",
+  },
+  {
+    icon: "📶",
+    title: "Built for the network you have",
+    body: "The whole site works on a slow connection. No app to install before you can order once.",
+  },
+  {
+    icon: "🛵",
+    title: "Follow your rider",
+    body: "Watch them leave the kitchen and reach your gate. Share the link so whoever is waiting can watch too.",
+  },
+  {
+    icon: "💵",
+    title: "Pay how you actually pay",
+    body: "Card, bank transfer, or cash to the rider at your door. No account needed to order.",
+  },
+  {
+    icon: "☎",
+    title: "A person, not a form",
+    body: "If an order goes wrong, you reach someone in Makurdi who can call the kitchen and the rider.",
+  },
+];
+
+export const faqs = [
+  {
+    q: "Do I need to create an account?",
+    a: "No. You can order with just a phone number. We text you a link to follow the order, and you can make an account later if you want your addresses saved.",
+  },
+  {
+    q: "What if I do not have a street address?",
+    a: "Most people here do not use one. Give us a landmark — a school gate, a church, a filling station — and the area. Riders find it the same way you would tell a friend.",
+  },
+  {
+    q: "How much is delivery?",
+    a: "It depends on how far the kitchen is from you, so it is shown per kitchen before you order. It is never a surprise at checkout.",
+  },
+  {
+    q: "What if the kitchen has finished the food?",
+    a: "Dishes that have run out are marked finished and cannot be ordered. If a kitchen runs out after you have paid, we cancel and refund you in full, and we tell you which dish it was.",
+  },
+  {
+    q: "Can I pay cash?",
+    a: "Yes, cash to the rider when the food reaches you. Card and bank transfer also work.",
+  },
+  {
+    q: "Which areas do you deliver to?",
+    a: "Seven areas around Makurdi today. We open a new area only when we have enough riders to serve it properly, rather than taking orders we cannot deliver.",
+  },
+];
+
+/** Footer link columns. These exist for local search as much as navigation. */
+export const cuisines = [
+  "Swallow & soups",
+  "Jollof & rice",
+  "Pepper soup",
+  "Suya & grills",
+  "Breakfast",
+  "Drinks",
+];

@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Logo } from "./Logo";
 import { Screen } from "@/components/ui/Screen";
+import { areasLive, cuisines, kitchens } from "@/lib/fixtures";
 
 const columns = [
   {
@@ -60,6 +61,64 @@ export function SiteFooter() {
               </ul>
             </div>
           ))}
+        </div>
+
+        {/* Area, cuisine and kitchen links. These are here for local search as
+            much as for navigation — people look for "jollof Wurukum". */}
+        <div className="border-border gap-xl mt-xl grid border-t pt-lg sm:grid-cols-2 md:grid-cols-3">
+          <div>
+            <h3 className="text-label text-text-tertiary tracking-[0.12em] uppercase">
+              Areas
+            </h3>
+            <ul className="mt-sm gap-xs flex flex-wrap">
+              {areasLive.map((area) => (
+                <li key={area}>
+                  <Link
+                    href={`/areas#${area.toLowerCase().replace(/\s+/g, "-")}`}
+                    className="bg-surface text-site-label text-text-secondary hover:text-text rounded-pill px-md py-xs inline-block"
+                  >
+                    {area}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-label text-text-tertiary tracking-[0.12em] uppercase">
+              Food
+            </h3>
+            <ul className="mt-sm gap-xs flex flex-wrap">
+              {cuisines.map((cuisine) => (
+                <li key={cuisine}>
+                  <Link
+                    href="/kitchens"
+                    className="bg-surface text-site-label text-text-secondary hover:text-text rounded-pill px-md py-xs inline-block"
+                  >
+                    {cuisine}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div>
+            <h3 className="text-label text-text-tertiary tracking-[0.12em] uppercase">
+              Kitchens
+            </h3>
+            <ul className="mt-sm gap-xs flex flex-wrap">
+              {kitchens.map((kitchen) => (
+                <li key={kitchen.slug}>
+                  <Link
+                    href={`/k/${kitchen.slug}`}
+                    className="bg-surface text-site-label text-text-secondary hover:text-text rounded-pill px-md py-xs inline-block"
+                  >
+                    {kitchen.name}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
         </div>
 
         <p className="text-caption text-text-tertiary border-border mt-xl border-t pt-lg">

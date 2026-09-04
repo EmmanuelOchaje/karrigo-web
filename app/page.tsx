@@ -3,9 +3,10 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { AddressForm } from "@/components/site/AddressForm";
 import { KitchenCard } from "@/components/site/KitchenCard";
 import { HeroPhones } from "@/components/site/HeroPhones";
+import { FaqList } from "@/components/site/FaqList";
 import { Screen } from "@/components/ui/Screen";
 import { ButtonLink } from "@/components/ui/Button";
-import { kitchens, heroStats, steps } from "@/lib/fixtures";
+import { kitchens, heroStats, steps, benefits } from "@/lib/fixtures";
 
 export default function HomePage() {
   const openKitchens = kitchens.filter((k) => !k.closedUntil).slice(0, 3);
@@ -95,6 +96,28 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Why us — the reasons that are specific to Makurdi, not generic. */}
+      <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl">
+        <p className="text-eyebrow text-text-tertiary uppercase">Why M-Kart</p>
+        <h2 className="text-section-small md:text-section mt-xs">
+          Built for how Makurdi actually orders
+        </h2>
+
+        <div className="gap-lg mt-lg grid sm:grid-cols-2 md:grid-cols-3">
+          {benefits.map((benefit) => (
+            <div key={benefit.title}>
+              <div className="bg-surface grid size-[44px] place-items-center rounded-[12px] text-xl">
+                {benefit.icon}
+              </div>
+              <h3 className="text-h2 mt-sm">{benefit.title}</h3>
+              <p className="text-site-body text-text-secondary mt-xs">
+                {benefit.body}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
       {/* Two audiences, one band. Concrete terms, not "join our platform". */}
       <section className="grid md:grid-cols-2">
         <Screen mode="dark" className="px-screen-x py-xxl">
@@ -156,6 +179,16 @@ export default function HomePage() {
               Apply to ride
             </ButtonLink>
           </div>
+        </div>
+      </section>
+
+      <section className="bg-surface">
+        <div className="px-screen-x mx-auto max-w-[1100px] py-xxl">
+          <p className="text-eyebrow text-text-tertiary uppercase">Questions</p>
+          <h2 className="text-section-small md:text-section mt-xs">
+            Things people ask us
+          </h2>
+          <FaqList />
         </div>
       </section>
 
