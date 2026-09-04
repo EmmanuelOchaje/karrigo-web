@@ -31,6 +31,7 @@
   --danger-bg: #FFEDE8;
   --danger-text: #C0391C;
   --knob: #FFFFFF;
+  --bezel: #0A0B09;
   --scrim: rgba(14,15,13,0.45);
   --body-weight: 400;
   --card-shadow: 0px 4px 12px rgba(10,11,9,0.08);
@@ -52,6 +53,7 @@
   --danger-bg: rgba(255,107,74,0.14);
   --danger-text: #FF8E74;
   --knob: #FFFFFF;
+  --bezel: #242621;
   --scrim: rgba(14,15,13,0.62);
   --body-weight: 300;
   --card-shadow: none;
@@ -75,6 +77,7 @@
   --color-danger-bg: var(--danger-bg);
   --color-danger-text: var(--danger-text);
   --color-knob: var(--knob);
+  --color-bezel: var(--bezel);
   --color-scrim: var(--scrim);
 
   --font-weight-body: var(--body-weight);

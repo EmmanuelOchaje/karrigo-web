@@ -2,6 +2,7 @@ import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { AddressForm } from "@/components/site/AddressForm";
 import { KitchenCard } from "@/components/site/KitchenCard";
+import { HeroPhones } from "@/components/site/HeroPhones";
 import { Screen } from "@/components/ui/Screen";
 import { ButtonLink } from "@/components/ui/Button";
 import { kitchens, heroStats, steps } from "@/lib/fixtures";
@@ -47,38 +48,8 @@ export default function HomePage() {
           </div>
 
           {/* The product itself, not a stock mockup. */}
-          <div className="rise rise-5 justify-self-center md:justify-self-end">
-            <div className="border-surface-raised w-[220px] overflow-hidden rounded-[28px] border-[6px]">
-              <Screen mode="light">
-                <div className="border-border px-md border-b py-sm">
-                  <div className="text-caption gap-xs flex items-center font-semibold">
-                    <span className="bg-accent text-on-accent grid size-[18px] place-items-center rounded-[6px] text-[8px]">
-                      ⌖
-                    </span>
-                    Behind BSU main gate
-                  </div>
-                </div>
-                <div className="px-md py-sm">
-                  {kitchens.slice(0, 4).map((kitchen) => (
-                    <div
-                      key={kitchen.slug}
-                      className="border-border gap-sm flex items-center border-b py-sm last:border-b-0"
-                    >
-                      <div className="bg-surface grid size-[32px] place-items-center rounded-[8px] text-sm">
-                        {kitchen.emoji}
-                      </div>
-                      <div>
-                        <div className="text-micro font-semibold">{kitchen.name}</div>
-                        <div className="text-micro text-text-secondary">
-                          {kitchen.distanceKm} km · {kitchen.etaMinutes[0]}–
-                          {kitchen.etaMinutes[1]} min
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </Screen>
-            </div>
+          <div className="justify-self-center md:justify-self-end">
+            <HeroPhones />
           </div>
         </div>
       </Screen>

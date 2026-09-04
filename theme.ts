@@ -49,6 +49,11 @@ export const dark = {
   /** Toggle knob. White in both modes — it rides on accent or on borderStrong. */
   knob:            '#FFFFFF',
 
+  /** Device bezel on the marketing pages. Mockup furniture, not product UI.
+   *  Lighter than the page on dark, darker than the page on light — either way
+   *  the frame has to be visible against the background it sits on. */
+  bezel:           '#242621',
+
   scrim:           'rgba(14,15,13,0.62)',
 } as const;
 
@@ -72,6 +77,7 @@ export const light = {
   dangerText:      '#C0391C',
 
   knob:            '#FFFFFF',
+  bezel:           '#0A0B09',   // see the note in the dark palette
 
   scrim:           'rgba(14,15,13,0.45)',
 } as const;
