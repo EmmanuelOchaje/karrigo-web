@@ -1,0 +1,155 @@
+/*
+ * GENERATED FILE — do not edit.
+ * Run `npm run tokens` to regenerate from theme.ts.
+ */
+
+/* Tailwind v4 has no --duration-* theme namespace, so these stay plain custom
+   properties. Reference them as duration-(--duration-fast). */
+:root {
+  --duration-fast: 150ms;
+  --duration-normal: 220ms;
+  --duration-slow: 400ms;
+  --default-transition-timing-function: ease-out;
+}
+
+:root,
+[data-theme="light"] {
+  --bg: #FFFFFF;
+  --surface: #F6F7F3;
+  --surface-raised: #EDEFE8;
+  --border: #E4E7DE;
+  --border-strong: #D3D7CB;
+  --text: #0E0F0D;
+  --text-secondary: #6B6F66;
+  --text-tertiary: #9A9E93;
+  --accent: #C6F432;
+  --on-accent: #12180A;
+  --accent-text: #4E6B00;
+  --danger: #C0391C;
+  --danger-bg: #FFEDE8;
+  --danger-text: #C0391C;
+  --knob: #FFFFFF;
+  --scrim: rgba(14,15,13,0.45);
+  --body-weight: 400;
+  --card-shadow: 0px 4px 12px rgba(10,11,9,0.08);
+}
+
+[data-theme="dark"] {
+  --bg: #0E0F0D;
+  --surface: #1A1C19;
+  --surface-raised: #242621;
+  --border: #2E312C;
+  --border-strong: #3A3C38;
+  --text: #FFFFFF;
+  --text-secondary: #8E9189;
+  --text-tertiary: #6E7169;
+  --accent: #C6F432;
+  --on-accent: #12180A;
+  --accent-text: #C6F432;
+  --danger: #FF6B4A;
+  --danger-bg: rgba(255,107,74,0.14);
+  --danger-text: #FF8E74;
+  --knob: #FFFFFF;
+  --scrim: rgba(14,15,13,0.62);
+  --body-weight: 300;
+  --card-shadow: none;
+}
+
+@theme inline {
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-raised: var(--surface-raised);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-text: var(--text);
+  --color-text-secondary: var(--text-secondary);
+  --color-text-tertiary: var(--text-tertiary);
+  --color-accent: var(--accent);
+  --color-on-accent: var(--on-accent);
+  --color-accent-text: var(--accent-text);
+  --color-danger: var(--danger);
+  --color-danger-bg: var(--danger-bg);
+  --color-danger-text: var(--danger-text);
+  --color-knob: var(--knob);
+  --color-scrim: var(--scrim);
+
+  --font-weight-body: var(--body-weight);
+  --shadow-card: var(--card-shadow);
+
+  --text-display: 25px;
+  --text-display--line-height: 27px;
+  --text-display--letter-spacing: -1.1px;
+  --text-display--font-weight: 600;
+
+  --text-h1: 22px;
+  --text-h1--line-height: 24px;
+  --text-h1--letter-spacing: -0.9px;
+  --text-h1--font-weight: 600;
+
+  --text-h2: 17px;
+  --text-h2--line-height: 21px;
+  --text-h2--letter-spacing: -0.5px;
+  --text-h2--font-weight: 600;
+
+  --text-h3: 14px;
+  --text-h3--line-height: 18px;
+  --text-h3--letter-spacing: -0.2px;
+  --text-h3--font-weight: 600;
+
+  --text-body: 13px;
+  --text-body--line-height: 21px;
+  --text-body--letter-spacing: 0px;
+  --text-body--font-weight: 300;
+
+  --text-body-med: 13px;
+  --text-body-med--line-height: 18px;
+  --text-body-med--letter-spacing: 0px;
+  --text-body-med--font-weight: 400;
+
+  --text-label: 12px;
+  --text-label--line-height: 16px;
+  --text-label--letter-spacing: 0px;
+  --text-label--font-weight: 500;
+
+  --text-caption: 11px;
+  --text-caption--line-height: 17px;
+  --text-caption--letter-spacing: 0px;
+  --text-caption--font-weight: 300;
+
+  --text-micro: 10px;
+  --text-micro--line-height: 15px;
+  --text-micro--letter-spacing: 0px;
+  --text-micro--font-weight: 300;
+
+  --text-button: 14px;
+  --text-button--line-height: 18px;
+  --text-button--letter-spacing: -0.2px;
+  --text-button--font-weight: 600;
+
+  --text-price: 13px;
+  --text-price--line-height: 17px;
+  --text-price--letter-spacing: -0.2px;
+  --text-price--font-weight: 600;
+
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 12px;
+  --spacing-lg: 16px;
+  --spacing-xl: 20px;
+  --spacing-xxl: 28px;
+  --spacing-screen-x: 16px;
+  --spacing-button-height: 46px;
+  --spacing-field-height: 46px;
+  --spacing-back-button: 29px;
+  --spacing-feature-icon: 64px;
+
+  --radius-field: 15px;
+  --radius-card: 15px;
+  --radius-sheet: 20px;
+  --radius-header: 24px;
+  --radius-otp: 13px;
+  --radius-pill: 999px;
+  --radius-icon: 20px;
+}

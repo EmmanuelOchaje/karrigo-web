@@ -46,6 +46,9 @@ export const dark = {
   dangerBg:        'rgba(255,107,74,0.14)',
   dangerText:      '#FF8E74',
 
+  /** Toggle knob. White in both modes — it rides on accent or on borderStrong. */
+  knob:            '#FFFFFF',
+
   scrim:           'rgba(14,15,13,0.62)',
 } as const;
 
@@ -67,6 +70,8 @@ export const light = {
   danger:          '#C0391C',
   dangerBg:        '#FFEDE8',
   dangerText:      '#C0391C',
+
+  knob:            '#FFFFFF',
 
   scrim:           'rgba(14,15,13,0.45)',
 } as const;

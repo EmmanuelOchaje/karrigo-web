@@ -123,3 +123,13 @@ If the HTML and `theme.ts` ever disagree, **`theme.ts` wins**.
 Plain, warm, specific. Say "Terkimbi's has run out of egusi", not "This item is
 currently unavailable." Name the kitchen, name the rider, name the amount, name
 the timeline. Never apologise vaguely.
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->
