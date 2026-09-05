@@ -136,7 +136,7 @@ export default function HomePage() {
           to your first delivery.
         </p>
 
-        <div className="gap-lg mt-lg grid items-center md:grid-cols-2">
+        <div className="gap-lg mt-lg grid md:grid-cols-2">
           <ol className="gap-md flex flex-col">
             {riderSteps.map((step) => (
               <li
