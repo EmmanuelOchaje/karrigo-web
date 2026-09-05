@@ -156,8 +156,8 @@ export default function HomePage() {
             ))}
           </ol>
 
-          <div className="bg-surface rounded-card p-xl grid place-items-center">
-            <RiderIllustration className="w-full max-w-[380px]" />
+          <div className="bg-surface rounded-card p-lg grid place-items-center">
+            <RiderIllustration className="w-full" />
           </div>
         </div>
 

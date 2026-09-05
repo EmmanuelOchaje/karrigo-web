@@ -11,34 +11,39 @@ const links = [
 ];
 
 /**
- * The home page sits on a dark hero, so its nav is dark. Every other marketing
- * page is light. Same markup either way — only the theme underneath changes.
+ * Floating pill nav: no bar, no rule under it — the links sit in their own
+ * raised group so the nav reads as sitting on the page rather than framing it.
+ * The home page's nav is dark because it sits on the dark hero; every other
+ * marketing page is light. Same markup either way.
  */
 export function SiteNav({ mode = "light" }: { mode?: "light" | "dark" }) {
   return (
-    <Screen mode={mode} className="border-border border-b">
-      <nav className="px-screen-x gap-xl mx-auto flex max-w-[1100px] items-center py-md">
+    <Screen mode={mode}>
+      <nav className="px-screen-x gap-md mx-auto flex max-w-[1180px] items-center py-lg">
         <Logo />
 
-        <div className="gap-xl text-site-body text-text-secondary hidden md:flex">
+        <div className="bg-surface rounded-pill gap-xl text-site-body text-text-secondary mx-auto hidden items-center px-xl py-md md:flex">
           {links.map((link) => (
-            <Link key={link.label} href={link.href} className="hover:text-text">
+            <Link
+              key={link.label}
+              href={link.href}
+              className="hover:text-text transition-colors duration-(--duration-fast)"
+            >
               {link.label}
             </Link>
           ))}
         </div>
 
-        <div className="gap-md ml-auto flex items-center">
+        <div className="gap-sm ml-auto flex items-center md:ml-0">
           <Link
             href="/login"
-            className="text-site-body text-text-secondary hover:text-text hidden sm:block"
+            className="bg-surface rounded-pill text-site-body text-text-secondary hover:text-text hidden px-lg py-md transition-colors duration-(--duration-fast) sm:block"
           >
             Log in
           </Link>
           <ButtonLink
             href="/kitchens"
             variant={mode === "dark" ? "accent" : "dark"}
-            size="sm"
           >
             Order now
           </ButtonLink>

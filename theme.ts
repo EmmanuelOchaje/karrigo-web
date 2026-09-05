@@ -54,6 +54,10 @@ export const dark = {
    *  the frame has to be visible against the background it sits on. */
   bezel:           '#242621',
 
+  /** Skin tone in the illustrations, as drawn by unDraw. Identical in both
+   *  modes — a person does not change colour with the theme. */
+  illustrationSkin: '#ED9DA0',
+
   scrim:           'rgba(14,15,13,0.62)',
 } as const;
 
@@ -78,6 +82,7 @@ export const light = {
 
   knob:            '#FFFFFF',
   bezel:           '#0A0B09',   // see the note in the dark palette
+  illustrationSkin: '#ED9DA0',
 
   scrim:           'rgba(14,15,13,0.45)',
 } as const;
