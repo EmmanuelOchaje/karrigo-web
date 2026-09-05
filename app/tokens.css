@@ -151,14 +151,14 @@
   --text-hero-small--letter-spacing: -2px;
   --text-hero-small--font-weight: 600;
 
-  --text-section: 32px;
-  --text-section--line-height: 36px;
-  --text-section--letter-spacing: -1.4px;
+  --text-section: 42px;
+  --text-section--line-height: 46px;
+  --text-section--letter-spacing: -1.9px;
   --text-section--font-weight: 600;
 
-  --text-section-small: 24px;
-  --text-section-small--line-height: 28px;
-  --text-section-small--letter-spacing: -1px;
+  --text-section-small: 30px;
+  --text-section-small--line-height: 34px;
+  --text-section-small--letter-spacing: -1.3px;
   --text-section-small--font-weight: 600;
 
   --text-lede: 17px;

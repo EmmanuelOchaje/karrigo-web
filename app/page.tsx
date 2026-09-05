@@ -6,6 +6,7 @@ import { KitchenCard } from "@/components/site/KitchenCard";
 import { HeroPhones } from "@/components/site/HeroPhones";
 import { FaqList } from "@/components/site/FaqList";
 import { RiderIllustration } from "@/components/site/RiderIllustration";
+import { RestaurantPhone, RiderPhone } from "@/components/site/AudiencePhones";
 import { DeliveryLocation } from "@/components/site/illustrations/DeliveryLocation";
 import { OrderStatus } from "@/components/site/illustrations/OrderStatus";
 import { MobilePayments } from "@/components/site/illustrations/MobilePayments";
@@ -91,14 +92,15 @@ export default function HomePage() {
             Four steps, no app needed
           </h2>
 
-          <ol className="gap-lg mt-lg grid sm:grid-cols-2 md:grid-cols-4">
+          <ol className="border-border-strong mt-xl ml-xs border-l">
             {steps.map((step, index) => (
-              <li key={step.title}>
-                <span className="bg-accent text-on-accent grid size-[30px] place-items-center rounded-[8px] text-base font-bold">
-                  {index + 1}
+              <li key={step.title} className="pl-xl relative pb-xxl last:pb-0">
+                <span className="bg-accent absolute top-[7px] -left-[5.5px] size-[10px] rounded-full" />
+                <span className="bg-surface-raised text-accent-text text-label rounded-pill px-sm py-xs inline-block">
+                  Step {index + 1}
                 </span>
-                <h3 className="text-h2 mt-sm">{step.title}</h3>
-                <p className="text-site-body text-text-secondary mt-xs">
+                <h3 className="text-h1 mt-sm">{step.title}</h3>
+                <p className="text-site-body text-text-secondary mt-xs max-w-[58ch]">
                   {step.body}
                 </p>
               </li>
@@ -190,15 +192,20 @@ export default function HomePage() {
         </ButtonLink>
       </section>
 
-      {/* Two audiences, one band. Concrete terms, not "join our platform". */}
-      <section className="grid md:grid-cols-2">
-        <Screen mode="dark" className="px-screen-x py-xxl md:py-section">
-          <div className="mx-auto max-w-[34rem] md:ml-auto md:mr-0 md:max-w-[26rem]">
-            <h2 className="text-section-small md:text-section">Put your kitchen on M-Kart</h2>
-            <p className="text-lede text-text-secondary mt-sm">
+      {/* Restaurants — the offer beside the screen the kitchen actually sees. */}
+      <Screen mode="dark">
+        <div className="px-screen-x gap-xxl mx-auto grid max-w-[1100px] items-center py-xxl md:py-section md:grid-cols-2">
+          <div>
+            <p className="text-eyebrow text-text-tertiary uppercase">
+              For restaurants
+            </p>
+            <h2 className="text-section-small md:text-section mt-xs">
+              Put your kitchen on M-Kart
+            </h2>
+            <p className="text-lede text-text-secondary mt-sm max-w-[46ch]">
               You cook. We handle orders, riders and money.
             </p>
-            <ul className="mt-md gap-sm flex flex-col">
+            <ul className="mt-lg gap-sm flex flex-col">
               {[
                 "15% commission, nothing else — no setup fee, no monthly charge",
                 "Paid every Friday, straight to your account",
@@ -214,19 +221,33 @@ export default function HomePage() {
                 </li>
               ))}
             </ul>
-            <ButtonLink href="/partners" variant="accent" full className="mt-lg">
+            <ButtonLink href="/partners" variant="accent" className="mt-lg">
               List your kitchen
             </ButtonLink>
           </div>
-        </Screen>
 
-        <div className="bg-accent text-on-accent px-screen-x py-xxl md:py-section">
-          <div className="mx-auto max-w-[34rem] md:mr-auto md:ml-0 md:max-w-[26rem]">
-            <h2 className="text-section-small md:text-section">Ride with M-Kart</h2>
-            <p className="text-lede mt-sm opacity-80">
+          <div className="justify-self-center md:justify-self-end">
+            <RestaurantPhone />
+          </div>
+        </div>
+      </Screen>
+
+      {/* Riders — same shape, mirrored, so the two audiences do not read as one block. */}
+      <section id="riders">
+        <div className="px-screen-x gap-xxl mx-auto grid max-w-[1100px] items-center py-xxl md:py-section md:grid-cols-2">
+          <div className="order-2 justify-self-center md:order-1 md:justify-self-start">
+            <RiderPhone />
+          </div>
+
+          <div className="order-1 md:order-2">
+            <p className="text-eyebrow text-text-tertiary uppercase">For riders</p>
+            <h2 className="text-section-small md:text-section mt-xs">
+              Ride with M-Kart
+            </h2>
+            <p className="text-lede text-text-secondary mt-sm max-w-[46ch]">
               Know Makurdi roads? Start earning this week.
             </p>
-            <ul className="mt-md gap-sm flex flex-col">
+            <ul className="mt-lg gap-sm flex flex-col">
               {[
                 "Paid per trip, every Friday",
                 "Keep 100% of your tips",
@@ -235,19 +256,14 @@ export default function HomePage() {
                 "Fuel guarantee during your first two weeks",
               ].map((item) => (
                 <li key={item} className="text-site-body gap-sm flex">
-                  <span aria-hidden className="font-bold">
+                  <span aria-hidden className="text-accent-text font-bold">
                     ✓
                   </span>
                   {item}
                 </li>
               ))}
             </ul>
-            <ButtonLink
-              href="/partners#riders"
-              variant="dark"
-              full
-              className="mt-lg"
-            >
+            <ButtonLink href="/partners#riders" variant="dark" className="mt-lg">
               Apply to ride
             </ButtonLink>
           </div>

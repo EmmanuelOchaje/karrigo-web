@@ -172,8 +172,8 @@ export const type = {
 export const marketingType = {
   hero:          { size: 76, lineHeight: 74, letterSpacing: -3.8, weight: '600' },
   heroSmall:     { size: 44, lineHeight: 45, letterSpacing: -2.0, weight: '600' },
-  section:       { size: 32, lineHeight: 36, letterSpacing: -1.4, weight: '600' },
-  sectionSmall:  { size: 24, lineHeight: 28, letterSpacing: -1.0, weight: '600' },
+  section:       { size: 42, lineHeight: 46, letterSpacing: -1.9, weight: '600' },
+  sectionSmall:  { size: 30, lineHeight: 34, letterSpacing: -1.3, weight: '600' },
   lede:          { size: 17, lineHeight: 28, letterSpacing: 0,    weight: '400' },
   siteBody:      { size: 15, lineHeight: 25, letterSpacing: 0,    weight: '400' },
   siteLabel:     { size: 13, lineHeight: 18, letterSpacing: 0,    weight: '500' },
