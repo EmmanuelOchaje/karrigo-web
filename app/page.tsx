@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { AddressForm } from "@/components/site/AddressForm";
@@ -5,13 +6,16 @@ import { KitchenCard } from "@/components/site/KitchenCard";
 import { HeroPhones } from "@/components/site/HeroPhones";
 import { FaqList } from "@/components/site/FaqList";
 import { RiderIllustration } from "@/components/site/RiderIllustration";
+import { DeliveryLocation } from "@/components/site/illustrations/DeliveryLocation";
+import { OrderStatus } from "@/components/site/illustrations/OrderStatus";
+import { MobilePayments } from "@/components/site/illustrations/MobilePayments";
 import { Screen } from "@/components/ui/Screen";
 import { ButtonLink } from "@/components/ui/Button";
 import {
   kitchens,
   heroStats,
   steps,
-  benefits,
+  benefitCards,
   riderSteps,
 } from "@/lib/fixtures";
 
@@ -103,25 +107,46 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Why us — the reasons that are specific to Makurdi, not generic. */}
+      {/* Why us — three cards, each ending in its own illustration. */}
       <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl">
         <p className="text-eyebrow text-text-tertiary uppercase">Why M-Kart</p>
         <h2 className="text-section-small md:text-section mt-xs">
           Built for how Makurdi actually orders
         </h2>
 
-        <div className="gap-lg mt-lg grid sm:grid-cols-2 md:grid-cols-3">
-          {benefits.map((benefit) => (
-            <div key={benefit.title}>
-              <div className="bg-surface grid size-[44px] place-items-center rounded-[12px] text-xl">
-                {benefit.icon}
-              </div>
-              <h3 className="text-h2 mt-sm">{benefit.title}</h3>
-              <p className="text-site-body text-text-secondary mt-xs">
-                {benefit.body}
-              </p>
-            </div>
-          ))}
+        <div className="gap-md mt-lg grid md:grid-cols-3">
+          {benefitCards.map((card) => {
+            const Illustration = {
+              "delivery-location": DeliveryLocation,
+              "order-status": OrderStatus,
+              "mobile-payments": MobilePayments,
+            }[card.illustration];
+
+            return (
+              <article
+                key={card.title}
+                className="border-border-strong rounded-card flex flex-col overflow-hidden border"
+              >
+                <div className="p-lg flex-1">
+                  <span className="bg-accent block size-[16px] rounded-[5px]" />
+                  <h3 className="text-h1 mt-md">{card.title}</h3>
+                  <p className="text-site-body text-text-secondary mt-sm">
+                    {card.body}
+                  </p>
+                  <Link
+                    href={card.href}
+                    className="text-label text-text mt-md gap-xs inline-flex items-center tracking-[0.12em] uppercase"
+                  >
+                    See more <span aria-hidden>&rarr;</span>
+                  </Link>
+                </div>
+
+                <div className="bg-surface p-md grid place-items-center">
+                  <Illustration className="h-[210px] w-auto" />
+                </div>
+              </article>
+            );
+          })}
         </div>
       </section>
 

@@ -165,38 +165,26 @@ export const steps = [
   },
 ];
 
-export const benefits = [
+export const benefitCards = [
   {
-    icon: "⌖",
     title: "Landmarks, not addresses",
-    body: "“Behind BSU main gate” is a real address here. Our riders know Makurdi, so you never drag a pin on a map.",
+    body: "“Behind BSU main gate” is a real address here. Tell us the school gate, the church, the filling station — our riders know Makurdi, so you never drag a pin on a map.",
+    href: "/areas",
+    illustration: "delivery-location",
   },
   {
-    icon: "🍲",
-    title: "Kitchens you already know",
-    body: "The bukkas and spots you would walk to anyway — not a list of places that pay to be at the top.",
+    title: "Follow your rider to your gate",
+    body: "Watch them leave the kitchen and come to you. Share the link so whoever is waiting can follow it too — no app, no account, and it works on a slow connection.",
+    href: "/help",
+    illustration: "order-status",
   },
   {
-    icon: "📶",
-    title: "Built for the network you have",
-    body: "The whole site works on a slow connection. No app to install before you can order once.",
-  },
-  {
-    icon: "🛵",
-    title: "Follow your rider",
-    body: "Watch them leave the kitchen and reach your gate. Share the link so whoever is waiting can watch too.",
-  },
-  {
-    icon: "💵",
     title: "Pay how you actually pay",
-    body: "Card, bank transfer, or cash to the rider at your door. No account needed to order.",
+    body: "Card, bank transfer, or cash to the rider at your door. Nothing to install and no account needed, and if an order goes wrong you reach a person in Makurdi.",
+    href: "/help#payment",
+    illustration: "mobile-payments",
   },
-  {
-    icon: "☎",
-    title: "A person, not a form",
-    body: "If an order goes wrong, you reach someone in Makurdi who can call the kitchen and the rider.",
-  },
-];
+] as const;
 
 export const faqs = [
   {
