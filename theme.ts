@@ -165,8 +165,8 @@ export const type = {
  * `text-hero-small md:text-hero`.
  */
 export const marketingType = {
-  hero:          { size: 54, lineHeight: 54, letterSpacing: -2.6, weight: '600' },
-  heroSmall:     { size: 36, lineHeight: 38, letterSpacing: -1.6, weight: '600' },
+  hero:          { size: 76, lineHeight: 74, letterSpacing: -3.8, weight: '600' },
+  heroSmall:     { size: 44, lineHeight: 45, letterSpacing: -2.0, weight: '600' },
   section:       { size: 32, lineHeight: 36, letterSpacing: -1.4, weight: '600' },
   sectionSmall:  { size: 24, lineHeight: 28, letterSpacing: -1.0, weight: '600' },
   lede:          { size: 17, lineHeight: 28, letterSpacing: 0,    weight: '400' },

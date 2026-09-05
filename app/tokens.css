@@ -138,14 +138,14 @@
   --text-price--letter-spacing: -0.2px;
   --text-price--font-weight: 600;
 
-  --text-hero: 54px;
-  --text-hero--line-height: 54px;
-  --text-hero--letter-spacing: -2.6px;
+  --text-hero: 76px;
+  --text-hero--line-height: 74px;
+  --text-hero--letter-spacing: -3.8px;
   --text-hero--font-weight: 600;
 
-  --text-hero-small: 36px;
-  --text-hero-small--line-height: 38px;
-  --text-hero-small--letter-spacing: -1.6px;
+  --text-hero-small: 44px;
+  --text-hero-small--line-height: 45px;
+  --text-hero-small--letter-spacing: -2px;
   --text-hero-small--font-weight: 600;
 
   --text-section: 32px;
