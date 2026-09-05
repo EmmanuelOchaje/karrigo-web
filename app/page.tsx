@@ -4,9 +4,16 @@ import { AddressForm } from "@/components/site/AddressForm";
 import { KitchenCard } from "@/components/site/KitchenCard";
 import { HeroPhones } from "@/components/site/HeroPhones";
 import { FaqList } from "@/components/site/FaqList";
+import { RiderIllustration } from "@/components/site/RiderIllustration";
 import { Screen } from "@/components/ui/Screen";
 import { ButtonLink } from "@/components/ui/Button";
-import { kitchens, heroStats, steps, benefits } from "@/lib/fixtures";
+import {
+  kitchens,
+  heroStats,
+  steps,
+  benefits,
+  riderSteps,
+} from "@/lib/fixtures";
 
 export default function HomePage() {
   const openKitchens = kitchens.filter((k) => !k.closedUntil).slice(0, 3);
@@ -116,6 +123,47 @@ export default function HomePage() {
             </div>
           ))}
         </div>
+      </section>
+
+      {/* Riders — cards on the left, the illustration on the right. */}
+      <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl">
+        <p className="text-eyebrow text-text-tertiary uppercase">Ride with us</p>
+        <h2 className="text-section-small md:text-section mt-xs">
+          Earn on your own hours
+        </h2>
+        <p className="text-lede text-text-secondary mt-sm max-w-[52ch]">
+          If you know Makurdi roads, you already have the hard part. Three steps
+          to your first delivery.
+        </p>
+
+        <div className="gap-lg mt-lg grid items-center md:grid-cols-2">
+          <ol className="gap-md flex flex-col">
+            {riderSteps.map((step) => (
+              <li
+                key={step.title}
+                className="border-border rounded-card gap-md p-md flex border"
+              >
+                <span className="bg-surface grid size-[38px] shrink-0 place-items-center rounded-[10px] text-lg">
+                  {step.icon}
+                </span>
+                <div>
+                  <h3 className="text-h2">{step.title}</h3>
+                  <p className="text-site-body text-text-secondary mt-xs">
+                    {step.body}
+                  </p>
+                </div>
+              </li>
+            ))}
+          </ol>
+
+          <div className="bg-surface rounded-card p-xl grid place-items-center">
+            <RiderIllustration className="w-full max-w-[380px]" />
+          </div>
+        </div>
+
+        <ButtonLink href="/partners#riders" variant="dark" className="mt-lg">
+          Apply to ride
+        </ButtonLink>
       </section>
 
       {/* Two audiences, one band. Concrete terms, not "join our platform". */}

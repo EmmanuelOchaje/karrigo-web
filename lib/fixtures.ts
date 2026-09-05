@@ -3,8 +3,16 @@
  * Every one of these is replaced by a live query in M4. Money is kobo.
  */
 
+export type PhotoCredit = {
+  artist: string;
+  license: string;
+  source: string;
+};
+
 export type Kitchen = {
   slug: string;
+  image: string;
+  credit: PhotoCredit;
   name: string;
   cuisine: string;
   area: string;
@@ -18,6 +26,12 @@ export type Kitchen = {
 export const kitchens: Kitchen[] = [
   {
     slug: "terkimbis-kitchen",
+    image: "/food/terkimbis-kitchen.jpg",
+    credit: {
+      artist: "Onyenachi64",
+      license: "CC BY-SA 4.0",
+      source: "https://commons.wikimedia.org/wiki/File:Egusi_soup_with_pounded_yam_and_assorted_meats.jpg",
+    },
     name: "Terkimbi's Kitchen",
     cuisine: "Swallow & soups",
     area: "Wurukum",
@@ -28,6 +42,12 @@ export const kitchens: Kitchen[] = [
   },
   {
     slug: "sewuese-rice-spot",
+    image: "/food/sewuese-rice-spot.jpg",
+    credit: {
+      artist: "daSupremo",
+      license: "CC BY-SA 4.0",
+      source: "https://commons.wikimedia.org/wiki/File:Jollof_rice_with_boiled_egg_and_fried_chicken.jpg",
+    },
     name: "Sewuese Rice Spot",
     cuisine: "Jollof & chicken",
     area: "North Bank",
@@ -38,6 +58,12 @@ export const kitchens: Kitchen[] = [
   },
   {
     slug: "benue-grills",
+    image: "/food/benue-grills.jpg",
+    credit: {
+      artist: "Halima Waziri",
+      license: "CC BY-SA 4.0",
+      source: "https://commons.wikimedia.org/wiki/File:Catfish_pepper_soup_with_vegetables.jpg",
+    },
     name: "Benue Grills",
     cuisine: "Catfish & pepper soup",
     area: "Judges Quarters",
@@ -48,6 +74,12 @@ export const kitchens: Kitchen[] = [
   },
   {
     slug: "modern-market-suya",
+    image: "/food/modern-market-suya.jpg",
+    credit: {
+      artist: "Bukky658",
+      license: "CC BY-SA 4.0",
+      source: "https://commons.wikimedia.org/wiki/File:Suya_with_pepper_sauce.jpg",
+    },
     name: "Modern Market Suya",
     cuisine: "Suya & grills",
     area: "Modern Market",
@@ -58,6 +90,12 @@ export const kitchens: Kitchen[] = [
   },
   {
     slug: "ankpa-bukka",
+    image: "/food/ankpa-bukka.jpg",
+    credit: {
+      artist: "Bukky658",
+      license: "CC BY-SA 4.0",
+      source: "https://commons.wikimedia.org/wiki/File:Efo_riro.jpg",
+    },
     name: "Ankpa Bukka",
     cuisine: "Local dishes",
     area: "Ankpa Ward",
@@ -68,6 +106,12 @@ export const kitchens: Kitchen[] = [
   },
   {
     slug: "aondona-breakfast",
+    image: "/food/aondona-breakfast.jpg",
+    credit: {
+      artist: "Ceentia",
+      license: "CC BY-SA 4.0",
+      source: "https://commons.wikimedia.org/wiki/File:Bean_cake_(Akara).jpg",
+    },
     name: "Aondona Breakfast",
     cuisine: "Pap, akara & tea",
     area: "High Level",
@@ -189,4 +233,22 @@ export const cuisines = [
   "Suya & grills",
   "Breakfast",
   "Drinks",
+];
+
+export const riderSteps = [
+  {
+    icon: "📝",
+    title: "Sign up and get verified",
+    body: "Bring a bike, a rider's card and a phone. We check your papers and put you on the road within a week.",
+  },
+  {
+    icon: "📍",
+    title: "Pick up orders near you",
+    body: "Orders come to the riders closest to the kitchen. You choose your own hours — ride when it suits you.",
+  },
+  {
+    icon: "💰",
+    title: "Get paid every Friday",
+    body: "Paid per trip, straight to your account, every Friday. You keep 100% of your tips.",
+  },
 ];

@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { PhoneFrame } from "./PhoneFrame";
 import { kitchens } from "@/lib/fixtures";
 import { formatKobo } from "@/lib/money";
@@ -27,8 +28,14 @@ function BrowseScreen() {
             key={kitchen.slug}
             className="border-border gap-sm flex items-center border-b py-sm last:border-b-0"
           >
-            <div className="bg-surface grid size-[30px] place-items-center rounded-[8px] text-sm">
-              {kitchen.emoji}
+            <div className="bg-surface relative size-[30px] shrink-0 overflow-hidden rounded-[8px]">
+              <Image
+                src={kitchen.image}
+                alt=""
+                fill
+                sizes="30px"
+                className="object-cover"
+              />
             </div>
             <div className="min-w-0 flex-1">
               <div className="text-micro font-semibold">{kitchen.name}</div>
