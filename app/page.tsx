@@ -28,7 +28,7 @@ export default function HomePage() {
 
       {/* Hero — dark, one action above the fold: type where you are. */}
       <Screen mode="dark">
-        <div className="px-screen-x gap-xxl mx-auto grid min-h-[90svh] max-w-[1100px] items-center py-xxl md:grid-cols-[1.05fr_.95fr]">
+        <div className="px-screen-x gap-xxl mx-auto grid min-h-[90svh] max-w-[1100px] items-center py-xxl md:py-section md:grid-cols-[1.05fr_.95fr]">
           <div>
             <h1 className="text-hero-small md:text-hero rise">
               Makurdi eats.
@@ -67,7 +67,7 @@ export default function HomePage() {
       </Screen>
 
       {/* Real kitchens, real prices, on the marketing page. */}
-      <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl">
+      <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl md:py-section">
         <p className="text-eyebrow text-text-tertiary rise uppercase">Open right now</p>
         <h2 className="text-section-small md:text-section rise rise-1 mt-xs">
           Kitchens in Makurdi
@@ -85,7 +85,7 @@ export default function HomePage() {
       </section>
 
       <section className="bg-surface">
-        <div className="px-screen-x mx-auto max-w-[1100px] py-xxl">
+        <div className="px-screen-x mx-auto max-w-[1100px] py-xxl md:py-section">
           <p className="text-eyebrow text-text-tertiary uppercase">How it works</p>
           <h2 className="text-section-small md:text-section mt-xs">
             Four steps, no app needed
@@ -108,7 +108,7 @@ export default function HomePage() {
       </section>
 
       {/* Why us — three cards, each ending in its own illustration. */}
-      <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl">
+      <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl md:py-section">
         <p className="text-eyebrow text-text-tertiary uppercase">Why M-Kart</p>
         <h2 className="text-section-small md:text-section mt-xs">
           Built for how Makurdi actually orders
@@ -127,9 +127,12 @@ export default function HomePage() {
                 key={card.title}
                 className="border-border-strong rounded-card flex flex-col overflow-hidden border"
               >
+                <div className="bg-surface p-md grid place-items-center">
+                  <Illustration className="h-[210px] w-auto" />
+                </div>
+
                 <div className="p-lg flex-1">
-                  <span className="bg-accent block size-[16px] rounded-[5px]" />
-                  <h3 className="text-h1 mt-md">{card.title}</h3>
+                  <h3 className="text-h1">{card.title}</h3>
                   <p className="text-site-body text-text-secondary mt-sm">
                     {card.body}
                   </p>
@@ -140,10 +143,6 @@ export default function HomePage() {
                     See more <span aria-hidden>&rarr;</span>
                   </Link>
                 </div>
-
-                <div className="bg-surface p-md grid place-items-center">
-                  <Illustration className="h-[210px] w-auto" />
-                </div>
               </article>
             );
           })}
@@ -151,7 +150,7 @@ export default function HomePage() {
       </section>
 
       {/* Riders — cards on the left, the illustration on the right. */}
-      <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl">
+      <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl md:py-section">
         <p className="text-eyebrow text-text-tertiary uppercase">Ride with us</p>
         <h2 className="text-section-small md:text-section mt-xs">
           Earn on your own hours
@@ -193,7 +192,7 @@ export default function HomePage() {
 
       {/* Two audiences, one band. Concrete terms, not "join our platform". */}
       <section className="grid md:grid-cols-2">
-        <Screen mode="dark" className="px-screen-x py-xxl">
+        <Screen mode="dark" className="px-screen-x py-xxl md:py-section">
           <div className="mx-auto max-w-[34rem] md:ml-auto md:mr-0 md:max-w-[26rem]">
             <h2 className="text-section-small md:text-section">Put your kitchen on M-Kart</h2>
             <p className="text-lede text-text-secondary mt-sm">
@@ -221,7 +220,7 @@ export default function HomePage() {
           </div>
         </Screen>
 
-        <div className="bg-accent text-on-accent px-screen-x py-xxl">
+        <div className="bg-accent text-on-accent px-screen-x py-xxl md:py-section">
           <div className="mx-auto max-w-[34rem] md:mr-auto md:ml-0 md:max-w-[26rem]">
             <h2 className="text-section-small md:text-section">Ride with M-Kart</h2>
             <p className="text-lede mt-sm opacity-80">
@@ -256,7 +255,7 @@ export default function HomePage() {
       </section>
 
       <section className="bg-surface">
-        <div className="px-screen-x mx-auto max-w-[1100px] py-xxl">
+        <div className="px-screen-x mx-auto max-w-[1100px] py-xxl md:py-section">
           <p className="text-eyebrow text-text-tertiary uppercase">Questions</p>
           <h2 className="text-section-small md:text-section mt-xs">
             Things people ask us

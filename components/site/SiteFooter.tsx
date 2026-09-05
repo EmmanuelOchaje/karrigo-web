@@ -33,7 +33,7 @@ const columns = [
 export function SiteFooter() {
   return (
     <Screen mode="dark" className="mt-auto">
-      <div className="px-screen-x mx-auto max-w-[1100px] py-xxl">
+      <div className="px-screen-x mx-auto max-w-[1100px] py-xxl md:py-section">
         <div className="gap-xl grid sm:grid-cols-2 md:grid-cols-4">
           <div>
             <Logo />

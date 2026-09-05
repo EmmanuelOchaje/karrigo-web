@@ -184,7 +184,10 @@ export const marketingType = {
 /** Body copy is 300 on dark, 400 on light — thin type disappears on white. */
 export const bodyWeightByMode = { dark: '300', light: '400' } as const;
 
-export const space  = { xs:4, sm:8, md:12, lg:16, xl:20, xxl:28, screenX:16 } as const;
+/** `section` is the gap between marketing sections — the app scale tops out
+ *  at 28px, which is right inside a screen and far too tight between them. */
+export const space  = { xs:4, sm:8, md:12, lg:16, xl:20, xxl:28, screenX:16,
+                        section:76 } as const;
 export const radius = { field:15, card:15, sheet:20, header:24, otp:13, pill:999, icon:20 } as const;
 export const size   = { buttonHeight:46, fieldHeight:46, backButton:29, featureIcon:64 } as const;
 
