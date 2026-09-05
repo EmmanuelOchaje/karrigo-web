@@ -9,6 +9,7 @@
   --duration-fast: 150ms;
   --duration-normal: 220ms;
   --duration-slow: 400ms;
+  --duration-sway: 4200ms;
   --default-transition-timing-function: ease-out;
   --stagger: 70ms;
   --rise: 14px;

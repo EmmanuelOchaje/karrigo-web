@@ -155,16 +155,25 @@ function TrackingScreen() {
  */
 export function HeroPhones() {
   return (
-    <div className="flex items-center justify-center">
-      <PhoneFrame mode="light" className="rise rise-5 z-10 translate-y-md">
-        <BrowseScreen />
-      </PhoneFrame>
-      <PhoneFrame
-        mode="dark"
-        className="rise rise-6 -ml-sm -translate-y-md hidden sm:block"
-      >
-        <TrackingScreen />
-      </PhoneFrame>
+    // Three nested wrappers because each owns a transform and they would
+    // otherwise overwrite one another: the outer tilts, the middle sways
+    // forever, and PhoneFrame itself carries the entrance animation.
+    <div className="flex items-end justify-center">
+      <div className="origin-bottom z-10 -rotate-[7deg]">
+        <div className="sway">
+          <PhoneFrame mode="light" className="rise rise-5">
+            <BrowseScreen />
+          </PhoneFrame>
+        </div>
+      </div>
+
+      <div className="origin-bottom -ml-xxl hidden rotate-[7deg] sm:block">
+        <div className="sway sway-offset">
+          <PhoneFrame mode="dark" className="rise rise-6">
+            <TrackingScreen />
+          </PhoneFrame>
+        </div>
+      </div>
     </div>
   );
 }

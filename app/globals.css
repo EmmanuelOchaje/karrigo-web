@@ -47,8 +47,33 @@ body {
   animation-delay: calc(var(--stagger) * 6);
 }
 
+/* Idle sway on the hero devices. Runs forever, so it is deliberately tiny and
+   transform-only — a compositor-thread animation that never touches layout.
+   Two phones share it at different delays so they do not move in lockstep. */
+@keyframes sway {
+  0%,
+  100% {
+    transform: translateY(0) rotate(0deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(0.7deg);
+  }
+}
+
+@utility sway {
+  animation: sway var(--duration-sway) ease-in-out infinite;
+  will-change: transform;
+}
+
+@utility sway-offset {
+  animation-delay: calc(var(--duration-sway) / -2);
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rise {
+    animation: none;
+  }
+  .sway {
     animation: none;
   }
 }

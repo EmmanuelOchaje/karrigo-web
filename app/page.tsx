@@ -61,7 +61,7 @@ export default function HomePage() {
           </div>
 
           {/* The product itself, not a stock mockup. */}
-          <div className="justify-self-center md:justify-self-end">
+          <div className="justify-self-center">
             <HeroPhones />
           </div>
         </div>
@@ -226,7 +226,7 @@ export default function HomePage() {
             </ButtonLink>
           </div>
 
-          <div className="justify-self-center md:justify-self-end">
+          <div className="justify-self-center">
             <RestaurantPhone />
           </div>
         </div>
@@ -235,7 +235,7 @@ export default function HomePage() {
       {/* Riders — same shape, mirrored, so the two audiences do not read as one block. */}
       <section id="riders">
         <div className="px-screen-x gap-xxl mx-auto grid max-w-[1100px] items-center py-xxl md:py-section md:grid-cols-2">
-          <div className="order-2 justify-self-center md:order-1 md:justify-self-start">
+          <div className="order-2 justify-self-center md:order-1">
             <RiderPhone />
           </div>
 
