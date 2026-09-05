@@ -156,11 +156,11 @@ function TrackingScreen() {
 export function HeroPhones() {
   return (
     // Three nested wrappers because each owns a transform and they would
-    // otherwise overwrite one another: the outer tilts, the middle sways
+    // otherwise overwrite one another: the outer tilts, the middle buzzes
     // forever, and PhoneFrame itself carries the entrance animation.
     <div className="flex items-end justify-center">
       <div className="origin-bottom z-10 -rotate-[7deg]">
-        <div className="sway">
+        <div className="buzz">
           <PhoneFrame mode="light" className="rise rise-5">
             <BrowseScreen />
           </PhoneFrame>
@@ -168,7 +168,7 @@ export function HeroPhones() {
       </div>
 
       <div className="origin-bottom -ml-xxl hidden rotate-[7deg] sm:block">
-        <div className="sway sway-offset">
+        <div className="buzz buzz-offset">
           <PhoneFrame mode="dark" className="rise rise-6">
             <TrackingScreen />
           </PhoneFrame>

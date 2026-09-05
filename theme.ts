@@ -205,9 +205,9 @@ export const motion = {
   stagger: 70,
   /** How far an element travels as it fades in. */
   rise: 14,
-  /** One cycle of the idle sway on the hero devices. Long and slow on purpose:
-   *  it should read as the page breathing, not as something demanding attention. */
-  sway: 4200,
+  /** One full cycle of the hero devices' buzz: a short shake burst and a long
+   *  rest. The rest is most of it — a phone that never stops ringing is noise. */
+  buzz: 3800,
 } as const;
 
 export default { dark, light, rules, modeByScreen, font, type, space, radius, size, shadow, motion };

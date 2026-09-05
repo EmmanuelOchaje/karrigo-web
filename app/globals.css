@@ -47,33 +47,48 @@ body {
   animation-delay: calc(var(--stagger) * 6);
 }
 
-/* Idle sway on the hero devices. Runs forever, so it is deliberately tiny and
-   transform-only — a compositor-thread animation that never touches layout.
-   Two phones share it at different delays so they do not move in lockstep. */
-@keyframes sway {
+/* The hero devices buzz like a phone ringing: a short shake, then a long rest.
+   The burst is the first ~16% of the cycle and the rest is stillness — a device
+   that shakes without pause reads as broken, not as alive. Transform-only, so
+   it stays on the compositor and never touches layout. */
+@keyframes buzz {
   0%,
+  16%,
   100% {
-    transform: translateY(0) rotate(0deg);
+    transform: translateX(0) rotate(0deg);
   }
-  50% {
-    transform: translateY(-6px) rotate(0.7deg);
+  2% {
+    transform: translateX(-2px) rotate(-1.5deg);
+  }
+  5% {
+    transform: translateX(2px) rotate(1.5deg);
+  }
+  8% {
+    transform: translateX(-2px) rotate(-1.2deg);
+  }
+  11% {
+    transform: translateX(2px) rotate(1deg);
+  }
+  14% {
+    transform: translateX(-1px) rotate(-0.5deg);
   }
 }
 
-@utility sway {
-  animation: sway var(--duration-sway) ease-in-out infinite;
+@utility buzz {
+  animation: buzz var(--duration-buzz) linear infinite;
   will-change: transform;
 }
 
-@utility sway-offset {
-  animation-delay: calc(var(--duration-sway) / -2);
+/* The second device rings half a cycle later, so they answer each other. */
+@utility buzz-offset {
+  animation-delay: calc(var(--duration-buzz) / -2);
 }
 
 @media (prefers-reduced-motion: reduce) {
   .rise {
     animation: none;
   }
-  .sway {
+  .buzz {
     animation: none;
   }
 }

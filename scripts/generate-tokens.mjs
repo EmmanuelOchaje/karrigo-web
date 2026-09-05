@@ -42,7 +42,7 @@ const out = `/*
 /* Tailwind v4 has no --duration-* theme namespace, so these stay plain custom
    properties. Reference them as duration-(--duration-fast). */
 :root {
-${["fast", "normal", "slow", "sway"]
+${["fast", "normal", "slow", "buzz"]
   .map((k) => `  --duration-${k}: ${motion[k]}ms;`)
   .join("\n")}
   --default-transition-timing-function: ${motion.easing};
