@@ -277,12 +277,26 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* Heading beside the list, not above it — full-width rows put the
+          question and its toggle a screen apart. */}
       <section className="bg-surface">
-        <div className="px-screen-x mx-auto max-w-[1100px] py-xxl md:py-section">
-          <p className="text-eyebrow text-text-tertiary uppercase">Questions</p>
-          <h2 className="text-section-small md:text-section mt-xs">
-            Things people ask us
-          </h2>
+        <div className="px-screen-x gap-xxl mx-auto grid max-w-[1100px] py-xxl md:py-section md:grid-cols-[1fr_1.35fr]">
+          <div className="md:sticky md:top-xl md:self-start">
+            <p className="text-eyebrow text-text-tertiary uppercase">Questions</p>
+            <h2 className="text-section-small md:text-section mt-xs">
+              Things people ask us
+            </h2>
+            <p className="text-site-body text-text-secondary mt-sm max-w-[34ch]">
+              Anything else, call us — you reach a person in Makurdi, not a form.
+            </p>
+            <Link
+              href="/help"
+              className="text-label text-text mt-md gap-xs inline-flex items-center tracking-[0.12em] uppercase"
+            >
+              Visit help <span aria-hidden>&rarr;</span>
+            </Link>
+          </div>
+
           <FaqList />
         </div>
       </section>
