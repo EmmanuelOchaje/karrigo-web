@@ -6,7 +6,11 @@ import { KitchenCard } from "@/components/site/KitchenCard";
 import { HeroPhones } from "@/components/site/HeroPhones";
 import { FaqList } from "@/components/site/FaqList";
 import { RiderIllustration } from "@/components/site/RiderIllustration";
-import { RestaurantPhone, RiderPhone } from "@/components/site/AudiencePhones";
+import {
+  RestaurantPhone,
+  RiderPhone,
+  OrderNotification,
+} from "@/components/site/AudiencePhones";
 import { DeliveryLocation } from "@/components/site/illustrations/DeliveryLocation";
 import { OrderStatus } from "@/components/site/illustrations/OrderStatus";
 import { MobilePayments } from "@/components/site/illustrations/MobilePayments";
@@ -226,8 +230,11 @@ export default function HomePage() {
             </ButtonLink>
           </div>
 
-          <div className="justify-self-center">
+          <div className="relative justify-self-center">
             <RestaurantPhone />
+            <div className="bounce-in-place absolute top-[57%] -left-lg z-10 sm:-left-xxl">
+              <OrderNotification />
+            </div>
           </div>
         </div>
       </Screen>

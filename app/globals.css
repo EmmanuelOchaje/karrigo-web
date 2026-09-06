@@ -84,11 +84,38 @@ body {
   animation-delay: calc(var(--duration-buzz) / -2);
 }
 
+/* The order notification hops: a main bounce, then a smaller settling hop, then
+   a pause. Transform-only like the rest, and stopped by reduced motion below. */
+@keyframes bounce-in-place {
+  0%,
+  62%,
+  100% {
+    transform: translateY(0);
+  }
+  18% {
+    transform: translateY(-13px);
+  }
+  38% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+@utility bounce-in-place {
+  animation: bounce-in-place var(--duration-bounce) ease-in-out infinite;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rise {
     animation: none;
   }
   .buzz {
+    animation: none;
+  }
+  .bounce-in-place {
     animation: none;
   }
 }

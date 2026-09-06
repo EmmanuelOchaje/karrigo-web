@@ -208,6 +208,8 @@ export const motion = {
   /** One full cycle of the hero devices' buzz: a short shake burst and a long
    *  rest. The rest is most of it — a phone that never stops ringing is noise. */
   buzz: 3800,
+  /** One hop of the order notification: a bounce and a smaller settling hop. */
+  bounce: 2400,
 } as const;
 
 export default { dark, light, rules, modeByScreen, font, type, space, radius, size, shadow, motion };

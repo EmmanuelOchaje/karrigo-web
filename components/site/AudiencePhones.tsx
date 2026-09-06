@@ -1,4 +1,5 @@
 import { PhoneFrame } from "./PhoneFrame";
+import { Screen } from "@/components/ui/Screen";
 import { formatKobo } from "@/lib/money";
 
 /**
@@ -99,5 +100,37 @@ export function RiderPhone() {
         </div>
       </div>
     </PhoneFrame>
+  );
+}
+
+/**
+ * The push notification a kitchen actually gets when an order lands. It floats
+ * in front of the device rather than inside it, because that is where a
+ * notification lives — over whatever you were already looking at.
+ */
+export function OrderNotification() {
+  return (
+    <Screen
+      mode="light"
+      className="rounded-card w-[236px] p-md shadow-[0_18px_40px_rgba(0,0,0,0.35)]"
+    >
+      <div className="gap-sm flex items-start">
+        <span className="bg-accent text-on-accent grid size-[26px] shrink-0 place-items-center rounded-[8px] text-[13px]">
+          🔔
+        </span>
+        <div className="min-w-0 flex-1">
+          <div className="text-micro text-text-secondary flex items-center justify-between">
+            <span className="font-semibold tracking-[0.08em] uppercase">
+              M-Kart
+            </span>
+            <span>now</span>
+          </div>
+          <div className="text-h3 mt-[2px]">New order · {formatKobo(760000)}</div>
+          <div className="text-micro text-text-secondary mt-[1px]">
+            High Level · accept within 3 min
+          </div>
+        </div>
+      </div>
+    </Screen>
   );
 }
