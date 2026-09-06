@@ -1,19 +1,16 @@
 import Link from "next/link";
+import Image from "next/image";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { AddressForm } from "@/components/site/AddressForm";
 import { KitchenCard } from "@/components/site/KitchenCard";
 import { HeroPhones } from "@/components/site/HeroPhones";
 import { FaqList } from "@/components/site/FaqList";
-import { RiderIllustration } from "@/components/site/RiderIllustration";
 import {
   RestaurantPhone,
   RiderPhone,
   OrderNotification,
 } from "@/components/site/AudiencePhones";
-import { DeliveryLocation } from "@/components/site/illustrations/DeliveryLocation";
-import { OrderStatus } from "@/components/site/illustrations/OrderStatus";
-import { MobilePayments } from "@/components/site/illustrations/MobilePayments";
 import { Screen } from "@/components/ui/Screen";
 import { ButtonLink } from "@/components/ui/Button";
 import {
@@ -122,19 +119,21 @@ export default function HomePage() {
 
         <div className="gap-md mt-lg grid md:grid-cols-3">
           {benefitCards.map((card) => {
-            const Illustration = {
-              "delivery-location": DeliveryLocation,
-              "order-status": OrderStatus,
-              "mobile-payments": MobilePayments,
-            }[card.illustration];
-
             return (
               <article
                 key={card.title}
                 className="border-border-strong rounded-card flex flex-col overflow-hidden border"
               >
-                <div className="bg-surface p-md grid place-items-center">
-                  <Illustration className="h-[210px] w-auto" />
+                {/* The renders ship on a white background, so the panel is white
+                    too — on the grey surface they would show as a pale box. */}
+                <div className="bg-bg relative h-[210px]">
+                  <Image
+                    src={card.image}
+                    alt={card.imageAlt}
+                    fill
+                    sizes="(max-width: 768px) 100vw, 350px"
+                    className="object-contain p-md"
+                  />
                 </div>
 
                 <div className="p-lg flex-1">
@@ -186,8 +185,14 @@ export default function HomePage() {
             ))}
           </ol>
 
-          <div className="bg-surface rounded-card p-lg grid place-items-center">
-            <RiderIllustration className="w-full" />
+          <div className="bg-bg border-border rounded-card relative min-h-[260px] border">
+            <Image
+              src="/images/bike.jpg"
+              alt="A delivery scooter carrying a box"
+              fill
+              sizes="(max-width: 768px) 100vw, 520px"
+              className="object-contain p-lg"
+            />
           </div>
         </div>
 

@@ -170,19 +170,22 @@ export const benefitCards = [
     title: "Landmarks, not addresses",
     body: "“Behind BSU main gate” is a real address here. Tell us the school gate, the church, the filling station — our riders know Makurdi, so you never drag a pin on a map.",
     href: "/areas",
-    illustration: "delivery-location",
+    image: "/images/location.jpg",
+    imageAlt: "A location pin",
   },
   {
     title: "Follow your rider to your gate",
     body: "Watch them leave the kitchen and come to you. Share the link so whoever is waiting can follow it too — no app, no account, and it works on a slow connection.",
     href: "/help",
-    illustration: "order-status",
+    image: "/images/bike.jpg",
+    imageAlt: "A delivery scooter carrying a box",
   },
   {
     title: "Pay how you actually pay",
     body: "Card, bank transfer, or cash to the rider at your door. Nothing to install and no account needed, and if an order goes wrong you reach a person in Makurdi.",
     href: "/help#payment",
-    illustration: "mobile-payments",
+    image: "/images/payment.jpg",
+    imageAlt: "Paying on a phone with a card",
   },
 ] as const;
 
