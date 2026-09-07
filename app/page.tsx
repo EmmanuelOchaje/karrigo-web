@@ -287,24 +287,23 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* App CTA. Full width and centred now the photograph is gone — a half
-          grid with one empty side would just read as a missing image. */}
+      {/* App CTA, left-aligned to the same gutter as every other section. */}
       <Screen mode="dark">
-        <div className="px-screen-x mx-auto max-w-[1100px] py-xxl text-center md:py-section">
+        <div className="px-screen-x mx-auto max-w-[1100px] py-xxl md:py-section">
           <p className="text-eyebrow text-text-tertiary uppercase">
             The M-Kart app
           </p>
           <h2 className="text-section-small md:text-section mt-xs">
             Your order in seconds
           </h2>
-          <p className="text-lede text-text-secondary mx-auto mt-sm max-w-[46ch]">
+          <p className="text-lede text-text-secondary mt-sm max-w-[46ch]">
             Saved addresses, your usual kitchens, and the rider on a map from the
             pot to your gate.
           </p>
 
-          <StoreButtons className="mt-lg justify-center" />
+          <StoreButtons className="mt-lg" />
 
-          <p className="text-site-body text-text-secondary border-border mx-auto mt-xl max-w-[54ch] border-t pt-lg">
+          <p className="text-site-body text-text-secondary border-border mt-xl max-w-[54ch] border-t pt-lg">
             In a hurry? Order right here in the browser — every order comes with a
             link you can send on WhatsApp, so whoever is waiting at home can
             follow the rider too.
