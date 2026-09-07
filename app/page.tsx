@@ -237,8 +237,12 @@ export default function HomePage() {
 
           <div className="relative justify-self-center">
             <RestaurantPhone />
-            <div className="bounce-in-place absolute top-[57%] -left-lg z-10 sm:-left-xxl">
-              <OrderNotification />
+            {/* Centring lives on the wrapper: the bounce animates transform and
+                would overwrite a -translate-x-1/2 on the same element. */}
+            <div className="absolute top-[57%] left-1/2 z-10 -translate-x-1/2">
+              <div className="bounce-in-place">
+                <OrderNotification />
+              </div>
             </div>
           </div>
         </div>
