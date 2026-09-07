@@ -3,6 +3,7 @@ import Image from "next/image";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { AddressForm } from "@/components/site/AddressForm";
+import { StoreButtons } from "@/components/site/StoreButtons";
 import { KitchenCard } from "@/components/site/KitchenCard";
 import { HeroPhones } from "@/components/site/HeroPhones";
 import { FaqList } from "@/components/site/FaqList";
@@ -283,6 +284,51 @@ export default function HomePage() {
               Apply to ride
             </ButtonLink>
           </div>
+        </div>
+      </section>
+
+      {/* App CTA: colour panel against a photograph, the way chowdeck.com
+          splits its download band. */}
+      <section className="grid md:grid-cols-2">
+        <Screen mode="dark" className="px-screen-x flex items-center py-xxl md:py-section">
+          <div className="mx-auto w-full max-w-[34rem] md:mr-0 md:ml-auto md:max-w-[27rem]">
+            <p className="text-eyebrow text-text-tertiary uppercase">
+              The M-Kart app
+            </p>
+            <h2 className="text-section-small md:text-section mt-xs">
+              Your order in seconds
+            </h2>
+            <p className="text-lede text-text-secondary mt-sm">
+              Saved addresses, your usual kitchens, and the rider on a map from
+              the pot to your gate.
+            </p>
+
+            <StoreButtons className="mt-lg" />
+
+            <div className="border-border mt-lg gap-md flex items-start border-t pt-lg">
+              <span
+                aria-hidden
+                className="bg-accent text-on-accent grid size-[30px] shrink-0 place-items-center rounded-[9px] text-sm"
+              >
+                🔗
+              </span>
+              <p className="text-site-body text-text-secondary">
+                In a hurry? Order right here in the browser — every order comes
+                with a link you can send on WhatsApp, so whoever is waiting at
+                home can follow the rider too.
+              </p>
+            </div>
+          </div>
+        </Screen>
+
+        <div className="relative min-h-[320px] md:min-h-[520px]">
+          <Image
+            src="/food/modern-market-suya.jpg"
+            alt="Suya from Modern Market Suya"
+            fill
+            sizes="(max-width: 768px) 100vw, 50vw"
+            className="object-cover"
+          />
         </div>
       </section>
 
