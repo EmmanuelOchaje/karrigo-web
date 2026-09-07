@@ -108,6 +108,47 @@ body {
   will-change: transform;
 }
 
+/* FAQ open/close. Native <details> does not animate, so this hangs off
+   ::details-content. Layered on purpose: every browser with that selector gets
+   the fade and slide, and those that also support interpolate-size animate the
+   height itself. Chromium has both today; Firefox 153 has only the first. No
+   JavaScript in either case — the accordion still works with none. */
+@supports selector(::details-content) {
+  .faq-item::details-content {
+    opacity: 0;
+    transform: translateY(-6px);
+    transition:
+      opacity var(--duration-normal) var(--default-transition-timing-function),
+      transform var(--duration-normal) var(--default-transition-timing-function),
+      content-visibility var(--duration-normal) allow-discrete;
+  }
+
+  .faq-item[open]::details-content {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@supports (interpolate-size: allow-keywords) and selector(::details-content) {
+  :root {
+    interpolate-size: allow-keywords;
+  }
+
+  .faq-item::details-content {
+    block-size: 0;
+    overflow: hidden;
+    transition:
+      block-size var(--duration-normal) var(--default-transition-timing-function),
+      opacity var(--duration-normal) var(--default-transition-timing-function),
+      transform var(--duration-normal) var(--default-transition-timing-function),
+      content-visibility var(--duration-normal) allow-discrete;
+  }
+
+  .faq-item[open]::details-content {
+    block-size: auto;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rise {
     animation: none;
@@ -117,5 +158,9 @@ body {
   }
   .bounce-in-place {
     animation: none;
+  }
+  .faq-item::details-content,
+  .faq-item[open]::details-content {
+    transition: none;
   }
 }

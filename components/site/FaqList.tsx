@@ -7,7 +7,7 @@ export function FaqList() {
       {faqs.map((faq) => (
         <details
           key={faq.q}
-          className="group bg-bg border-border rounded-card hover:border-border-strong open:border-border-strong border px-lg py-md transition-colors duration-(--duration-fast)"
+          className="faq-item group bg-bg border-border rounded-card hover:border-border-strong open:border-border-strong border px-lg py-md transition-colors duration-(--duration-fast)"
         >
           <summary className="text-h2 gap-md flex cursor-pointer list-none items-center">
             {faq.q}
