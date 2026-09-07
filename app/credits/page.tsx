@@ -15,9 +15,9 @@ export default function CreditsPage() {
       <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl">
         <h1 className="text-section-small md:text-section">Photo credits</h1>
         <p className="text-lede text-text-secondary mt-sm max-w-[62ch]">
-          These are placeholder photographs, used under Creative Commons
-          licences while we photograph the real kitchens. They show the dishes,
-          not the specific kitchen listed beside them.
+          These are placeholder photographs, used while we photograph the real
+          kitchens. They show the dishes, not the specific kitchen listed beside
+          them.
         </p>
 
         <ul className="mt-lg gap-md flex flex-col">
@@ -27,17 +27,24 @@ export default function CreditsPage() {
               className="border-border rounded-card p-md border"
             >
               <p className="text-h3">{kitchen.name}</p>
-              <p className="text-site-body text-text-secondary mt-xs">
-                Photograph by {kitchen.credit.artist}, licensed{" "}
-                {kitchen.credit.license}.{" "}
-                <a
-                  href={kitchen.credit.source}
-                  className="text-accent-text underline"
-                  rel="noreferrer"
-                >
-                  Source on Wikimedia Commons
-                </a>
-              </p>
+              {kitchen.credit ? (
+                <p className="text-site-body text-text-secondary mt-xs">
+                  Photograph by {kitchen.credit.artist}, licensed{" "}
+                  {kitchen.credit.license}.{" "}
+                  <a
+                    href={kitchen.credit.source}
+                    className="text-accent-text underline"
+                    rel="noreferrer"
+                  >
+                    Source on Wikimedia Commons
+                  </a>
+                </p>
+              ) : (
+                <p className="text-site-body text-text-secondary mt-xs">
+                  We are still tracking down the photographer for this one. The
+                  credit goes here as soon as we have it.
+                </p>
+              )}
             </li>
           ))}
         </ul>

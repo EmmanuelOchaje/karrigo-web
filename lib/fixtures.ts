@@ -12,7 +12,8 @@ export type PhotoCredit = {
 export type Kitchen = {
   slug: string;
   image: string;
-  credit: PhotoCredit;
+  /** Absent while we are still chasing the source for a replaced photo. */
+  credit?: PhotoCredit;
   name: string;
   cuisine: string;
   area: string;
@@ -26,12 +27,8 @@ export type Kitchen = {
 export const kitchens: Kitchen[] = [
   {
     slug: "terkimbis-kitchen",
-    image: "/food/terkimbis-kitchen.jpg",
-    credit: {
-      artist: "Onyenachi64",
-      license: "CC BY-SA 4.0",
-      source: "https://commons.wikimedia.org/wiki/File:Egusi_soup_with_pounded_yam_and_assorted_meats.jpg",
-    },
+    image: "/food/poundo.jpg",
+    // TODO: credit unknown for poundo.jpg — add artist, licence and source before launch.
     name: "Terkimbi's Kitchen",
     cuisine: "Swallow & soups",
     area: "Wurukum",
@@ -42,12 +39,8 @@ export const kitchens: Kitchen[] = [
   },
   {
     slug: "sewuese-rice-spot",
-    image: "/food/sewuese-rice-spot.jpg",
-    credit: {
-      artist: "daSupremo",
-      license: "CC BY-SA 4.0",
-      source: "https://commons.wikimedia.org/wiki/File:Jollof_rice_with_boiled_egg_and_fried_chicken.jpg",
-    },
+    image: "/food/jollof-chicken.jpg",
+    // TODO: credit unknown for jollof-chicken.jpg — add artist, licence and source before launch.
     name: "Sewuese Rice Spot",
     cuisine: "Jollof & chicken",
     area: "North Bank",
@@ -58,28 +51,20 @@ export const kitchens: Kitchen[] = [
   },
   {
     slug: "benue-grills",
-    image: "/food/benue-grills.jpg",
-    credit: {
-      artist: "Halima Waziri",
-      license: "CC BY-SA 4.0",
-      source: "https://commons.wikimedia.org/wiki/File:Catfish_pepper_soup_with_vegetables.jpg",
-    },
+    image: "/food/barbeque.jpg",
+    // TODO: credit unknown for barbeque.jpg — add artist, licence and source before launch.
     name: "Benue Grills",
-    cuisine: "Catfish & pepper soup",
+    cuisine: "Grills & barbecue",
     area: "Judges Quarters",
-    emoji: "🐟",
+    emoji: "🍖",
     distanceKm: 2.6,
     etaMinutes: [35, 45],
     deliveryFeeKobo: 80000,
   },
   {
     slug: "modern-market-suya",
-    image: "/food/modern-market-suya.jpg",
-    credit: {
-      artist: "Bukky658",
-      license: "CC BY-SA 4.0",
-      source: "https://commons.wikimedia.org/wiki/File:Suya_with_pepper_sauce.jpg",
-    },
+    image: "/food/meat.jpg",
+    // TODO: credit unknown for meat.jpg — add artist, licence and source before launch.
     name: "Modern Market Suya",
     cuisine: "Suya & grills",
     area: "Modern Market",
@@ -90,12 +75,8 @@ export const kitchens: Kitchen[] = [
   },
   {
     slug: "ankpa-bukka",
-    image: "/food/ankpa-bukka.jpg",
-    credit: {
-      artist: "Bukky658",
-      license: "CC BY-SA 4.0",
-      source: "https://commons.wikimedia.org/wiki/File:Efo_riro.jpg",
-    },
+    image: "/food/egusi.jpg",
+    // TODO: credit unknown for egusi.jpg — add artist, licence and source before launch.
     name: "Ankpa Bukka",
     cuisine: "Local dishes",
     area: "Ankpa Ward",
