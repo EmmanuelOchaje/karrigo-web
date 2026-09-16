@@ -22,6 +22,9 @@ export type Kitchen = {
   etaMinutes: [number, number];
   deliveryFeeKobo: number;
   closedUntil?: string;
+  /** A short opening-hours notice shown on the kitchen's card — the kitchen
+   *  is still browsable, just not taking orders yet today. */
+  opensAt?: string;
 };
 
 export const kitchens: Kitchen[] = [
@@ -72,6 +75,7 @@ export const kitchens: Kitchen[] = [
     distanceKm: 3.1,
     etaMinutes: [30, 40],
     deliveryFeeKobo: 90000,
+    opensAt: "Opens 6pm",
   },
   {
     slug: "ankpa-bukka",
@@ -103,6 +107,16 @@ export const kitchens: Kitchen[] = [
     closedUntil: "Opens 6:30am tomorrow",
   },
 ];
+
+/** The scrolling dish rail on the homepage. Reuses photos already credited
+ *  (or tracked) against a kitchen above, so it introduces no new attribution
+ *  gaps — same images, priced at dish level instead of kitchen level. */
+export const dishes = [
+  { name: "Pounded yam & egusi", image: "/food/poundo.jpg", priceKobo: 330000 },
+  { name: "Jollof & chicken", image: "/food/jollof-chicken.jpg", priceKobo: 280000 },
+  { name: "Grilled chicken", image: "/food/barbeque.jpg", priceKobo: 450000 },
+  { name: "Suya, full wrap", image: "/food/meat.jpg", priceKobo: 150000 },
+] as const;
 
 export const areasLive = [
   "High Level",
@@ -184,10 +198,6 @@ export const faqs = [
     a: "It depends on how far the kitchen is from you, so it is shown per kitchen before you order. It is never a surprise at checkout.",
   },
   {
-    q: "What if the kitchen has finished the food?",
-    a: "Dishes that have run out are marked finished and cannot be ordered. If a kitchen runs out after you have paid, we cancel and refund you in full, and we tell you which dish it was.",
-  },
-  {
     q: "Can I pay cash?",
     a: "Yes, cash to the rider when the food reaches you. Card and bank transfer also work.",
   },
@@ -205,22 +215,4 @@ export const cuisines = [
   "Suya & grills",
   "Breakfast",
   "Drinks",
-];
-
-export const riderSteps = [
-  {
-    icon: "📝",
-    title: "Sign up and get verified",
-    body: "Bring a bike, a rider's card and a phone. We check your papers and put you on the road within a week.",
-  },
-  {
-    icon: "📍",
-    title: "Pick up orders near you",
-    body: "Orders come to the riders closest to the kitchen. You choose your own hours — ride when it suits you.",
-  },
-  {
-    icon: "💰",
-    title: "Get paid every Friday",
-    body: "Paid per trip, straight to your account, every Friday. You keep 100% of your tips.",
-  },
 ];

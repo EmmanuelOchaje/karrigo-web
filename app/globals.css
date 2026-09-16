@@ -149,6 +149,107 @@ body {
   }
 }
 
+/* Kitchen rail: an endlessly scrolling row of dish photos. The row is
+   tripled in the markup and this slides exactly one copy's width, so the
+   loop point is invisible. Percentage-based, so it works at any rail width. */
+@keyframes rail {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-33.3333%);
+  }
+}
+
+@utility rail {
+  animation: rail 42s linear infinite;
+  will-change: transform;
+}
+
+/* Four-step cards: one card at a time reads as "current" by swapping to the
+   dark fill, in a loop. Each card gets the same animation, offset by a
+   quarter of the cycle via an inline --step-delay custom property, so there
+   is one keyframe definition instead of four near-duplicates. */
+@keyframes step-cycle {
+  0%,
+  100% {
+    background: var(--bg);
+    color: var(--text);
+  }
+  2%,
+  21% {
+    background: var(--text);
+    color: var(--bg);
+  }
+  23% {
+    background: var(--bg);
+    color: var(--text);
+  }
+}
+
+@utility step-cycle {
+  animation: step-cycle 9.6s ease both infinite;
+  animation-delay: var(--step-delay, 0s);
+}
+
+/* Hero tracking phone: the rider's dot travels the whole route on a loop,
+   along an `offset-path` set inline (the path is per-usage, drawn to match a
+   specific route SVG), so this utility only supplies the timing. */
+@keyframes ride {
+  from {
+    offset-distance: 0%;
+  }
+  to {
+    offset-distance: 100%;
+  }
+}
+
+@utility ride {
+  animation: ride 8s cubic-bezier(0.4, 0.05, 0.6, 0.95) infinite;
+  will-change: offset-distance;
+}
+
+/* The hero devices are drawn at their true 402×874 size and then scaled as a
+   whole, so the interface inside keeps real proportions and real type sizes
+   instead of being redrawn in miniature. One variable drives both the scale
+   and the box that reserves room for the pair. */
+.hero-phones {
+  --phone-scale: 0.34;
+}
+@media (min-width: 840px) {
+  .hero-phones {
+    --phone-scale: 0.4;
+  }
+}
+@media (min-width: 1000px) {
+  .hero-phones {
+    --phone-scale: 0.5;
+  }
+}
+@media (min-width: 1200px) {
+  .hero-phones {
+    --phone-scale: 0.56;
+  }
+}
+
+/* Live-tracking panel: the rider's dot on the route pulses to read as "live"
+   rather than static. */
+@keyframes route-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.4);
+  }
+}
+
+@utility route-pulse {
+  animation: route-pulse 2s ease-in-out infinite;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .rise {
     animation: none;
@@ -157,6 +258,18 @@ body {
     animation: none;
   }
   .bounce-in-place {
+    animation: none;
+  }
+  .rail {
+    animation: none;
+  }
+  .step-cycle {
+    animation: none;
+  }
+  .ride {
+    animation: none;
+  }
+  .route-pulse {
     animation: none;
   }
   .faq-item::details-content,

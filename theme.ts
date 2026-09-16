@@ -27,6 +27,16 @@ const accent = {
   darkTone: '#4E6B00',   // accent-as-text on light backgrounds
 } as const;
 
+/** The warm second accent. Not `danger` — it never means an error. It marks
+ *  the kitchen end of a route, a kitchen that has not opened yet, and the
+ *  decorative circles. Identical in both modes, like the lime. */
+const accentWarm = '#FF6A2B';
+
+/** Text on the dark panels. Warmer than white, which reads clinical against
+ *  the lime. Used at full strength for headings and at 50–66% for body copy
+ *  and labels — set those with an opacity utility, not a second token. */
+const cream = '#FFF4D6';
+
 export const dark = {
   bg:              '#0E0F0D',
   surface:         '#1A1C19',
@@ -38,9 +48,14 @@ export const dark = {
   textSecondary:   '#8E9189',
   textTertiary:    '#6E7169',
 
+  /** Marketing copy on the dark panels. The app's own dark screens keep
+   *  `text` — this is the website's warmer voice, not a second UI colour. */
+  cream,
+
   accent:          accent.base,
   onAccent:        accent.on,
   accentText:      accent.base,     // lime reads fine on dark
+  accentWarm,
 
   danger:          '#FF6B4A',
   dangerBg:        'rgba(255,107,74,0.14)',
@@ -50,9 +65,9 @@ export const dark = {
   knob:            '#FFFFFF',
 
   /** Device bezel on the marketing pages. Mockup furniture, not product UI.
-   *  Lighter than the page on dark, darker than the page on light — either way
-   *  the frame has to be visible against the background it sits on. */
-  bezel:           '#242621',
+   *  Near-black with a hairline of white over it, so the frame reads as glass
+   *  and metal against the dark hero panel rather than as a flat outline. */
+  bezel:           '#171815',
 
   /** Skin tone in the illustrations, as drawn by unDraw. Identical in both
    *  modes — a person does not change colour with the theme. */
@@ -63,18 +78,24 @@ export const dark = {
 
 export const light = {
   bg:              '#FFFFFF',
-  surface:         '#F6F7F3',
-  surfaceRaised:   '#EDEFE8',
+  /** The marketing page's ground, and the chips that sit on the white cards
+   *  standing on it. Deliberately darker than a near-white: the site is a
+   *  field of white cards, and they need something to stand on. */
+  surface:         '#DEDEDE',
+  surfaceRaised:   '#EDEBDF',
   border:          '#E4E7DE',
   borderStrong:    '#D3D7CB',
 
   text:            '#0E0F0D',
-  textSecondary:   '#6B6F66',
-  textTertiary:    '#9A9E93',
+  textSecondary:   '#6F7565',
+  textTertiary:    '#8A8F7C',
+
+  cream,
 
   accent:          accent.base,     // fill stays identical
   onAccent:        accent.on,
   accentText:      accent.darkTone, // darker tone for text and icons
+  accentWarm,
 
   danger:          '#C0391C',
   dangerBg:        '#FFEDE8',
@@ -145,8 +166,9 @@ export const modeByScreen = {
  */
 
 export const font = {
-  family: 'DMSans',
-  weight: { light: '300', regular: '400', medium: '500', semibold: '600' },
+  family: 'Plus Jakarta Sans',
+  weight: { light: '300', regular: '400', medium: '500', semibold: '600',
+            bold: '700', extrabold: '800' },
 } as const;
 
 export const type = {
@@ -170,15 +192,44 @@ export const type = {
  * `text-hero-small md:text-hero`.
  */
 export const marketingType = {
-  hero:          { size: 76, lineHeight: 74, letterSpacing: -3.8, weight: '600' },
-  heroSmall:     { size: 44, lineHeight: 45, letterSpacing: -2.0, weight: '600' },
-  section:       { size: 42, lineHeight: 46, letterSpacing: -1.9, weight: '600' },
-  sectionSmall:  { size: 30, lineHeight: 34, letterSpacing: -1.3, weight: '600' },
-  lede:          { size: 17, lineHeight: 28, letterSpacing: 0,    weight: '400' },
-  siteBody:      { size: 15, lineHeight: 25, letterSpacing: 0,    weight: '400' },
-  siteLabel:     { size: 13, lineHeight: 18, letterSpacing: 0,    weight: '500' },
-  stat:          { size: 24, lineHeight: 28, letterSpacing: -1.0, weight: '600' },
-  eyebrow:       { size: 12, lineHeight: 16, letterSpacing: 1.4,  weight: '600' },
+  /** Headings are 800 across the site — the lime and the near-black do the
+   *  shouting on the panels, and a lighter heading beside them reads unfinished.
+   *  Letter-spacing is the design's em value multiplied out at each size. */
+  hero:          { size: 84, lineHeight: 82, letterSpacing: -3.8, weight: '800' },
+  heroSmall:     { size: 40, lineHeight: 39, letterSpacing: -1.8, weight: '800' },
+  /** A page-level section heading on the light ground. */
+  section:       { size: 56, lineHeight: 56, letterSpacing: -2.2, weight: '800' },
+  sectionSmall:  { size: 30, lineHeight: 30, letterSpacing: -1.2, weight: '800' },
+  /** A heading inside a dark panel — smaller, because the panel already
+   *  carries the emphasis the size would otherwise have to. */
+  panel:         { size: 48, lineHeight: 49, letterSpacing: -1.9, weight: '800' },
+  panelSmall:    { size: 28, lineHeight: 29, letterSpacing: -1.1, weight: '800' },
+  /** A heading inside one of the two offer cards. */
+  cardTitle:     { size: 36, lineHeight: 38, letterSpacing: -1.3, weight: '800' },
+  cardTitleSmall:{ size: 25, lineHeight: 26, letterSpacing: -0.9, weight: '800' },
+  /** The closing call to action, the largest type on the page after the hero. */
+  cta:           { size: 62, lineHeight: 62, letterSpacing: -2.8, weight: '800' },
+  ctaSmall:      { size: 30, lineHeight: 30, letterSpacing: -1.4, weight: '800' },
+
+  lede:          { size: 18.5, lineHeight: 29, letterSpacing: 0,  weight: '500' },
+  ledeSmall:     { size: 15.5, lineHeight: 24, letterSpacing: 0,  weight: '500' },
+  /** Body copy inside a panel or a card. */
+  panelBody:     { size: 15.5, lineHeight: 24, letterSpacing: 0,  weight: '500' },
+  siteBody:      { size: 15, lineHeight: 22.5, letterSpacing: 0,  weight: '500' },
+  siteLabel:     { size: 13.5, lineHeight: 21, letterSpacing: 0,  weight: '500' },
+  /** Names and questions — the bold-but-not-heading tier. */
+  siteTitle:     { size: 17.5, lineHeight: 21, letterSpacing: -0.35, weight: '700' },
+  siteQuestion:  { size: 15.5, lineHeight: 20, letterSpacing: 0,  weight: '700' },
+  siteAnswer:    { size: 14.5, lineHeight: 23, letterSpacing: 0,  weight: '500' },
+  siteChip:      { size: 12.5, lineHeight: 16, letterSpacing: 0,  weight: '600' },
+  navLink:       { size: 14, lineHeight: 18, letterSpacing: 0,    weight: '600' },
+  siteButton:    { size: 14.5, lineHeight: 18, letterSpacing: 0,  weight: '700' },
+  stat:          { size: 21, lineHeight: 21, letterSpacing: -0.6, weight: '800' },
+  statLabel:     { size: 12, lineHeight: 16, letterSpacing: 0,    weight: '500' },
+  eyebrow:       { size: 11.5, lineHeight: 16, letterSpacing: 0.46, weight: '700' },
+  /** The wordmark. Its own entry because it is a mark, not a heading — it
+   *  never changes size with the rest of the scale. */
+  logo:          { size: 20, lineHeight: 20, letterSpacing: -0.9, weight: '800' },
 } as const;
 
 /** Body copy is 300 on dark, 400 on light — thin type disappears on white. */
@@ -186,9 +237,26 @@ export const bodyWeightByMode = { dark: '300', light: '400' } as const;
 
 /** `section` is the gap between marketing sections — the app scale tops out
  *  at 28px, which is right inside a screen and far too tight between them. */
-export const space  = { xs:4, sm:8, md:12, lg:16, xl:20, xxl:28, screenX:16,
-                        section:76 } as const;
-export const radius = { field:15, card:15, sheet:20, header:24, otp:13, pill:999, icon:20 } as const;
+export const space  = { xs:4, sm:8, md:12, lg:16, xl:20, xxl:28, screenX:18,
+                        /** Between marketing sections: `section` on a desktop
+                         *  width, `sectionSm` once the page is narrow. */
+                        sectionSm:48, section:88,
+                        /** Inside the marketing page's big blocks. The panels
+                         *  are wide, so their inner padding is a scale of its
+                         *  own rather than the top of the app's. Each pairs
+                         *  with `xxl` at narrow widths. */
+                        padHeroX:54, padHero:64, padPanel:60, padCard:42,
+                        padCta:68, padPageEnd:44, gapWide:52 } as const;
+export const radius = { field:15, card:15, sheet:20, header:24, otp:13, pill:999, icon:20,
+                        /** Marketing furniture: the hero's stat pills, the
+                         *  four-step cards, a card's inset image, the device. */
+                        chip:18, step:26, slot:24, device:58, deviceSm:34,
+                        /** The marketing page's big inset "panel" corners —
+                         *  hero, footer and other full-bleed-feeling blocks
+                         *  that sit inset from the page edge with generous
+                         *  rounding. Distinct from `card` (15px), which is
+                         *  for dense in-page cards like kitchen tiles. */
+                        panelXs:22, panelSm:30, panelMd:36, panelLg:44 } as const;
 export const size   = { buttonHeight:46, fieldHeight:46, backButton:29, featureIcon:64 } as const;
 
 /** Shadows only exist in light mode. Dark uses surface steps for depth. */

@@ -19,16 +19,18 @@
 :root,
 [data-theme="light"] {
   --bg: #FFFFFF;
-  --surface: #F6F7F3;
-  --surface-raised: #EDEFE8;
+  --surface: #DEDEDE;
+  --surface-raised: #EDEBDF;
   --border: #E4E7DE;
   --border-strong: #D3D7CB;
   --text: #0E0F0D;
-  --text-secondary: #6B6F66;
-  --text-tertiary: #9A9E93;
+  --text-secondary: #6F7565;
+  --text-tertiary: #8A8F7C;
+  --cream: #FFF4D6;
   --accent: #C6F432;
   --on-accent: #12180A;
   --accent-text: #4E6B00;
+  --accent-warm: #FF6A2B;
   --danger: #C0391C;
   --danger-bg: #FFEDE8;
   --danger-text: #C0391C;
@@ -49,14 +51,16 @@
   --text: #FFFFFF;
   --text-secondary: #8E9189;
   --text-tertiary: #6E7169;
+  --cream: #FFF4D6;
   --accent: #C6F432;
   --on-accent: #12180A;
   --accent-text: #C6F432;
+  --accent-warm: #FF6A2B;
   --danger: #FF6B4A;
   --danger-bg: rgba(255,107,74,0.14);
   --danger-text: #FF8E74;
   --knob: #FFFFFF;
-  --bezel: #242621;
+  --bezel: #171815;
   --illustration-skin: #ED9DA0;
   --scrim: rgba(14,15,13,0.62);
   --body-weight: 300;
@@ -64,7 +68,7 @@
 }
 
 @theme inline {
-  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-sans: var(--font-plus-jakarta-sans), system-ui, sans-serif;
 
   --color-bg: var(--bg);
   --color-surface: var(--surface);
@@ -74,9 +78,11 @@
   --color-text: var(--text);
   --color-text-secondary: var(--text-secondary);
   --color-text-tertiary: var(--text-tertiary);
+  --color-cream: var(--cream);
   --color-accent: var(--accent);
   --color-on-accent: var(--on-accent);
   --color-accent-text: var(--accent-text);
+  --color-accent-warm: var(--accent-warm);
   --color-danger: var(--danger);
   --color-danger-bg: var(--danger-bg);
   --color-danger-text: var(--danger-text);
@@ -143,50 +149,130 @@
   --text-price--letter-spacing: -0.2px;
   --text-price--font-weight: 600;
 
-  --text-hero: 76px;
-  --text-hero--line-height: 74px;
+  --text-hero: 84px;
+  --text-hero--line-height: 82px;
   --text-hero--letter-spacing: -3.8px;
-  --text-hero--font-weight: 600;
+  --text-hero--font-weight: 800;
 
-  --text-hero-small: 44px;
-  --text-hero-small--line-height: 45px;
-  --text-hero-small--letter-spacing: -2px;
-  --text-hero-small--font-weight: 600;
+  --text-hero-small: 40px;
+  --text-hero-small--line-height: 39px;
+  --text-hero-small--letter-spacing: -1.8px;
+  --text-hero-small--font-weight: 800;
 
-  --text-section: 42px;
-  --text-section--line-height: 46px;
-  --text-section--letter-spacing: -1.9px;
-  --text-section--font-weight: 600;
+  --text-section: 56px;
+  --text-section--line-height: 56px;
+  --text-section--letter-spacing: -2.2px;
+  --text-section--font-weight: 800;
 
   --text-section-small: 30px;
-  --text-section-small--line-height: 34px;
-  --text-section-small--letter-spacing: -1.3px;
-  --text-section-small--font-weight: 600;
+  --text-section-small--line-height: 30px;
+  --text-section-small--letter-spacing: -1.2px;
+  --text-section-small--font-weight: 800;
 
-  --text-lede: 17px;
-  --text-lede--line-height: 28px;
+  --text-panel: 48px;
+  --text-panel--line-height: 49px;
+  --text-panel--letter-spacing: -1.9px;
+  --text-panel--font-weight: 800;
+
+  --text-panel-small: 28px;
+  --text-panel-small--line-height: 29px;
+  --text-panel-small--letter-spacing: -1.1px;
+  --text-panel-small--font-weight: 800;
+
+  --text-card-title: 36px;
+  --text-card-title--line-height: 38px;
+  --text-card-title--letter-spacing: -1.3px;
+  --text-card-title--font-weight: 800;
+
+  --text-card-title-small: 25px;
+  --text-card-title-small--line-height: 26px;
+  --text-card-title-small--letter-spacing: -0.9px;
+  --text-card-title-small--font-weight: 800;
+
+  --text-cta: 62px;
+  --text-cta--line-height: 62px;
+  --text-cta--letter-spacing: -2.8px;
+  --text-cta--font-weight: 800;
+
+  --text-cta-small: 30px;
+  --text-cta-small--line-height: 30px;
+  --text-cta-small--letter-spacing: -1.4px;
+  --text-cta-small--font-weight: 800;
+
+  --text-lede: 18.5px;
+  --text-lede--line-height: 29px;
   --text-lede--letter-spacing: 0px;
-  --text-lede--font-weight: 400;
+  --text-lede--font-weight: 500;
+
+  --text-lede-small: 15.5px;
+  --text-lede-small--line-height: 24px;
+  --text-lede-small--letter-spacing: 0px;
+  --text-lede-small--font-weight: 500;
+
+  --text-panel-body: 15.5px;
+  --text-panel-body--line-height: 24px;
+  --text-panel-body--letter-spacing: 0px;
+  --text-panel-body--font-weight: 500;
 
   --text-site-body: 15px;
-  --text-site-body--line-height: 25px;
+  --text-site-body--line-height: 22.5px;
   --text-site-body--letter-spacing: 0px;
-  --text-site-body--font-weight: 400;
+  --text-site-body--font-weight: 500;
 
-  --text-site-label: 13px;
-  --text-site-label--line-height: 18px;
+  --text-site-label: 13.5px;
+  --text-site-label--line-height: 21px;
   --text-site-label--letter-spacing: 0px;
   --text-site-label--font-weight: 500;
 
-  --text-stat: 24px;
-  --text-stat--line-height: 28px;
-  --text-stat--letter-spacing: -1px;
-  --text-stat--font-weight: 600;
+  --text-site-title: 17.5px;
+  --text-site-title--line-height: 21px;
+  --text-site-title--letter-spacing: -0.35px;
+  --text-site-title--font-weight: 700;
 
-  --text-eyebrow: 12px;
+  --text-site-question: 15.5px;
+  --text-site-question--line-height: 20px;
+  --text-site-question--letter-spacing: 0px;
+  --text-site-question--font-weight: 700;
+
+  --text-site-answer: 14.5px;
+  --text-site-answer--line-height: 23px;
+  --text-site-answer--letter-spacing: 0px;
+  --text-site-answer--font-weight: 500;
+
+  --text-site-chip: 12.5px;
+  --text-site-chip--line-height: 16px;
+  --text-site-chip--letter-spacing: 0px;
+  --text-site-chip--font-weight: 600;
+
+  --text-nav-link: 14px;
+  --text-nav-link--line-height: 18px;
+  --text-nav-link--letter-spacing: 0px;
+  --text-nav-link--font-weight: 600;
+
+  --text-site-button: 14.5px;
+  --text-site-button--line-height: 18px;
+  --text-site-button--letter-spacing: 0px;
+  --text-site-button--font-weight: 700;
+
+  --text-stat: 21px;
+  --text-stat--line-height: 21px;
+  --text-stat--letter-spacing: -0.6px;
+  --text-stat--font-weight: 800;
+
+  --text-stat-label: 12px;
+  --text-stat-label--line-height: 16px;
+  --text-stat-label--letter-spacing: 0px;
+  --text-stat-label--font-weight: 500;
+
+  --text-eyebrow: 11.5px;
   --text-eyebrow--line-height: 16px;
-  --text-eyebrow--letter-spacing: 1.4px;
-  --text-eyebrow--font-weight: 600;
+  --text-eyebrow--letter-spacing: 0.46px;
+  --text-eyebrow--font-weight: 700;
+
+  --text-logo: 20px;
+  --text-logo--line-height: 20px;
+  --text-logo--letter-spacing: -0.9px;
+  --text-logo--font-weight: 800;
 
   --spacing-xs: 4px;
   --spacing-sm: 8px;
@@ -194,8 +280,16 @@
   --spacing-lg: 16px;
   --spacing-xl: 20px;
   --spacing-xxl: 28px;
-  --spacing-screen-x: 16px;
-  --spacing-section: 76px;
+  --spacing-screen-x: 18px;
+  --spacing-section-sm: 48px;
+  --spacing-section: 88px;
+  --spacing-pad-hero-x: 54px;
+  --spacing-pad-hero: 64px;
+  --spacing-pad-panel: 60px;
+  --spacing-pad-card: 42px;
+  --spacing-pad-cta: 68px;
+  --spacing-pad-page-end: 44px;
+  --spacing-gap-wide: 52px;
   --spacing-button-height: 46px;
   --spacing-field-height: 46px;
   --spacing-back-button: 29px;
@@ -208,4 +302,13 @@
   --radius-otp: 13px;
   --radius-pill: 999px;
   --radius-icon: 20px;
+  --radius-chip: 18px;
+  --radius-step: 26px;
+  --radius-slot: 24px;
+  --radius-device: 58px;
+  --radius-device-sm: 34px;
+  --radius-panel-xs: 22px;
+  --radius-panel-sm: 30px;
+  --radius-panel-md: 36px;
+  --radius-panel-lg: 44px;
 }

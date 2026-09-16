@@ -1,175 +1,176 @@
 import Image from "next/image";
 import { PhoneFrame } from "./PhoneFrame";
 import { kitchens } from "@/lib/fixtures";
-import { formatKobo } from "@/lib/money";
 
 function BrowseScreen() {
   return (
     <>
-      <div className="px-md pt-sm">
-        <div className="text-micro gap-xs flex items-center font-semibold">
-          <span className="bg-accent text-on-accent grid size-[16px] place-items-center rounded-[5px] text-[7px]">
-            ⌖
-          </span>
-          Behind BSU main gate
-          <span className="text-text-secondary">▾</span>
-        </div>
-        <div className="bg-surface rounded-pill text-micro text-text-tertiary mt-sm px-md py-xs">
-          Search egusi, jollof, suya…
-        </div>
+      <div className="px-xl pt-sm gap-sm text-h2 flex items-center font-bold">
+        <span className="bg-accent grid size-[20px] place-items-center rounded-full">
+          <span className="bg-on-accent block size-[6px] rounded-full" />
+        </span>
+        Behind BSU main gate ▾
       </div>
 
-      <div className="px-md mt-sm min-h-0 flex-1 overflow-hidden">
-        <p className="text-micro text-text-secondary font-semibold">
-          7 kitchens · closest first
-        </p>
+      <div className="mx-xl bg-surface-raised text-body-med text-text-secondary mt-lg rounded-[16px] px-lg py-md">
+        Search egusi, jollof, suya…
+      </div>
+
+      <p className="px-xl text-caption text-accent-text pt-xxl pb-sm font-bold">
+        7 kitchens · closest first
+      </p>
+
+      <div className="px-xl gap-lg flex flex-col">
         {kitchens.slice(0, 4).map((kitchen) => (
-          <div
-            key={kitchen.slug}
-            className="border-border gap-sm flex items-center border-b py-sm last:border-b-0"
-          >
-            <div className="bg-surface relative size-[30px] shrink-0 overflow-hidden rounded-[8px]">
+          <div key={kitchen.slug} className="gap-md flex min-w-0 items-center">
+            <div className="bg-surface relative size-[64px] shrink-0 overflow-hidden rounded-chip">
               <Image
                 src={kitchen.image}
                 alt=""
-                fill
-                sizes="30px"
-                className="object-cover"
+                width={64}
+                height={64}
+                sizes="64px"
+                className="size-full object-cover"
               />
             </div>
             <div className="min-w-0 flex-1">
-              <div className="text-micro font-semibold">{kitchen.name}</div>
-              <div className="text-micro text-text-secondary truncate">
+              <div className="text-h2 truncate font-bold">{kitchen.name}</div>
+              <div className="text-body-med text-text-secondary mt-[2px]">
                 {kitchen.cuisine}
               </div>
-              <div className="text-micro gap-xs mt-[1px] flex items-center">
-                <span className="text-accent-text font-semibold">
-                  {kitchen.distanceKm} km
-                </span>
-                <span className="text-text-secondary">
-                  · {kitchen.etaMinutes[0]}–{kitchen.etaMinutes[1]} min
-                </span>
+              <div className="text-caption text-accent-text mt-[4px] font-bold">
+                {kitchen.distanceKm} km · {kitchen.etaMinutes[0]}–
+                {kitchen.etaMinutes[1]} min
               </div>
             </div>
           </div>
         ))}
       </div>
 
-      <div className="border-border text-micro mt-auto flex justify-around border-t pt-sm pb-xs">
-        <span className="font-semibold">Home</span>
-        <span className="text-text-tertiary">Search</span>
-        <span className="text-text-tertiary">Orders</span>
-        <span className="text-text-tertiary">Account</span>
+      <div className="px-xl border-text/10 text-label text-text-secondary mt-auto flex justify-between border-t py-lg font-semibold">
+        <span className="text-text">Home</span>
+        <span>Search</span>
+        <span>Orders</span>
+        <span>Account</span>
       </div>
     </>
   );
 }
 
+/** The route the rider takes from the kitchen to the gate — kept as one path
+ *  string so the SVG stroke and the dot riding along it (via `offset-path`)
+ *  trace the exact same line. Drawn for the 402×230 map panel. */
+const ROUTE_PATH = "M26,34 L26,124 L166,124 L166,74 L292,74 L292,192 L380,192";
+
 function TrackingScreen() {
   return (
-    <div className="px-md mt-sm flex min-h-0 flex-1 flex-col">
-      <p className="text-micro text-text-secondary font-semibold tracking-[0.1em] uppercase">
+    <>
+      <p className="px-xl text-caption text-cream/50 pt-sm font-bold tracking-[0.06em] uppercase">
         Order 1042
       </p>
-      <h3 className="text-h3 mt-xs">Arriving about 6:41 PM</h3>
-      <p className="text-micro text-text-secondary mt-xs">
-        Doosuur is 14 minutes away, heading to High Level.
-      </p>
+      <h3 className="px-xl text-display pt-sm font-extrabold">
+        Arriving about 6:41 PM
+      </h3>
 
-      <div className="gap-xs my-md flex items-center">
-        <span className="bg-accent text-on-accent grid size-[17px] place-items-center rounded-full text-[8px]">
-          ✓
-        </span>
-        <span className="bg-accent h-[2px] flex-1 rounded-full" />
-        <span className="bg-accent text-on-accent grid size-[17px] place-items-center rounded-full text-[8px]">
-          ✓
-        </span>
-        <span className="bg-accent h-[2px] flex-1 rounded-full" />
-        <span className="bg-accent text-on-accent grid size-[17px] place-items-center rounded-full text-[8px]">
-          🛵
-        </span>
-        <span className="bg-surface-raised h-[2px] flex-1 rounded-full" />
-        <span className="bg-surface-raised text-text-tertiary grid size-[17px] place-items-center rounded-full text-[8px]">
-          ⌂
-        </span>
-      </div>
-
-      <div className="bg-surface rounded-card min-h-0 flex-1 overflow-hidden">
-        <svg
-          viewBox="0 0 200 150"
-          preserveAspectRatio="xMidYMid slice"
-          className="size-full"
-        >
-          <g className="stroke-surface-raised" strokeWidth="9" strokeLinecap="round">
-            <path d="M-10 34 L210 28" />
-            <path d="M-10 96 L210 90" />
-            <path d="M34 -10 L42 160" />
-            <path d="M132 -10 L140 160" />
-          </g>
-          <g className="fill-surface-raised">
-            <rect x="52" y="42" width="24" height="26" rx="3" />
-            <rect x="96" y="40" width="26" height="28" rx="3" />
-            <rect x="56" y="104" width="22" height="24" rx="3" />
-          </g>
+      <div className="bg-surface relative mt-lg h-[230px] overflow-hidden">
+        <svg viewBox="0 0 402 230" width="402" height="230" className="block">
           <path
-            d="M138 46 L138 78 L88 84 L88 118 L44 124"
+            d={ROUTE_PATH}
             fill="none"
-            className="stroke-text"
-            strokeWidth="3"
+            stroke="rgba(255,255,255,.1)"
+            strokeWidth="16"
             strokeLinecap="round"
             strokeLinejoin="round"
           />
-          <circle cx="138" cy="46" r="6" className="fill-bg stroke-text" strokeWidth="3" />
-          <circle cx="44" cy="124" r="5" className="fill-accent stroke-text" strokeWidth="2.5" />
+          <path
+            d={ROUTE_PATH}
+            fill="none"
+            className="stroke-accent"
+            strokeWidth="2.5"
+            strokeDasharray="8 9"
+            opacity="0.75"
+          />
+          <circle cx="26" cy="34" r="6" className="fill-accent-warm" />
+          <circle cx="380" cy="192" r="6" className="fill-accent" />
         </svg>
+        <div
+          aria-hidden
+          className="ride bg-text absolute top-0 left-0 size-[16px] -translate-x-1/2 -translate-y-1/2 rounded-full shadow-[0_0_0_6px_rgba(198,244,50,0.3)]"
+          style={{ offsetPath: `path('${ROUTE_PATH}')`, offsetRotate: "0deg" }}
+        />
+        <span className="bg-bg text-accent-warm rounded-pill text-label absolute top-[24px] left-[42px] px-md py-xs font-bold">
+          Kitchen
+        </span>
+        <span className="bg-accent text-on-accent rounded-pill text-label absolute top-[150px] right-[14px] px-md py-xs font-bold whitespace-nowrap">
+          Your gate
+        </span>
       </div>
 
-      <div className="mt-sm">
-        <p className="text-micro text-text-secondary">
-          Pounded yam &amp; egusi, catfish pepper soup, 2× chilled zobo
-        </p>
-        <p className="text-micro mt-xs font-semibold">
-          {formatKobo(760000)} · paid by card
-        </p>
-      </div>
-
-      <div className="border-border gap-sm mt-sm mb-sm flex items-center border-t pt-sm">
-        <div className="bg-surface text-micro text-text-secondary grid size-[28px] place-items-center rounded-full font-semibold">
+      <div className="px-xl border-text/10 gap-md flex items-center border-b py-lg">
+        <span className="bg-accent text-on-accent text-h3 grid size-[48px] shrink-0 place-items-center rounded-full font-extrabold">
           DT
-        </div>
-        <div className="min-w-0 flex-1">
-          <div className="text-micro font-semibold">Doosuur Terhemba</div>
-          <div className="text-micro text-text-secondary">Your rider · ★ 4.9</div>
-        </div>
-        <span className="bg-accent text-on-accent rounded-pill text-micro px-sm py-xs font-semibold">
+        </span>
+        <span className="min-w-0 flex-1">
+          <span className="text-h2 block truncate font-bold">
+            Doosuur Terhemba
+          </span>
+          <span className="text-body-med text-text/55 mt-[2px] block">
+            Your rider · ★ 4.9
+          </span>
+        </span>
+        <span className="bg-accent text-on-accent rounded-pill text-h3 px-xl py-sm font-bold">
           Call
         </span>
       </div>
-    </div>
+
+      <div className="px-xl gap-md flex flex-col py-lg">
+        <span className="text-h3 text-text/50 gap-md flex items-center font-semibold">
+          <span className="bg-accent block size-[10px] shrink-0 rounded-full" />
+          Order accepted · 6:08 PM
+        </span>
+        <span className="text-h3 text-text/50 gap-md flex items-center font-semibold">
+          <span className="bg-accent block size-[10px] shrink-0 rounded-full" />
+          Left the kitchen · 6:27 PM
+        </span>
+        <span className="text-h3 gap-md flex items-center font-bold">
+          <span className="bg-accent route-pulse block size-[10px] shrink-0 rounded-full" />
+          14 min from your gate
+        </span>
+      </div>
+
+      <div className="mx-xl bg-accent/12 text-accent-text text-body-med mb-sm rounded-[16px] p-md text-center font-semibold">
+        Share this tracking link
+      </div>
+    </>
   );
 }
 
 /**
  * Two devices, not one: browsing and tracking are the two halves of the promise
  * in the headline. Showing both is what makes "follow your rider" concrete.
+ *
+ * Both are positioned from the centre of a box whose size tracks the same
+ * scale variable, so the pair stays centred and the hero column never has to
+ * reserve room for the phones at their unscaled size.
  */
 export function HeroPhones() {
   return (
-    // Three nested wrappers because each owns a transform and they would
-    // otherwise overwrite one another: the outer tilts, the middle buzzes
-    // forever, and PhoneFrame itself carries the entrance animation.
-    <div className="flex items-end justify-center">
-      <div className="origin-bottom z-10 -rotate-[7deg]">
+    <div className="hero-phones relative w-full max-w-[calc(1010px*var(--phone-scale))] [height:calc(884px*var(--phone-scale))]">
+      <div
+        className="origin-bottom absolute bottom-0 left-[calc(50%-178px-197px*var(--phone-scale))] z-1 [transform:scale(var(--phone-scale))_rotate(-7deg)]"
+      >
         <div className="buzz">
-          <PhoneFrame mode="light" className="rise rise-5">
+          <PhoneFrame mode="light">
             <BrowseScreen />
           </PhoneFrame>
         </div>
       </div>
 
-      <div className="origin-bottom -ml-xxl hidden rotate-[7deg] sm:block">
+      <div
+        className="origin-bottom absolute bottom-0 left-[calc(50%-224px+197px*var(--phone-scale))] z-2 [transform:scale(var(--phone-scale))_rotate(7deg)]"
+      >
         <div className="buzz buzz-offset">
-          <PhoneFrame mode="dark" className="rise rise-6">
+          <PhoneFrame mode="dark">
             <TrackingScreen />
           </PhoneFrame>
         </div>

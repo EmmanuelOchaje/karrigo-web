@@ -1,8 +1,15 @@
 import Link from "next/link";
 import { cn } from "@/lib/cn";
 
-type Variant = "accent" | "dark" | "outline" | "ghost" | "muted";
-type Size = "sm" | "md";
+type Variant =
+  | "accent"
+  | "dark"
+  | "outline"
+  | "ghost"
+  | "muted"
+  | "accentMuted"
+  | "onAccent";
+type Size = "sm" | "md" | "site";
 
 const variants: Record<Variant, string> = {
   accent: "bg-accent text-on-accent font-semibold",
@@ -10,11 +17,21 @@ const variants: Record<Variant, string> = {
   outline: "border-[1.5px] border-border-strong text-text font-medium",
   ghost: "text-text-secondary font-normal",
   muted: "bg-surface-raised text-text font-medium",
+  /** A secondary action sitting directly on the accent fill — translucent
+   *  onAccent rather than a light-mode surface, which would vanish on lime. */
+  accentMuted: "bg-on-accent/9 text-on-accent font-medium hover:bg-on-accent/16",
+  /** The primary action on the accent fill: the near-black carries the lime
+   *  as type, which is the one place the lime is allowed to be text. */
+  onAccent: "bg-on-accent text-accent font-bold",
 };
 
 const sizes: Record<Size, string> = {
   sm: "h-9 px-lg text-label",
   md: "h-button-height px-xl text-button",
+  /** The marketing site's own button: heavier and a shade larger than the
+   *  app's, because it is competing with display type rather than sitting in
+   *  a dense screen. */
+  site: "h-button-height px-xl text-site-button",
 };
 
 type Props = {

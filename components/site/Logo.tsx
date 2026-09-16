@@ -5,10 +5,15 @@ export function Logo({ className }: { className?: string }) {
   return (
     <Link
       href="/"
-      className={cn("text-h2 font-light tracking-[-0.03em]", className)}
+      className={cn(
+        "text-logo gap-xs inline-flex items-baseline",
+        className,
+      )}
       aria-label="M-Kart home"
     >
-      m<span className="font-semibold">-kart</span>
+      m
+      <span aria-hidden className="bg-accent block size-[6px] rounded-full" />
+      kart
     </Link>
   );
 }

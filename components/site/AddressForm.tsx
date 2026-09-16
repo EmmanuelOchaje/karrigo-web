@@ -19,26 +19,35 @@ export function AddressForm({
   className?: string;
 }) {
   return (
+    // Always light, whatever it is sitting on: on the dark hero panel the
+    // form is the one white thing, and that is what makes it the way in.
     <form
       action={action}
       method="get"
+      data-theme="light"
       className={cn(
-        "bg-surface border-border rounded-pill gap-sm flex items-center border p-xs pl-lg",
+        "bg-bg rounded-pill gap-sm flex items-center p-sm shadow-[0_20px_44px_-20px_rgba(0,0,0,0.6)]",
         className,
       )}
     >
       <label htmlFor={name} className="sr-only">
         {placeholder}
       </label>
+      <span
+        aria-hidden
+        className="grid w-[36px] flex-none place-items-center"
+      >
+        <span className="border-text-tertiary block size-[13px] -rotate-45 rounded-[50%_50%_50%_2px] border-2" />
+      </span>
       <input
         id={name}
         name={name}
         required
         autoComplete="street-address"
         placeholder={placeholder}
-        className="text-body-med text-text placeholder:text-text-tertiary min-w-0 flex-1 bg-transparent outline-none"
+        className="text-site-body text-text placeholder:text-text-secondary min-w-0 flex-1 truncate bg-transparent outline-none"
       />
-      <Button type="submit" size="sm" variant="accent">
+      <Button type="submit" size="site" variant="accent">
         {submitLabel}
       </Button>
     </form>

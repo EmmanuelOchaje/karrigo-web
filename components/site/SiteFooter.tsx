@@ -31,42 +31,44 @@ const columns = [
 
 export function SiteFooter() {
   return (
-    <Screen mode="dark" className="mt-auto">
-      <div className="px-screen-x mx-auto max-w-[1100px] py-xxl md:py-section">
-        <div className="gap-xl grid sm:grid-cols-2 md:grid-cols-4">
-          <div>
-            <Logo />
-            <p className="text-site-label text-text-secondary mt-sm max-w-[28ch]">
-              Food delivery in Makurdi, Benue State. Cooked locally, carried by
-              riders who know the roads.
-            </p>
+    <div className="px-screen-x mt-auto">
+      <Screen mode="dark" className="rounded-t-panel-lg">
+        <div className="px-xxl md:px-pad-card mx-auto max-w-[1240px] pt-xxl pb-xxl md:pt-pad-hero">
+          <div className="gap-xl grid sm:grid-cols-2 md:grid-cols-4">
+            <div>
+              <Logo />
+              <p className="text-site-answer text-cream/55 mt-lg max-w-[32ch]">
+                Food delivery in Makurdi, Benue State. Cooked locally, carried
+                by riders who know the roads.
+              </p>
+            </div>
+
+            {columns.map((column) => (
+              <div key={column.heading}>
+                <h3 className="text-eyebrow text-accent-text tracking-[0.08em] uppercase">
+                  {column.heading}
+                </h3>
+                <ul className="mt-lg gap-md flex flex-col">
+                  {column.links.map((link) => (
+                    <li key={link.label}>
+                      <Link
+                        href={link.href}
+                        className="text-site-answer text-cream/70 hover:text-accent-text transition-colors duration-(--duration-fast)"
+                      >
+                        {link.label}
+                      </Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
           </div>
 
-          {columns.map((column) => (
-            <div key={column.heading}>
-              <h3 className="text-label text-text-tertiary tracking-[0.12em] uppercase">
-                {column.heading}
-              </h3>
-              <ul className="mt-sm gap-sm flex flex-col">
-                {column.links.map((link) => (
-                  <li key={link.label}>
-                    <Link
-                      href={link.href}
-                      className="text-site-body text-text-secondary hover:text-text"
-                    >
-                      {link.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+          <p className="text-site-label text-cream/50 border-text/10 mt-xl border-t pt-lg">
+            © {new Date().getFullYear()} M-Kart. Makurdi, Benue State, Nigeria.
+          </p>
         </div>
-
-        <p className="text-caption text-text-tertiary border-border mt-xl border-t pt-lg">
-          © {new Date().getFullYear()} M-Kart. Makurdi, Benue State, Nigeria.
-        </p>
-      </div>
-    </Screen>
+      </Screen>
+    </div>
   );
 }

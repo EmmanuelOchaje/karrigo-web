@@ -5,329 +5,238 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { AddressForm } from "@/components/site/AddressForm";
 import { StoreButtons } from "@/components/site/StoreButtons";
 import { KitchenCard } from "@/components/site/KitchenCard";
+import { KitchenRail } from "@/components/site/KitchenRail";
 import { HeroPhones } from "@/components/site/HeroPhones";
+import { StepsGrid } from "@/components/site/StepsGrid";
 import { FaqList } from "@/components/site/FaqList";
-import {
-  RestaurantPhone,
-  RiderPhone,
-  OrderNotification,
-} from "@/components/site/AudiencePhones";
+import { Eyebrow } from "@/components/site/Eyebrow";
 import { Screen } from "@/components/ui/Screen";
 import { ButtonLink } from "@/components/ui/Button";
-import {
-  kitchens,
-  heroStats,
-  steps,
-  benefitCards,
-  riderSteps,
-} from "@/lib/fixtures";
+import { kitchens, heroStats } from "@/lib/fixtures";
 
 export default function HomePage() {
-  const openKitchens = kitchens.filter((k) => !k.closedUntil).slice(0, 3);
+  const shownKitchens = kitchens.slice(0, 4);
 
   return (
-    <>
+    // grow so the ground colour fills the viewport on short pages — the body
+    // behind it is the app's white, not the site's.
+    <div className="bg-surface grow">
       <SiteNav mode="dark" />
 
-      {/* Hero — dark, one action above the fold: type where you are. */}
-      <Screen mode="dark">
-        <div className="px-screen-x gap-xxl mx-auto grid min-h-[90svh] max-w-[1100px] items-center py-xxl md:py-section md:grid-cols-[1.05fr_.95fr]">
+      {/* Hero — an inset dark panel, not an edge-to-edge screen, so it reads
+          as a card sitting on the page rather than framing it. */}
+      <section className="px-screen-x">
+        <Screen
+          mode="dark"
+          className="rounded-panel-lg relative mx-auto mt-lg max-w-[1240px] overflow-hidden"
+        >
+          <div
+            aria-hidden
+            className="border-accent/22 pointer-events-none absolute top-[-170px] left-[-110px] size-[520px] rounded-full border-[1.5px]"
+          />
+          <div
+            aria-hidden
+            className="border-accent/13 pointer-events-none absolute top-[-90px] left-[-30px] size-[380px] rounded-full border-[1.5px]"
+          />
+          <div
+            aria-hidden
+            className="border-accent-warm/20 pointer-events-none absolute right-[-120px] bottom-[-200px] size-[560px] rounded-full border-[1.5px]"
+          />
+          <div
+            aria-hidden
+            className="border-text/8 pointer-events-none absolute right-[-40px] bottom-[-120px] size-[400px] rounded-full border-[1.5px]"
+          />
+
+          <div className="gap-xxl relative grid items-center px-xl pt-xxl md:px-pad-hero-x md:pt-pad-hero lg:grid-cols-2">
+            <div className="min-w-0">
+              <h1 className="text-hero-small md:text-hero text-cream rise text-balance">
+                Makurdi eats.
+                <br />
+                <span className="text-accent-text">We deliver.</span>
+              </h1>
+
+              <p className="text-lede-small md:text-lede text-cream/66 rise rise-1 mt-xl max-w-[34ch] text-pretty">
+                Order from kitchens around you and follow your rider from the
+                pot to your gate.
+              </p>
+
+              <AddressForm className="rise rise-2 mt-xxl max-w-[520px]" />
+
+              <p className="text-site-label text-cream/50 rise rise-3 mt-md">
+                No street address? A landmark works — our riders know Makurdi.
+              </p>
+
+              <dl className="rise rise-4 gap-sm mt-xxl flex flex-wrap pb-xxl">
+                {heroStats.map((stat) => (
+                  <div
+                    key={stat.label}
+                    className="bg-text/7 border-text/10 rounded-chip border px-lg py-md"
+                  >
+                    <dt className="text-stat text-accent-text">{stat.value}</dt>
+                    <dd className="text-stat-label text-cream/55 mt-[5px]">
+                      {stat.label}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            </div>
+
+            <div className="flex min-w-0 justify-center self-end pb-xxl">
+              <HeroPhones />
+            </div>
+          </div>
+        </Screen>
+      </section>
+
+      {/* Real kitchens, real prices, scrolling past — the marketing page's
+          own appetiser. */}
+      <div className="pt-xxl md:pt-gap-wide">
+        <KitchenRail />
+      </div>
+
+      <section className="px-screen-x mx-auto w-full max-w-[1240px] pt-section-sm md:pt-section">
+        <div className="gap-lg mb-xxl flex flex-wrap items-end justify-between">
           <div>
-            <h1 className="text-hero-small md:text-hero rise">
-              Makurdi eats.
-              <br />
-              <span className="text-accent-text">We deliver.</span>
-            </h1>
-
-            <p className="text-lede text-text-secondary rise rise-1 mt-lg max-w-[44ch]">
-              Order from kitchens around you and follow your rider from the pot to
-              your gate.
-            </p>
-
-            <AddressForm className="rise rise-2 mt-xl max-w-[28rem]" />
-
-            <p className="text-site-label text-text-tertiary rise rise-3 mt-md">
-              No street address? A landmark works — our riders know Makurdi.
-            </p>
-
-            <dl className="border-border rise rise-4 mt-xl gap-xl flex flex-wrap border-t pt-lg">
-              {heroStats.map((stat) => (
-                <div key={stat.label}>
-                  <dt className="text-stat text-accent-text">{stat.value}</dt>
-                  <dd className="text-site-label text-text-secondary">
-                    {stat.label}
-                  </dd>
-                </div>
-              ))}
-            </dl>
+            <Eyebrow className="rise">Open right now</Eyebrow>
+            <h2 className="text-section-small md:text-section rise rise-1 mt-md">
+              Kitchens in Makurdi
+            </h2>
           </div>
-
-          {/* The product itself, not a stock mockup. */}
-          <div className="justify-self-center">
-            <HeroPhones />
-          </div>
+          <ButtonLink
+            href="/kitchens"
+            variant="dark"
+            size="site"
+            className="rise rise-1"
+          >
+            See all kitchens
+          </ButtonLink>
         </div>
-      </Screen>
 
-      {/* Real kitchens, real prices, on the marketing page. */}
-      <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl md:py-section">
-        <p className="text-eyebrow text-text-tertiary rise uppercase">Open right now</p>
-        <h2 className="text-section-small md:text-section rise rise-1 mt-xs">
-          Kitchens in Makurdi
-        </h2>
-
-        <div className="gap-md rise rise-2 mt-lg grid sm:grid-cols-2 md:grid-cols-3">
-          {openKitchens.map((kitchen) => (
+        <div className="gap-xl rise rise-2 grid sm:grid-cols-2 lg:grid-cols-4">
+          {shownKitchens.map((kitchen) => (
             <KitchenCard key={kitchen.slug} kitchen={kitchen} />
           ))}
         </div>
-
-        <ButtonLink href="/kitchens" variant="outline" className="mt-lg">
-          See all kitchens
-        </ButtonLink>
       </section>
 
-      <section className="bg-surface">
-        <div className="px-screen-x mx-auto max-w-[1100px] py-xxl md:py-section">
-          <p className="text-eyebrow text-text-tertiary uppercase">How it works</p>
-          <h2 className="text-section-small md:text-section mt-xs">
-            Four steps, no app needed
-          </h2>
-
-          <ol className="border-border-strong mt-xl ml-xs border-l">
-            {steps.map((step, index) => (
-              <li key={step.title} className="pl-xl relative pb-xxl last:pb-0">
-                <span className="bg-accent absolute top-[7px] -left-[5.5px] size-[10px] rounded-full" />
-                <span className="bg-surface-raised text-accent-text text-label rounded-pill px-sm py-xs inline-block">
-                  Step {index + 1}
-                </span>
-                <h3 className="text-h1 mt-sm">{step.title}</h3>
-                <p className="text-site-body text-text-secondary mt-xs max-w-[58ch]">
-                  {step.body}
-                </p>
-              </li>
-            ))}
-          </ol>
-        </div>
-      </section>
-
-      {/* Why us — three cards, each ending in its own illustration. */}
-      <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl md:py-section">
-        <p className="text-eyebrow text-text-tertiary uppercase">Why M-Kart</p>
-        <h2 className="text-section-small md:text-section mt-xs">
-          Built for how Makurdi actually orders
+      {/* Four steps — one card reads as current at a time, on a loop. */}
+      <section className="px-screen-x mx-auto w-full max-w-[1240px] pt-section-sm md:pt-section">
+        <h2 className="text-section-small md:text-section mb-xxl max-w-[16ch] text-balance">
+          Four steps, no app needed
         </h2>
-
-        <div className="gap-md mt-lg grid md:grid-cols-3">
-          {benefitCards.map((card) => {
-            return (
-              <article
-                key={card.title}
-                className="border-border-strong rounded-card flex flex-col overflow-hidden border"
-              >
-                {/* The renders ship on a white background, so the panel is white
-                    too — on the grey surface they would show as a pale box. */}
-                <div className="bg-bg relative h-[210px]">
-                  <Image
-                    src={card.image}
-                    alt={card.imageAlt}
-                    fill
-                    sizes="(max-width: 768px) 100vw, 350px"
-                    className="object-contain p-md"
-                  />
-                </div>
-
-                <div className="p-lg flex-1">
-                  <h3 className="text-h1">{card.title}</h3>
-                  <p className="text-site-body text-text-secondary mt-sm">
-                    {card.body}
-                  </p>
-                  <Link
-                    href={card.href}
-                    className="text-label text-text mt-md gap-xs inline-flex items-center tracking-[0.12em] uppercase"
-                  >
-                    See more <span aria-hidden>&rarr;</span>
-                  </Link>
-                </div>
-              </article>
-            );
-          })}
-        </div>
+        <StepsGrid />
       </section>
 
-      {/* Riders — cards on the left, the illustration on the right. */}
-      <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl md:py-section">
-        <p className="text-eyebrow text-text-tertiary uppercase">Ride with us</p>
-        <h2 className="text-section-small md:text-section mt-xs">
-          Earn on your own hours
-        </h2>
-        <p className="text-lede text-text-secondary mt-sm max-w-[52ch]">
-          If you know Makurdi roads, you already have the hard part. Three steps
-          to your first delivery.
-        </p>
-
-        <div className="gap-lg mt-lg grid md:grid-cols-2">
-          <ol className="gap-md flex flex-col">
-            {riderSteps.map((step) => (
-              <li
-                key={step.title}
-                className="border-border rounded-card gap-md p-md flex border"
-              >
-                <span className="bg-surface grid size-[38px] shrink-0 place-items-center rounded-[10px] text-lg">
-                  {step.icon}
-                </span>
-                <div>
-                  <h3 className="text-h2">{step.title}</h3>
-                  <p className="text-site-body text-text-secondary mt-xs">
-                    {step.body}
-                  </p>
-                </div>
-              </li>
-            ))}
-          </ol>
-
-          <div className="bg-bg border-border rounded-card relative min-h-[260px] border">
-            <Image
-              src="/images/bike.jpg"
-              alt="A delivery scooter carrying a box"
-              fill
-              sizes="(max-width: 768px) 100vw, 520px"
-              className="object-contain p-lg"
-            />
-          </div>
-        </div>
-
-        <ButtonLink href="/partners#riders" variant="dark" className="mt-lg">
-          Apply to ride
-        </ButtonLink>
-      </section>
-
-      {/* Restaurants — the offer beside the screen the kitchen actually sees. */}
-      <Screen mode="dark">
-        <div className="px-screen-x gap-xxl mx-auto grid max-w-[1100px] items-center py-xxl md:py-section md:grid-cols-2">
-          <div>
-            <p className="text-eyebrow text-text-tertiary uppercase">
-              For restaurants
-            </p>
-            <h2 className="text-section-small md:text-section mt-xs">
-              Put your kitchen on M-Kart
+      {/* Live tracking — the promise made concrete, on its own dark panel. */}
+      <section className="px-screen-x pt-section-sm md:pt-section">
+        <Screen
+          mode="dark"
+          className="rounded-panel-lg mx-auto max-w-[1240px] p-xxl md:p-pad-panel"
+        >
+          <div className="max-w-[56ch] min-w-0">
+            <Eyebrow tone="onDark">Live tracking</Eyebrow>
+            <h2 className="text-panel-small md:text-panel text-cream mt-lg text-balance">
+              Follow your rider from the pot to your gate
             </h2>
-            <p className="text-lede text-text-secondary mt-sm max-w-[46ch]">
-              You cook. We handle orders, riders and money.
+            <p className="text-panel-body text-cream/65 mt-lg max-w-[38ch] text-pretty">
+              Watch them leave the kitchen and come to you. Share the link so
+              whoever is waiting can follow it too — no app, no account, and it
+              works on a slow connection.
             </p>
-            <ul className="mt-lg gap-sm flex flex-col">
+            <div className="mt-xl gap-sm flex flex-wrap">
               {[
-                "15% commission, nothing else — no setup fee, no monthly charge",
-                "Paid every Friday, straight to your account",
-                "We photograph your menu for free",
-                "Mark a dish finished yourself, any time",
-                "Live within a week of signing",
-              ].map((item) => (
-                <li key={item} className="text-site-body gap-sm flex">
-                  <span aria-hidden className="text-accent-text font-bold">
-                    ✓
-                  </span>
-                  {item}
-                </li>
+                "Landmarks, not addresses",
+                "Share the link",
+                "Call your rider",
+              ].map((tag) => (
+                <span
+                  key={tag}
+                  className="bg-text/8 text-site-label text-cream rounded-pill px-lg py-md font-semibold"
+                >
+                  {tag}
+                </span>
               ))}
-            </ul>
-            <ButtonLink href="/partners" variant="accent" className="mt-lg">
-              List your kitchen
-            </ButtonLink>
-          </div>
-
-          <div className="relative justify-self-center">
-            <RestaurantPhone />
-            {/* Centring lives on the wrapper: the bounce animates transform and
-                would overwrite a -translate-x-1/2 on the same element. */}
-            <div className="absolute top-[57%] left-1/2 z-10 -translate-x-1/2">
-              <div className="bounce-in-place">
-                <OrderNotification />
-              </div>
             </div>
           </div>
-        </div>
-      </Screen>
+        </Screen>
+      </section>
 
-      {/* Riders — same shape, mirrored, so the two audiences do not read as one block. */}
-      <section id="riders">
-        <div className="px-screen-x gap-xxl mx-auto grid max-w-[1100px] items-center py-xxl md:py-section md:grid-cols-2">
-          <div className="order-2 justify-self-center md:order-1">
-            <RiderPhone />
-          </div>
-
-          <div className="order-1 md:order-2">
-            <p className="text-eyebrow text-text-tertiary uppercase">For riders</p>
-            <h2 className="text-section-small md:text-section mt-xs">
-              Ride with M-Kart
+      {/* Riders and restaurants — two offer cards, side by side, so neither
+          audience reads as an afterthought to the other. */}
+      <section
+        id="riders"
+        className="px-screen-x mx-auto w-full max-w-[1240px] pt-section-sm md:pt-section"
+      >
+        <div className="gap-xl grid sm:grid-cols-2">
+          <div className="bg-accent text-on-accent rounded-panel-md p-xxl md:p-pad-card flex flex-col">
+            <div className="bg-bg rounded-slot relative h-[200px] overflow-hidden md:h-[248px]">
+              <Image
+                src="/images/v4-bike.jpg"
+                alt="A delivery scooter carrying a box"
+                fill
+                sizes="(max-width: 640px) 100vw, 50vw"
+                className="object-contain"
+              />
+            </div>
+            <h2 className="text-card-title-small md:text-card-title mt-xxl">
+              Earn on your own hours
             </h2>
-            <p className="text-lede text-text-secondary mt-sm max-w-[46ch]">
-              Know Makurdi roads? Start earning this week.
+            <p className="text-site-body text-on-accent/72 mt-md text-pretty">
+              If you know Makurdi roads, you already have the hard part. Paid
+              per trip, every Friday, and you keep 100% of your tips.
             </p>
-            <ul className="mt-lg gap-sm flex flex-col">
-              {[
-                "Paid per trip, every Friday",
-                "Keep 100% of your tips",
-                "Choose your own hours",
-                "Bring a bike, a rider's card and a phone",
-                "Fuel guarantee during your first two weeks",
-              ].map((item) => (
-                <li key={item} className="text-site-body gap-sm flex">
-                  <span aria-hidden className="text-accent-text font-bold">
-                    ✓
-                  </span>
-                  {item}
-                </li>
-              ))}
-            </ul>
-            <ButtonLink href="/partners#riders" variant="dark" className="mt-lg">
-              Apply to ride
-            </ButtonLink>
+            <div className="mt-auto pt-xxl">
+              <ButtonLink href="/partners#riders" variant="dark" size="site">
+                Apply to ride
+              </ButtonLink>
+            </div>
           </div>
+
+          <Screen
+            mode="dark"
+            className="rounded-panel-md p-xxl md:p-pad-card flex flex-col"
+          >
+            <div className="bg-bg rounded-slot relative h-[200px] overflow-hidden md:h-[248px]">
+              <Image
+                src="/images/v4-pay.jpg"
+                alt="Paying on a phone"
+                fill
+                sizes="(max-width: 640px) 100vw, 50vw"
+                className="object-contain"
+              />
+            </div>
+            <h2 className="text-card-title-small md:text-card-title text-cream mt-xxl">
+              Put your kitchen on M-Kart
+            </h2>
+            <p className="text-site-body text-cream/66 mt-md text-pretty">
+              You cook. We handle orders, riders and money. 15% commission,
+              nothing else — and we photograph your menu for free.
+            </p>
+            <div className="mt-auto pt-xxl">
+              <ButtonLink href="/partners" variant="accent" size="site">
+                List your kitchen
+              </ButtonLink>
+            </div>
+          </Screen>
         </div>
       </section>
 
-      {/* App CTA, left-aligned to the same gutter as every other section. */}
-      <Screen mode="dark">
-        <div className="px-screen-x mx-auto max-w-[1100px] py-xxl md:py-section">
-          <p className="text-eyebrow text-text-tertiary uppercase">
-            The M-Kart app
-          </p>
-          <h2 className="text-section-small md:text-section mt-xs">
-            Your order in seconds
-          </h2>
-          <p className="text-lede text-text-secondary mt-sm max-w-[46ch]">
-            Saved addresses, your usual kitchens, and the rider on a map from the
-            pot to your gate.
-          </p>
-
-          <StoreButtons className="mt-lg" />
-
-          <p className="text-site-body text-text-secondary border-border mt-xl max-w-[54ch] border-t pt-lg">
-            In a hurry? Order right here in the browser — every order comes with a
-            link you can send on WhatsApp, so whoever is waiting at home can
-            follow the rider too.
-          </p>
-        </div>
-      </Screen>
-
-      {/* Heading beside the list, not above it — full-width rows put the
-          question and its toggle a screen apart. */}
-      <section className="bg-surface">
-        <div className="px-screen-x gap-xxl mx-auto grid max-w-[1100px] py-xxl md:py-section md:grid-cols-[1fr_1.35fr]">
-          <div className="md:sticky md:top-xl md:self-start">
-            <p className="text-eyebrow text-text-tertiary uppercase">Questions</p>
-            <h2 className="text-section-small md:text-section mt-xs">
+      {/* FAQ — heading beside the list, not above it. */}
+      <section className="px-screen-x mx-auto max-w-[1240px] pt-section-sm md:pt-section">
+        <div className="gap-xxl grid items-start md:grid-cols-2 md:gap-gap-wide">
+          <div>
+            <h2 className="text-section-small md:text-section text-balance">
               Things people ask us
             </h2>
-            <p className="text-site-body text-text-secondary mt-sm max-w-[34ch]">
-              Anything else, call us — you reach a person in Makurdi, not a form.
+            <p className="text-site-body text-text-secondary mt-lg max-w-[32ch]">
+              Anything else, call us — you reach a person in Makurdi, not a
+              form.
             </p>
             <Link
               href="/help"
-              className="text-label text-text mt-md gap-xs inline-flex items-center tracking-[0.12em] uppercase"
+              className="text-site-button text-accent-text mt-lg inline-block"
             >
-              Visit help <span aria-hidden>&rarr;</span>
+              Visit help &rarr;
             </Link>
           </div>
 
@@ -335,7 +244,62 @@ export default function HomePage() {
         </div>
       </section>
 
+      {/* App CTA — the phone shows a real screenshot once one exists; an empty
+          frame reads better than a fake screen. */}
+      <section className="px-screen-x pt-section-sm md:pt-section">
+        <Screen
+          mode="dark"
+          className="rounded-panel-lg gap-xxl mx-auto grid max-w-[1240px] items-center p-xxl md:grid-cols-2 md:gap-gap-wide md:p-pad-panel"
+        >
+          <div className="min-w-0">
+            <Eyebrow tone="onDark">Download the app</Eyebrow>
+            <h2 className="text-panel-small md:text-panel text-cream mt-lg text-balance">
+              M-Kart, now in your pocket
+            </h2>
+            <p className="text-panel-body text-cream/65 mt-lg max-w-[38ch] text-pretty">
+              Order faster, save your landmarks, and get push notifications the
+              moment your rider leaves the kitchen.
+            </p>
+
+            <StoreButtons className="mt-xl" />
+          </div>
+
+          <div className="flex min-w-0 justify-center">
+            <div className="bg-surface border-text/10 aspect-[9/17] w-full max-w-[220px] overflow-hidden rounded-device-sm border" />
+          </div>
+        </Screen>
+      </section>
+
+      {/* Closing CTA — the last word, in the fill colour, before the footer. */}
+      <section className="px-screen-x pt-section-sm pb-xxl md:pt-section md:pb-pad-page-end">
+        <div className="rounded-panel-lg bg-accent text-on-accent relative mx-auto max-w-[1240px] overflow-hidden p-xxl text-center md:p-[68px]">
+          <div
+            aria-hidden
+            className="bg-accent-warm/22 pointer-events-none absolute top-[-60px] left-[-60px] size-[220px] rounded-full"
+          />
+          <div
+            aria-hidden
+            className="bg-on-accent/8 pointer-events-none absolute right-[-70px] bottom-[-70px] size-[250px] rounded-full"
+          />
+          <h2 className="text-cta-small md:text-cta relative text-balance">
+            Hungry right now?
+          </h2>
+          <p className="text-panel-body text-on-accent/72 relative mx-auto mt-lg max-w-[44ch]">
+            Order in the browser — every order comes with a link you can send on
+            WhatsApp, so whoever is waiting at home can follow the rider too.
+          </p>
+          <div className="gap-sm relative mt-xxl flex flex-wrap justify-center">
+            <ButtonLink href="/kitchens" variant="onAccent" size="site">
+              Order now
+            </ButtonLink>
+            <ButtonLink href="/kitchens" variant="accentMuted" size="site">
+              See all kitchens
+            </ButtonLink>
+          </div>
+        </div>
+      </section>
+
       <SiteFooter />
-    </>
+    </div>
   );
 }

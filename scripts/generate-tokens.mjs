@@ -20,6 +20,10 @@ const root = dirname(dirname(fileURLToPath(import.meta.url)));
 
 const kebab = (s) => s.replace(/[A-Z]/g, (c) => `-${c.toLowerCase()}`);
 
+/** "Plus Jakarta Sans" -> "plus-jakarta-sans", matching the next/font CSS
+ *  variable name layout.tsx must declare (`--font-${fontSlug}`). */
+const fontSlug = font.family.toLowerCase().replace(/\s+/g, "-");
+
 const cssShadow = (s) =>
   s
     ? `${s.shadowOffset.width}px ${s.shadowOffset.height}px ${s.shadowRadius}px rgba(10,11,9,${s.shadowOpacity})`
@@ -60,7 +64,7 @@ ${palette(dark, "dark")}
 }
 
 @theme inline {
-  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-sans: var(--font-${fontSlug}), system-ui, sans-serif;
 
 ${colorNames.map((n) => `  --color-${n}: var(--${n});`).join("\n")}
 

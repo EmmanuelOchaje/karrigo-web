@@ -7,19 +7,21 @@ export function FaqList() {
       {faqs.map((faq) => (
         <details
           key={faq.q}
-          className="faq-item group bg-bg border-border rounded-card hover:border-border-strong open:border-border-strong border px-lg py-md transition-colors duration-(--duration-fast)"
+          className="faq-item group bg-bg rounded-panel-xs px-xl py-xs"
         >
-          <summary className="text-h2 gap-md flex cursor-pointer list-none items-center">
+          <summary className="text-site-question gap-md flex cursor-pointer list-none items-center justify-between py-lg">
             {faq.q}
             {/* One glyph, not two: the plus rotates into a cross when open. */}
             <span
               aria-hidden
-              className="text-text-tertiary group-open:text-accent-text ml-auto shrink-0 text-xl leading-none transition-transform duration-(--duration-normal) group-open:rotate-45"
+              className="bg-surface text-accent-text text-site-question grid size-[26px] flex-none place-items-center rounded-full leading-none transition-transform duration-(--duration-normal) group-open:rotate-45"
             >
               +
             </span>
           </summary>
-          <p className="text-site-body text-text-secondary mt-sm">{faq.a}</p>
+          <p className="text-site-answer text-text-secondary mb-lg max-w-[52ch]">
+            {faq.a}
+          </p>
         </details>
       ))}
     </div>
