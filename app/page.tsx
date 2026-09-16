@@ -256,28 +256,27 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* App CTA — the phone shows a real screenshot once one exists; an empty
-          frame reads better than a fake screen. */}
+      {/* App CTA — centred, no device: there is no screenshot to show yet,
+          and an empty phone frame reads as a placeholder rather than a
+          promise. */}
       <section className="px-screen-x pt-section-sm md:pt-section">
         <Screen
           mode="dark"
-          className="rounded-panel-lg gap-xxl mx-auto grid max-w-[1240px] items-center p-xxl md:grid-cols-2 md:gap-gap-wide md:p-pad-panel"
+          className="rounded-panel-lg mx-auto max-w-[1240px] p-xxl text-center md:p-pad-panel"
         >
-          <div className="min-w-0">
-            <Eyebrow tone="onDark">Download the app</Eyebrow>
+          <div className="mx-auto max-w-[46ch]">
+            <div className="flex justify-center">
+              <Eyebrow tone="onDark">Download the app</Eyebrow>
+            </div>
             <h2 className="text-panel-small md:text-panel text-cream mt-lg text-balance">
               M-Kart, now in your pocket
             </h2>
-            <p className="text-panel-body text-cream/65 mt-lg max-w-[38ch] text-pretty">
+            <p className="text-panel-body text-cream/65 mx-auto mt-lg max-w-[38ch] text-pretty">
               Order faster, save your landmarks, and get push notifications the
               moment your rider leaves the kitchen.
             </p>
 
-            <StoreButtons className="mt-xl" />
-          </div>
-
-          <div className="flex min-w-0 justify-center">
-            <div className="bg-surface border-text/10 aspect-[9/17] w-full max-w-[220px] overflow-hidden rounded-device-sm border" />
+            <StoreButtons className="mt-xl justify-center" />
           </div>
         </Screen>
       </section>
