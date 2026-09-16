@@ -47,7 +47,7 @@ export default function HomePage() {
             className="border-text/8 pointer-events-none absolute right-[-40px] bottom-[-120px] size-[400px] rounded-full border-[1.5px]"
           />
 
-          <div className="gap-xxl relative grid items-center px-xl pt-xxl md:px-pad-hero-x md:pt-pad-hero lg:grid-cols-2">
+          <div className="gap-xxl relative grid items-center px-xl pt-xxl md:px-pad-hero-x md:pt-pad-hero xl:grid-cols-2">
             <div className="min-w-0">
               <h1 className="text-hero-small md:text-hero text-cream rise text-balance">
                 Makurdi eats.
@@ -81,7 +81,10 @@ export default function HomePage() {
               </dl>
             </div>
 
-            <div className="flex min-w-0 justify-center self-end pb-xxl">
+            {/* The devices only work beside the copy. Stacked under it they
+                are a shrunken afterthought, so below the two-column width
+                they go entirely rather than getting smaller. */}
+            <div className="hidden min-w-0 justify-center self-end pb-xxl xl:flex">
               <HeroPhones />
             </div>
           </div>
