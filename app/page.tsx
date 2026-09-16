@@ -172,7 +172,13 @@ export default function HomePage() {
       >
         <div className="gap-xl grid sm:grid-cols-2">
           <div className="bg-accent text-on-accent rounded-panel-md p-xxl md:p-pad-card flex flex-col">
-            <div className="bg-bg rounded-slot relative h-[200px] overflow-hidden md:h-[248px]">
+            {/* The slot is white on both cards, whatever the card is. Left to
+                the surrounding palette it would go near-black on the dark one,
+                and the photograph would sit on it with no margin. */}
+            <div
+              data-theme="light"
+              className="bg-bg rounded-slot relative h-[200px] overflow-hidden md:h-[248px]"
+            >
               <Image
                 src="/images/v4-bike.jpg"
                 alt="A delivery scooter carrying a box"
@@ -199,7 +205,10 @@ export default function HomePage() {
             mode="dark"
             className="rounded-panel-md p-xxl md:p-pad-card flex flex-col"
           >
-            <div className="bg-bg rounded-slot relative h-[200px] overflow-hidden md:h-[248px]">
+            <div
+              data-theme="light"
+              className="bg-bg rounded-slot relative h-[200px] overflow-hidden md:h-[248px]"
+            >
               <Image
                 src="/images/v4-pay.jpg"
                 alt="Paying on a phone"

@@ -166,29 +166,87 @@ body {
   will-change: transform;
 }
 
-/* Four-step cards: one card at a time reads as "current" by swapping to the
-   dark fill, in a loop. Each card gets the same animation, offset by a
-   quarter of the cycle via an inline --step-delay custom property, so there
-   is one keyframe definition instead of four near-duplicates. */
-@keyframes step-cycle {
-  0%,
+/* Four-step cards: one card at a time reads as "current". The highlight is a
+   dark block that travels — it wipes out of card N's right edge on the same
+   frame it starts wiping into card N+1's left, so the sweep reads as one
+   moving thing crossing the row rather than four cards fading on the spot.
+   Each card runs the same pair of animations, offset by a quarter of the
+   cycle via an inline --step-delay, so there is one definition instead of
+   four near-duplicates.
+
+   Both off positions park the band outside the card, so the jump back to the
+   left at 24.6% is never seen. */
+@keyframes step-dash {
+  0% {
+    background-position-x: 100%;
+  }
+  3.5%,
+  21% {
+    background-position-x: 50%;
+  }
+  24.5% {
+    background-position-x: 0%;
+  }
+  24.6%,
   100% {
-    background: var(--bg);
+    background-position-x: 100%;
+  }
+}
+
+/* The fill and the ink, in one set so they cannot drift apart. The fill turns
+   dark on the frame the block finishes arriving and turns back the frame it
+   starts leaving, so the block appears to carry the colour in and out with it.
+   The ink flips a beat earlier and clears a beat later, each flip landing
+   mid-wipe while the card is half covered.
+
+   This is also the floor: if the wipe above does not paint, these two still
+   give the card a readable dark state on its turn — just without the travel. */
+@keyframes step-fill {
+  0%,
+  1.2% {
+    background-color: var(--bg);
     color: var(--text);
   }
-  2%,
-  21% {
-    background: var(--text);
-    color: var(--bg);
+  2.3% {
+    background-color: var(--bg);
+    color: var(--cream);
   }
-  23% {
-    background: var(--bg);
+  3.5%,
+  21% {
+    background-color: var(--text);
+    color: var(--cream);
+  }
+  22% {
+    background-color: var(--bg);
+    color: var(--cream);
+  }
+  23.3%,
+  100% {
+    background-color: var(--bg);
     color: var(--text);
   }
 }
 
-@utility step-cycle {
-  animation: step-cycle 9.6s ease both infinite;
+/* The block is a band in a background three card-widths wide — clear, dark,
+   clear — that slides across. Sliding the background rather than a positioned
+   overlay keeps it on one element, and the clear thirds let the card's own
+   fill show through, so the two never fight. */
+@utility step-dash {
+  background-image: linear-gradient(
+    90deg,
+    transparent 33.334%,
+    var(--text) 33.334% 66.666%,
+    transparent 66.666%
+  );
+  background-size: 300% 100%;
+  background-repeat: no-repeat;
+  background-position-x: 100%;
+  animation: step-dash 9.6s cubic-bezier(0.65, 0, 0.35, 1) both infinite;
+  animation-delay: var(--step-delay, 0s);
+}
+
+@utility step-fill {
+  animation: step-fill 9.6s linear both infinite;
   animation-delay: var(--step-delay, 0s);
 }
 
@@ -263,7 +321,8 @@ body {
   .rail {
     animation: none;
   }
-  .step-cycle {
+  .step-dash,
+  .step-fill {
     animation: none;
   }
   .ride {
