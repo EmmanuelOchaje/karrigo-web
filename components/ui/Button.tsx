@@ -9,7 +9,7 @@ type Variant =
   | "muted"
   | "accentMuted"
   | "onAccent";
-type Size = "sm" | "md" | "site";
+type Size = "sm" | "md" | "site" | "siteCompact";
 
 const variants: Record<Variant, string> = {
   accent: "bg-accent text-on-accent font-semibold",
@@ -32,6 +32,10 @@ const sizes: Record<Size, string> = {
    *  app's, because it is competing with display type rather than sitting in
    *  a dense screen. */
   site: "h-button-height px-xl text-site-button",
+  /** The site button, compact until xl — for controls that span a full
+   *  stacked column on tablet and phone. */
+  siteCompact:
+    "h-9 px-lg text-label xl:h-button-height xl:px-xl xl:text-site-button",
 };
 
 type Props = {

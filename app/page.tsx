@@ -60,7 +60,7 @@ export default function HomePage() {
                 pot to your gate.
               </p>
 
-              <AddressForm className="rise rise-2 mt-xxl max-w-[520px]" />
+              <AddressForm className="rise rise-2 mt-xxl max-w-[440px] xl:max-w-[520px]" />
 
               <p className="text-site-label text-cream/50 rise rise-3 mt-md">
                 No street address? A landmark works — our riders know Makurdi.

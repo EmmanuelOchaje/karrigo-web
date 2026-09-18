@@ -26,7 +26,7 @@ export function AddressForm({
       method="get"
       data-theme="light"
       className={cn(
-        "bg-bg rounded-pill gap-sm flex items-center p-sm shadow-[0_20px_44px_-20px_rgba(0,0,0,0.6)]",
+        "bg-bg rounded-pill gap-sm flex items-center p-xs xl:p-sm shadow-[0_20px_44px_-20px_rgba(0,0,0,0.6)]",
         className,
       )}
     >
@@ -45,9 +45,11 @@ export function AddressForm({
         required
         autoComplete="street-address"
         placeholder={placeholder}
-        className="text-site-body text-text placeholder:text-text-secondary min-w-0 flex-1 truncate bg-transparent outline-none"
+        className="text-body xl:text-site-body text-text placeholder:text-text-secondary min-w-0 flex-1 truncate bg-transparent outline-none"
       />
-      <Button type="submit" size="site" variant="accent">
+      {/* The hero stacks below xl, so the form spans the full column there:
+          a compact button keeps it from reading as a slab on tablet and phone. */}
+      <Button type="submit" size="siteCompact" variant="accent">
         {submitLabel}
       </Button>
     </form>
