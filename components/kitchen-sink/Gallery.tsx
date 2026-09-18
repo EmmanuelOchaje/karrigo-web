@@ -190,7 +190,7 @@ export function Gallery({ mode }: { mode: "light" | "dark" }) {
           </p>
           <p className="text-label text-text-secondary">DELIVER TO</p>
           <p className="text-caption text-text-tertiary">
-            By continuing you agree to M-Kart&apos;s Terms and Privacy Policy.
+            By continuing you agree to Karrigo&apos;s Terms and Privacy Policy.
           </p>
           <p className="text-price">{formatKobo(350000)}</p>
         </div>

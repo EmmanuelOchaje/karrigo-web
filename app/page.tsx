@@ -218,7 +218,7 @@ export default function HomePage() {
               />
             </div>
             <h2 className="text-card-title-small md:text-card-title text-cream mt-xxl">
-              Put your kitchen on M-Kart
+              Put your kitchen on Karrigo
             </h2>
             <p className="text-site-body text-cream/66 mt-md text-pretty">
               You cook. We handle orders, riders and money. 15% commission,
@@ -269,7 +269,7 @@ export default function HomePage() {
               <Eyebrow tone="onDark">Download the app</Eyebrow>
             </div>
             <h2 className="text-panel-small md:text-panel text-cream mt-lg text-balance">
-              M-Kart, now in your pocket
+              Karrigo, now in your pocket
             </h2>
             <p className="text-panel-body text-cream/65 mx-auto mt-lg max-w-[38ch] text-pretty">
               Order faster, save your landmarks, and get push notifications the

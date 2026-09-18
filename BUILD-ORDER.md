@@ -37,7 +37,7 @@ Prompts below are written to paste directly into Claude Code.
 
 > Build the public pages from `design/mkart-website.html`: home, /partners,
 > /areas, and /help. Server Components, no client JS beyond the address input.
-> The address field resolves an area and routes to /kitchens. The "ask M-Kart to
+> The address field resolves an area and routes to /kitchens. The "ask Karrigo to
 > come" and "list your kitchen" forms write to the database. Mobile-first,
 > tested at 390px.
 

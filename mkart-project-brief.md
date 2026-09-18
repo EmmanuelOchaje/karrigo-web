@@ -1,4 +1,4 @@
-# M-Kart — Project Brief
+# Karrigo — Project Brief
 
 **Version 0.1 · Draft · September 2026**
 **Owner:** [your name] · **Status:** Pre-research
@@ -7,7 +7,7 @@
 
 ## 1. What we are building
 
-M-Kart is a food delivery service for Makurdi, Benue State. Customers order from
+Karrigo is a food delivery service for Makurdi, Benue State. Customers order from
 local restaurants through a mobile app, pay by card, transfer or cash, and follow
 their rider from the kitchen to their gate.
 

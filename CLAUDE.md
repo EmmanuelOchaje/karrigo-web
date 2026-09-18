@@ -6,7 +6,7 @@ Project context for Claude Code. Read this before writing any code.
 
 ## What we're building
 
-**M-Kart** — food delivery for Makurdi, Benue State, Nigeria.
+**Karrigo** — food delivery for Makurdi, Benue State, Nigeria.
 
 Customers order from local restaurants, pay by card, transfer or cash, and follow
 a rider from the kitchen to their gate. Three user types, one product:

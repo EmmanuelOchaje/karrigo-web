@@ -3,7 +3,7 @@ import { SiteFooter } from "@/components/site/SiteFooter";
 import { kitchens } from "@/lib/fixtures";
 
 export const metadata = {
-  title: "Photo credits — M-Kart",
+  title: "Photo credits — Karrigo",
   description: "Photographers and licences for the images used on this site.",
 };
 

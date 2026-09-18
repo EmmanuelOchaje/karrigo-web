@@ -1,5 +1,5 @@
 -- ============================================================================
--- M-Kart — PostgreSQL schema
+-- Karrigo — PostgreSQL schema
 -- ============================================================================
 -- Conventions:
 --   * All money in KOBO as integers. ₦2,800 = 280000. Never floats.
@@ -257,7 +257,7 @@ CREATE TABLE orders (
   discount_kobo      integer NOT NULL DEFAULT 0,
   tip_kobo           integer NOT NULL DEFAULT 0,
   total_kobo         integer NOT NULL,
-  commission_kobo    integer NOT NULL,               -- what M-Kart keeps
+  commission_kobo    integer NOT NULL,               -- what Karrigo keeps
   restaurant_payout_kobo integer NOT NULL,
   rider_payout_kobo  integer NOT NULL,
 

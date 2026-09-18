@@ -1,4 +1,4 @@
-# M-Kart — developer handoff
+# Karrigo — developer handoff
 
 **For:** mobile developer · **Platform:** React Native, Android first
 **Version:** 0.1 — auth flow only

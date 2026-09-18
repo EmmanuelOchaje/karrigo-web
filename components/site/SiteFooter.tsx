@@ -36,7 +36,7 @@ export function SiteFooter() {
         <div className="px-xxl md:px-pad-card mx-auto max-w-[1240px] pt-xxl pb-xxl md:pt-pad-hero">
           <div className="gap-xl grid sm:grid-cols-2 md:grid-cols-4">
             <div>
-              <Logo />
+              <Logo mode="dark" />
               <p className="text-site-answer text-cream/55 mt-lg max-w-[32ch]">
                 Food delivery in Makurdi, Benue State. Cooked locally, carried
                 by riders who know the roads.
@@ -65,7 +65,7 @@ export function SiteFooter() {
           </div>
 
           <p className="text-site-label text-cream/50 border-text/10 mt-xl border-t pt-lg">
-            © {new Date().getFullYear()} M-Kart. Makurdi, Benue State, Nigeria.
+            © {new Date().getFullYear()} Karrigo. Makurdi, Benue State, Nigeria.
           </p>
         </div>
       </Screen>

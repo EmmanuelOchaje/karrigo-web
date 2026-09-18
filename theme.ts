@@ -1,5 +1,5 @@
 /**
- * M-Kart — design tokens, v2
+ * Karrigo — design tokens, v2
  *
  * Semantic tokens with matched light and dark modes.
  * Components reference roles (`surface`, `textSecondary`) — never raw hex.
@@ -257,7 +257,7 @@ export const radius = { field:15, card:15, sheet:20, header:24, otp:13, pill:999
                          *  rounding. Distinct from `card` (15px), which is
                          *  for dense in-page cards like kitchen tiles. */
                         panelXs:22, panelSm:30, panelMd:36, panelLg:44 } as const;
-export const size   = { buttonHeight:46, fieldHeight:46, backButton:29, featureIcon:64 } as const;
+export const size   = { buttonHeight:46, fieldHeight:46, backButton:29, featureIcon:64, logo:30 } as const;
 
 /** Shadows only exist in light mode. Dark uses surface steps for depth. */
 export const shadow = {

@@ -1,6 +1,6 @@
-# M-Kart — build package
+# Karrigo — build package
 
-Everything needed to build M-Kart, a food delivery service for Makurdi, Benue
+Everything needed to build Karrigo, a food delivery service for Makurdi, Benue
 State, Nigeria.
 
 ## How to use this

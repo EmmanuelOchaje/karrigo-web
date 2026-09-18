@@ -24,7 +24,7 @@ export function SiteNav({ mode = "light" }: { mode?: "light" | "dark" }) {
         mode={mode}
         className="rounded-pill gap-lg mx-auto flex max-w-[1240px] items-center py-sm pr-md pl-xxl shadow-[0_12px_30px_-14px_rgba(14,15,13,0.55)]"
       >
-        <Logo />
+        <Logo mode={mode} />
 
         <div className="mx-auto hidden items-center md:flex">
           {links.map((link) => (
