@@ -25,6 +25,19 @@ export type Kitchen = {
   /** A short opening-hours notice shown on the kitchen's card — the kitchen
    *  is still browsable, just not taking orders yet today. */
   opensAt?: string;
+  /** The filter chip this kitchen sits under on /kitchens. */
+  category: string;
+  /** Checkout is blocked below this, with the shortfall shown. */
+  minOrderKobo: number;
+  menu: Dish[];
+};
+
+export type Dish = {
+  id: string;
+  name: string;
+  description: string;
+  priceKobo: number;
+  soldOut?: boolean;
 };
 
 export const kitchens: Kitchen[] = [
@@ -39,6 +52,15 @@ export const kitchens: Kitchen[] = [
     distanceKm: 0.8,
     etaMinutes: [20, 30],
     deliveryFeeKobo: 0,
+    category: "Swallow",
+    minOrderKobo: 150000,
+    menu: [
+      { id: "pounded-yam-egusi", name: "Pounded yam & egusi", description: "With assorted meat", priceKobo: 280000, },
+      { id: "amala-ewedu", name: "Amala & ewedu", description: "Gbegiri and stew on the side", priceKobo: 240000, },
+      { id: "semo-okra", name: "Semo & okra soup", description: "With fresh fish", priceKobo: 260000, },
+      { id: "goat-pepper-soup", name: "Goat meat pepper soup", description: "Hot, one bowl", priceKobo: 300000, },
+      { id: "zobo", name: "Zobo", description: "Chilled, 50cl", priceKobo: 50000, },
+    ],
   },
   {
     slug: "sewuese-rice-spot",
@@ -51,6 +73,15 @@ export const kitchens: Kitchen[] = [
     distanceKm: 1.4,
     etaMinutes: [25, 35],
     deliveryFeeKobo: 50000,
+    category: "Rice",
+    minOrderKobo: 150000,
+    menu: [
+      { id: "jollof-chicken", name: "Jollof rice & chicken", description: "Party-style, with plantain", priceKobo: 250000, },
+      { id: "fried-rice-turkey", name: "Fried rice & turkey", description: "With coleslaw", priceKobo: 320000, },
+      { id: "ofada-ayamase", name: "Ofada rice & ayamase", description: "Green pepper sauce", priceKobo: 270000, },
+      { id: "extra-plantain", name: "Extra plantain", description: "Dodo, one portion", priceKobo: 60000, },
+      { id: "chapman", name: "Chapman", description: "Chilled, 50cl", priceKobo: 80000, },
+    ],
   },
   {
     slug: "benue-grills",
@@ -63,6 +94,15 @@ export const kitchens: Kitchen[] = [
     distanceKm: 2.6,
     etaMinutes: [35, 45],
     deliveryFeeKobo: 80000,
+    category: "Grills",
+    minOrderKobo: 200000,
+    menu: [
+      { id: "grilled-chicken-half", name: "Grilled chicken (half)", description: "Peppered, with chips", priceKobo: 450000, },
+      { id: "bbq-fish", name: "Barbecue fish", description: "Whole catfish, spicy sauce", priceKobo: 600000, },
+      { id: "beef-skewers", name: "Beef skewers", description: "Four sticks", priceKobo: 280000, },
+      { id: "roasted-yam", name: "Roasted yam", description: "With palm oil sauce", priceKobo: 150000, },
+      { id: "malt", name: "Chilled malt", description: "33cl can", priceKobo: 70000, },
+    ],
   },
   {
     slug: "modern-market-suya",
@@ -76,6 +116,15 @@ export const kitchens: Kitchen[] = [
     etaMinutes: [30, 40],
     deliveryFeeKobo: 90000,
     opensAt: "Opens 6pm",
+    category: "Suya",
+    minOrderKobo: 150000,
+    menu: [
+      { id: "beef-suya", name: "Beef suya", description: "Wrapped, with onions and yaji", priceKobo: 200000, },
+      { id: "ram-suya", name: "Ram suya", description: "Wrapped, extra yaji", priceKobo: 250000, },
+      { id: "kilishi", name: "Kilishi", description: "100g pack", priceKobo: 180000, },
+      { id: "chicken-suya", name: "Chicken suya", description: "Half bird", priceKobo: 350000, },
+      { id: "kunu", name: "Kunu", description: "Chilled, 50cl", priceKobo: 50000, },
+    ],
   },
   {
     slug: "ankpa-bukka",
@@ -88,6 +137,14 @@ export const kitchens: Kitchen[] = [
     distanceKm: 3.6,
     etaMinutes: [35, 45],
     deliveryFeeKobo: 90000,
+    category: "Swallow",
+    minOrderKobo: 150000,
+    menu: [
+      { id: "egusi-eba", name: "Eba & egusi", description: "With goat meat", priceKobo: 230000, },
+      { id: "vegetable-soup", name: "Pounded yam & vegetable soup", description: "Ugu and waterleaf", priceKobo: 260000, },
+      { id: "ofe-onugbu", name: "Fufu & bitterleaf soup", description: "With stockfish", priceKobo: 250000, soldOut: true, },
+      { id: "moi-moi", name: "Moi moi", description: "Two wraps", priceKobo: 80000, },
+    ],
   },
   {
     slug: "aondona-breakfast",
@@ -105,12 +162,30 @@ export const kitchens: Kitchen[] = [
     etaMinutes: [20, 30],
     deliveryFeeKobo: 50000,
     closedUntil: "Opens 6:30am tomorrow",
+    category: "Breakfast",
+    minOrderKobo: 100000,
+    menu: [
+      { id: "akara-pap", name: "Akara & pap", description: "Six akara, one cup", priceKobo: 120000, },
+      { id: "bread-egg", name: "Bread & fried egg", description: "With sweet tea", priceKobo: 110000, },
+      { id: "tea", name: "Hot tea", description: "Milo or Lipton", priceKobo: 40000, },
+    ],
   },
 ];
 
 /** The scrolling dish rail on the homepage. Reuses photos already credited
  *  (or tracked) against a kitchen above, so it introduces no new attribution
  *  gaps — same images, priced at dish level instead of kitchen level. */
+export function findKitchen(slug: string): Kitchen | undefined {
+  return kitchens.find((kitchen) => kitchen.slug === slug);
+}
+
+/** The cheapest main — drinks and sides under ₦1,000 would make every
+ *  kitchen look like it starts at ₦500. */
+export function fromPriceKobo(kitchen: Kitchen): number {
+  const mains = kitchen.menu.filter((dish) => dish.priceKobo > 100000);
+  return Math.min(...(mains.length ? mains : kitchen.menu).map((d) => d.priceKobo));
+}
+
 export const dishes = [
   { name: "Pounded yam & egusi", image: "/food/poundo.jpg", priceKobo: 330000 },
   { name: "Jollof & chicken", image: "/food/jollof-chicken.jpg", priceKobo: 280000 },
@@ -118,15 +193,18 @@ export const dishes = [
   { name: "Suya, full wrap", image: "/food/meat.jpg", priceKobo: 150000 },
 ] as const;
 
+/** Each area's pill on the homepage's areas panel. The tones are the design's
+ *  loose scatter of fills — deliberately uneven, so the row reads as a
+ *  hand-placed set of stickers rather than a tag list. */
 export const areasLive = [
-  "High Level",
-  "Wurukum",
-  "North Bank",
-  "Modern Market",
-  "Judges Quarters",
-  "Ankpa Ward",
-  "BSU and around",
-];
+  { name: "High Level", tone: "accent", tilt: -3 },
+  { name: "Wurukum", tone: "white", tilt: 0 },
+  { name: "North Bank", tone: "outline", tilt: 2 },
+  { name: "Wadata", tone: "white", tilt: 1.5 },
+  { name: "Modern Market", tone: "warm", tilt: -2 },
+  { name: "Old GRA", tone: "outline", tilt: 0 },
+  { name: "Kanshio", tone: "accent", tilt: 2.5 },
+] as const;
 
 export const areasComingNext = [
   "Gyado Villa",

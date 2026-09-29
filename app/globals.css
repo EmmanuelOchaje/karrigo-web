@@ -308,7 +308,58 @@ body {
   animation: route-pulse 2s ease-in-out infinite;
 }
 
+/* Ordering flow feedback. A count that changes pops; a toast rises into place;
+   a form error shakes once, so it reads as an answer to the tap that caused it. */
+@keyframes pop {
+  0% {
+    transform: scale(0.55);
+  }
+  60% {
+    transform: scale(1.15);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+@utility pop {
+  animation: pop var(--duration-slow) cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.96);
+  }
+}
+
+@utility toast-in {
+  animation: toast-in var(--duration-slow) cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+@keyframes shake {
+  0%,
+  100% {
+    transform: none;
+  }
+  25% {
+    transform: translateX(-6px);
+  }
+  75% {
+    transform: translateX(6px);
+  }
+}
+
+@utility shake {
+  animation: shake var(--duration-slow) ease-in-out;
+}
+
 @media (prefers-reduced-motion: reduce) {
+  .pop,
+  .toast-in,
+  .shake {
+    animation: none;
+  }
   .rise {
     animation: none;
   }
