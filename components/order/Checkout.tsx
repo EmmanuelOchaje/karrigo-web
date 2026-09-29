@@ -84,7 +84,7 @@ export function Checkout() {
       pay: parsed.data.pay,
       to: parsed.data.landmark || parsed.data.address,
     });
-    router.push(`/track/${id}`);
+    router.push(`/track?order=${id}`);
   }
 
   return (
