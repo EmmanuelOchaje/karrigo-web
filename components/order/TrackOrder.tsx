@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Screen } from "@/components/ui/Screen";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { formatKobo } from "@/lib/money";
@@ -23,8 +23,9 @@ const ETA_MS = 35 * 60 * 1000;
 
 const payLabel = { card: "Paid by card", transfer: "Bank transfer", cash: "Cash on delivery" };
 
-export function TrackOrder({ id }: { id: string }) {
+export function TrackOrder() {
   const router = useRouter();
+  const id = useSearchParams().get("order") ?? "";
   const hydrated = useHydrated();
   const { order } = useOrderState();
   const [now, setNow] = useState(() => Date.now());

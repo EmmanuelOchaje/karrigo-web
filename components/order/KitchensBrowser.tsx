@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { KitchenCard } from "@/components/site/KitchenCard";
 import { Eyebrow } from "@/components/site/Eyebrow";
 import { fromPriceKobo, kitchens } from "@/lib/fixtures";
@@ -16,16 +17,23 @@ const categories = ["All", ...new Set(kitchens.map((k) => k.category))];
  * Search and category chips over the kitchen grid. Search matches kitchen
  * names, cuisines and dishes, so "egusi" finds every kitchen that cooks it.
  */
-export function KitchensBrowser({ address }: { address?: string }) {
+/** The homepage's address form lands here with ?address=. Keep it as the
+ *  landmark so checkout and the header already know where the food goes.
+ *  Read in the browser, not on the server, so /kitchens stays a static page
+ *  that links can prefetch in full. */
+function AddressFromQuery() {
+  const address = useSearchParams().get("address")?.trim();
+  useEffect(() => {
+    if (address) setDelivery({ landmark: address });
+  }, [address]);
+  return null;
+}
+
+export function KitchensBrowser() {
   const { user } = useOrderState();
   const [query, setQuery] = useState("");
   const [category, setCategory] = useState("All");
 
-  // The homepage's address form lands here with ?address=. Keep it as the
-  // landmark so checkout and the header already know where the food goes.
-  useEffect(() => {
-    if (address?.trim()) setDelivery({ landmark: address.trim() });
-  }, [address]);
 
   const q = query.trim().toLowerCase();
   const shown = kitchens.filter(
@@ -40,6 +48,9 @@ export function KitchensBrowser({ address }: { address?: string }) {
 
   return (
     <div className="mx-auto max-w-[1240px]">
+      <Suspense fallback={null}>
+        <AddressFromQuery />
+      </Suspense>
       <div className="gap-lg flex flex-wrap items-end justify-between">
         <div>
           <Eyebrow className="rise">

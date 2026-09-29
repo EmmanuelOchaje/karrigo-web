@@ -53,7 +53,7 @@ export function OrderNav() {
         <div className="gap-xs ml-auto flex shrink-0 items-center">
           {hasLiveOrder && (
             <Link
-              href={`/track/${order.id}`}
+              href={`/track?order=${order.id}`}
               className="text-accent-text hover:bg-accent/12 rounded-pill text-nav-link hidden px-lg py-sm font-bold transition-colors duration-(--duration-fast) md:block"
             >
               Track order

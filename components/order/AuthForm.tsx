@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 import { Screen } from "@/components/ui/Screen";
 import { Button } from "@/components/ui/Button";
 import { firstIssue, loginSchema, signupSchema } from "@/lib/order/schema";
@@ -19,8 +19,29 @@ function safeNext(next?: string) {
   return next && next.startsWith("/") && !next.startsWith("//") ? next : "/kitchens";
 }
 
-export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: string }) {
+type Mode = "login" | "signup";
+
+/**
+ * `?next=` is read in the browser so /login and /signup stay static pages.
+ * Until the query is readable (the prerendered HTML) the form renders without
+ * it — the only difference is the checkout banner and where success goes.
+ */
+export function AuthForm({ mode }: { mode: Mode }) {
+  return (
+    <Suspense fallback={<AuthCard mode={mode} />}>
+      <AuthFormWithQuery mode={mode} />
+    </Suspense>
+  );
+}
+
+function AuthFormWithQuery({ mode }: { mode: Mode }) {
+  const next = useSearchParams().get("next") ?? undefined;
+  return <AuthCard mode={mode} next={next} />;
+}
+
+function AuthCard({ mode: initialMode, next }: { mode: Mode; next?: string }) {
   const router = useRouter();
+  const [mode, setModeState] = useState<Mode>(initialMode);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
@@ -29,6 +50,15 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
   const destination = safeNext(next);
   const query = next ? `?next=${encodeURIComponent(destination)}` : "";
   const signup = mode === "signup";
+
+  // Switching tabs is a state change, not a navigation: the form stays
+  // mounted, so the pill slides and typed values survive. The URL follows
+  // along in place so a refresh or a shared link still opens the right tab.
+  function setMode(nextMode: Mode) {
+    setModeState(nextMode);
+    setError("");
+    window.history.replaceState(null, "", `/${nextMode}${query}`);
+  }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
@@ -50,7 +80,7 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
     <div className="bg-bg rounded-panel-lg mx-auto grid max-w-[1000px] overflow-hidden md:grid-cols-2">
       <Screen
         mode="dark"
-        className="p-xxl md:p-gap-wide gap-xxl relative flex min-h-[360px] flex-col justify-between overflow-hidden"
+        className="p-xxl md:p-gap-wide gap-xxl relative flex md:min-h-[360px] flex-col justify-between overflow-hidden"
       >
         <div
           aria-hidden
@@ -66,7 +96,7 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
             One account for ordering, saved landmarks and live rider tracking.
           </p>
         </div>
-        <div className="rounded-step bg-surface relative aspect-[16/10] overflow-hidden">
+        <div className="rounded-step bg-surface relative hidden aspect-[16/10] overflow-hidden md:block">
           <Image src="/food/jollof.jpg" alt="A plate of jollof rice" fill sizes="(max-width: 768px) 100vw, 440px" className="object-cover" />
         </div>
       </Screen>
@@ -80,12 +110,12 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
               signup && "translate-x-full",
             )}
           />
-          <Link href={`/login${query}`} aria-current={!signup ? "page" : undefined} className="text-site-button relative flex-1 py-md text-center">
+          <button type="button" onClick={() => setMode("login")} aria-pressed={!signup} className="text-site-button relative flex-1 py-md text-center">
             Log in
-          </Link>
-          <Link href={`/signup${query}`} aria-current={signup ? "page" : undefined} className="text-site-button relative flex-1 py-md text-center">
+          </button>
+          <button type="button" onClick={() => setMode("signup")} aria-pressed={signup} className="text-site-button relative flex-1 py-md text-center">
             Sign up
-          </Link>
+          </button>
         </div>
 
         {next === "/checkout" && (
@@ -120,9 +150,9 @@ export function AuthForm({ mode, next }: { mode: "login" | "signup"; next?: stri
         </form>
 
         <div className="text-site-label mt-lg gap-sm flex flex-wrap justify-between font-semibold">
-          <Link href={`/${signup ? "login" : "signup"}${query}`} className="text-accent-text font-bold">
+          <button type="button" onClick={() => setMode(signup ? "login" : "signup")} className="text-accent-text font-bold">
             {signup ? "Have an account? Log in" : "New here? Create an account"}
-          </Link>
+          </button>
           {!signup && (
             <button
               type="button"
