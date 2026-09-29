@@ -9,6 +9,8 @@ import { KitchenRail } from "@/components/site/KitchenRail";
 import { HeroPhones } from "@/components/site/HeroPhones";
 import { StepsGrid } from "@/components/site/StepsGrid";
 import { FaqList } from "@/components/site/FaqList";
+import { AreasPanel } from "@/components/site/AreasPanel";
+import { AppPreviewPhone } from "@/components/site/AppPreviewPhone";
 import { Eyebrow } from "@/components/site/Eyebrow";
 import { Screen } from "@/components/ui/Screen";
 import { ButtonLink } from "@/components/ui/Button";
@@ -130,38 +132,9 @@ export default function HomePage() {
         <StepsGrid />
       </section>
 
-      {/* Live tracking — the promise made concrete, on its own dark panel. */}
+      {/* Coverage — the question people arrive with, answered in one number. */}
       <section className="px-screen-x pt-section-sm md:pt-section">
-        <Screen
-          mode="dark"
-          className="rounded-panel-lg mx-auto max-w-[1240px] p-xxl md:p-pad-panel"
-        >
-          <div className="max-w-[56ch] min-w-0">
-            <Eyebrow tone="onDark">Live tracking</Eyebrow>
-            <h2 className="text-panel-small md:text-panel text-cream mt-lg text-balance">
-              Follow your rider from the pot to your gate
-            </h2>
-            <p className="text-panel-body text-cream/65 mt-lg max-w-[38ch] text-pretty">
-              Watch them leave the kitchen and come to you. Share the link so
-              whoever is waiting can follow it too — no app, no account, and it
-              works on a slow connection.
-            </p>
-            <div className="mt-xl gap-sm flex flex-wrap">
-              {[
-                "Landmarks, not addresses",
-                "Share the link",
-                "Call your rider",
-              ].map((tag) => (
-                <span
-                  key={tag}
-                  className="bg-text/8 text-site-label text-cream rounded-pill px-lg py-md font-semibold"
-                >
-                  {tag}
-                </span>
-              ))}
-            </div>
-          </div>
-        </Screen>
+        <AreasPanel />
       </section>
 
       {/* Riders and restaurants — two offer cards, side by side, so neither
@@ -256,27 +229,25 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* App CTA — centred, no device: there is no screenshot to show yet,
-          and an empty phone frame reads as a placeholder rather than a
-          promise. */}
+      {/* App CTA — copy beside a phone showing the feed and a live order. */}
       <section className="px-screen-x pt-section-sm md:pt-section">
         <Screen
           mode="dark"
-          className="rounded-panel-lg mx-auto max-w-[1240px] p-xxl text-center md:p-pad-panel"
+          className="rounded-panel-lg gap-xxl md:gap-gap-wide p-xxl md:p-pad-panel mx-auto grid max-w-[1240px] items-center md:grid-cols-2"
         >
-          <div className="mx-auto max-w-[46ch]">
-            <div className="flex justify-center">
-              <Eyebrow tone="onDark">Download the app</Eyebrow>
-            </div>
+          <div className="min-w-0">
+            <Eyebrow tone="onDark">Download the app</Eyebrow>
             <h2 className="text-panel-small md:text-panel text-cream mt-lg text-balance">
               Karrigo, now in your pocket
             </h2>
-            <p className="text-panel-body text-cream/65 mx-auto mt-lg max-w-[38ch] text-pretty">
+            <p className="text-panel-body text-cream/65 mt-lg max-w-[38ch] text-pretty">
               Order faster, save your landmarks, and get push notifications the
               moment your rider leaves the kitchen.
             </p>
-
-            <StoreButtons className="mt-xl justify-center" />
+            <StoreButtons className="mt-xl" />
+          </div>
+          <div className="flex min-w-0 justify-center">
+            <AppPreviewPhone />
           </div>
         </Screen>
       </section>
@@ -300,7 +271,7 @@ export default function HomePage() {
             WhatsApp, so whoever is waiting at home can follow the rider too.
           </p>
           <div className="gap-sm relative mt-xxl flex flex-wrap justify-center">
-            <ButtonLink href="/kitchens" variant="onAccent" size="site">
+            <ButtonLink href="/signup" variant="onAccent" size="site">
               Order now
             </ButtonLink>
             <ButtonLink href="/kitchens" variant="accentMuted" size="site">
