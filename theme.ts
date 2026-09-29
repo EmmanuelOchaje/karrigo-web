@@ -211,6 +211,10 @@ export const marketingType = {
   cta:           { size: 62, lineHeight: 62, letterSpacing: -2.8, weight: '800' },
   ctaSmall:      { size: 30, lineHeight: 30, letterSpacing: -1.4, weight: '800' },
 
+  /** The single numeral on the areas panel — a graphic, not a heading. */
+  bigNumber:     { size: 240, lineHeight: 187, letterSpacing: -19, weight: '800' },
+  bigNumberSmall:{ size: 140, lineHeight: 109, letterSpacing: -11, weight: '800' },
+
   lede:          { size: 18.5, lineHeight: 29, letterSpacing: 0,  weight: '500' },
   ledeSmall:     { size: 15.5, lineHeight: 24, letterSpacing: 0,  weight: '500' },
   /** Body copy inside a panel or a card. */

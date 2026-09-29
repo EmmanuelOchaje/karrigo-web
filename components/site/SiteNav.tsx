@@ -40,7 +40,7 @@ export function SiteNav({ mode = "light" }: { mode?: "light" | "dark" }) {
 
         <div className="ml-auto flex items-center md:ml-0">
           <ButtonLink
-            href="/kitchens"
+            href="/signup"
             variant="accent"
             size="site"
             className="whitespace-nowrap"
