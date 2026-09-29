@@ -2,13 +2,17 @@ import Link from "next/link";
 import Image from "next/image";
 import type { Kitchen } from "@/lib/fixtures";
 import { cn } from "@/lib/cn";
+import { formatKobo } from "@/lib/money";
 
 export function KitchenCard({
   kitchen,
   priority = false,
+  fromKobo,
 }: {
   kitchen: Kitchen;
   priority?: boolean;
+  /** The ordering flow shows a starting price; the marketing page does not. */
+  fromKobo?: number;
 }) {
   const shut = Boolean(kitchen.closedUntil);
 
@@ -54,13 +58,18 @@ export function KitchenCard({
         </div>
 
         {!shut && (
-          <div className="mt-md gap-xs text-site-chip flex">
+          <div className="mt-md gap-xs text-site-chip flex flex-wrap">
             <span className="bg-surface rounded-pill px-md py-xs">
               {kitchen.distanceKm} km
             </span>
             <span className="bg-surface rounded-pill px-md py-xs">
               {kitchen.etaMinutes[0]}–{kitchen.etaMinutes[1]} min
             </span>
+            {fromKobo !== undefined && (
+              <span className="bg-surface rounded-pill px-md py-xs">
+                from {formatKobo(fromKobo)}
+              </span>
+            )}
           </div>
         )}
       </div>
