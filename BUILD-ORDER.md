@@ -130,12 +130,28 @@ status change live.
 
 ## M9 · Admin
 
-> Build an internal /admin panel: live order board across all restaurants, manual
-> rider assignment, restaurant and rider approval, refunds, customer lookup, and
-> a weekly payout run. No design exists — use the same component library and keep
-> it plain. Admin role, server-enforced, with an audit log of every action.
+> Build the ops panel from `design/karrigo-admin.html`, served on its own host
+> (see "Two domains, one deployment" in CLAUDE.md): overview, live order board
+> with manual rider assignment and cancel-with-refund, kitchen and rider
+> approval queues, issues, and the money screen — payouts and refunds, super
+> admin only. Roles server-enforced, with an audit log of every action.
 
 **Done when:** ops can resolve a stuck order without touching the database.
+
+**Where it is now.** The screens are built against fixtures in `lib/admin/` —
+every state clicks through, nothing persists. Still to do when the API lands:
+
+- Replace `lib/admin/fixtures.ts` with queries; drop the pinned `SHIFT_NOW`
+  clock it uses to keep server and client renders identical.
+- Turn the actions in `lib/admin/store.ts` into Server Actions that re-check
+  the role and write an audit-log row. The names match the actions deliberately.
+- Real auth (M3). `app/(admin)/admin/actions.ts` currently compares against
+  `OPS_ADMIN_EMAIL`/`OPS_ADMIN_PASSWORD` in the environment — one account, no
+  hashing, no rate limiting.
+- Live updates on the order board (M8, Supabase Realtime) — the Refresh button
+  becomes a manual re-sync.
+- Customers and Settings: designed as "next", not built.
+- Phone layout: the design has one, only the desktop layout is built.
 
 ---
 

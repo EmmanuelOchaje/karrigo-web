@@ -23,6 +23,9 @@
   --surface-raised: #EDEBDF;
   --border: #E4E7DE;
   --border-strong: #D3D7CB;
+  --ops-bg: #E9E9E5;
+  --ops-surface: #FFFFFF;
+  --ops-surface-raised: #F3F3EF;
   --text: #0E0F0D;
   --text-secondary: #6F7565;
   --text-tertiary: #8A8F7C;
@@ -34,6 +37,12 @@
   --danger: #C0391C;
   --danger-bg: #FFEDE8;
   --danger-text: #C0391C;
+  --warning: #9A5F00;
+  --warning-bg: #FFF3DE;
+  --success: #1F7A55;
+  --success-bg: #E3F7EE;
+  --info: #2A5FA0;
+  --info-bg: #E6F0FC;
   --knob: #FFFFFF;
   --bezel: #0A0B09;
   --illustration-skin: #ED9DA0;
@@ -48,6 +57,9 @@
   --surface-raised: #242621;
   --border: #2E312C;
   --border-strong: #3A3C38;
+  --ops-bg: #0E0F0D;
+  --ops-surface: #161814;
+  --ops-surface-raised: #1D201B;
   --text: #FFFFFF;
   --text-secondary: #8E9189;
   --text-tertiary: #6E7169;
@@ -59,6 +71,12 @@
   --danger: #FF6B4A;
   --danger-bg: rgba(255,107,74,0.14);
   --danger-text: #FF8E74;
+  --warning: #FFB547;
+  --warning-bg: rgba(255,181,71,0.15);
+  --success: #5FD4A4;
+  --success-bg: rgba(95,212,164,0.15);
+  --info: #7AB8FF;
+  --info-bg: rgba(122,184,255,0.15);
   --knob: #FFFFFF;
   --bezel: #171815;
   --illustration-skin: #ED9DA0;
@@ -75,6 +93,9 @@
   --color-surface-raised: var(--surface-raised);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
+  --color-ops-bg: var(--ops-bg);
+  --color-ops-surface: var(--ops-surface);
+  --color-ops-surface-raised: var(--ops-surface-raised);
   --color-text: var(--text);
   --color-text-secondary: var(--text-secondary);
   --color-text-tertiary: var(--text-tertiary);
@@ -86,6 +107,12 @@
   --color-danger: var(--danger);
   --color-danger-bg: var(--danger-bg);
   --color-danger-text: var(--danger-text);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-success: var(--success);
+  --color-success-bg: var(--success-bg);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
   --color-knob: var(--knob);
   --color-bezel: var(--bezel);
   --color-illustration-skin: var(--illustration-skin);

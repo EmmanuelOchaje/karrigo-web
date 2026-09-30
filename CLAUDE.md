@@ -16,7 +16,7 @@ a rider from the kitchen to their gate. Three user types, one product:
 | **Customer** | Web + Android app | Design complete |
 | **Restaurant** | Web + Android app (same app, role-gated) | Design complete |
 | **Rider** | Android app | Not designed yet — do not build |
-| **Admin/ops** | Web, internal | Not designed yet |
+| **Admin/ops** | Web, internal | Design complete · being built |
 
 ## Build order — important
 
@@ -27,7 +27,8 @@ a rider from the kitchen to their gate. Three user types, one product:
 2. Order tracking by public link works with no account and no install. Every
    forwarded link is free marketing.
 3. One Next.js codebase gives us the marketing site, the customer ordering flow,
-   the restaurant dashboard and the admin panel.
+   the restaurant dashboard and the admin panel. The admin panel gets its own
+   domain without its own deployment — see "Two domains, one deployment" below.
 4. The React Native app reuses the same API later.
 
 Do not start the React Native app until the web flow works end to end.
@@ -91,6 +92,7 @@ September 2026 and things move.
 | Thing | Where |
 |---|---|
 | All screens | `design/` HTML files — open in a browser, use DevTools Inspect |
+| Ops panel | `design/karrigo-admin.html` — desktop and phone, both themes |
 | Tokens | `theme.ts` — import these, never hardcode |
 | Per-screen behaviour | `SPEC.md` |
 | Database | `SCHEMA.sql` |
@@ -98,6 +100,33 @@ September 2026 and things move.
 | What to build in what order | `BUILD-ORDER.md` |
 
 If the HTML and `theme.ts` ever disagree, **`theme.ts` wins**.
+
+## Two domains, one deployment
+
+The ops panel lives at `app/(admin)/admin/*` and is served on its own host:
+
+```
+karrigo.app          the marketing site and ordering flow
+admin.karrigo.app    the ops panel   (ADMIN_HOST in the environment)
+```
+
+`proxy.ts` rewrites every path on the admin host under the `/admin` prefix, so
+ops sees `admin.karrigo.app/orders`, never `/admin/orders`. On the public host
+anything under `/admin` 404s as though the route did not exist.
+
+Two rules follow from this, and both have already bitten:
+
+1. **Links and `<Link href>` use the clean path** (`/orders`). Server-side
+   `redirect()` uses `opsRoute()` from `lib/admin/nav.ts` — a Server Action's
+   redirect is resolved inside Next and never passes through `proxy.ts`, so
+   `redirect("/login")` finds the *customer's* login page.
+2. **Hiding the panel is not securing it.** Every ops page calls
+   `requireAdmin()`, and anything that moves money calls `requireSuperAdmin()`.
+   The host rewrite only keeps ops off the public URL space.
+
+In development, `http://admin.localhost:3000` resolves to localhost in every
+modern browser with no hosts-file entry, so both surfaces run off one
+`next dev`.
 
 ## Conventions
 
