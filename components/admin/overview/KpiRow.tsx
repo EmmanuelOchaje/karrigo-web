@@ -7,8 +7,10 @@ import { KPIS } from "@/lib/admin/fixtures";
  * time and cancellations rising are both bad news wearing an up arrow.
  */
 export function KpiRow() {
+  // Two across on a phone. One per row turns six numbers into a page of
+  // scrolling, and the whole point of the row is reading them together.
   return (
-    <div className="mb-3.5 grid grid-cols-[repeat(auto-fill,minmax(170px,1fr))] gap-3">
+    <div className="mb-3.5 grid grid-cols-2 gap-3 md:grid-cols-[repeat(auto-fill,minmax(170px,1fr))]">
       {KPIS.map((kpi) => (
         <div
           key={kpi.label}
@@ -17,7 +19,7 @@ export function KpiRow() {
           <span className="text-text/62 text-[12.5px] font-medium">
             {kpi.label}
           </span>
-          <span className="text-text text-[25px]/none font-bold tracking-[-0.03em] whitespace-nowrap">
+          <span className="text-text text-[19px]/none font-bold tracking-[-0.03em] whitespace-nowrap md:text-[25px]">
             {kpi.value}
           </span>
           <span className="flex flex-wrap items-center gap-[7px]">

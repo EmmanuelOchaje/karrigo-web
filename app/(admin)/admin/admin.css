@@ -211,3 +211,82 @@ html[data-ops-wipe="rtl"]::view-transition-new(root) {
     transition: none !important;
   }
 }
+
+/*
+ * The drawer's contents arrive just behind the panel itself. Without this the
+ * nav is simply *there* the instant the drawer starts moving, which reads as
+ * a screenshot sliding in; with it, the panel leads and the rows catch up, so
+ * the thing feels assembled rather than pasted.
+ *
+ * Only on phones — the sidebar is a permanent column above 768px and this
+ * would fire on every page load. The reduced-motion block at the top of this
+ * file switches it off along with everything else.
+ */
+@media (max-width: 767px) {
+  /*
+   * A closed drawer is off-screen, and off-screen is not hidden: without this
+   * a keyboard or screen reader tabs straight into a menu nobody can see.
+   * `visibility` removes it from the tab order, and the zero-length delay on
+   * the way out holds it visible until the slide has finished — set it plainly
+   * and the panel would vanish instead of leaving.
+   *
+   * It has to be CSS rather than the `inert` attribute, because above 768px
+   * this same element is the permanent sidebar and must stay reachable.
+   */
+  [data-ops-drawer="closed"] .ops-drawer {
+    visibility: hidden;
+    transition:
+      transform 420ms cubic-bezier(0.32, 0.72, 0, 1),
+      visibility 0s 420ms;
+  }
+
+  @keyframes ops-nav-row-in {
+    from {
+      opacity: 0;
+      transform: translateX(-14px);
+    }
+    to {
+      opacity: 1;
+      transform: none;
+    }
+  }
+
+  [data-ops-drawer="open"] .ops-nav-item {
+    animation: ops-nav-row-in 0.34s cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+
+  /* Each row a beat after the one above. Kept to 26ms — eight rows at 60ms
+     would still be arriving a fifth of a second after the drawer has landed,
+     and a menu you have to wait for is a menu you stop using. */
+  [data-ops-drawer="open"] .ops-nav-item:nth-child(2) {
+    animation-delay: 0.026s;
+  }
+  [data-ops-drawer="open"] .ops-nav-item:nth-child(3) {
+    animation-delay: 0.052s;
+  }
+  [data-ops-drawer="open"] .ops-nav-item:nth-child(4) {
+    animation-delay: 0.078s;
+  }
+  [data-ops-drawer="open"] .ops-nav-item:nth-child(5) {
+    animation-delay: 0.104s;
+  }
+  [data-ops-drawer="open"] .ops-nav-item:nth-child(6) {
+    animation-delay: 0.13s;
+  }
+  [data-ops-drawer="open"] .ops-nav-item:nth-child(7) {
+    animation-delay: 0.156s;
+  }
+  [data-ops-drawer="open"] .ops-nav-item:nth-child(8) {
+    animation-delay: 0.182s;
+  }
+  [data-ops-drawer="open"] .ops-nav-item:nth-child(9) {
+    animation-delay: 0.208s;
+  }
+
+  /* The section pages slide in from the right on a desktop, which on a phone
+     collides with the drawer coming from the left. Fade only. */
+  [data-ops-main] > * {
+    animation-name: ops-fade;
+    animation-duration: 0.28s;
+  }
+}
