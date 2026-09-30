@@ -44,6 +44,18 @@ export const dark = {
   border:          '#2E312C',
   borderStrong:    '#3A3C38',
 
+  /* --- The ops ground -------------------------------------------------
+     The admin panel is a different surface from the marketing site, and in
+     light mode it inverts the site's relationship: the site is white with
+     grey cards, ops is a grey field carrying white cards. A dense table of
+     live orders needs its rows to lift off the page; a marketing section
+     does not. Dark mode is near enough to the site's that these three are
+     only a shade apart from `bg`/`surface` — kept separate so tuning the
+     ops density never moves the marketing pages. */
+  opsBg:             '#0E0F0D',
+  opsSurface:        '#161814',
+  opsSurfaceRaised:  '#1D201B',
+
   text:            '#FFFFFF',
   textSecondary:   '#8E9189',
   textTertiary:    '#6E7169',
@@ -60,6 +72,26 @@ export const dark = {
   danger:          '#FF6B4A',
   dangerBg:        'rgba(255,107,74,0.14)',
   dangerText:      '#FF8E74',
+
+  /* --- Status, for the ops dashboard ---------------------------------
+     `danger` above already carries "this is broken". These three carry the
+     rest of a dispatcher's vocabulary, and they are roles, not decoration:
+
+       warning  something is drifting and a person should look — a late
+                order, a kitchen that has not accepted, a rider over the
+                cash limit.
+       success  settled and needs nothing — delivered, paid out, approved.
+       info     in motion and on track — picked up, on the way, online.
+
+     Each pairs with a Bg tint for chips. On dark the tint is the colour
+     itself at 15%; on light it is a solid pale, because a translucent
+     wash over white cards greys out rather than tints. */
+  warning:         '#FFB547',
+  warningBg:       'rgba(255,181,71,0.15)',
+  success:         '#5FD4A4',
+  successBg:       'rgba(95,212,164,0.15)',
+  info:            '#7AB8FF',
+  infoBg:          'rgba(122,184,255,0.15)',
 
   /** Toggle knob. White in both modes — it rides on accent or on borderStrong. */
   knob:            '#FFFFFF',
@@ -86,6 +118,11 @@ export const light = {
   border:          '#E4E7DE',
   borderStrong:    '#D3D7CB',
 
+  /** See the note in the dark palette. */
+  opsBg:             '#E9E9E5',
+  opsSurface:        '#FFFFFF',
+  opsSurfaceRaised:  '#F3F3EF',
+
   text:            '#0E0F0D',
   textSecondary:   '#6F7565',
   textTertiary:    '#8A8F7C',
@@ -100,6 +137,17 @@ export const light = {
   danger:          '#C0391C',
   dangerBg:        '#FFEDE8',
   dangerText:      '#C0391C',
+
+  /** See the note in the dark palette. Every one of these is darkened to
+   *  carry text on a white card — the dark tones would fail on white the
+   *  same way the lime does. #9A5F00 on white is 5.2:1, #1F7A55 is 4.9:1,
+   *  #2A5FA0 is 6.6:1. All pass AA at body size. */
+  warning:         '#9A5F00',
+  warningBg:       '#FFF3DE',
+  success:         '#1F7A55',
+  successBg:       '#E3F7EE',
+  info:            '#2A5FA0',
+  infoBg:          '#E6F0FC',
 
   knob:            '#FFFFFF',
   bezel:           '#0A0B09',   // see the note in the dark palette
