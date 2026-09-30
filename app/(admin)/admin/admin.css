@@ -158,6 +158,14 @@
  * `data-ops-vt` kills the colour transition above for the duration — without
  * it every element cross-fades underneath the wipe and the edge turns to mud.
  */
+:root {
+  /* How long the theme wipe takes. Declared here and read back by the toggle
+     in JS, so its safety timeouts can never be shorter than the animation —
+     when they were, cleanup stripped the driving attribute mid-wipe and the
+     new palette snapped in instead of arriving. */
+  --ops-wipe-duration: 750ms;
+}
+
 ::view-transition-group(ops-theme-thumb) {
   animation-duration: 0.4s;
   animation-timing-function: cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -180,7 +188,7 @@ html[data-ops-wipe]::view-transition-new(root) {
   mix-blend-mode: normal;
 }
 html[data-ops-wipe]::view-transition-new(root) {
-  animation: ops-wipe 0.75s cubic-bezier(0.75, 0, 0.2, 1) both;
+  animation: ops-wipe var(--ops-wipe-duration) cubic-bezier(0.75, 0, 0.2, 1) both;
 }
 html[data-ops-wipe="rtl"]::view-transition-new(root) {
   animation-name: ops-wipe-rtl;
