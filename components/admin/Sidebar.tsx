@@ -22,11 +22,15 @@ export function Sidebar({
   admin,
   theme,
   signOut,
+  onDismiss,
 }: {
   admin: AdminUser;
   theme: OpsTheme;
   /** A server action — the cookie is httpOnly and only the server can clear it. */
   signOut: () => Promise<void>;
+  /** Closes the drawer on a phone. Absent on a desktop, where the sidebar is
+   *  a permanent column and there is nothing to close. */
+  onDismiss?: () => void;
 }) {
   const pathname = usePathname();
   const ops = useOps();
@@ -52,8 +56,25 @@ export function Sidebar({
        cutting off the account card and leaving a strip of the page's own
        background under everything. */
     <aside className="border-text/7 sticky top-0 flex h-screen flex-col overflow-y-auto overscroll-contain border-r px-3.5 py-[22px]">
-      <div className="px-2 pb-[26px]">
+      <div className="flex items-center justify-between gap-2 px-2 pb-[26px]">
         <Wordmark />
+        {onDismiss && (
+          <button
+            type="button"
+            onClick={onDismiss}
+            aria-label="Close menu"
+            className="text-text/55 -mr-1 grid size-9 flex-none place-items-center rounded-full md:hidden"
+          >
+            <svg width="15" height="15" viewBox="0 0 15 15" aria-hidden fill="none">
+              <path
+                d="M1 1l13 13M14 1L1 14"
+                stroke="currentColor"
+                strokeWidth="1.8"
+                strokeLinecap="round"
+              />
+            </svg>
+          </button>
+        )}
       </div>
 
       <nav className="relative flex flex-col gap-0.5">
@@ -74,6 +95,7 @@ export function Sidebar({
             section={section}
             current={isCurrent(section.href, pathname)}
             badge={section.badge ? counts[section.badge] : 0}
+            onDismiss={onDismiss}
           />
         ))}
       </nav>
@@ -118,12 +140,17 @@ function NavRow({
   section,
   current,
   badge,
+  onDismiss,
 }: {
   section: OpsSection;
   current: boolean;
   badge: number;
+  /** Tapping a section should take you there, not leave the drawer sitting
+   *  open over the thing you asked for. */
+  onDismiss?: () => void;
 }) {
   const className = cn(
+    "ops-nav-item",
     "relative flex h-10 items-center justify-between gap-2.5 rounded-pill px-3.5",
     "text-left text-[14px] transition-colors duration-(--duration-slow)",
     current
@@ -152,7 +179,10 @@ function NavRow({
       <button
         type="button"
         className={className}
-        onClick={() => say(`${section.label} is in the next round`)}
+        onClick={() => {
+          say(`${section.label} is in the next round`);
+          onDismiss?.();
+        }}
       >
         {inner}
       </button>
@@ -160,7 +190,12 @@ function NavRow({
   }
 
   return (
-    <Link href={section.href} className={className} aria-current={current && "page"}>
+    <Link
+      href={section.href}
+      className={className}
+      aria-current={current && "page"}
+      onClick={onDismiss}
+    >
       {inner}
     </Link>
   );

@@ -1,9 +1,9 @@
-import { Sidebar } from "@/components/admin/Sidebar";
+import { cookies } from "next/headers";
+
+import { OpsShell } from "@/components/admin/OpsShell";
 import { OpsToast } from "@/components/admin/OpsToast";
 import { requireAdmin } from "@/lib/admin/session";
 import { OPS_THEME_COOKIE, readOpsTheme } from "@/lib/admin/theme";
-
-import { cookies } from "next/headers";
 
 import { signOut } from "../actions";
 
@@ -12,7 +12,7 @@ import { signOut } from "../actions";
  * the server on each render, so a stale tab whose session has expired lands
  * on the sign-in screen rather than showing a board it can no longer act on.
  */
-export default async function OpsShell({
+export default async function ShellLayout({
   children,
 }: {
   children: React.ReactNode;
@@ -21,12 +21,11 @@ export default async function OpsShell({
   const theme = readOpsTheme((await cookies()).get(OPS_THEME_COOKIE)?.value);
 
   return (
-    <div className="grid min-h-screen grid-cols-[clamp(196px,17vw,232px)_minmax(0,1fr)]">
-      <Sidebar admin={admin} theme={theme} signOut={signOut} />
-      <main data-ops-main className="min-w-0">
+    <>
+      <OpsShell admin={admin} theme={theme} signOut={signOut}>
         {children}
-      </main>
+      </OpsShell>
       <OpsToast />
-    </div>
+    </>
   );
 }
