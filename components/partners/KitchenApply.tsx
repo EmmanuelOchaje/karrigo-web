@@ -122,7 +122,9 @@ export function KitchenLogin() {
         startTransition(async () => {
           const result = await kitchenLogIn(email, password);
           if (!result.ok) return setError(result.error);
-          router.push("/partners/kitchen");
+          // A live kitchen lands on its console; one still applying is sent
+          // on from there to its application.
+          router.push("/my-kitchen");
           router.refresh();
         });
       }}

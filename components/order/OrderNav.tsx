@@ -14,7 +14,15 @@ import { cn } from "@/lib/cn";
  * food is going and the cart instead of the marketing links. Once the page
  * scrolls, the strip behind it frosts so menu rows do not show through.
  */
-export function OrderNav({ user }: { user: { name: string } | null }) {
+export function OrderNav({
+  user,
+  kitchen,
+}: {
+  user: { name: string } | null;
+  /** Set when kitchen staff are signed in — a separate login from the
+   *  customer's, so both can be true at once. */
+  kitchen: { href: string } | null;
+}) {
   const router = useRouter();
   const { cart, landmark, address, area } = useOrderState();
   const [scrolled, setScrolled] = useState(false);
@@ -54,6 +62,14 @@ export function OrderNav({ user }: { user: { name: string } | null }) {
         </Link>
 
         <div className="gap-xs ml-auto flex shrink-0 items-center">
+          {kitchen && (
+            <Link
+              href={kitchen.href}
+              className="text-accent-text hover:bg-accent/12 rounded-pill text-nav-link px-lg py-sm font-bold transition-colors duration-(--duration-fast)"
+            >
+              My kitchen
+            </Link>
+          )}
           {user && (
             <Link
               href="/orders"
@@ -80,7 +96,12 @@ export function OrderNav({ user }: { user: { name: string } | null }) {
           ) : (
             <Link
               href="/login"
-              className="text-text/75 hover:bg-text/10 hover:text-text rounded-pill text-nav-link px-lg py-sm transition-colors duration-(--duration-fast)"
+              className={cn(
+                "text-text/75 hover:bg-text/10 hover:text-text rounded-pill text-nav-link px-lg py-sm transition-colors duration-(--duration-fast)",
+                // On a phone the pill has room for one of these, and kitchen
+                // staff came here for the kitchen.
+                kitchen && "hidden md:block",
+              )}
             >
               Log in
             </Link>

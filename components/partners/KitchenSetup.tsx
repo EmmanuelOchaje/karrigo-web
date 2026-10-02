@@ -17,6 +17,7 @@ import {
 import { AREAS } from "@/lib/order/schema";
 import { formatKobo } from "@/lib/money";
 import type { Bank, KitchenApplication } from "@/lib/partners/types";
+import { ButtonLink } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
 import { BankForm, FormError, PhotoUpload, StatusBanner, Step, SubmitButton, field, fieldLabel } from "./parts";
 
@@ -35,11 +36,16 @@ export function KitchenSetup({ kitchen, banks }: { kitchen: KitchenApplication; 
   return (
     <div className="gap-lg flex flex-col">
       {kitchen.status === "ACTIVE" ? (
-        <StatusBanner
-          tone="live"
-          title={`${kitchen.name} is live`}
-          text="Customers can order from you. Use the Karrigo Partner app to accept orders and run your menu day to day."
-        />
+        <>
+          <StatusBanner
+            tone="live"
+            title={`${kitchen.name} is live`}
+            text="Customers can order from you. Open and close, take orders and run your menu from your kitchen page — it works on your phone."
+          />
+          <ButtonLink href="/my-kitchen" variant="accent" size="site" className="self-start">
+            Run {kitchen.name}
+          </ButtonLink>
+        </>
       ) : kitchen.status === "SUSPENDED" ? (
         <StatusBanner
           tone="stopped"
@@ -104,7 +110,7 @@ export function KitchenSetup({ kitchen, banks }: { kitchen: KitchenApplication; 
           .slice(0, 3)
           .map((d) => d.name)
           .join(", ")}${kitchen.dishes.length > 3 ? "…" : ""}`}
-        hint="Add a few dishes to start. You can add photos, sections and the rest in the Karrigo Partner app."
+        hint="Add a few dishes to start. Photos, sections and sold-out switches are on your kitchen page once you are live."
       >
         <Dishes dishes={kitchen.dishes} canAdd={kitchen.hasLocation} />
       </Step>

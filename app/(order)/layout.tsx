@@ -1,15 +1,19 @@
 import { OrderNav } from "@/components/order/OrderNav";
 import { Toast } from "@/components/order/Toast";
+import { APPLICATION, CONSOLE, getKitchen } from "@/lib/kitchen/data";
 import { getCustomer } from "@/lib/shop/session";
 
 /** The ordering web app: kitchens, menus, checkout, sign-in and tracking.
  *  Who is signed in is read here, on the server, so the header is right on
  *  the first paint and cannot be faked from the browser. */
 export default async function OrderLayout({ children }: LayoutProps<"/">) {
-  const customer = await getCustomer();
+  const [customer, kitchen] = await Promise.all([getCustomer(), getKitchen()]);
   return (
     <div className="bg-surface grow">
-      <OrderNav user={customer ? { name: customer.name } : null} />
+      <OrderNav
+        user={customer ? { name: customer.name } : null}
+        kitchen={kitchen ? { href: kitchen.status === "ACTIVE" ? CONSOLE : APPLICATION } : null}
+      />
       <main className="px-screen-x pt-lg pb-section-sm">{children}</main>
       <Toast />
     </div>
