@@ -22,8 +22,8 @@ import { cn } from "@/lib/cn";
 import { QtyStepper } from "./QtyStepper";
 
 const payOptions: { id: PaymentMethod; label: string; sub: string }[] = [
-  { id: "card", label: "Card", sub: "Pay now with Paystack" },
-  { id: "transfer", label: "Bank transfer", sub: "Paystack shows the account" },
+  { id: "card", label: "Card", sub: "Pay once the kitchen accepts" },
+  { id: "transfer", label: "Bank transfer", sub: "Pay once the kitchen accepts" },
   { id: "cash", label: "Cash on delivery", sub: "Pay your rider at the gate" },
 ];
 
@@ -164,10 +164,8 @@ export function Checkout({ customer }: { customer: Customer | null }) {
       });
       if (!result.ok) return setError(result.error);
       clearCart();
-      // Card and transfer go to Paystack's page, which returns to tracking.
-      if (result.payUrl) return void (window.location.href = result.payUrl);
-      // Placed but not paid: the order's page has the Pay now button.
-      if (result.paymentHeld) say(result.paymentHeld);
+      // Card and transfer are paid from the order's page, once the kitchen
+      // has accepted.
       router.push(`/track?order=${result.orderId}`);
     });
   }
