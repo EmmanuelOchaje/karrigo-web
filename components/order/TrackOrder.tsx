@@ -1,12 +1,12 @@
 "use client";
 
 import { useEffect, useState, useTransition } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { Screen } from "@/components/ui/Screen";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { formatKobo } from "@/lib/money";
 import { say } from "@/lib/order/store";
-import { cancelOrder, fetchOrder, payAgain, type TrackedOrder } from "@/app/(order)/actions";
+import { cancelOrder, fetchOrder, payForOrder, type TrackedOrder } from "@/app/(order)/actions";
 import { cn } from "@/lib/cn";
 
 type Status = TrackedOrder["status"];
@@ -39,9 +39,18 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
 
   const id = order?.id;
   const over = order ? isOver(order.status) : true;
-  // A card order whose payment has not been confirmed yet: Paystack calls the
-  // backend a moment after the customer returns, so keep checking.
-  const awaitingPayment = order?.payment === "pending";
+  // Paystack sends the customer back with a reference in the address. Its
+  // word reaches the backend a moment later, so until then the payment still
+  // reads as pending — confirming, not unpaid.
+  const params = useSearchParams();
+  const backFromPaystack = params.has("reference") || params.has("trxref");
+  const unpaid = !!order && order.pay !== "cash" && (order.payment === "pending" || order.payment === "failed");
+  // Payment comes after the kitchen says yes: an order it may still turn
+  // down is not something to charge for.
+  const waitingForKitchen = unpaid && order.status === "PLACED";
+  const canPay = unpaid && !over && order.status !== "PLACED";
+  const awaitingPayment = canPay && order.payment === "pending" && backFromPaystack;
+  const mustPay = canPay && !awaitingPayment;
 
   useEffect(() => {
     if (!id || (over && !awaitingPayment)) return;
@@ -73,7 +82,11 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
   const cancelled = order.status === "CANCELLED" || order.status === "REFUNDED";
   const stage = Math.max(0, stages.findIndex((s) => (s.covers as Status[]).includes(order.status)));
   const delivered = order.status === "DELIVERED";
-  const canCancel = order.status === "PLACED";
+  // Before the kitchen accepts, cancelling is immediate. After, it is a
+  // request the kitchen has to confirm — until a rider has the food.
+  const cancelNow = order.status === "PLACED";
+  const cancelByAsking = order.status === "ACCEPTED" || order.status === "PREPARING" || order.status === "READY";
+  const canCancel = cancelNow || (cancelByAsking && !order.cancelRequested);
 
   return (
     <div className="gap-xl mx-auto flex max-w-[1240px] flex-wrap items-start">
@@ -98,7 +111,9 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
                 ? "Delivered. Enjoy!"
                 : awaitingPayment
                   ? "Confirming your payment…"
-                  : stages[stage].label}
+                  : mustPay
+                    ? `${order.kitchen} accepted. Pay to start cooking`
+                    : stages[stage].label}
           </h1>
           <p className="text-panel-body text-cream/65 mt-md">
             {cancelled
@@ -107,7 +122,11 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
                 : "You weren't charged."
               : awaitingPayment
                 ? "Paystack is telling us your payment went through. This page updates by itself."
-                : `${stages[stage].status} · to ${order.to}`}
+                : mustPay
+                  ? `Pay ${formatKobo(order.totalKobo)} now and ${order.kitchen} gets cooking · to ${order.to}`
+                  : waitingForKitchen
+                    ? `Waiting for ${order.kitchen} to accept. You pay only once they do · to ${order.to}`
+                    : `${stages[stage].status} · to ${order.to}`}
           </p>
 
           {!cancelled && (
@@ -178,8 +197,21 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
 
           {problem && <p className="text-site-label text-cream/70 mt-lg">{problem}</p>}
 
+          {cancelByAsking && order.cancelRequested && (
+            <p className="bg-text/10 text-cream rounded-field text-site-label mt-lg px-lg py-md font-semibold">
+              You asked to cancel this order. Karrigo is checking with {order.kitchen} — it stays open until they
+              confirm, and this page updates when they do.
+            </p>
+          )}
+          {cancelByAsking && confirmingCancel && (
+            <p className="text-site-label text-cream/70 mt-lg">
+              {order.kitchen} has already accepted, so we&rsquo;ll ask them to cancel. It isn&rsquo;t cancelled until
+              they confirm{order.payment === "paid" ? ", and your money is refunded once they do" : ""}.
+            </p>
+          )}
+
           <div className="mt-xl gap-sm flex flex-wrap">
-            {order.payment === "failed" || (order.payment === "pending" && order.pay !== "cash" && order.status === "PLACED") ? (
+            {canPay ? (
               <Button
                 type="button"
                 variant="accent"
@@ -187,7 +219,7 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
                 disabled={busy}
                 onClick={() =>
                   startTransition(async () => {
-                    const result = await payAgain(order.id);
+                    const result = await payForOrder(order.id);
                     if (result.ok) window.location.href = result.payUrl;
                     else say(result.error);
                   })
@@ -235,11 +267,12 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
                         }
                         const next = await fetchOrder(order.id);
                         if (next.ok) setOrder(next.order);
-                        say("Order cancelled");
+                        setConfirmingCancel(false);
+                        say(result.requested ? `We've asked ${order.kitchen} to cancel` : "Order cancelled");
                       })
                     }
                   >
-                    {busy ? "Cancelling…" : "Yes, cancel it"}
+                    {busy ? "Cancelling…" : cancelNow ? "Yes, cancel it" : "Yes, ask to cancel"}
                   </Button>
                   <button type="button" onClick={() => setConfirmingCancel(false)} className="text-cream/70 text-nav-link px-lg font-bold">
                     Keep my order
@@ -297,8 +330,12 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
           <div className="text-label mt-xs">
             {order.payment === "paid"
               ? "Paid by " + (order.pay === "transfer" ? "bank transfer" : "card")
-              : order.payment === "pending"
-                ? "Payment not confirmed yet"
+              : waitingForKitchen
+                ? `You pay once ${order.kitchen} accepts`
+                : order.payment === "pending"
+                  ? awaitingPayment
+                    ? "Payment not confirmed yet"
+                    : "Not paid yet"
                 : order.payment === "failed"
                   ? "Payment didn't go through"
                   : order.payment === "refunded"

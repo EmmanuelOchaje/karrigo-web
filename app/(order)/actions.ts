@@ -174,7 +174,7 @@ const MAKURDI = { lat: 7.7337, lng: 8.5214 };
 
 export async function placeOrder(
   input: PlaceInput,
-): Promise<Done<{ orderId: string; payUrl: string | null; paymentHeld?: string }>> {
+): Promise<Done<{ orderId: string }>> {
   const customer = await getCustomer();
   if (!customer) return { ok: false, error: "Log in to place your order." };
 
@@ -224,18 +224,10 @@ export async function placeOrder(
       },
     });
 
-    if (input.pay === "cash") return { ok: true, orderId: order.id, payUrl: null };
-
-    // The order exists from here on. If the payment page can't be opened,
-    // failing would leave the customer on checkout with a full cart, and
-    // every retry would place the same order again. Send them to the order
-    // instead, where "Pay now" tries the payment alone.
-    try {
-      const payUrl = await startPayment(order.id);
-      return { ok: true, orderId: order.id, payUrl };
-    } catch (error) {
-      return { ok: true, orderId: order.id, payUrl: null, paymentHeld: paymentFailure(error).error };
-    }
+    // Nobody pays here. A kitchen can still turn the order down, so a card
+    // or transfer is only asked for once it has accepted — on the order's
+    // own page, through `payForOrder`.
+    return { ok: true, orderId: order.id };
   } catch (error) {
     if (error instanceof ApiError && error.status === 422) {
       return {
@@ -300,8 +292,27 @@ function paymentFailure(error: unknown): Failure {
   return failure(error, "Your order is saved, but the payment page didn't open. Try Pay now again.");
 }
 
-/** Retry a payment that was abandoned or failed. */
-export async function payAgain(orderId: string): Promise<Done<{ payUrl: string }>> {
+/**
+ * Open Paystack for an order — the first time, or again after a payment was
+ * abandoned or failed. Refused until the kitchen has accepted: the button is
+ * hidden until then, but hiding is not the rule, this is.
+ */
+export async function payForOrder(orderId: string): Promise<Done<{ payUrl: string }>> {
+  try {
+    const order = await api<Schemas["OrderWithDetailsResponseDto"]>(`/orders/${encodeURIComponent(orderId)}`, {
+      scope: "customer",
+    });
+    const kitchen = order.kitchenOrders.map((k) => k.kitchen.name).join(" + ") || "The kitchen";
+    if (order.status === "PLACED") {
+      return { ok: false, error: `${kitchen} hasn't accepted your order yet. You'll pay as soon as they do.` };
+    }
+    if (order.status === "CANCELLED" || order.status === "REFUNDED") {
+      return { ok: false, error: "This order was cancelled, so there is nothing to pay." };
+    }
+  } catch (error) {
+    return failure(error);
+  }
+
   try {
     return { ok: true, payUrl: await startPayment(orderId) };
   } catch (error) {
@@ -329,6 +340,9 @@ export type TrackedOrder = {
   payment: "paid" | "pending" | "failed" | "refunded" | "cash";
   rider: { name: string; phone: string | null } | null;
   placedAt: string;
+  /** The customer has asked to cancel after the kitchen accepted, and is
+   *  waiting for the kitchen to confirm. */
+  cancelRequested: boolean;
 };
 
 export async function fetchOrder(id: string): Promise<Done<{ order: TrackedOrder }>> {
@@ -365,6 +379,9 @@ export async function fetchOrder(id: string): Promise<Done<{ order: TrackedOrder
         payment: !p || p.provider === "CASH" ? "cash" : ({ SUCCEEDED: "paid", PENDING: "pending", FAILED: "failed", REFUNDED: "refunded" } as const)[p.status],
         rider: o.rider ? { name: riderUser?.name ?? "Your rider", phone: riderUser?.phone ?? null } : null,
         placedAt: o.placedAt,
+        // Only worth asking while a request could still be outstanding.
+        cancelRequested:
+          (o.status === "ACCEPTED" || o.status === "PREPARING" || o.status === "READY") && (await cancelRequested(o.id)),
       },
     };
   } catch (error) {
@@ -375,14 +392,69 @@ export async function fetchOrder(id: string): Promise<Done<{ order: TrackedOrder
   }
 }
 
-export async function cancelOrder(id: string): Promise<Done> {
+/** The subject line that marks a ticket as a request to cancel. It is how
+ *  the order's page knows one has already been sent. */
+const CANCEL_REQUEST = "Customer asked to cancel order";
+
+async function cancelRequested(orderId: string): Promise<boolean> {
   try {
-    await api(`/orders/${encodeURIComponent(id)}/cancel`, { method: "POST", scope: "customer" });
-    return { ok: true };
-  } catch (error) {
-    if (error instanceof ApiError && error.status === 409) {
-      return { ok: false, error: "The kitchen has already started on it, so it can't be cancelled here. Report a problem instead." };
+    const tickets = await api<Schemas["SupportTicketResponseDto"][]>("/support-tickets/me", { scope: "customer" });
+    return tickets.some((t) => t.orderId === orderId && t.subject.startsWith(CANCEL_REQUEST));
+  } catch {
+    // Not knowing is not a reason to hide the order.
+    return false;
+  }
+}
+
+/**
+ * Cancel an order. Before the kitchen accepts, the customer can simply cancel
+ * it. After that karrigo-be only lets the kitchen cancel, so the request goes
+ * to Karrigo's team as a ticket on the order — they reach the kitchen, and
+ * the order is cancelled when the kitchen confirms. Once a rider has the food
+ * there is nothing left to cancel.
+ */
+export async function cancelOrder(id: string): Promise<Done<{ requested: boolean }>> {
+  try {
+    const order = await api<Schemas["OrderWithDetailsResponseDto"]>(`/orders/${encodeURIComponent(id)}`, {
+      scope: "customer",
+    });
+
+    if (order.status === "PLACED") {
+      try {
+        await api(`/orders/${encodeURIComponent(id)}/cancel`, { method: "POST", scope: "customer" });
+        return { ok: true, requested: false };
+      } catch (error) {
+        // Accepted in the moment between looking and cancelling: ask instead.
+        if (!(error instanceof ApiError && error.status === 409)) throw error;
+      }
+    } else if (order.status !== "ACCEPTED" && order.status !== "PREPARING" && order.status !== "READY") {
+      return {
+        ok: false,
+        error:
+          order.status === "CANCELLED" || order.status === "REFUNDED"
+            ? "This order is already cancelled."
+            : "Your rider already has the food, so this order can't be cancelled.",
+      };
     }
+
+    if (await cancelRequested(id)) return { ok: true, requested: true };
+
+    const kitchen = order.kitchenOrders.map((k) => k.kitchen.name).join(" + ");
+    const paid = order.payments.some((p) => p.provider === "PAYSTACK" && p.status === "SUCCEEDED");
+    await api("/support-tickets", {
+      method: "POST",
+      scope: "customer",
+      body: {
+        orderId: id,
+        channel: "IN_APP",
+        subject: `${CANCEL_REQUEST} ${order.code}`,
+        body: `The customer wants to cancel ${order.code} from ${kitchen}, which the kitchen has already accepted. ${
+          paid ? "It has been paid online, so it needs a refund." : "Nothing has been paid online."
+        } Ask ${kitchen} to cancel it from their orders screen.`,
+      },
+    });
+    return { ok: true, requested: true };
+  } catch (error) {
     return failure(error);
   }
 }
