@@ -2,24 +2,28 @@
 
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState, useTransition } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { formatKobo } from "@/lib/money";
-import { deliverySchema, firstIssue, type PaymentMethod } from "@/lib/order/schema";
+import { AREAS, deliverySchema, firstIssue, type PaymentMethod } from "@/lib/order/schema";
 import {
   addDish,
-  placeOrder,
-  priceCart,
+  clearCart,
+  keepOnly,
   removeDish,
+  say,
   setDelivery,
+  useHydrated,
   useOrderState,
 } from "@/lib/order/store";
+import { placeOrder, priceCartAction, validatePromo } from "@/app/(order)/actions";
+import type { Customer, PricedCart } from "@/lib/shop/types";
 import { cn } from "@/lib/cn";
 import { QtyStepper } from "./QtyStepper";
 
 const payOptions: { id: PaymentMethod; label: string; sub: string }[] = [
   { id: "card", label: "Card", sub: "Pay now with Paystack" },
-  { id: "transfer", label: "Bank transfer", sub: "We show account details next" },
+  { id: "transfer", label: "Bank transfer", sub: "Paystack shows the account" },
   { id: "cash", label: "Cash on delivery", sub: "Pay your rider at the gate" },
 ];
 
@@ -27,64 +31,143 @@ const field =
   "border-border-strong focus:border-text rounded-field text-site-body bg-bg border-[1.5px] px-lg py-md font-medium outline-none transition-colors duration-(--duration-fast)";
 const fieldLabel = "text-label flex flex-col gap-sm font-bold";
 
-export function Checkout() {
+export function Checkout({ customer }: { customer: Customer | null }) {
   const router = useRouter();
-  const { user, cart, landmark, address } = useOrderState();
+  const hydrated = useHydrated();
+  const { cart, landmark, address, area } = useOrderState();
   const [note, setNote] = useState("");
+  const [email, setEmail] = useState("");
   const [pay, setPay] = useState<PaymentMethod>("card");
   const [error, setError] = useState("");
+  const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
+  const [promo, setPromo] = useState("");
+  const [discount, setDiscount] = useState<{ code: string; kobo: number } | null>(null);
+  const [busy, startTransition] = useTransition();
 
-  // Revalidated on every render: a dish that sold out while it sat in the
-  // cart drops out of the total and is named above the button.
-  const priced = priceCart(cart);
+  // Priced against the live menu every time the cart changes — never from
+  // anything remembered on this phone.
+  const [priced, setPriced] = useState<PricedCart | null>(null);
+  /** The cart contents the last answer was for. */
+  const [pricedFor, setPricedFor] = useState("");
+  const [pricingError, setPricingError] = useState("");
+  const latest = useRef(0);
 
-  if (!priced || priced.lines.length === 0) {
+  const cartKey = cart ? `${cart.kitchenSlug}:${JSON.stringify(cart.lines)}` : "";
+  const checking = hydrated && Boolean(cart) && pricedFor !== cartKey;
+  useEffect(() => {
+    if (!hydrated || !cart) return;
+    const ticket = ++latest.current;
+    priceCartAction(cart.kitchenSlug, cart.lines).then((result) => {
+      if (ticket !== latest.current) return;
+      setPricedFor(cartKey);
+      if (!result.ok) return setPricingError(result.error);
+      setPricingError("");
+      setPriced(result.cart);
+      // A dish that sold out while it sat in the cart is dropped from it, and
+      // named above the button below.
+      if (result.cart?.unavailable.length) keepOnly(result.cart.lines.map((l) => l.dishId));
+    });
+    // cartKey captures the cart's contents.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [hydrated, cartKey]);
+
+  // A promo's value depends on the subtotal, so it is re-checked when that moves.
+  const subtotal = priced?.subtotalKobo ?? 0;
+  useEffect(() => {
+    if (!discount) return;
+    validatePromo(discount.code, subtotal).then((r) => setDiscount(r.ok ? { code: r.code, kobo: r.discountKobo } : null));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [subtotal]);
+
+  if (!hydrated || (checking && !priced)) {
+    return <div aria-busy="true" className="bg-bg/60 rounded-panel-lg mx-auto h-[420px] max-w-[1240px] animate-pulse" />;
+  }
+
+  if (!cart || !priced || priced.lines.length === 0) {
     return (
       <div className="mx-auto max-w-[1240px]">
         <h1 className="text-section-small md:text-section mt-sm mb-xl">Checkout</h1>
         <div className="bg-bg rounded-panel-sm px-xl py-[48px] text-center">
-          <p className="text-site-title">Your cart is empty</p>
-          <p className="text-site-body text-text-secondary mt-sm mb-xl">
-            Pick a kitchen and add a few dishes.
-          </p>
-          <ButtonLink href="/kitchens" variant="accent" size="site">
-            Browse kitchens
-          </ButtonLink>
+          {pricingError ? (
+            <>
+              <p className="text-site-title">We couldn&rsquo;t check your cart</p>
+              <p className="text-site-body text-text-secondary mt-sm mb-xl">{pricingError}</p>
+              <Button type="button" variant="accent" size="site" onClick={() => router.refresh()}>
+                Try again
+              </Button>
+            </>
+          ) : (
+            <>
+              <p className="text-site-title">
+                {priced === null && cart ? "That kitchen isn't taking orders" : "Your cart is empty"}
+              </p>
+              <p className="text-site-body text-text-secondary mt-sm mb-xl">Pick a kitchen and add a few dishes.</p>
+              <ButtonLink href="/kitchens" variant="accent" size="site">
+                Browse kitchens
+              </ButtonLink>
+            </>
+          )}
         </div>
       </div>
     );
   }
 
   const { kitchen } = priced;
+  const needsEmail = pay !== "cash" && !customer?.email;
+  const creditKobo = Math.min(customer?.creditKobo ?? 0, Math.max(0, priced.totalKobo - (discount?.kobo ?? 0)));
+  const totalKobo = Math.max(0, priced.totalKobo - (discount?.kobo ?? 0) - creditKobo);
+
+  function useMyLocation() {
+    if (!("geolocation" in navigator)) return say("This browser can't share its location. The landmark is enough.");
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+        say("Got your location");
+      },
+      () => say("No problem — your landmark is enough"),
+      { enableHighAccuracy: false, timeout: 8000 },
+    );
+  }
+
+  function applyPromo() {
+    if (!promo.trim()) return;
+    startTransition(async () => {
+      const result = await validatePromo(promo, priced!.subtotalKobo);
+      if (!result.ok) return setError(result.error);
+      setError("");
+      setDiscount({ code: result.code, kobo: result.discountKobo });
+      setPromo("");
+    });
+  }
 
   function place() {
-    if (!user) {
+    if (!customer) {
       router.push("/login?next=/checkout");
       return;
     }
-    if (!priced) return;
-    if (priced.shortfallKobo > 0) {
-      setError(
-        `${kitchen.name} takes orders from ${formatKobo(kitchen.minOrderKobo)}. Add ${formatKobo(priced.shortfallKobo)} more.`,
-      );
-      return;
-    }
-    const parsed = deliverySchema.safeParse({ landmark, address, note, pay });
-    if (!parsed.success) {
-      setError(firstIssue(parsed.error));
-      return;
-    }
-    const id = placeOrder({
-      kitchenSlug: kitchen.slug,
-      kitchenName: kitchen.name,
-      items: priced.lines.map((l) => ({ name: l.dish.name, qty: l.qty, priceKobo: l.lineKobo })),
-      subtotalKobo: priced.subtotalKobo,
-      feeKobo: priced.feeKobo,
-      totalKobo: priced.totalKobo,
-      pay: parsed.data.pay,
-      to: parsed.data.landmark || parsed.data.address,
+    const parsed = deliverySchema.safeParse({ landmark, address, area, note, pay });
+    if (!parsed.success) return setError(firstIssue(parsed.error));
+    setError("");
+
+    startTransition(async () => {
+      const result = await placeOrder({
+        kitchenSlug: kitchen.slug,
+        lines: cart!.lines,
+        landmark: parsed.data.landmark,
+        address: parsed.data.address,
+        area: parsed.data.area,
+        note: parsed.data.note,
+        email,
+        pay: parsed.data.pay,
+        promoCode: discount?.code,
+        coords: coords ?? undefined,
+      });
+      if (!result.ok) return setError(result.error);
+      clearCart();
+      // Card and transfer go to Paystack's page, which returns to tracking.
+      if (result.payUrl) window.location.href = result.payUrl;
+      else router.push(`/track?order=${result.orderId}`);
     });
-    router.push(`/track?order=${id}`);
   }
 
   return (
@@ -99,23 +182,30 @@ export function Checkout() {
               Landmark
               <input
                 value={landmark}
-                onChange={(e) => {
-                  setDelivery({ landmark: e.target.value });
-                  setError("");
-                }}
+                onChange={(e) => { setDelivery({ landmark: e.target.value }); setError(""); }}
                 placeholder="Behind BSU main gate, blue gate"
                 className={field}
               />
             </label>
             <label className={fieldLabel}>
+              Area
+              <select
+                value={area}
+                onChange={(e) => { setDelivery({ area: e.target.value }); setError(""); }}
+                className={cn(field, "appearance-none")}
+              >
+                <option value="">Pick your area</option>
+                {AREAS.map((a) => (
+                  <option key={a} value={a}>{a}</option>
+                ))}
+              </select>
+            </label>
+            <label className={fieldLabel}>
               Street address (optional)
               <input
                 value={address}
-                onChange={(e) => {
-                  setDelivery({ address: e.target.value });
-                  setError("");
-                }}
-                placeholder="12 Old Otukpo Road, High Level"
+                onChange={(e) => { setDelivery({ address: e.target.value }); setError(""); }}
+                placeholder="12 Old Otukpo Road"
                 autoComplete="street-address"
                 className={field}
               />
@@ -131,6 +221,13 @@ export function Checkout() {
                 className={cn(field, "resize-y")}
               />
             </label>
+            <button
+              type="button"
+              onClick={useMyLocation}
+              className="text-accent-text text-site-label self-start font-bold"
+            >
+              {coords ? "✓ Location shared — tap to update" : "Help the rider: share my location (optional)"}
+            </button>
           </section>
 
           <section className="bg-bg rounded-panel-sm p-xl md:p-xxl">
@@ -151,9 +248,7 @@ export function Checkout() {
                       on ? "border-bg" : "border-border-strong",
                     )}
                   >
-                    <div className={cn("text-site-question", on && "text-accent-text")}>
-                      {option.label}
-                    </div>
+                    <div className={cn("text-site-question", on && "text-accent-text")}>{option.label}</div>
                     <div className={cn("text-site-chip mt-xs font-medium", on ? "text-cream/60" : "text-text-secondary")}>
                       {option.sub}
                     </div>
@@ -161,6 +256,19 @@ export function Checkout() {
                 );
               })}
             </div>
+            {needsEmail && customer && (
+              <label className={cn(fieldLabel, "mt-lg")}>
+                Email for your Paystack receipt
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => { setEmail(e.target.value); setError(""); }}
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  className={field}
+                />
+              </label>
+            )}
           </section>
         </div>
 
@@ -172,6 +280,11 @@ export function Checkout() {
             </Link>
           </div>
 
+          {!kitchen.open && (
+            <p className="bg-danger-bg text-danger-text rounded-field text-site-label mt-md px-md py-sm font-semibold">
+              {kitchen.name} is closed right now{kitchen.notice ? `: ${kitchen.notice}` : "."}
+            </p>
+          )}
           {priced.unavailable.length > 0 && (
             <p className="bg-danger-bg text-danger-text rounded-field text-site-label mt-md px-md py-sm font-semibold">
               {kitchen.name} has run out of {priced.unavailable.join(", ")}. We took it out of your order.
@@ -180,20 +293,34 @@ export function Checkout() {
 
           <div className="gap-md mt-md flex flex-col">
             {priced.lines.map((line) => (
-              <div key={line.dish.id} className="gap-sm flex items-center">
+              <div key={line.dishId} className="gap-sm flex items-center">
                 <div className="text-site-label min-w-0 flex-1 font-semibold">
-                  {line.dish.name}
+                  {line.name}
                   <div className="text-text-secondary mt-[2px] font-bold">{formatKobo(line.lineKobo)}</div>
                 </div>
                 <QtyStepper
                   tone="light"
                   qty={line.qty}
-                  name={line.dish.name}
-                  onAdd={() => addDish(kitchen, line.dish.id)}
-                  onRemove={() => removeDish(line.dish.id)}
+                  name={line.name}
+                  onAdd={() => addDish(kitchen, line.dishId)}
+                  onRemove={() => removeDish(line.dishId)}
                 />
               </div>
             ))}
+          </div>
+
+          <div className="mt-lg flex gap-sm">
+            <input
+              value={promo}
+              onChange={(e) => setPromo(e.target.value.toUpperCase())}
+              onKeyDown={(e) => e.key === "Enter" && applyPromo()}
+              placeholder="Promo code"
+              aria-label="Promo code"
+              className={cn(field, "min-w-0 flex-1 py-sm uppercase")}
+            />
+            <button type="button" onClick={applyPromo} disabled={busy} className="bg-surface-raised rounded-pill text-nav-link px-lg font-bold">
+              Apply
+            </button>
           </div>
 
           <dl className="border-surface-raised text-site-label text-text-secondary mt-lg gap-sm flex flex-col border-t pt-md font-semibold">
@@ -205,18 +332,24 @@ export function Checkout() {
               <dt>Delivery</dt>
               <dd>{priced.feeKobo ? formatKobo(priced.feeKobo) : "Free"}</dd>
             </div>
+            {discount && (
+              <div className="text-accent-text flex justify-between">
+                <dt>Promo {discount.code}</dt>
+                <dd>−{formatKobo(discount.kobo)}</dd>
+              </div>
+            )}
+            {creditKobo > 0 && (
+              <div className="text-accent-text flex justify-between">
+                <dt>Karrigo credit</dt>
+                <dd>−{formatKobo(creditKobo)}</dd>
+              </div>
+            )}
             <div className="text-h1 text-text mt-xs flex justify-between font-extrabold">
               <dt>Total</dt>
-              <dd>{formatKobo(priced.totalKobo)}</dd>
+              <dd>{formatKobo(totalKobo)}</dd>
             </div>
           </dl>
 
-          {priced.shortfallKobo > 0 && !error && (
-            <p className="text-site-label text-text-secondary mt-md">
-              {kitchen.name} takes orders from {formatKobo(kitchen.minOrderKobo)} — add{" "}
-              {formatKobo(priced.shortfallKobo)} more.
-            </p>
-          )}
           {error && (
             <p role="alert" className="text-danger-text text-site-label shake mt-md font-semibold">
               {error}
@@ -230,9 +363,13 @@ export function Checkout() {
             size="site"
             full
             className="mt-lg"
-            disabled={Boolean(user) && priced.shortfallKobo > 0}
+            disabled={busy || checking || !kitchen.open}
           >
-            {user ? `Place order · ${formatKobo(priced.totalKobo)}` : "Log in to place order"}
+            {busy
+              ? "Placing your order…"
+              : customer
+                ? `Place order · ${formatKobo(totalKobo)}`
+                : "Log in to place order"}
           </Button>
         </aside>
       </div>

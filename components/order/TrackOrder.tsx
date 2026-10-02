@@ -1,50 +1,67 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 import { Screen } from "@/components/ui/Screen";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { formatKobo } from "@/lib/money";
-import { clearOrder, say, useHydrated, useOrderState } from "@/lib/order/store";
+import { say } from "@/lib/order/store";
+import { cancelOrder, fetchOrder, payAgain, type TrackedOrder } from "@/app/(order)/actions";
 import { cn } from "@/lib/cn";
 
-const stages = [
-  { label: "Order accepted", status: "The kitchen has your order" },
-  { label: "Cooking", status: "Your food is on the fire" },
-  { label: "Picked up", status: "Your rider has left the kitchen" },
-  { label: "On the way", status: "Your rider is heading to you" },
-  { label: "Delivered", status: "Enjoy your meal" },
-];
+type Status = TrackedOrder["status"];
 
-/** Until the dispatch backend exists, the order walks through its stages on
- *  a timer so the page can be seen in every state. */
-const DEMO_STAGE_MS = 6000;
-const ETA_MS = 35 * 60 * 1000;
+/** The five steps a customer cares about, and which backend statuses they
+ *  cover. An order is "placed" until the kitchen accepts it. */
+const stages = [
+  { label: "Order placed", status: "Waiting for the kitchen to accept", covers: ["PLACED"] },
+  { label: "Order accepted", status: "The kitchen has your order", covers: ["ACCEPTED"] },
+  { label: "Cooking", status: "Your food is on the fire", covers: ["PREPARING", "READY"] },
+  { label: "On the way", status: "Your rider is heading to you", covers: ["PICKED_UP", "DELIVERING"] },
+  { label: "Delivered", status: "Enjoy your meal", covers: ["DELIVERED"] },
+] satisfies { label: string; status: string; covers: Status[] }[];
 
 const payLabel = { card: "Paid by card", transfer: "Bank transfer", cash: "Cash on delivery" };
 
-export function TrackOrder() {
+/** How often to ask, in ms. Fast while things are moving, off when it ends. */
+const POLL_MS = 8000;
+
+function isOver(status: Status) {
+  return status === "DELIVERED" || status === "CANCELLED" || status === "REFUNDED";
+}
+
+export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; error: string | null }) {
   const router = useRouter();
-  const id = useSearchParams().get("order") ?? "";
-  const hydrated = useHydrated();
-  const { order } = useOrderState();
-  const [now, setNow] = useState(() => Date.now());
+  const [order, setOrder] = useState(initial);
+  const [problem, setProblem] = useState(error);
+  const [busy, startTransition] = useTransition();
+  const [confirmingCancel, setConfirmingCancel] = useState(false);
+
+  const id = order?.id;
+  const over = order ? isOver(order.status) : true;
+  // A card order whose payment has not been confirmed yet: Paystack calls the
+  // backend a moment after the customer returns, so keep checking.
+  const awaitingPayment = order?.payment === "pending";
 
   useEffect(() => {
-    const tick = setInterval(() => setNow(Date.now()), 1000);
-    return () => clearInterval(tick);
-  }, []);
+    if (!id || (over && !awaitingPayment)) return;
+    const poll = setInterval(async () => {
+      const result = await fetchOrder(id);
+      if (result.ok) {
+        setOrder(result.order);
+        setProblem(null);
+      }
+      // A failed poll is ignored: the last good answer stays on screen.
+    }, POLL_MS);
+    return () => clearInterval(poll);
+  }, [id, over, awaitingPayment]);
 
-  if (!hydrated) {
-    return <div aria-busy="true" className="bg-bg/60 rounded-panel-lg mx-auto h-[420px] max-w-[1240px] animate-pulse" />;
-  }
-
-  if (!order || order.id !== id) {
+  if (!order) {
     return (
       <div className="bg-bg rounded-panel-sm mx-auto max-w-[640px] p-xxl text-center">
-        <p className="text-site-title">We can&rsquo;t find order {id} on this phone</p>
+        <p className="text-site-title">We can&rsquo;t show that order</p>
         <p className="text-site-body text-text-secondary mt-sm">
-          Tracking links open on the phone the order was placed from, for now.
+          {problem ?? "Check the link, or log in with the number you ordered with."}
         </p>
         <ButtonLink href="/kitchens" variant="accent" size="site" className="mt-xl">
           Browse kitchens
@@ -53,12 +70,10 @@ export function TrackOrder() {
     );
   }
 
-  const stage = Math.min(4, Math.floor((now - order.placedAt) / DEMO_STAGE_MS));
-  const delivered = stage === 4;
-  const eta = new Date(order.placedAt + ETA_MS).toLocaleTimeString("en-NG", {
-    hour: "numeric",
-    minute: "2-digit",
-  });
+  const cancelled = order.status === "CANCELLED" || order.status === "REFUNDED";
+  const stage = Math.max(0, stages.findIndex((s) => (s.covers as Status[]).includes(order.status)));
+  const delivered = order.status === "DELIVERED";
+  const canCancel = order.status === "PLACED";
 
   return (
     <div className="gap-xl mx-auto flex max-w-[1240px] flex-wrap items-start">
@@ -72,81 +87,118 @@ export function TrackOrder() {
         />
         <div className="relative">
           <p className="text-label text-cream/50 font-bold tracking-[0.06em] uppercase">
-            Order {order.id} · {order.kitchenName}
+            Order {order.code} · {order.kitchen}
           </p>
           <h1 className="text-panel-small md:text-panel text-cream mt-sm">
-            {delivered ? "Delivered. Enjoy!" : `Arriving about ${eta}`}
+            {cancelled
+              ? order.status === "REFUNDED"
+                ? "Cancelled and refunded"
+                : "This order was cancelled"
+              : delivered
+                ? "Delivered. Enjoy!"
+                : awaitingPayment
+                  ? "Confirming your payment…"
+                  : stages[stage].label}
           </h1>
           <p className="text-panel-body text-cream/65 mt-md">
-            {stages[stage].status} · to {order.to}
+            {cancelled
+              ? order.payment === "paid" || order.payment === "refunded"
+                ? "If you paid online, the money goes back to you."
+                : "You weren't charged."
+              : awaitingPayment
+                ? "Paystack is telling us your payment went through. This page updates by itself."
+                : `${stages[stage].status} · to ${order.to}`}
           </p>
 
-          <div
-            role="progressbar"
-            aria-valuemin={0}
-            aria-valuemax={4}
-            aria-valuenow={stage}
-            aria-label="Delivery progress"
-            className="bg-text/10 rounded-pill mt-xxl h-[8px] overflow-hidden"
-          >
-            <div
-              className="bg-accent rounded-pill h-full transition-[width] duration-(--duration-slow)"
-              style={{ width: `${Math.max(6, stage * 25)}%` }}
-            />
-          </div>
-
-          <ol className="mt-xxl gap-lg flex flex-col">
-            {stages.map((s, i) => (
-              <li
-                key={s.label}
-                className={cn(
-                  "text-site-body gap-md flex items-center font-semibold transition-colors duration-(--duration-slow)",
-                  i <= stage ? "text-cream" : "text-cream/40",
-                )}
+          {!cancelled && (
+            <>
+              <div
+                role="progressbar"
+                aria-valuemin={0}
+                aria-valuemax={4}
+                aria-valuenow={stage}
+                aria-label="Delivery progress"
+                className="bg-text/10 rounded-pill mt-xxl h-[8px] overflow-hidden"
               >
-                <span
-                  className={cn(
-                    "size-[12px] shrink-0 rounded-full",
-                    i < stage && "bg-accent",
-                    i === stage && "bg-accent-warm",
-                    i === stage && !delivered && "route-pulse",
-                    i > stage && "bg-text/18",
-                  )}
+                <div
+                  className="bg-accent rounded-pill h-full transition-[width] duration-(--duration-slow)"
+                  style={{ width: `${Math.max(6, stage * 25)}%` }}
                 />
-                {s.label}
-              </li>
-            ))}
-          </ol>
+              </div>
 
-          {stage >= 2 && (
+              <ol className="mt-xxl gap-lg flex flex-col">
+                {stages.map((s, i) => (
+                  <li
+                    key={s.label}
+                    className={cn(
+                      "text-site-body gap-md flex items-center font-semibold transition-colors duration-(--duration-slow)",
+                      i <= stage ? "text-cream" : "text-cream/40",
+                    )}
+                  >
+                    <span
+                      className={cn(
+                        "size-[12px] shrink-0 rounded-full",
+                        i < stage && "bg-accent",
+                        i === stage && "bg-accent-warm",
+                        i === stage && !delivered && "route-pulse",
+                        i > stage && "bg-text/18",
+                      )}
+                    />
+                    {s.label}
+                  </li>
+                ))}
+              </ol>
+            </>
+          )}
+
+          {order.rider && !over && (
             <div className="bg-text/7 rounded-step mt-xxl gap-md rise flex flex-wrap items-center py-md pr-md pl-lg">
               <span className="bg-accent text-on-accent text-h3 grid size-[46px] shrink-0 place-items-center rounded-full font-extrabold">
-                DT
+                {order.rider.name
+                  .split(" ")
+                  .map((w) => w[0])
+                  .slice(0, 2)
+                  .join("")
+                  .toUpperCase()}
               </span>
               <div className="min-w-[120px] flex-1">
-                <div className="text-site-question text-cream">Doosuur Terhemba</div>
-                <div className="text-label text-cream/55 mt-[3px]">Your rider · ★ 4.9 · Red Bajaj</div>
+                <div className="text-site-question text-cream">{order.rider.name}</div>
+                <div className="text-label text-cream/55 mt-[3px]">Your rider</div>
               </div>
-              <a
-                href="tel:+2348035550142"
-                className="bg-accent text-on-accent rounded-pill text-nav-link px-xl py-md font-bold active:scale-95"
-              >
-                Call
-              </a>
+              {order.rider.phone && (
+                <a
+                  href={`tel:${order.rider.phone}`}
+                  className="bg-accent text-on-accent rounded-pill text-nav-link px-xl py-md font-bold active:scale-95"
+                >
+                  Call
+                </a>
+              )}
             </div>
           )}
 
+          {problem && <p className="text-site-label text-cream/70 mt-lg">{problem}</p>}
+
           <div className="mt-xl gap-sm flex flex-wrap">
-            {delivered ? (
+            {order.payment === "failed" || (order.payment === "pending" && order.pay !== "cash" && order.status === "PLACED") ? (
               <Button
                 type="button"
                 variant="accent"
                 size="site"
-                onClick={() => {
-                  clearOrder();
-                  router.push("/kitchens");
-                }}
+                disabled={busy}
+                onClick={() =>
+                  startTransition(async () => {
+                    const result = await payAgain(order.id);
+                    if (result.ok) window.location.href = result.payUrl;
+                    else say(result.error);
+                  })
+                }
               >
+                {order.payment === "failed" ? "Try paying again" : "Pay now"}
+              </Button>
+            ) : null}
+
+            {over ? (
+              <Button type="button" variant="accent" size="site" onClick={() => router.push("/kitchens")}>
                 Order something else
               </Button>
             ) : (
@@ -156,15 +208,52 @@ export function TrackOrder() {
                 onClick={async () => {
                   try {
                     await navigator.clipboard.writeText(window.location.href);
-                    say("Tracking link copied — send it on WhatsApp");
+                    say("Link copied — it opens for the account that placed the order");
                   } catch {
-                    say("Copy the address bar to share this order");
+                    say("Copy the address bar to open this order again");
                   }
                 }}
               >
-                Share tracking link
+                Copy order link
               </button>
             )}
+
+            {canCancel &&
+              (confirmingCancel ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="muted"
+                    size="site"
+                    disabled={busy}
+                    onClick={() =>
+                      startTransition(async () => {
+                        const result = await cancelOrder(order.id);
+                        if (!result.ok) {
+                          setConfirmingCancel(false);
+                          return say(result.error);
+                        }
+                        const next = await fetchOrder(order.id);
+                        if (next.ok) setOrder(next.order);
+                        say("Order cancelled");
+                      })
+                    }
+                  >
+                    {busy ? "Cancelling…" : "Yes, cancel it"}
+                  </Button>
+                  <button type="button" onClick={() => setConfirmingCancel(false)} className="text-cream/70 text-nav-link px-lg font-bold">
+                    Keep my order
+                  </button>
+                </>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setConfirmingCancel(true)}
+                  className="text-cream/70 rounded-pill text-nav-link px-lg py-md font-bold"
+                >
+                  Cancel order
+                </button>
+              ))}
           </div>
         </div>
       </Screen>
@@ -172,11 +261,11 @@ export function TrackOrder() {
       <aside className="bg-bg rounded-panel-sm p-xl min-w-0 flex-[1_1_300px]">
         <h2 className="text-h1 font-extrabold">Receipt</h2>
         <div className="gap-sm mt-md flex flex-col">
-          {order.items.map((item) => (
-            <div key={item.name} className="gap-sm text-site-label flex font-semibold">
+          {order.items.map((item, i) => (
+            <div key={`${item.name}-${i}`} className="gap-sm text-site-label flex font-semibold">
               <span className="text-accent-text shrink-0">{item.qty}×</span>
               <span className="min-w-0 flex-1">{item.name}</span>
-              <span className="shrink-0">{formatKobo(item.priceKobo)}</span>
+              <span className="shrink-0">{formatKobo(item.lineKobo)}</span>
             </div>
           ))}
         </div>
@@ -189,11 +278,33 @@ export function TrackOrder() {
             <dt>Delivery</dt>
             <dd>{order.feeKobo ? formatKobo(order.feeKobo) : "Free"}</dd>
           </div>
+          {order.discountKobo > 0 && (
+            <div className="text-accent-text flex justify-between">
+              <dt>Promo</dt>
+              <dd>−{formatKobo(order.discountKobo)}</dd>
+            </div>
+          )}
+          {order.creditKobo > 0 && (
+            <div className="text-accent-text flex justify-between">
+              <dt>Karrigo credit</dt>
+              <dd>−{formatKobo(order.creditKobo)}</dd>
+            </div>
+          )}
           <div className="text-h1 text-text mt-xs flex justify-between font-extrabold">
             <dt>Total</dt>
             <dd>{formatKobo(order.totalKobo)}</dd>
           </div>
-          <div className="text-label mt-xs">{payLabel[order.pay]}</div>
+          <div className="text-label mt-xs">
+            {order.payment === "paid"
+              ? "Paid by " + (order.pay === "transfer" ? "bank transfer" : "card")
+              : order.payment === "pending"
+                ? "Payment not confirmed yet"
+                : order.payment === "failed"
+                  ? "Payment didn't go through"
+                  : order.payment === "refunded"
+                    ? "Refunded"
+                    : payLabel[order.pay]}
+          </div>
         </dl>
         <ButtonLink href="/kitchens" variant="muted" size="site" full className="mt-lg">
           Back to kitchens
