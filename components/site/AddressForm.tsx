@@ -1,9 +1,15 @@
+"use client";
+
 import { Button } from "@/components/ui/Button";
 import { cn } from "@/lib/cn";
+import { setDelivery, useOrderState } from "@/lib/order/store";
 
 /**
- * A plain GET form — no client JS. The address resolves to an area server-side
- * on /kitchens. Landmarks are valid input; never require a map pin.
+ * A plain GET form, so it still works before the page's JavaScript arrives.
+ * Once it has, every keystroke is saved as the delivery landmark — the hero
+ * phone shows it at once, and checkout already has it, however the visitor
+ * leaves this page. A saved landmark comes back pre-filled. Landmarks are
+ * valid input; never require a map pin.
  */
 export function AddressForm({
   action = "/kitchens",
@@ -18,6 +24,7 @@ export function AddressForm({
   submitLabel?: string;
   className?: string;
 }) {
+  const { landmark } = useOrderState();
   return (
     // Always light, whatever it is sitting on: on the dark hero panel the
     // form is the one white thing, and that is what makes it the way in.
@@ -45,6 +52,8 @@ export function AddressForm({
         required
         autoComplete="street-address"
         placeholder={placeholder}
+        value={landmark}
+        onChange={(e) => setDelivery({ landmark: e.target.value })}
         className="text-body xl:text-site-body text-text placeholder:text-text-secondary min-w-0 flex-1 truncate bg-transparent outline-none"
       />
       {/* The hero stacks below xl, so the form spans the full column there:
