@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState, useTransition } from "react";
 import { Logo } from "@/components/site/Logo";
 import { Screen } from "@/components/ui/Screen";
-import { logOut, priceCart, useOrderState } from "@/lib/order/store";
+import { logOut } from "@/app/(order)/actions";
+import { cartCount, say, useOrderState } from "@/lib/order/store";
 import { cn } from "@/lib/cn";
 
 /**
@@ -12,9 +14,11 @@ import { cn } from "@/lib/cn";
  * food is going and the cart instead of the marketing links. Once the page
  * scrolls, the strip behind it frosts so menu rows do not show through.
  */
-export function OrderNav() {
-  const { user, cart, landmark, address, order } = useOrderState();
+export function OrderNav({ user }: { user: { name: string } | null }) {
+  const router = useRouter();
+  const { cart, landmark, address, area } = useOrderState();
   const [scrolled, setScrolled] = useState(false);
+  const [, startTransition] = useTransition();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -23,9 +27,8 @@ export function OrderNav() {
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
-  const count = priceCart(cart)?.count ?? 0;
-  const where = landmark || address;
-  const hasLiveOrder = order !== null;
+  const count = cartCount(cart);
+  const where = landmark || address || area;
 
   return (
     <div
@@ -51,21 +54,28 @@ export function OrderNav() {
         </Link>
 
         <div className="gap-xs ml-auto flex shrink-0 items-center">
-          {hasLiveOrder && (
+          {user && (
             <Link
-              href={`/track?order=${order.id}`}
+              href="/orders"
               className="text-accent-text hover:bg-accent/12 rounded-pill text-nav-link hidden px-lg py-sm font-bold transition-colors duration-(--duration-fast) md:block"
             >
-              Track order
+              My orders
             </Link>
           )}
           {user ? (
             <button
               type="button"
-              onClick={logOut}
+              onClick={() =>
+                startTransition(async () => {
+                  await logOut();
+                  say("Logged out");
+                  router.push("/kitchens");
+                  router.refresh();
+                })
+              }
               className="text-text/75 hover:bg-text/10 hover:text-text rounded-pill text-nav-link hidden px-lg py-sm transition-colors duration-(--duration-fast) sm:block"
             >
-              {user.name.split(" ")[0]} · Log out
+              {user.name.split(" ")[0] || "Account"} · Log out
             </button>
           ) : (
             <Link

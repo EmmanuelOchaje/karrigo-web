@@ -3,11 +3,12 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense, useState } from "react";
+import { Suspense, useEffect, useState, useTransition } from "react";
 import { Screen } from "@/components/ui/Screen";
 import { Button } from "@/components/ui/Button";
-import { firstIssue, loginSchema, signupSchema } from "@/lib/order/schema";
-import { logIn, say, signUp } from "@/lib/order/store";
+import { OtpInput } from "@/components/ui/OtpInput";
+import { codeSchema, firstIssue, loginSchema, resetSchema, signupSchema } from "@/lib/order/schema";
+import { logIn, requestCode, verifyAndSetPassword } from "@/app/(order)/actions";
 import { cn } from "@/lib/cn";
 
 const field =
@@ -20,6 +21,8 @@ function safeNext(next?: string) {
 }
 
 type Mode = "login" | "signup";
+/** Login and signup are tabs; resetting a password is its own short flow. */
+type Flow = Mode | "reset";
 
 /**
  * `?next=` is read in the browser so /login and /signup stay static pages.
@@ -41,39 +44,87 @@ function AuthFormWithQuery({ mode }: { mode: Mode }) {
 
 function AuthCard({ mode: initialMode, next }: { mode: Mode; next?: string }) {
   const router = useRouter();
-  const [mode, setModeState] = useState<Mode>(initialMode);
+  const [flow, setFlow] = useState<Flow>(initialMode);
+  const [step, setStep] = useState<"details" | "code">("details");
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [wait, setWait] = useState(0);
+  const [busy, startTransition] = useTransition();
 
   const destination = safeNext(next);
   const query = next ? `?next=${encodeURIComponent(destination)}` : "";
-  const signup = mode === "signup";
+  const signup = flow === "signup";
+  const reset = flow === "reset";
+
+  // Resend cooldown, counted down on screen so "wait a bit" is a number.
+  useEffect(() => {
+    if (wait <= 0) return;
+    const tick = setTimeout(() => setWait((w) => w - 1), 1000);
+    return () => clearTimeout(tick);
+  }, [wait]);
 
   // Switching tabs is a state change, not a navigation: the form stays
   // mounted, so the pill slides and typed values survive. The URL follows
   // along in place so a refresh or a shared link still opens the right tab.
-  function setMode(nextMode: Mode) {
-    setModeState(nextMode);
+  function go(nextFlow: Flow) {
+    setFlow(nextFlow);
+    setStep("details");
     setError("");
-    window.history.replaceState(null, "", `/${nextMode}${query}`);
+    if (nextFlow !== "reset") window.history.replaceState(null, "", `/${nextFlow}${query}`);
+  }
+
+  function done() {
+    router.push(destination);
+    router.refresh();
+  }
+
+  function sendCode() {
+    startTransition(async () => {
+      const result = await requestCode(phone, reset ? "reset" : "signup");
+      if (!result.ok) {
+        if (result.retryAfter) setWait(result.retryAfter);
+        return setError(result.error);
+      }
+      setError("");
+      setStep("code");
+      setWait(30);
+    });
   }
 
   function submit(e: React.FormEvent) {
     e.preventDefault();
-    let failed: string | null;
-    if (signup) {
-      const parsed = signupSchema.safeParse({ name, phone, password });
-      if (!parsed.success) return setError(firstIssue(parsed.error));
-      failed = signUp(parsed.data.name, parsed.data.phone);
-    } else {
+    if (busy) return;
+
+    if (flow === "login") {
       const parsed = loginSchema.safeParse({ phone, password });
       if (!parsed.success) return setError(firstIssue(parsed.error));
-      failed = logIn(parsed.data.phone);
+      return startTransition(async () => {
+        const result = await logIn(parsed.data.phone, parsed.data.password);
+        if (!result.ok) return setError(result.error);
+        done();
+      });
     }
-    if (failed) return setError(failed);
-    router.push(destination);
+
+    const parsed = (signup ? signupSchema : resetSchema).safeParse({ name, phone, password });
+    if (!parsed.success) return setError(firstIssue(parsed.error));
+    sendCode();
+  }
+
+  function verify(code: string) {
+    const parsed = codeSchema.safeParse(code);
+    if (!parsed.success) return setError(firstIssue(parsed.error));
+    startTransition(async () => {
+      const result = await verifyAndSetPassword({
+        phone,
+        code,
+        password,
+        name: signup ? name : undefined,
+      });
+      if (!result.ok) return setError(result.error);
+      done();
+    });
   }
 
   return (
@@ -102,6 +153,14 @@ function AuthCard({ mode: initialMode, next }: { mode: Mode; next?: string }) {
       </Screen>
 
       <div className="p-xxl md:p-gap-wide">
+        {reset ? (
+          <div>
+            <h2 className="text-h1 font-extrabold">Reset your password</h2>
+            <p className="text-site-label text-text-secondary mt-xs">
+              We&rsquo;ll text a code to your phone, then you choose a new password.
+            </p>
+          </div>
+        ) : (
         <div className="bg-surface-raised rounded-pill relative flex p-xs">
           <span
             aria-hidden
@@ -110,13 +169,14 @@ function AuthCard({ mode: initialMode, next }: { mode: Mode; next?: string }) {
               signup && "translate-x-full",
             )}
           />
-          <button type="button" onClick={() => setMode("login")} aria-pressed={!signup} className="text-site-button relative flex-1 py-md text-center">
+          <button type="button" onClick={() => go("login")} aria-pressed={flow === "login"} className="text-site-button relative flex-1 py-md text-center">
             Log in
           </button>
-          <button type="button" onClick={() => setMode("signup")} aria-pressed={signup} className="text-site-button relative flex-1 py-md text-center">
+          <button type="button" onClick={() => go("signup")} aria-pressed={signup} className="text-site-button relative flex-1 py-md text-center">
             Sign up
           </button>
         </div>
+        )}
 
         {next === "/checkout" && (
           <p className="bg-accent/15 text-accent-text rounded-chip text-site-label mt-lg px-lg py-md font-semibold">
@@ -124,41 +184,70 @@ function AuthCard({ mode: initialMode, next }: { mode: Mode; next?: string }) {
           </p>
         )}
 
-        <form onSubmit={submit} noValidate className="gap-md mt-xl flex flex-col">
-          {signup && (
-            <label className={cn(fieldLabel, "rise")}>
-              Full name
-              <input value={name} onChange={(e) => { setName(e.target.value); setError(""); }} placeholder="Doosuur Terhemba" autoComplete="name" className={field} />
-            </label>
-          )}
-          <label className={fieldLabel}>
-            Phone number
-            <input value={phone} onChange={(e) => { setPhone(e.target.value); setError(""); }} placeholder="0803 123 4567" inputMode="tel" autoComplete="tel" className={field} />
-          </label>
-          <label className={fieldLabel}>
-            Password
-            <input type="password" value={password} onChange={(e) => { setPassword(e.target.value); setError(""); }} placeholder="At least 6 characters" autoComplete={signup ? "new-password" : "current-password"} className={field} />
-          </label>
-          {error && (
-            <p role="alert" className="text-danger-text text-site-label shake font-semibold">
-              {error}
+        {step === "code" ? (
+          <div className="gap-md mt-xl flex flex-col">
+            <p className="text-site-body">
+              We texted a 6-digit code to <strong>{phone}</strong>.
             </p>
-          )}
-          <Button type="submit" variant="dark" size="site" full className="mt-xs">
-            {signup ? "Create account" : "Log in"}
-          </Button>
-        </form>
+            <OtpInput error={Boolean(error)} onComplete={verify} />
+            {error && (
+              <p role="alert" className="text-danger-text text-site-label shake font-semibold">
+                {error}
+              </p>
+            )}
+            <div className="text-site-label gap-sm flex flex-wrap justify-between font-semibold">
+              <button type="button" onClick={() => setStep("details")} className="text-text-secondary">
+                ← Change number
+              </button>
+              <button
+                type="button"
+                disabled={wait > 0 || busy}
+                onClick={sendCode}
+                className="text-accent-text font-bold disabled:opacity-50"
+              >
+                {wait > 0 ? `Send again in ${wait}s` : "Send a new code"}
+              </button>
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={submit} noValidate className="gap-md mt-xl flex flex-col">
+            {signup && (
+              <label className={cn(fieldLabel, "rise")}>
+                Full name
+                <input value={name} onChange={(e) => { setName(e.target.value); setError(""); }} placeholder="Doosuur Terhemba" autoComplete="name" className={field} />
+              </label>
+            )}
+            <label className={fieldLabel}>
+              Phone number
+              <input value={phone} onChange={(e) => { setPhone(e.target.value); setError(""); }} placeholder="0803 123 4567" inputMode="tel" autoComplete="tel" className={field} />
+            </label>
+            <label className={fieldLabel}>
+              {reset ? "New password" : "Password"}
+              <input type="password" value={password} onChange={(e) => { setPassword(e.target.value); setError(""); }} placeholder={flow === "login" ? "Your password" : "At least 8 characters"} autoComplete={flow === "login" ? "current-password" : "new-password"} className={field} />
+            </label>
+            {error && (
+              <p role="alert" className="text-danger-text text-site-label shake font-semibold">
+                {error}
+              </p>
+            )}
+            <Button type="submit" variant="dark" size="site" full className="mt-xs" disabled={busy}>
+              {busy ? "One moment…" : flow === "login" ? "Log in" : signup ? "Text me a code" : "Send reset code"}
+            </Button>
+          </form>
+        )}
 
         <div className="text-site-label mt-lg gap-sm flex flex-wrap justify-between font-semibold">
-          <button type="button" onClick={() => setMode(signup ? "login" : "signup")} className="text-accent-text font-bold">
-            {signup ? "Have an account? Log in" : "New here? Create an account"}
-          </button>
-          {!signup && (
-            <button
-              type="button"
-              className="text-text-secondary"
-              onClick={() => say(phone ? `Reset code sent to ${phone}` : "Enter your phone number first")}
-            >
+          {reset ? (
+            <button type="button" onClick={() => go("login")} className="text-accent-text font-bold">
+              ← Back to log in
+            </button>
+          ) : (
+            <button type="button" onClick={() => go(signup ? "login" : "signup")} className="text-accent-text font-bold">
+              {signup ? "Have an account? Log in" : "New here? Create an account"}
+            </button>
+          )}
+          {flow === "login" && (
+            <button type="button" className="text-text-secondary" onClick={() => go("reset")}>
               Forgot password?
             </button>
           )}

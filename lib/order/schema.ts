@@ -1,19 +1,24 @@
 import { z } from "zod";
 
-/** Shared by the form and, once there is one, the server action. */
+/** Shared by the forms and checked again on the server by karrigo-be. */
 
 const phone = z
   .string()
   .transform((value) => value.replace(/\D/g, ""))
-  .refine((digits) => /^0\d{10}$/.test(digits), {
+  .refine((digits) => /^0\d{10}$/.test(digits) || /^234\d{10}$/.test(digits), {
     message: "Enter an 11-digit phone number, like 0803 123 4567.",
   });
 
+// The backend asks for 8–72 characters.
 const password = z
   .string()
-  .min(6, { message: "Password needs at least 6 characters." });
+  .min(8, { message: "Password needs at least 8 characters." })
+  .max(72, { message: "Password can be at most 72 characters." });
 
-export const loginSchema = z.object({ phone, password });
+export const loginSchema = z.object({
+  phone,
+  password: z.string().min(1, { message: "Enter your password." }),
+});
 
 export const signupSchema = z.object({
   name: z.string().trim().min(2, { message: "Enter your name." }),
@@ -21,13 +26,31 @@ export const signupSchema = z.object({
   password,
 });
 
+export const resetSchema = z.object({ phone, password });
+
+export const codeSchema = z
+  .string()
+  .regex(/^\d{6}$/, { message: "Enter the 6-digit code we sent you." });
+
 export const paymentMethods = ["card", "transfer", "cash"] as const;
 export type PaymentMethod = (typeof paymentMethods)[number];
+
+/** The areas Karrigo delivers to today. */
+export const AREAS = [
+  "High Level",
+  "Wurukum",
+  "North Bank",
+  "Wadata",
+  "Modern Market",
+  "Old GRA",
+  "Kanshio",
+] as const;
 
 export const deliverySchema = z
   .object({
     landmark: z.string().trim(),
     address: z.string().trim(),
+    area: z.string().trim().min(1, { message: "Pick the area you're in." }),
     note: z.string().trim().max(200),
     pay: z.enum(paymentMethods),
   })

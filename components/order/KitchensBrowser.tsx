@@ -2,25 +2,17 @@
 
 import { Suspense, useEffect, useState } from "react";
 import { useSearchParams } from "next/navigation";
-import { KitchenCard } from "@/components/site/KitchenCard";
 import { Eyebrow } from "@/components/site/Eyebrow";
-import { fromPriceKobo, kitchens } from "@/lib/fixtures";
-import { setDelivery, useOrderState } from "@/lib/order/store";
+import { setDelivery } from "@/lib/order/store";
+import type { ShopKitchen } from "@/lib/shop/types";
 import { cn } from "@/lib/cn";
+import { ShopKitchenCard } from "./ShopKitchenCard";
 
 /** Spelled out so Tailwind sees each class name. */
 const stagger = ["rise-1", "rise-2", "rise-3", "rise-4", "rise-5", "rise-6"];
 
-const categories = ["All", ...new Set(kitchens.map((k) => k.category))];
-
-/**
- * Search and category chips over the kitchen grid. Search matches kitchen
- * names, cuisines and dishes, so "egusi" finds every kitchen that cooks it.
- */
 /** The homepage's address form lands here with ?address=. Keep it as the
- *  landmark so checkout and the header already know where the food goes.
- *  Read in the browser, not on the server, so /kitchens stays a static page
- *  that links can prefetch in full. */
+ *  landmark so checkout and the header already know where the food goes. */
 function AddressFromQuery() {
   const address = useSearchParams().get("address")?.trim();
   useEffect(() => {
@@ -29,22 +21,24 @@ function AddressFromQuery() {
   return null;
 }
 
-export function KitchensBrowser() {
-  const { user } = useOrderState();
+/**
+ * Search and cuisine chips over the kitchen grid. Search matches kitchen
+ * names, cuisines and areas. (Dish search will follow once the backend has a
+ * search endpoint — the list does not carry menus.)
+ */
+export function KitchensBrowser({ kitchens, firstName }: { kitchens: ShopKitchen[]; firstName: string | null }) {
   const [query, setQuery] = useState("");
-  const [category, setCategory] = useState("All");
+  const [cuisine, setCuisine] = useState("All");
 
-
+  const cuisines = ["All", ...new Set(kitchens.map((k) => k.cuisine))];
   const q = query.trim().toLowerCase();
   const shown = kitchens.filter(
-    (kitchen) =>
-      (category === "All" || kitchen.category === category) &&
-      (!q ||
-        [kitchen.name, kitchen.cuisine, kitchen.area, ...kitchen.menu.map((d) => d.name)]
-          .join(" ")
-          .toLowerCase()
-          .includes(q)),
+    (k) =>
+      (cuisine === "All" || k.cuisine === cuisine) &&
+      (!q || [k.name, k.cuisine, k.area].join(" ").toLowerCase().includes(q)),
   );
+  const openNow = shown.filter((k) => k.open);
+  const closed = shown.filter((k) => !k.open);
 
   return (
     <div className="mx-auto max-w-[1240px]">
@@ -53,12 +47,8 @@ export function KitchensBrowser() {
       </Suspense>
       <div className="gap-lg flex flex-wrap items-end justify-between">
         <div>
-          <Eyebrow className="rise">
-            {user ? `Hi ${user.name.split(" ")[0]} · open right now` : "Open right now"}
-          </Eyebrow>
-          <h1 className="text-section-small md:text-section rise rise-1 mt-md">
-            Kitchens in Makurdi
-          </h1>
+          <Eyebrow className="rise">{firstName ? `Hi ${firstName} · open right now` : "Open right now"}</Eyebrow>
+          <h1 className="text-section-small md:text-section rise rise-1 mt-md">Kitchens in Makurdi</h1>
         </div>
 
         <label className="bg-bg rounded-pill gap-sm flex min-w-[240px] flex-[0_1_380px] items-center py-xs pr-xs pl-lg">
@@ -71,50 +61,70 @@ export function KitchensBrowser() {
             <circle cx="11" cy="11" r="7" />
             <path d="m20 20-3.5-3.5" />
           </svg>
-          <span className="sr-only">Search kitchens and dishes</span>
+          <span className="sr-only">Search kitchens</span>
           <input
             type="search"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search egusi, jollof, suya…"
+            placeholder="Search a kitchen or area"
             className="text-site-body placeholder:text-text-secondary min-w-0 flex-1 bg-transparent py-sm outline-none"
           />
         </label>
       </div>
 
-      <div className="gap-sm mt-xl mb-xxl flex flex-wrap" role="group" aria-label="Filter by food">
-        {categories.map((c) => (
-          <button
-            key={c}
-            type="button"
-            aria-pressed={category === c}
-            onClick={() => setCategory(c)}
-            data-theme={category === c ? "dark" : undefined}
-            className={cn(
-              "rounded-pill text-nav-link px-lg py-sm font-bold transition-colors duration-(--duration-fast)",
-              category === c ? "bg-bg text-accent-text" : "bg-bg text-text hover:bg-surface-raised",
-            )}
-          >
-            {c}
-          </button>
-        ))}
-      </div>
-
-      {shown.length > 0 ? (
-        <div className="gap-xl grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
-          {shown.map((kitchen, i) => (
-            <div key={kitchen.slug} className={cn("rise", stagger[i])}>
-              <KitchenCard kitchen={kitchen} fromKobo={fromPriceKobo(kitchen)} priority={i < 4} />
-            </div>
+      {cuisines.length > 2 && (
+        <div className="gap-sm mt-xl flex flex-wrap" role="group" aria-label="Filter by food">
+          {cuisines.map((c) => (
+            <button
+              key={c}
+              type="button"
+              aria-pressed={cuisine === c}
+              onClick={() => setCuisine(c)}
+              data-theme={cuisine === c ? "dark" : undefined}
+              className={cn(
+                "rounded-pill text-nav-link px-lg py-sm font-bold transition-colors duration-(--duration-fast)",
+                cuisine === c ? "bg-bg text-accent-text" : "bg-bg text-text hover:bg-surface-raised",
+              )}
+            >
+              {c}
+            </button>
           ))}
         </div>
-      ) : (
-        <p className="bg-bg rounded-panel-sm text-site-body text-text-secondary p-xxl text-center font-semibold">
-          {q
-            ? `No kitchen serves “${query.trim()}” yet. Try jollof, suya or egusi.`
-            : `No ${category.toLowerCase()} kitchens are open right now.`}
-        </p>
       )}
+
+      <div className="mt-xxl">
+        {shown.length === 0 ? (
+          <p className="bg-bg rounded-panel-sm text-site-body text-text-secondary p-xxl text-center font-semibold">
+            {kitchens.length === 0
+              ? "No kitchens are taking orders yet. Check back soon — we're opening new ones in Makurdi every week."
+              : q
+                ? `No kitchen matches “${query.trim()}”.`
+                : `No ${cuisine.toLowerCase()} kitchens right now.`}
+          </p>
+        ) : (
+          <>
+            {openNow.length > 0 && (
+              <div className="gap-xl grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                {openNow.map((kitchen, i) => (
+                  <div key={kitchen.id} className={cn("rise", stagger[i])}>
+                    <ShopKitchenCard kitchen={kitchen} priority={i < 4} />
+                  </div>
+                ))}
+              </div>
+            )}
+            {closed.length > 0 && (
+              <>
+                <h2 className="text-h1 mt-xxl mb-lg font-extrabold">Closed right now</h2>
+                <div className="gap-xl grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {closed.map((kitchen) => (
+                    <ShopKitchenCard key={kitchen.id} kitchen={kitchen} />
+                  ))}
+                </div>
+              </>
+            )}
+          </>
+        )}
+      </div>
     </div>
   );
 }

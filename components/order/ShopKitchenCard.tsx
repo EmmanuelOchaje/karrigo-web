@@ -1,0 +1,68 @@
+import Image from "next/image";
+import Link from "next/link";
+
+import { cn } from "@/lib/cn";
+import { formatKobo } from "@/lib/money";
+import type { ShopKitchen } from "@/lib/shop/types";
+
+/** A kitchen in the grid. A closed kitchen stays visible, dimmed and labelled,
+ *  because "where did Terkimbi's go?" is worse than "closed until 11". */
+export function ShopKitchenCard({ kitchen, priority = false }: { kitchen: ShopKitchen; priority?: boolean }) {
+  const shut = !kitchen.open;
+
+  return (
+    <Link
+      href={`/k/${kitchen.slug}`}
+      className={cn(
+        "bg-bg rounded-panel-sm p-sm group block transition-[transform,box-shadow] duration-(--duration-normal)",
+        shut ? "opacity-55" : "hover:-translate-y-1.5 hover:shadow-card",
+      )}
+    >
+      <div className="bg-surface-raised relative grid aspect-[4/3] place-items-center overflow-hidden rounded-panel-xs">
+        {kitchen.imageUrl ? (
+          <Image
+            src={kitchen.imageUrl}
+            alt={`${kitchen.cuisine} from ${kitchen.name}`}
+            fill
+            sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 350px"
+            priority={priority}
+            className={cn(
+              "object-cover transition-transform duration-(--duration-slow)",
+              !shut && "group-hover:scale-[1.03]",
+            )}
+          />
+        ) : (
+          <span aria-hidden className="text-[64px]">
+            {kitchen.emoji ?? "🍲"}
+          </span>
+        )}
+        {shut ? (
+          <span className="bg-danger text-bg absolute top-sm left-sm rounded-pill px-md py-xs text-eyebrow normal-case">
+            {kitchen.notice ?? "Closed right now"}
+          </span>
+        ) : kitchen.feeKobo === 0 ? (
+          <span className="bg-accent text-on-accent absolute top-sm left-sm rounded-pill px-md py-xs text-eyebrow normal-case">
+            Free delivery
+          </span>
+        ) : null}
+      </div>
+
+      <div className="px-sm pt-lg pb-sm">
+        <div className="text-site-title">{kitchen.name}</div>
+        <div className="text-site-label text-text-secondary mt-xs">
+          {kitchen.cuisine} · {kitchen.area}
+        </div>
+        {!shut && (
+          <div className="text-site-chip text-text-secondary mt-md flex flex-wrap gap-x-md gap-y-xs font-semibold">
+            {kitchen.ratingsCount > 0 && (
+              <span>
+                ★ {kitchen.rating.toFixed(1)} ({kitchen.ratingsCount})
+              </span>
+            )}
+            {kitchen.feeKobo > 0 && <span>{formatKobo(kitchen.feeKobo)} delivery</span>}
+          </div>
+        )}
+      </div>
+    </Link>
+  );
+}
