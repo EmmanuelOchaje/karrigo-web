@@ -165,8 +165,10 @@ export function Checkout({ customer }: { customer: Customer | null }) {
       if (!result.ok) return setError(result.error);
       clearCart();
       // Card and transfer go to Paystack's page, which returns to tracking.
-      if (result.payUrl) window.location.href = result.payUrl;
-      else router.push(`/track?order=${result.orderId}`);
+      if (result.payUrl) return void (window.location.href = result.payUrl);
+      // Placed but not paid: the order's page has the Pay now button.
+      if (result.paymentHeld) say(result.paymentHeld);
+      router.push(`/track?order=${result.orderId}`);
     });
   }
 
