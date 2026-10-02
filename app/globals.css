@@ -7,6 +7,21 @@ body {
   font-weight: var(--body-weight);
 }
 
+/* Tailwind's reset leaves buttons with the arrow. Anything that can be
+   pressed gets the hand, on every surface; a disabled control keeps the arrow
+   so it does not promise something it will not do. */
+@layer base {
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]),
+  [role="switch"]:not(:disabled),
+  summary,
+  select:not(:disabled),
+  label:has(input[type="checkbox"], input[type="radio"], input[type="file"]),
+  input:is([type="checkbox"], [type="radio"], [type="file"], [type="submit"], [type="button"]):not(:disabled) {
+    cursor: pointer;
+  }
+}
+
 /* Entrance motion. Deliberately small — this is a content site, and the job is
    to draw the eye down the page, not to perform. The `both` fill holds elements
    at opacity 0 through their delay, so keep the total stagger short: it is time

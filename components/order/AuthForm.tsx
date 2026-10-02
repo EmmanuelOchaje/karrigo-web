@@ -256,6 +256,14 @@ function AuthCard({ mode: initialMode, next }: { mode: Mode; next?: string }) {
         <Link href="/kitchens" className="text-text-secondary text-site-label mt-xxl inline-block font-semibold">
           Browse kitchens first →
         </Link>
+        {/* Kitchens have their own login. Someone who cooks for Karrigo and
+            lands here would otherwise sign in as a customer and find no kitchen. */}
+        <p className="text-text-secondary text-site-label mt-md">
+          Cook with Karrigo?{" "}
+          <Link href="/partners/kitchen/login" className="text-accent-text font-bold">
+            Log in to your kitchen
+          </Link>
+        </p>
       </div>
     </div>
   );
