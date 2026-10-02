@@ -174,7 +174,7 @@ const MAKURDI = { lat: 7.7337, lng: 8.5214 };
 
 export async function placeOrder(
   input: PlaceInput,
-): Promise<Done<{ orderId: string; payUrl: string | null }>> {
+): Promise<Done<{ orderId: string; payUrl: string | null; paymentHeld?: string }>> {
   const customer = await getCustomer();
   if (!customer) return { ok: false, error: "Log in to place your order." };
 
@@ -226,8 +226,16 @@ export async function placeOrder(
 
     if (input.pay === "cash") return { ok: true, orderId: order.id, payUrl: null };
 
-    const payUrl = await startPayment(order.id);
-    return { ok: true, orderId: order.id, payUrl };
+    // The order exists from here on. If the payment page can't be opened,
+    // failing would leave the customer on checkout with a full cart, and
+    // every retry would place the same order again. Send them to the order
+    // instead, where "Pay now" tries the payment alone.
+    try {
+      const payUrl = await startPayment(order.id);
+      return { ok: true, orderId: order.id, payUrl };
+    } catch (error) {
+      return { ok: true, orderId: order.id, payUrl: null, paymentHeld: paymentFailure(error).error };
+    }
   } catch (error) {
     if (error instanceof ApiError && error.status === 422) {
       return {
@@ -279,12 +287,25 @@ async function startPayment(orderId: string): Promise<string> {
   return result.authorizationUrl;
 }
 
+/** Why the payment page would not open, in words for the customer. A
+ *  refused return address is ours to fix, not theirs, and the backend's
+ *  wording for it ("callbackUrl is not on an allowed…") means nothing to them. */
+function paymentFailure(error: unknown): Failure {
+  if (error instanceof ApiError && /callbackUrl/i.test(error.message)) {
+    return {
+      ok: false,
+      error: "Your order is saved, but we can't open the payment page from this site yet. That's on our side — try Pay now again shortly.",
+    };
+  }
+  return failure(error, "Your order is saved, but the payment page didn't open. Try Pay now again.");
+}
+
 /** Retry a payment that was abandoned or failed. */
 export async function payAgain(orderId: string): Promise<Done<{ payUrl: string }>> {
   try {
     return { ok: true, payUrl: await startPayment(orderId) };
   } catch (error) {
-    return failure(error);
+    return paymentFailure(error);
   }
 }
 
