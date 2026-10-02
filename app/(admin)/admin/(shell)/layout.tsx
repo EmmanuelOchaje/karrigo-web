@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 
+import { LiveRefresh } from "@/components/admin/LiveRefresh";
 import { OpsShell } from "@/components/admin/OpsShell";
 import { OpsToast } from "@/components/admin/OpsToast";
 import { loadNavCounts } from "@/lib/admin/overview";
@@ -34,6 +35,7 @@ export default async function ShellLayout({
       >
         {children}
       </OpsShell>
+      <LiveRefresh counts={counts} />
       <OpsToast />
     </>
   );
