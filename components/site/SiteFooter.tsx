@@ -14,8 +14,8 @@ const columns = [
   {
     heading: "Partner",
     links: [
-      { href: "/partners", label: "List your kitchen" },
-      { href: "/partners#riders", label: "Ride with us" },
+      { href: "/partners/kitchen", label: "List your kitchen" },
+      { href: "/partners/rider", label: "Ride with us" },
     ],
   },
   {

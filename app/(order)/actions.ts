@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { ApiError, api, type Schemas } from "@/lib/api/client";
 import { clearTokens, readRefreshToken, storeTokens } from "@/lib/api/session";
 import { nairaToKobo } from "@/lib/money";
+import { e164 } from "@/lib/phone";
 import { priceLines } from "@/lib/shop/catalog";
 import { getCustomer } from "@/lib/shop/session";
 import type { Customer, PricedCart } from "@/lib/shop/types";
@@ -32,13 +33,6 @@ function failure(error: unknown, fallback = "That didn't go through. Try again."
 }
 
 /* ------------------------------------------------------------------ auth */
-
-/** 0803 123 4567 -> +2348031234567, the form the backend stores. */
-function e164(phone: string): string {
-  const digits = phone.replace(/\D/g, "");
-  if (digits.startsWith("234")) return `+${digits}`;
-  return `+234${digits.replace(/^0/, "")}`;
-}
 
 export async function logIn(phone: string, password: string): Promise<Done<{ needsOtp?: boolean }>> {
   try {
