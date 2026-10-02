@@ -12,7 +12,7 @@ import { logIn, requestCode, verifyAndSetPassword } from "@/app/(order)/actions"
 import { cn } from "@/lib/cn";
 
 const field =
-  "border-border-strong focus:border-text rounded-field text-site-body bg-bg border-[1.5px] px-lg py-md font-medium outline-none transition-colors duration-(--duration-fast)";
+  "border-field-border focus:border-field-border-active rounded-field text-site-body bg-bg border-[1.5px] px-lg py-md font-medium outline-none transition-colors duration-(--duration-fast)";
 const fieldLabel = "text-label flex flex-col gap-sm font-bold";
 
 /** Only same-site paths — never bounce a fresh login to another origin. */
@@ -253,8 +253,14 @@ function AuthCard({ mode: initialMode, next }: { mode: Mode; next?: string }) {
           )}
         </div>
 
-        <Link href="/kitchens" className="text-text-secondary text-site-label mt-xxl inline-block font-semibold">
-          Browse kitchens first →
+        <Link href="/kitchens" className="text-text-secondary text-site-label gap-sm mt-xxl inline-flex items-center font-semibold">
+          Browse kitchens first
+          {/* Drawn as a mask so the icon takes the link's own colour, in
+              both themes, instead of the fixed grey of the file. */}
+          <span
+            aria-hidden
+            className="size-[18px] shrink-0 bg-current mask-[url(/icons/serve.png)] mask-contain mask-center mask-no-repeat"
+          />
         </Link>
         {/* Kitchens have their own login. Someone who cooks for Karrigo and
             lands here would otherwise sign in as a customer and find no kitchen. */}
