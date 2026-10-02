@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 import { cn } from "@/lib/cn";
 import { formatKobo } from "@/lib/money";
@@ -8,17 +8,16 @@ import {
   QUEUE_STATUS_LABEL,
   QUEUE_TABS,
   payoutKobo,
-  queueItems,
   type QueueItem,
   type QueueKind,
   type QueueStatus,
 } from "@/lib/admin/queue";
+import { say } from "@/lib/admin/store";
 import {
-  markPaidOut,
+  payOut,
   setKitchenStatus,
-  setRiderStatus,
-  useOps,
-} from "@/lib/admin/store";
+  setRiderVerification,
+} from "@/app/(admin)/admin/queue-actions";
 import type { AdminRole } from "@/lib/admin/types";
 import { CountTab, EmptyState, StatusChip, type Tone } from "@/components/admin/ui";
 
@@ -40,16 +39,13 @@ const TONE: Record<QueueStatus, Tone> = {
 export function ReviewQueue({
   kind,
   role,
+  items,
 }: {
   kind: QueueKind;
   role: AdminRole;
+  items: QueueItem[];
 }) {
-  const ops = useOps();
-  const items = queueItems(kind, {
-    status: kind === "kitchens" ? ops.kitchenStatus : ops.riderStatus,
-    notes: ops.reviewNotes,
-    paid: ops.paidOut,
-  });
+  const [busy, startTransition] = useTransition();
 
   const tabs = QUEUE_TABS[kind];
   const [tab, setTab] = useState<QueueStatus>("PENDING");
@@ -59,13 +55,22 @@ export function ReviewQueue({
   const selected =
     list.find((item) => item.id === selectedId) ?? list[0] ?? null;
 
-  function decide(item: QueueItem, status: QueueStatus, note: string, message: string) {
-    if (kind === "kitchens") {
-      setKitchenStatus(item.id, status as never, note, message);
-    } else {
-      setRiderStatus(item.id, status as never, note, message);
-    }
-    setSelectedId(null);
+  /** Runs a server action, then says what happened in the backend's words —
+   *  success or the reason it refused. The page re-renders from the server. */
+  function run(action: () => Promise<{ ok: true; message: string } | { ok: false; error: string }>) {
+    startTransition(async () => {
+      const result = await action();
+      say(result.ok ? result.message : result.error);
+      if (result.ok) setSelectedId(null);
+    });
+  }
+
+  function decide(item: QueueItem, status: QueueStatus, note: string) {
+    run(() =>
+      kind === "kitchens"
+        ? setKitchenStatus(item.id, status === "ACTIVE" ? "ACTIVE" : "SUSPENDED", note)
+        : setRiderVerification(item.id, status === "APPROVED" ? "APPROVED" : "REJECTED", note),
+    );
   }
 
   return (
@@ -143,13 +148,8 @@ export function ReviewQueue({
             item={selected}
             role={role}
             onDecide={decide}
-            onPayout={() =>
-              markPaidOut(
-                selected.id,
-                formatKobo(payoutKobo(selected)),
-                selected.title,
-              )
-            }
+            busy={busy}
+            onPayout={() => run(() => payOut(kind, selected.id))}
           />
         ) : (
           <div

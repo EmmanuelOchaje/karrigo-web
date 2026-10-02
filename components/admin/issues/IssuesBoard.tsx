@@ -1,11 +1,11 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 import { cn } from "@/lib/cn";
-import { TICKETS } from "@/lib/admin/fixtures";
-import { setTicketStatus, useOps } from "@/lib/admin/store";
+import { say } from "@/lib/admin/store";
+import { moveTicket } from "@/app/(admin)/admin/ticket-actions";
 import {
   TICKET_STATUS_LABEL,
   type Ticket,
@@ -55,13 +55,7 @@ const MOVES: Record<
  * carries a button that opens the actual conversation rather than a reply box
  * we would have to build and nobody would use.
  */
-export function IssuesBoard() {
-  const ops = useOps();
-  const tickets: Ticket[] = TICKETS.map((ticket) => ({
-    ...ticket,
-    status: ops.ticketStatus[ticket.id] ?? ticket.status,
-  }));
-
+export function IssuesBoard({ tickets }: { tickets: Ticket[] }) {
   const [tab, setTab] = useState<TicketStatus>("OPEN");
   const [selectedId, setSelectedId] = useState<string | null>(null);
 
@@ -148,6 +142,7 @@ function TicketDetail({
   ticket: Ticket;
   onMoved: () => void;
 }) {
+  const [busy, startTransition] = useTransition();
   return (
     <div
       data-theme="light"
@@ -182,7 +177,7 @@ function TicketDetail({
             Open {ticket.orderId}
           </Link>
         )}
-        {ticket.channel === "WHATSAPP" && (
+        {ticket.channel === "WHATSAPP" && ticket.phone && (
           <a
             href={`https://wa.me/${ticket.phone}`}
             target="_blank"
@@ -199,12 +194,16 @@ function TicketDetail({
           <button
             key={move.label}
             type="button"
-            onClick={() => {
-              setTicketStatus(ticket.id, move.to, move.said);
-              onMoved();
-            }}
+            disabled={busy}
+            onClick={() =>
+              startTransition(async () => {
+                const result = await moveTicket(ticket.id, move.to, move.said);
+                say(result.ok ? result.message : result.error);
+                if (result.ok) onMoved();
+              })
+            }
             className={cn(
-              "h-10 rounded-pill px-[18px] text-[13px] font-bold",
+              "h-10 rounded-pill px-[18px] text-[13px] font-bold disabled:opacity-40",
               move.tone === "go"
                 ? "bg-accent text-on-accent"
                 : move.tone === "dark"

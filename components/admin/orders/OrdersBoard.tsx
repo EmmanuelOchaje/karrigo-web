@@ -3,18 +3,18 @@
 import { useState } from "react";
 
 import { cn } from "@/lib/cn";
+import { formatKobo } from "@/lib/money";
 import {
   ORDER_FILTERS,
   ORDER_FILTER_LABEL,
   isUnassigned,
   matchesFilter,
   matchesQuery,
-  orderTotals,
-  placedAt,
+  type LiveOrder,
   type OrderFilter,
-} from "@/lib/admin/derive";
-import { applyOrderOverrides, useOps } from "@/lib/admin/store";
-import { PAYMENT_LABEL, STAGE_LABEL, type Order } from "@/lib/admin/types";
+} from "@/lib/admin/orders";
+import { PAYMENT_LABEL, STAGE_LABEL } from "@/lib/admin/types";
+import type { AdminRole } from "@/lib/admin/types";
 import { CountTab, EmptyState, StatusChip, type Tone } from "@/components/admin/ui";
 
 import { OrderDetail } from "./OrderDetail";
@@ -24,10 +24,15 @@ import { OrderDetail } from "./OrderDetail";
  * already works in, because the question is almost always "what is happening
  * with KG-2217" while the rest of the board keeps moving.
  */
-export function OrdersBoard({ openOrder }: { openOrder?: string }) {
-  const ops = useOps();
-  const orders = applyOrderOverrides(ops);
-
+export function OrdersBoard({
+  orders,
+  role,
+  openOrder,
+}: {
+  orders: LiveOrder[];
+  role: AdminRole;
+  openOrder?: string;
+}) {
   // Arriving from a ticket ("Open KG-2196") means that order specifically —
   // which may well be delivered or cancelled, so the filter opens wide enough
   // to contain it rather than showing an empty board.
@@ -40,7 +45,9 @@ export function OrdersBoard({ openOrder }: { openOrder?: string }) {
     .filter((order) => matchesQuery(order, query));
 
   const selected =
-    orders.find((order) => order.id === selectedId) ?? rows[0] ?? null;
+    orders.find((order) => order.id === selectedId || order.code === selectedId) ??
+    rows[0] ??
+    null;
 
   return (
     <div className="flex flex-wrap items-start gap-3.5">
@@ -69,7 +76,9 @@ export function OrdersBoard({ openOrder }: { openOrder?: string }) {
             title={
               query
                 ? `No orders match “${query}”`
-                : `No ${filter === "all" ? "" : `${filter} `}orders`
+                : orders.length === 0
+                  ? "No orders yet"
+                  : `No ${filter === "all" ? "" : `${filter} `}orders`
             }
             text={
               query
@@ -94,7 +103,6 @@ export function OrdersBoard({ openOrder }: { openOrder?: string }) {
               <OrderRow
                 key={order.id}
                 order={order}
-                credited={!!ops.creditedOrders[order.id]}
                 selected={selected?.id === order.id}
                 onPick={() => setSelectedId(order.id)}
               />
@@ -105,10 +113,7 @@ export function OrdersBoard({ openOrder }: { openOrder?: string }) {
 
       <aside className="sticky top-5 min-w-0 max-w-full flex-[1_1_360px]">
         {selected ? (
-          <OrderDetail
-            order={selected}
-            credited={!!ops.creditedOrders[selected.id]}
-          />
+          <OrderDetail key={selected.id} order={selected} role={role} />
         ) : (
           <div
             data-theme="light"
@@ -124,12 +129,12 @@ export function OrdersBoard({ openOrder }: { openOrder?: string }) {
 
 /** The stage a row shows, and how loudly. Waiting for a kitchen to accept is
  *  the one stage that is a warning on its own: the 3-minute clock is running. */
-export function stageTone(order: Order): { tone: Tone; label: string } {
+export function stageTone(order: LiveOrder): { tone: Tone; label: string } {
+  if (order.refunded) return { tone: "muted", label: "Refunded" };
   if (order.cancelled) return { tone: "muted", label: "Cancelled" };
   if (order.stage === "delivered") return { tone: "success", label: "Delivered" };
   if (order.stage === "on_the_way") return { tone: "info", label: "On the way" };
-  if (order.stage === "waiting")
-    return { tone: "warning", label: STAGE_LABEL.waiting };
+  if (order.stage === "waiting") return { tone: "warning", label: STAGE_LABEL.waiting };
   return { tone: "muted", label: STAGE_LABEL[order.stage] };
 }
 
@@ -141,18 +146,15 @@ const ROW_COLUMNS =
 
 function OrderRow({
   order,
-  credited,
   selected,
   onPick,
 }: {
-  order: Order;
-  credited: boolean;
+  order: LiveOrder;
   selected: boolean;
   onPick: () => void;
 }) {
   const stage = stageTone(order);
   const unassigned = isUnassigned(order);
-  const totals = orderTotals(order, credited);
 
   return (
     <button
@@ -175,16 +177,14 @@ function OrderRow({
         )}
       />
       <span className="flex flex-col gap-[3px]">
-        <span className="font-bold">{order.id}</span>
-        <span className="text-text/55 text-[11.5px] font-light">
-          {placedAt(order)}
-        </span>
+        <span className="font-bold">{order.code}</span>
+        <span className="text-text/55 text-[11.5px] font-light">{order.placedLabel}</span>
       </span>
       <span className="flex min-w-0 flex-col gap-[3px]">
         <span className="truncate">{order.customerName}</span>
-        <span className="text-text/55 text-[11.5px] font-light">{order.area}</span>
+        <span className="text-text/55 text-[11.5px] font-light">{order.customerPhone}</span>
       </span>
-      <span className="truncate">{order.kitchen}</span>
+      <span className="truncate">{order.kitchens}</span>
       <span className={cn("truncate", unassigned && "text-warning")}>
         {order.riderName ?? "Unassigned"}
       </span>
@@ -192,16 +192,11 @@ function OrderRow({
         <StatusChip tone={stage.tone}>{stage.label}</StatusChip>
         {order.late && <StatusChip tone="danger">Late</StatusChip>}
       </span>
-      <span
-        className={cn(
-          "text-right font-semibold",
-          order.late ? "text-danger" : "text-text",
-        )}
-      >
+      <span className={cn("text-right font-semibold", order.late ? "text-danger" : "text-text")}>
         {order.elapsedMinutes} min
       </span>
       <span className="flex flex-col gap-[3px] text-right">
-        <span className="font-bold">{totals.total}</span>
+        <span className="font-bold">{formatKobo(order.totalKobo)}</span>
         <span className="text-text/55 text-[11.5px] font-light">
           {PAYMENT_LABEL[order.payment]}
         </span>

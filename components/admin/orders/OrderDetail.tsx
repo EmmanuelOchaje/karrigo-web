@@ -1,236 +1,241 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import { cn } from "@/lib/cn";
-import {
-  elapsedLabel,
-  isActive,
-  lineTotal,
-  orderTimeline,
-  orderTotals,
-  placedAt,
-} from "@/lib/admin/derive";
-import { NEARBY_RIDERS } from "@/lib/admin/fixtures";
-import { assignRider, cancelOrder, giveLateCredit } from "@/lib/admin/store";
-import { PAYMENT_LABEL, type Order } from "@/lib/admin/types";
+import { formatKobo } from "@/lib/money";
+import { isActive, type LiveOrder, type OrderDetailView } from "@/lib/admin/orders";
+import { say } from "@/lib/admin/store";
+import { PAYMENT_LABEL, type AdminRole } from "@/lib/admin/types";
 import { Eyebrow } from "@/components/admin/ui";
+import {
+  giveCredit,
+  loadOrderDetail,
+  refundOrder,
+} from "@/app/(admin)/admin/order-actions";
+
+/** What a late-order apology is worth, until policy says otherwise. The
+ *  amount stays editable — the backend takes any figure. */
+const DEFAULT_CREDIT_NAIRA = 500;
 
 /**
- * One order, in full, with the three things ops can do about it: put a rider
- * on it, apologise with credit, or cancel and refund.
+ * One order, in full, with the two things ops can do about it: apologise with
+ * credit, or refund. Riders are not assigned by hand — they accept broadcast
+ * offers — so there is no "assign" here.
  *
  * The panel is light in both themes — `data-theme="light"` rather than
  * hardcoded hex, so every token inside resolves to its light value. It is a
  * document: a receipt and a timeline someone reads closely, often while on
  * the phone to a customer, and it stays legible when the room is bright.
  */
-export function OrderDetail({
-  order,
-  credited,
-}: {
-  order: Order;
-  credited: boolean;
-}) {
-  const [picking, setPicking] = useState(false);
-  const [confirming, setConfirming] = useState(false);
+export function OrderDetail({ order, role }: { order: LiveOrder; role: AdminRole }) {
+  const [detail, setDetail] = useState<OrderDetailView | null>(null);
+  const [problem, setProblem] = useState<string | null>(null);
+  const [mode, setMode] = useState<"credit" | "refund" | null>(null);
+  const [creditNaira, setCreditNaira] = useState(String(DEFAULT_CREDIT_NAIRA));
+  const [note, setNote] = useState("");
+  const [busy, startTransition] = useTransition();
 
-  const totals = orderTotals(order, credited);
-  const timeline = orderTimeline(order);
-  const actionable = isActive(order);
+  useEffect(() => {
+    let cancelled = false;
+    loadOrderDetail(order.id).then((result) => {
+      if (cancelled) return;
+      if (result.ok) setDetail(result.detail);
+      else setProblem(result.error);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [order.id]);
+
+  const canRefund =
+    role === "SUPER_ADMIN" && !order.refunded && order.paymentStatus === "SUCCEEDED";
+  const canCredit = !order.cancelled;
+  const creditKobo = Math.round(Number(creditNaira) * 100);
+
+  function run(action: () => Promise<{ ok: true; message: string } | { ok: false; error: string }>) {
+    startTransition(async () => {
+      const result = await action();
+      say(result.ok ? result.message : result.error);
+      if (result.ok) {
+        setMode(null);
+        setNote("");
+      }
+    });
+  }
 
   return (
-    <div
-      data-theme="light"
-      className="bg-ops-surface text-text overflow-hidden rounded-[15px]"
-    >
+    <div data-theme="light" className="bg-ops-surface text-text overflow-hidden rounded-[15px]">
       <header className="border-text/8 border-b px-[22px] pt-[22px] pb-lg">
         <div className="flex items-center justify-between gap-2.5">
-          <span className="text-[22px]/none font-extrabold tracking-[-0.03em]">
-            {order.id}
-          </span>
+          <span className="text-[22px]/none font-extrabold tracking-[-0.03em]">{order.code}</span>
           <span className="text-text/62 text-[12.5px] font-medium">
-            Placed {placedAt(order)} · {elapsedLabel(order)} ago
+            Placed {order.placedLabel} · {order.elapsedMinutes} min{isActive(order) ? " ago" : " since"}
           </span>
         </div>
         <p className="text-text/80 mt-2 text-[13.5px]/[1.5]">
-          {order.landmark}, <strong className="text-text font-semibold">{order.area}</strong>
+          {detail ? (
+            <>
+              {detail.address}
+              {detail.instructions && <span className="text-text/62"> · {detail.instructions}</span>}
+            </>
+          ) : problem ? (
+            <span className="text-danger">{problem}</span>
+          ) : (
+            <span className="text-text/45">Loading the address…</span>
+          )}
         </p>
       </header>
 
       <div className="bg-text/8 border-text/8 grid grid-cols-3 gap-px border-b">
         <Fact label="Customer" value={order.customerName} sub={order.customerPhone} />
-        <Fact label="Kitchen" value={order.kitchen} />
+        <Fact label="Kitchen" value={order.kitchens} />
         <Fact label="Rider" value={order.riderName ?? "Unassigned"} />
       </div>
 
-      <ol className="border-text/8 flex flex-col border-b px-[22px] py-lg">
-        {timeline.map((step) => (
-          <li
-            key={step.label}
-            className="grid h-[30px] grid-cols-[14px_minmax(0,1fr)_auto] items-center gap-3"
-          >
-            <span
-              aria-hidden
-              className={cn(
-                "border-text size-3 rounded-full border-2",
-                step.reached
-                  ? step.current
-                    ? "bg-accent"
-                    : "bg-text"
-                  : "bg-ops-surface opacity-30",
-              )}
-            />
-            <span
-              className={cn(
-                "text-[13px]",
-                step.reached
-                  ? step.current
-                    ? "text-text font-bold"
-                    : "text-text font-medium"
-                  : "text-text/45 font-medium",
-              )}
-            >
-              {step.label}
-            </span>
-            <span
-              className={cn(
-                "text-[12.5px] font-semibold",
-                step.reached ? "text-text" : "text-text/45",
-              )}
-            >
-              {step.time}
-            </span>
-          </li>
-        ))}
-      </ol>
-
-      <div className="border-text/8 flex flex-col gap-[7px] border-b px-[22px] py-3.5 text-[13px]">
-        {order.items.map((item) => (
-          <div key={item.name} className="flex justify-between gap-2.5">
-            <span>
-              <span className="text-text/62">{item.qty}×</span> {item.name}
-            </span>
-            <span>{lineTotal(item)}</span>
-          </div>
-        ))}
-        <div className="text-text/62 flex justify-between">
-          <span>Delivery</span>
-          <span>{totals.fee}</span>
-        </div>
-        {totals.credit && (
-          <div className="text-accent-text flex justify-between font-semibold">
-            <span>Late-order credit</span>
-            <span>{totals.credit}</span>
-          </div>
-        )}
-        <div className="border-text/16 mt-1 flex items-baseline justify-between border-t border-dashed pt-2.5">
-          <span className="font-semibold">{PAYMENT_LABEL[order.payment]}</span>
-          <span className="text-[18px] font-extrabold">{totals.total}</span>
-        </div>
-      </div>
-
-      {actionable && (
-        <div className="flex flex-col gap-2.5 px-[22px] pt-lg pb-xl">
-          <div className="flex flex-wrap gap-2">
-            <button
-              type="button"
-              onClick={() => {
-                setPicking((open) => !open);
-                setConfirming(false);
-              }}
-              className="bg-text text-ops-surface h-10 rounded-pill px-[18px] text-[13px] font-bold"
-            >
-              {order.riderName ? "Reassign rider" : "Assign rider"}
-            </button>
-            {credited ? (
-              <span className="bg-accent/22 text-accent-text inline-flex h-10 items-center rounded-pill px-lg text-[13px] font-bold">
-                ✓ ₦500 credit sent
-              </span>
-            ) : (
-              <button
-                type="button"
-                onClick={() =>
-                  giveLateCredit(order.id, order.customerName.split(" ")[0])
-                }
-                className="bg-accent text-on-accent h-10 rounded-pill px-[18px] text-[13px] font-bold"
+      {detail && (
+        <>
+          <ol className="border-text/8 flex flex-col border-b px-[22px] py-lg">
+            {detail.timeline.map((step) => (
+              <li
+                key={step.label}
+                className="grid h-[30px] grid-cols-[14px_minmax(0,1fr)_auto] items-center gap-3"
               >
-                Give ₦500 credit
-              </button>
+                <span
+                  aria-hidden
+                  className={cn(
+                    "border-text size-3 rounded-full border-2",
+                    step.reached ? (step.current ? "bg-accent" : "bg-text") : "bg-ops-surface opacity-30",
+                  )}
+                />
+                <span
+                  className={cn(
+                    "text-[13px]",
+                    step.reached
+                      ? step.current
+                        ? "text-text font-bold"
+                        : "text-text font-medium"
+                      : "text-text/45 font-medium",
+                  )}
+                >
+                  {step.label}
+                </span>
+                <span
+                  className={cn("text-[12.5px] font-semibold", step.reached ? "text-text" : "text-text/45")}
+                >
+                  {step.time}
+                </span>
+              </li>
+            ))}
+          </ol>
+
+          <div className="border-text/8 flex flex-col gap-[7px] border-b px-[22px] py-3.5 text-[13px]">
+            {detail.items.map((item, i) => (
+              <div key={`${item.name}-${i}`} className="flex justify-between gap-2.5">
+                <span>
+                  <span className="text-text/62">{item.qty}×</span> {item.name}
+                </span>
+                <span>{formatKobo(item.qty * item.unitPriceKobo)}</span>
+              </div>
+            ))}
+            <Line label="Delivery" kobo={detail.feeKobo} />
+            {detail.tipKobo > 0 && <Line label="Tip" kobo={detail.tipKobo} />}
+            {detail.discountKobo > 0 && (
+              <Line label={`Promo${detail.promoCode ? ` ${detail.promoCode}` : ""}`} kobo={-detail.discountKobo} accent />
             )}
+            {detail.creditKobo > 0 && <Line label="Store credit used" kobo={-detail.creditKobo} accent />}
+            <div className="border-text/16 mt-1 flex items-baseline justify-between border-t border-dashed pt-2.5">
+              <span className="font-semibold">{PAYMENT_LABEL[order.payment]}</span>
+              <span className="text-[18px] font-extrabold">{formatKobo(detail.totalKobo)}</span>
+            </div>
           </div>
 
-          {picking && (
-            <div className="border-text/12 overflow-hidden rounded-[15px] border">
-              {NEARBY_RIDERS.map((rider) => (
-                <button
-                  key={rider.name}
-                  type="button"
-                  onClick={() => {
-                    assignRider(order.id, rider.name);
-                    setPicking(false);
-                  }}
-                  className="border-text/8 hover:bg-text/4 flex w-full items-center justify-between gap-2.5 border-b px-3.5 py-2.5 text-left last:border-b-0"
-                >
-                  <span className="flex flex-col gap-0.5">
-                    <span className="text-text text-[13px] font-semibold">
-                      {rider.name}
-                    </span>
-                    <span className="text-text/62 text-[11.5px]">
-                      Waiting · {rider.area}
-                    </span>
-                  </span>
-                  <span className="text-accent-text text-[12px] font-semibold">
-                    {rider.distance}
-                  </span>
-                </button>
+          {detail.log.length > 0 && (
+            <ul className="border-text/8 text-text/62 flex flex-col gap-1.5 border-b px-[22px] py-3.5 text-[12px]">
+              {detail.log.map((entry, i) => (
+                <li key={i}>
+                  {entry.event} · {entry.by} · {entry.at}
+                </li>
               ))}
+            </ul>
+          )}
+        </>
+      )}
+
+      {(canCredit || canRefund) && (
+        <div className="flex flex-col gap-2.5 px-[22px] pt-lg pb-xl">
+          {mode === null && (
+            <div className="flex flex-wrap gap-2">
+              {canCredit && (
+                <button
+                  type="button"
+                  onClick={() => setMode("credit")}
+                  className="bg-accent text-on-accent h-10 rounded-pill px-[18px] text-[13px] font-bold"
+                >
+                  Give credit
+                </button>
+              )}
+              {canRefund && (
+                <button
+                  type="button"
+                  onClick={() => setMode("refund")}
+                  className="border-danger/30 text-danger h-10 rounded-pill border px-[18px] text-[13px] font-bold"
+                >
+                  Refund order
+                </button>
+              )}
             </div>
           )}
 
-          {confirming ? (
-            <div className="bg-danger-bg flex flex-col gap-2.5 rounded-[15px] p-3.5">
-              <span className="text-text text-[13.5px] font-semibold">
-                Cancel {order.id}?
-              </span>
+          {mode === "credit" && (
+            <div className="bg-accent/14 flex flex-col gap-2.5 rounded-[15px] p-3.5">
+              <span className="text-[13.5px] font-semibold">Give {order.customerName} store credit?</span>
               <span className="text-text/80 text-[12.5px]/[1.5]">
-                {order.payment === "cash"
-                  ? "Nothing was paid yet — the order is cancelled and the kitchen is told."
-                  : `${totals.total} goes back by ${PAYMENT_LABEL[
-                      order.payment
-                    ].toLowerCase()} within 24 h.`}
+                It is applied in full at their next checkout.
               </span>
-              <div className="flex gap-2">
-                <button
-                  type="button"
-                  onClick={() => {
-                    cancelOrder(order.id, totals.total);
-                    setConfirming(false);
-                  }}
-                  className="bg-danger text-ops-surface h-9 rounded-pill px-lg text-[12.5px] font-bold"
-                >
-                  Cancel and refund
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setConfirming(false)}
-                  className="border-text/16 text-text h-9 rounded-pill border px-lg text-[12.5px] font-semibold"
-                >
-                  Keep order
-                </button>
-              </div>
+              <label className="flex items-center gap-2 text-[13px] font-semibold">
+                ₦
+                <input
+                  value={creditNaira}
+                  onChange={(event) => setCreditNaira(event.target.value.replace(/\D/g, ""))}
+                  inputMode="numeric"
+                  aria-label="Credit in naira"
+                  className="border-text/16 bg-ops-surface h-9 w-[110px] rounded-xl border px-3 text-[13px] outline-none"
+                />
+              </label>
+              <Buttons
+                busy={busy}
+                disabled={!(creditKobo > 0)}
+                label={`Send ${creditKobo > 0 ? formatKobo(creditKobo) : "credit"}`}
+                tone="go"
+                onConfirm={() => run(() => giveCredit(order.customerId, creditKobo, `Order ${order.code}`))}
+                onBack={() => setMode(null)}
+              />
             </div>
-          ) : (
-            <button
-              type="button"
-              onClick={() => {
-                setConfirming(true);
-                setPicking(false);
-              }}
-              className="text-danger h-9 self-start px-1 text-[13px] font-semibold"
-            >
-              Cancel and refund
-            </button>
+          )}
+
+          {mode === "refund" && (
+            <div className="bg-danger-bg flex flex-col gap-2.5 rounded-[15px] p-3.5">
+              <span className="text-[13.5px] font-semibold">Refund {order.code}?</span>
+              <span className="text-text/80 text-[12.5px]/[1.5]">
+                {formatKobo(order.totalKobo)} goes back to the customer through Paystack. This can&apos;t
+                be undone.
+              </span>
+              <textarea
+                value={note}
+                onChange={(event) => setNote(event.target.value)}
+                rows={2}
+                placeholder="Reason (optional) · saved to the audit log"
+                className="border-text/16 bg-ops-surface text-text placeholder:text-text/45 rounded-xl border px-3 py-2 text-[12.5px] outline-none"
+              />
+              <Buttons
+                busy={busy}
+                label="Refund"
+                tone="bad"
+                onConfirm={() => run(() => refundOrder(order.id, note))}
+                onBack={() => setMode(null)}
+              />
+            </div>
           )}
         </div>
       )}
@@ -238,15 +243,55 @@ export function OrderDetail({
   );
 }
 
-function Fact({
+function Buttons({
+  busy,
+  disabled,
   label,
-  value,
-  sub,
+  tone,
+  onConfirm,
+  onBack,
 }: {
+  busy: boolean;
+  disabled?: boolean;
   label: string;
-  value: string;
-  sub?: string;
+  tone: "go" | "bad";
+  onConfirm: () => void;
+  onBack: () => void;
 }) {
+  return (
+    <div className="flex gap-2">
+      <button
+        type="button"
+        disabled={busy || disabled}
+        onClick={onConfirm}
+        className={cn(
+          "h-9 rounded-pill px-lg text-[12.5px] font-bold disabled:opacity-40",
+          tone === "bad" ? "bg-danger text-ops-surface" : "bg-accent text-on-accent",
+        )}
+      >
+        {busy ? "Working…" : label}
+      </button>
+      <button
+        type="button"
+        onClick={onBack}
+        className="border-text/16 text-text h-9 rounded-pill border px-lg text-[12.5px] font-semibold"
+      >
+        Back
+      </button>
+    </div>
+  );
+}
+
+function Line({ label, kobo, accent }: { label: string; kobo: number; accent?: boolean }) {
+  return (
+    <div className={cn("flex justify-between", accent ? "text-accent-text font-semibold" : "text-text/62")}>
+      <span>{label}</span>
+      <span>{kobo < 0 ? `−${formatKobo(-kobo)}` : formatKobo(kobo)}</span>
+    </div>
+  );
+}
+
+function Fact({ label, value, sub }: { label: string; value: string; sub?: string }) {
   return (
     <div className="bg-ops-surface flex min-w-0 flex-col gap-[3px] px-3.5 py-3">
       <Eyebrow className="text-[10.5px]">{label}</Eyebrow>

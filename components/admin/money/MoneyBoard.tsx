@@ -1,84 +1,76 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useTransition } from "react";
 
 import { cn } from "@/lib/cn";
-import { formatKobo } from "@/lib/money";
-import { KITCHENS, PUSH_SWEEP, RIDERS } from "@/lib/admin/fixtures";
-import {
-  applyOrderOverrides,
-  markPaidOut,
-  refundOrder,
-  sweepPushTokens,
-  useOps,
-} from "@/lib/admin/store";
-import { orderTotals, placedAt } from "@/lib/admin/derive";
+import { formatKobo, nairaToKobo } from "@/lib/money";
+import type { MoneyView } from "@/lib/admin/data";
+import { whenLabel } from "@/lib/admin/format";
+import type { LiveOrder } from "@/lib/admin/orders";
+import { say } from "@/lib/admin/store";
 import { PAYMENT_LABEL, type AdminRole } from "@/lib/admin/types";
+import { payOut } from "@/app/(admin)/admin/queue-actions";
+import { refundOrder } from "@/app/(admin)/admin/order-actions";
+import { findOrderByCode, sweepPushTokens } from "@/app/(admin)/admin/money-actions";
 
 /**
  * Everything that moves money. The whole screen is readable by a moderator
  * and actionable only by a super admin — seeing what is owed is part of
- * running a shift; sending it is not.
+ * running a shift; sending it is not. Every button is a server action that
+ * re-checks the role, so nothing here is trusted from the client.
  *
- * TODO(M9): each button becomes a server action that re-checks the role,
- * creates the Paystack transfer, and writes an audit-log row naming who did
- * it. Nothing here should ever be trusted from the client.
+ * The amounts come from the backend's own payouts-due calculation — the same
+ * rows the transfer uses — so what this screen shows is what will be sent.
  */
-export function MoneyBoard({ role }: { role: AdminRole }) {
-  const ops = useOps();
+export function MoneyBoard({ role, money }: { role: AdminRole; money: MoneyView }) {
   const canSend = role === "SUPER_ADMIN";
+  const [busy, startTransition] = useTransition();
 
   const due = [
-    ...KITCHENS.filter(
-      (k) =>
-        (ops.kitchenStatus[k.id] ?? k.status) === "ACTIVE" &&
-        k.unpaidKobo &&
-        !ops.paidOut[k.id],
-    ).map((k) => ({
-      id: k.id,
-      name: k.name,
-      meta: `Kitchen · ${k.area}`,
-      netKobo: k.unpaidKobo,
-      confirm:
-        "Settles every unpaid completed order after the 15% commission. One Paystack transfer, can't be undone.",
-    })),
-    ...RIDERS.filter(
-      (r) =>
-        (ops.riderStatus[r.id] ?? r.status) === "APPROVED" &&
-        // A rider who has collected more cash than they are owed is not due a
-        // payout — they owe us the difference. They belong in "Cash to
-        // collect" below, not in a list of transfers to send.
-        r.unpaidKobo > r.cashHeldKobo &&
-        !ops.paidOut[r.id],
-    ).map((r) => ({
-      id: r.id,
-      name: r.name,
-      meta: `Rider · ${formatKobo(r.unpaidKobo)} trip pay − ${formatKobo(
-        r.cashHeldKobo,
-      )} cash held`,
-      netKobo: Math.max(0, r.unpaidKobo - r.cashHeldKobo),
-      confirm:
-        "Trip pay and tips, minus cash they already collected. One Paystack transfer, can't be undone.",
-    })),
+    ...money.kitchens
+      .filter((k) => k.kitchenStatus === "ACTIVE" && k.netNaira > 0)
+      .map((k) => ({
+        id: k.kitchenId,
+        kind: "kitchens" as const,
+        name: k.name,
+        meta: `Kitchen · ${k.orderCount} order${k.orderCount === 1 ? "" : "s"}`,
+        netKobo: nairaToKobo(k.netNaira),
+        blocked: k.hasPayoutAccount ? null : "No confirmed bank account yet.",
+        confirm:
+          "Settles every unpaid completed order after the 15% commission. One Paystack transfer, can't be undone.",
+      })),
+    ...money.riders
+      // A rider who has collected more cash than they are owed is not due a
+      // payout — they owe us the difference, and belong in "Cash to collect".
+      .filter((r) => r.netNaira > 0)
+      .map((r) => ({
+        id: r.riderId,
+        kind: "riders" as const,
+        name: r.name ?? r.phone,
+        meta: `Rider · ${formatKobo(nairaToKobo(r.earnedNaira + r.waitPayNaira))} trip pay − ${formatKobo(
+          nairaToKobo(r.cashHeldNaira),
+        )} cash held`,
+        netKobo: nairaToKobo(r.netNaira),
+        blocked: r.hasPayoutAccount ? null : "No confirmed bank account yet.",
+        confirm:
+          "Trip pay and tips, minus cash they already collected. One Paystack transfer, can't be undone.",
+      })),
   ].sort((a, b) => b.netKobo - a.netKobo);
 
   const total = due.reduce((sum, row) => sum + row.netKobo, 0);
 
   /** The other direction: cash-on-delivery money sitting in riders' pockets
    *  that is more than we owe them. Someone has to go and collect it. */
-  const owing = RIDERS.filter(
-    (r) =>
-      (ops.riderStatus[r.id] ?? r.status) === "APPROVED" &&
-      r.cashHeldKobo > r.unpaidKobo &&
-      !ops.paidOut[r.id],
-  ).map((r) => ({
-    id: r.id,
-    name: r.name,
-    area: r.area,
-    owesKobo: r.cashHeldKobo - r.unpaidKobo,
-  }));
+  const owing = money.riders
+    .filter((r) => r.cashHeldNaira > r.earnedNaira + r.waitPayNaira)
+    .map((r) => ({
+      id: r.riderId,
+      name: r.name ?? r.phone,
+      owesKobo: nairaToKobo(r.cashHeldNaira - r.earnedNaira - r.waitPayNaira),
+    }));
 
   const [asking, setAsking] = useState<string | null>(null);
+
 
   return (
     <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,360px),1fr))] items-start gap-3.5">
@@ -124,7 +116,7 @@ export function MoneyBoard({ role }: { role: AdminRole }) {
                   <span className="text-text text-[15px] font-bold whitespace-nowrap">
                     {formatKobo(row.netKobo)}
                   </span>
-                  {canSend && asking !== row.id && (
+                  {canSend && !row.blocked && asking !== row.id && (
                     <button
                       type="button"
                       onClick={() => setAsking(row.id)}
@@ -136,6 +128,10 @@ export function MoneyBoard({ role }: { role: AdminRole }) {
                 </span>
               </div>
 
+              {row.blocked && (
+                <span className="text-warning text-[12.5px] font-medium">{row.blocked}</span>
+              )}
+
               {asking === row.id && (
                 <div
                   data-anim="drop"
@@ -146,13 +142,17 @@ export function MoneyBoard({ role }: { role: AdminRole }) {
                   </span>
                   <button
                     type="button"
-                    onClick={() => {
-                      markPaidOut(row.id, formatKobo(row.netKobo), row.name);
-                      setAsking(null);
-                    }}
-                    className="bg-text text-ops-surface h-9 rounded-pill px-lg text-[12.5px] font-bold"
+                    disabled={busy}
+                    onClick={() =>
+                      startTransition(async () => {
+                        const result = await payOut(row.kind, row.id);
+                        say(result.ok ? `${result.message} to ${row.name}` : result.error);
+                        if (result.ok) setAsking(null);
+                      })
+                    }
+                    className="bg-text text-ops-surface h-9 rounded-pill px-lg text-[12.5px] font-bold disabled:opacity-40"
                   >
-                    Send {formatKobo(row.netKobo)}
+                    {busy ? "Sending…" : `Send ${formatKobo(row.netKobo)}`}
                   </button>
                   <button
                     type="button"
@@ -189,7 +189,7 @@ export function MoneyBoard({ role }: { role: AdminRole }) {
                     {rider.name}
                   </span>
                   <span className="text-text/62 text-[12.5px] font-light">
-                    Rider · {rider.area}
+                    Rider
                   </span>
                 </span>
                 <span className="text-warning text-[15px] font-bold whitespace-nowrap">
@@ -202,29 +202,75 @@ export function MoneyBoard({ role }: { role: AdminRole }) {
 
         <RefundPanel role={role} />
 
+        <section className="bg-ops-surface min-w-0 overflow-hidden rounded-[15px]">
+          <h2 className="text-text px-[22px] pt-xl pb-2 text-[16px]/[1.3] font-semibold">
+            Recent money movement
+          </h2>
+          {money.recent.length === 0 ? (
+            <p className="text-text/62 px-[22px] pt-2 pb-xl text-[13px] font-light">
+              Nothing has moved yet.
+            </p>
+          ) : (
+            money.recent.map((tx) => (
+              <div
+                key={tx.id}
+                className="border-text/6 flex items-center justify-between gap-3.5 border-t px-[22px] py-3"
+              >
+                <span className="flex min-w-0 flex-col gap-0.5">
+                  <span className="text-text truncate text-[13px] font-semibold">
+                    {TX_LABEL[tx.type] ?? tx.type}
+                    {tx.order ? ` · ${tx.order.code}` : ""}
+                  </span>
+                  <span className="text-text/55 truncate text-[11.5px] font-light">
+                    {tx.partyKitchen?.name ?? tx.party?.name ?? tx.party?.phone ?? "—"} ·{" "}
+                    {whenLabel(tx.createdAt)} · {tx.status.toLowerCase()}
+                  </span>
+                </span>
+                <span className="text-text text-[13.5px] font-bold whitespace-nowrap">
+                  {formatKobo(nairaToKobo(tx.amountNaira))}
+                </span>
+              </div>
+            ))
+          )}
+        </section>
+
         <section className="bg-ops-surface flex flex-wrap items-center justify-between gap-3.5 rounded-[15px] px-[22px] py-xl">
           <div className="min-w-0 flex-1">
-            <h2 className="text-text text-[15px] font-semibold">
-              Clean up push tokens
-            </h2>
+            <h2 className="text-text text-[15px] font-semibold">Clean up push tokens</h2>
             <p className="text-text/62 mt-1.5 text-[12.5px]/[1.5] font-light">
-              {ops.pushSwept
-                ? `Last run just now · removed ${PUSH_SWEEP.deadTokens} dead tokens from ${PUSH_SWEEP.devices.toLocaleString("en-NG")} devices`
-                : `Removes phones that no longer get notifications · last run ${PUSH_SWEEP.lastRun}`}
+              Removes phones that no longer get notifications.
             </p>
           </div>
-          <button
-            type="button"
-            onClick={() => sweepPushTokens(PUSH_SWEEP.deadTokens)}
-            className="border-text/18 text-text h-10 rounded-pill border px-[18px] text-[13px] font-semibold whitespace-nowrap"
-          >
-            Run now
-          </button>
+          {canSend && (
+            <button
+              type="button"
+              disabled={busy}
+              onClick={() =>
+                startTransition(async () => {
+                  const result = await sweepPushTokens();
+                  say(result.ok ? result.message : result.error);
+                })
+              }
+              className="border-text/18 text-text h-10 rounded-pill border px-[18px] text-[13px] font-semibold whitespace-nowrap disabled:opacity-40"
+            >
+              {busy ? "Running…" : "Run now"}
+            </button>
+          )}
         </section>
       </div>
     </div>
   );
 }
+
+const TX_LABEL: Record<string, string> = {
+  ORDER_CHARGE: "Order payment",
+  REFUND: "Refund",
+  KITCHEN_PAYOUT: "Kitchen payout",
+  RIDER_PAYOUT: "Rider payout",
+  CASH_SETTLEMENT: "Cash settled",
+  CREDIT_ISSUED: "Credit issued",
+  CREDIT_REDEEMED: "Credit used",
+};
 
 /**
  * Refund by order number, because that is what the customer reads out. The
@@ -232,32 +278,36 @@ export function MoneyBoard({ role }: { role: AdminRole }) {
  * wrong role — and each says what to do instead.
  */
 function RefundPanel({ role }: { role: AdminRole }) {
-  const ops = useOps();
-  const orders = applyOrderOverrides(ops);
-
+  const [busy, startTransition] = useTransition();
   const [query, setQuery] = useState("");
-  const [found, setFound] = useState<string | null>(null);
-  const [missed, setMissed] = useState(false);
+  const [order, setOrder] = useState<LiveOrder | null>(null);
+  const [missed, setMissed] = useState<string | null>(null);
   const [note, setNote] = useState("");
   const [asking, setAsking] = useState(false);
+  const [done, setDone] = useState(false);
 
-  const order = found ? (orders.find((o) => o.id === found) ?? null) : null;
-  const done = !!order && !!ops.refundedOrders[order.id];
-  const totals = order ? orderTotals(order, !!ops.creditedOrders[order.id]) : null;
-
+  const total = order ? formatKobo(order.totalKobo) : "";
   const line = order
-    ? `${totals!.total} back to ${order.customerName.split(" ")[0]} by ${PAYMENT_LABEL[
-        order.payment
-      ].toLowerCase()} within 24 h`
+    ? `${total} back to ${order.customerName.split(" ")[0]} by ${PAYMENT_LABEL[order.payment].toLowerCase()}`
     : "";
 
   function look() {
-    const wanted = query.trim().toUpperCase();
-    const hit = orders.find((o) => o.id === wanted);
-    setFound(hit ? hit.id : null);
-    setMissed(!hit);
-    setAsking(false);
-    setNote("");
+    startTransition(async () => {
+      const result = await findOrderByCode(query);
+      setAsking(false);
+      setNote("");
+      setDone(false);
+      if (!result.ok) {
+        setOrder(null);
+        setMissed(result.error);
+      } else if (!result.order) {
+        setOrder(null);
+        setMissed(`No order ${query.trim().toUpperCase()}. Check the number and try again.`);
+      } else {
+        setOrder(result.order);
+        setMissed(null);
+      }
+    });
   }
 
   return (
@@ -266,9 +316,7 @@ function RefundPanel({ role }: { role: AdminRole }) {
       className="bg-ops-surface text-text flex flex-col gap-3.5 rounded-[15px] p-[22px]"
     >
       <div>
-        <h2 className="text-[17px] font-bold tracking-[-0.02em]">
-          Refund an order
-        </h2>
+        <h2 className="text-[17px] font-bold tracking-[-0.02em]">Refund an order</h2>
         <p className="text-text/62 mt-1.5 text-[13px]/[1.5]">
           Enter the order number from the customer&rsquo;s receipt.
         </p>
@@ -279,8 +327,8 @@ function RefundPanel({ role }: { role: AdminRole }) {
           value={query}
           onChange={(event) => {
             setQuery(event.target.value);
-            setFound(null);
-            setMissed(false);
+            setOrder(null);
+            setMissed(null);
           }}
           onKeyDown={(event) => event.key === "Enter" && look()}
           placeholder="KG-2196"
@@ -290,19 +338,16 @@ function RefundPanel({ role }: { role: AdminRole }) {
         <button
           type="button"
           onClick={look}
-          className="bg-text text-ops-surface h-[46px] rounded-pill px-lg text-[13.5px] font-bold"
+          disabled={busy}
+          className="bg-text text-ops-surface h-[46px] rounded-pill px-lg text-[13.5px] font-bold disabled:opacity-40"
         >
           Find
         </button>
       </div>
 
-      {missed && (
-        <span className="text-danger text-[13px] font-medium">
-          No order {query.trim().toUpperCase()}. Check the number and try again.
-        </span>
-      )}
+      {missed && <span className="text-danger text-[13px] font-medium">{missed}</span>}
 
-      {order && totals && (
+      {order && (
         <>
           <div
             data-anim="drop"
@@ -310,24 +355,27 @@ function RefundPanel({ role }: { role: AdminRole }) {
           >
             <div className="flex items-baseline justify-between gap-2.5">
               <strong className="min-w-0">
-                {order.id} · {order.customerName}
+                {order.code} · {order.customerName}
               </strong>
-              <span className="font-extrabold">{totals.total}</span>
+              <span className="font-extrabold">{total}</span>
             </div>
             <span className="text-text/62">
-              {order.kitchen} · {order.area} · placed {placedAt(order)}
+              {order.kitchens} · placed {order.placedLabel}
             </span>
             <span className="text-text/62">{PAYMENT_LABEL[order.payment]}</span>
           </div>
 
-          {done ? (
-            <span className="bg-accent/22 text-accent-text grid h-[46px] place-items-center rounded-pill text-[13.5px] font-bold">
-              ✓ Refund sent · {line}
+          {done || order.refunded ? (
+            <span className="bg-accent/22 text-accent-text grid min-h-[46px] place-items-center rounded-pill px-lg text-center text-[13.5px] font-bold">
+              ✓ Refunded{done ? ` · ${line}` : ""}
             </span>
           ) : order.payment === "cash" ? (
             <span className="text-text/62 text-[13px]/[1.5] font-medium">
-              Cash on delivery: nothing was charged online, so there&rsquo;s
-              nothing to refund here.
+              Cash on delivery: nothing was charged online, so there&rsquo;s nothing to refund here.
+            </span>
+          ) : order.paymentStatus !== "SUCCEEDED" ? (
+            <span className="text-text/62 text-[13px]/[1.5] font-medium">
+              This payment never went through, so there&rsquo;s nothing to refund.
             </span>
           ) : role !== "SUPER_ADMIN" ? (
             <span className="text-text/62 text-[13px]/[1.5] font-medium">
@@ -343,23 +391,27 @@ function RefundPanel({ role }: { role: AdminRole }) {
                 className="border-text/16 text-text placeholder:text-text/40 resize-y rounded-xl border px-3 py-2.5 text-[13px]/[1.45] outline-none"
               />
               {asking ? (
-                <div
-                  data-anim="drop"
-                  className="bg-danger-bg flex flex-col gap-2.5 rounded-[14px] px-3.5 py-3"
-                >
+                <div data-anim="drop" className="bg-danger-bg flex flex-col gap-2.5 rounded-[14px] px-3.5 py-3">
                   <span className="text-text/85 text-[13px]/[1.5]">
                     {line}. This can&rsquo;t be undone.
                   </span>
                   <div className="flex gap-2">
                     <button
                       type="button"
-                      onClick={() => {
-                        refundOrder(order.id, totals.total);
-                        setAsking(false);
-                      }}
-                      className="bg-danger text-ops-surface h-9 rounded-pill px-lg text-[12.5px] font-bold"
+                      disabled={busy}
+                      onClick={() =>
+                        startTransition(async () => {
+                          const result = await refundOrder(order.id, note);
+                          say(result.ok ? `${order.code} refunded · ${total}` : result.error);
+                          if (result.ok) {
+                            setDone(true);
+                            setAsking(false);
+                          }
+                        })
+                      }
+                      className="bg-danger text-ops-surface h-9 rounded-pill px-lg text-[12.5px] font-bold disabled:opacity-40"
                     >
-                      Refund {totals.total}
+                      {busy ? "Refunding…" : `Refund ${total}`}
                     </button>
                     <button
                       type="button"
@@ -374,12 +426,9 @@ function RefundPanel({ role }: { role: AdminRole }) {
                 <button
                   type="button"
                   onClick={() => setAsking(true)}
-                  className={cn(
-                    "border-danger/30 text-danger h-[46px] rounded-pill border",
-                    "text-[13.5px] font-bold",
-                  )}
+                  className={cn("border-danger/30 text-danger h-[46px] rounded-pill border", "text-[13.5px] font-bold")}
                 >
-                  Refund {totals.total}
+                  Refund {total}
                 </button>
               )}
             </>

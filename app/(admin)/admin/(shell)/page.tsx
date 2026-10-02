@@ -6,15 +6,28 @@ import { KitchensNow } from "@/components/admin/overview/KitchensNow";
 import { LiveActivity } from "@/components/admin/overview/LiveActivity";
 import { RefreshButton } from "@/components/admin/overview/RefreshButton";
 import { OpsPage, OpsPageHeader } from "@/components/admin/OpsPage";
-import { formatClock } from "@/lib/admin/derive";
-import { COMPARED_WITH, SHIFT_DATE, SHIFT_NOW } from "@/lib/admin/fixtures";
+import { loadOverview } from "@/lib/admin/overview";
+import { requireAdmin } from "@/lib/admin/session";
 
-export default function OverviewPage() {
+const when = new Intl.DateTimeFormat("en-GB", {
+  timeZone: "Africa/Lagos",
+  weekday: "long",
+  day: "numeric",
+  month: "long",
+  hour: "2-digit",
+  minute: "2-digit",
+  hour12: false,
+});
+
+export default async function OverviewPage() {
+  await requireAdmin();
+  const view = await loadOverview();
+
   return (
     <OpsPage>
       <OpsPageHeader
         title="Overview"
-        meta={`${SHIFT_DATE} · ${formatClock(SHIFT_NOW)} WAT · compared with ${COMPARED_WITH}`}
+        meta={`${when.format(new Date(view.generatedAt))} WAT`}
         actions={
           <>
             <span className="bg-success-bg text-success inline-flex h-[38px] items-center gap-2 rounded-pill px-lg text-[13px] font-semibold">
@@ -26,18 +39,18 @@ export default function OverviewPage() {
         }
       />
 
-      <KpiRow />
+      <KpiRow kpis={view.kpis} />
 
       <div className="mb-3.5 grid grid-cols-[repeat(auto-fit,minmax(min(100%,440px),1fr))] gap-3.5">
-        <OrdersByHour />
-        <NeedsAttention />
+        <OrdersByHour trend={view.trend} />
+        <NeedsAttention items={view.attention} />
       </div>
 
-      <OrderPipeline />
+      <OrderPipeline stages={view.pipeline} open={view.openOrders} />
 
       <div className="grid grid-cols-[repeat(auto-fit,minmax(min(100%,440px),1fr))] gap-3.5">
-        <KitchensNow />
-        <LiveActivity />
+        <KitchensNow kitchens={view.kitchens} />
+        <LiveActivity events={view.activity} />
       </div>
     </OpsPage>
   );

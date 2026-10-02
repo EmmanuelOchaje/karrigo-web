@@ -4,10 +4,9 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/cn";
-import { KITCHENS, RIDERS, SHIFT, SHIFT_NOW, TICKETS } from "@/lib/admin/fixtures";
-import { formatClock } from "@/lib/admin/derive";
+import { SHIFT, formatClock } from "@/lib/admin/shift";
 import { isCurrent, OPS_NAV, type OpsSection } from "@/lib/admin/nav";
-import { say, useOps } from "@/lib/admin/store";
+import { say } from "@/lib/admin/store";
 import type { AdminUser } from "@/lib/admin/types";
 import type { OpsTheme } from "@/lib/admin/theme";
 
@@ -18,13 +17,21 @@ import { Wordmark } from "./Wordmark";
  *  each item exactly. Change one and change the other. */
 const ROW_PITCH = 42;
 
+export type NavCounts = { kitchens: number; riders: number; issues: number };
+
 export function Sidebar({
   admin,
   theme,
   signOut,
+  counts,
+  nowMinutes,
   onDismiss,
 }: {
   admin: AdminUser;
+  /** Waiting kitchens, riders and open tickets, from the server. */
+  counts: NavCounts;
+  /** Lagos minutes past midnight when this was rendered. */
+  nowMinutes: number;
   theme: OpsTheme;
   /** A server action — the cookie is httpOnly and only the server can clear it. */
   signOut: () => Promise<void>;
@@ -33,20 +40,6 @@ export function Sidebar({
   onDismiss?: () => void;
 }) {
   const pathname = usePathname();
-  const ops = useOps();
-
-  const counts = {
-    kitchens: KITCHENS.filter(
-      (k) => (ops.kitchenStatus[k.id] ?? k.status) === "PENDING",
-    ).length,
-    riders: RIDERS.filter(
-      (r) => (ops.riderStatus[r.id] ?? r.status) === "PENDING",
-    ).length,
-    issues: TICKETS.filter(
-      (t) => (ops.ticketStatus[t.id] ?? t.status) === "OPEN",
-    ).length,
-  };
-
   const currentIndex = OPS_NAV.findIndex((s) => isCurrent(s.href, pathname));
 
   return (
@@ -104,7 +97,7 @@ export function Sidebar({
         <ThemeToggle theme={theme} />
       </div>
 
-      <ShiftCard onDuty={admin.name} />
+      <ShiftCard nowMinutes={nowMinutes} onDuty={admin.name} />
 
       <div className="border-text/8 mt-2 flex flex-wrap items-center gap-2.5 rounded-[15px] border px-3.5 py-3">
         <span className="bg-accent-warm text-on-accent grid size-[34px] flex-none place-items-center rounded-full text-[13px] font-extrabold">
@@ -203,8 +196,8 @@ function NavRow({
 
 /** How much of the shift is left. The bar is the clock a dispatcher actually
  *  watches — everything else on the screen is about right now. */
-function ShiftCard({ onDuty }: { onDuty: string }) {
-  const elapsed = SHIFT_NOW - SHIFT.startMinutes;
+function ShiftCard({ onDuty, nowMinutes }: { onDuty: string; nowMinutes: number }) {
+  const elapsed = nowMinutes - SHIFT.startMinutes;
   const length = SHIFT.endMinutes - SHIFT.startMinutes;
   const remaining = Math.max(0, length - elapsed);
   const percent = Math.min(100, Math.max(0, (elapsed / length) * 100));

@@ -1,38 +1,45 @@
 import "server-only";
 
-import { cookies } from "next/headers";
+import { cache } from "react";
 import { redirect } from "next/navigation";
 
-import { SIGNED_IN } from "./fixtures";
+import { ApiError, api, type Schemas } from "@/lib/api/client";
 import { LOGIN_PATH, opsRoute } from "./nav";
-import type { AdminRole, AdminUser } from "./types";
+import type { AdminUser } from "./types";
 
 /**
- * The ops session.
+ * The ops session — real, against karrigo-be's admin auth.
  *
- * The cookie is httpOnly, so nothing on the page can read or forge it, and
- * every guarded page calls `requireAdmin()` on the server. Hiding a button
- * from a moderator is a courtesy; `requireSuperAdmin()` in the action is what
- * actually stops them (CLAUDE.md rule 3).
- *
- * TODO(M3): the credential check below is a placeholder. When real auth lands,
- * `signIn` verifies against the admins table with a password hash and this
- * cookie carries a signed JWT, the same way the customer session will. The
- * shape of everything above it does not change.
+ * The tokens live in httpOnly cookies (`lib/api/session.ts`), so nothing on
+ * the page can read or forge them, and `proxy.ts` rotates them before a page
+ * renders. Every guarded page calls `requireAdmin()` here, and the backend
+ * checks the token again on every call: hiding a button from a moderator is a
+ * courtesy, the server refusing is the lock (CLAUDE.md rule 3).
  */
 
-const COOKIE = "karrigo_ops";
-
-/** A shift is long. Eight hours means one sign-in per day, not three. */
-const MAX_AGE_SECONDS = 60 * 60 * 8;
-
-export async function getAdmin(): Promise<AdminUser | null> {
-  const raw = (await cookies()).get(COOKIE)?.value;
-  if (!raw) return null;
-
-  const role: AdminRole = raw === "MODERATOR" ? "MODERATOR" : "SUPER_ADMIN";
-  return { ...SIGNED_IN, role };
+function initialsOf(name: string): string {
+  const parts = name.trim().split(/\s+/).filter(Boolean);
+  const letters = parts.length > 1 ? parts[0][0] + parts[parts.length - 1][0] : (parts[0] ?? "?").slice(0, 2);
+  return letters.toUpperCase();
 }
+
+/** One lookup per request, however many components ask. */
+export const getAdmin = cache(async (): Promise<AdminUser | null> => {
+  try {
+    const me = await api<Schemas["AuthenticatedAdminResponseDto"]>("/admin-auth/me", {
+      scope: "admin",
+    });
+    return {
+      name: me.name,
+      email: me.email,
+      role: me.adminRole,
+      initials: initialsOf(me.name),
+    };
+  } catch (error) {
+    if (error instanceof ApiError && (error.unauthorized || error.status === 403)) return null;
+    throw error;
+  }
+});
 
 /** For a page. Bounces to the login screen when there is no session. */
 export async function requireAdmin(): Promise<AdminUser> {
@@ -44,7 +51,9 @@ export async function requireAdmin(): Promise<AdminUser> {
 /**
  * For an action that moves money — payouts and refunds. Throws rather than
  * redirects: a moderator reaching this has bypassed the UI, and the right
- * answer is a failed action, not a navigation.
+ * answer is a failed action, not a navigation. (Whether the backend itself
+ * restricts these to super admins is still an open product decision, so this
+ * check is the one that holds.)
  */
 export async function requireSuperAdmin(): Promise<AdminUser> {
   const admin = await requireAdmin();
@@ -52,18 +61,4 @@ export async function requireSuperAdmin(): Promise<AdminUser> {
     throw new Error("Only a super admin can do that.");
   }
   return admin;
-}
-
-export async function startSession(role: AdminRole): Promise<void> {
-  (await cookies()).set(COOKIE, role, {
-    httpOnly: true,
-    sameSite: "lax",
-    secure: process.env.NODE_ENV === "production",
-    path: "/",
-    maxAge: MAX_AGE_SECONDS,
-  });
-}
-
-export async function endSession(): Promise<void> {
-  (await cookies()).delete(COOKIE);
 }
