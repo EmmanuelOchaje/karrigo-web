@@ -168,7 +168,7 @@ export default function HomePage() {
               per trip, every Friday, and you keep 100% of your tips.
             </p>
             <div className="mt-auto pt-xxl">
-              <ButtonLink href="/partners#riders" variant="dark" size="site">
+              <ButtonLink href="/partners/rider" variant="dark" size="site">
                 Apply to ride
               </ButtonLink>
             </div>
@@ -198,7 +198,7 @@ export default function HomePage() {
               nothing else — and we photograph your menu for free.
             </p>
             <div className="mt-auto pt-xxl">
-              <ButtonLink href="/partners" variant="accent" size="site">
+              <ButtonLink href="/partners/kitchen" variant="accent" size="site">
                 List your kitchen
               </ButtonLink>
             </div>

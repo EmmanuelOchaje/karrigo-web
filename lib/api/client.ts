@@ -60,7 +60,10 @@ export async function api<T>(path: string, options: Options = {}): Promise<T> {
   }
 
   const headers: Record<string, string> = { Accept: "application/json" };
-  if (body !== undefined) headers["Content-Type"] = "application/json";
+  // A file upload is multipart: leave Content-Type to fetch, which adds the
+  // boundary. Everything else is JSON.
+  const isForm = typeof FormData !== "undefined" && body instanceof FormData;
+  if (body !== undefined && !isForm) headers["Content-Type"] = "application/json";
   if (scope) {
     const token = (await cookies()).get(SCOPES[scope].access)?.value;
     if (token) headers.Authorization = `Bearer ${token}`;
@@ -71,7 +74,7 @@ export async function api<T>(path: string, options: Options = {}): Promise<T> {
     response = await fetch(url, {
       method,
       headers,
-      body: body === undefined ? undefined : JSON.stringify(body),
+      body: body === undefined ? undefined : isForm ? (body as FormData) : JSON.stringify(body),
       ...(scope || revalidate === undefined
         ? { cache: "no-store" as const }
         : { next: { revalidate } }),
