@@ -1,15 +1,17 @@
 import Image from "next/image";
 import { PhoneFrame } from "./PhoneFrame";
+import { DeliveryLabel } from "./DeliveryLabel";
 import { kitchens } from "@/lib/fixtures";
 
 function BrowseScreen() {
   return (
     <>
-      <div className="px-xl pt-sm gap-sm text-h2 flex items-center font-bold">
-        <span className="bg-accent grid size-[20px] place-items-center rounded-full">
+      <div className="px-xl pt-sm gap-sm text-h2 flex min-w-0 items-center font-bold">
+        <span className="bg-accent grid size-[20px] shrink-0 place-items-center rounded-full">
           <span className="bg-on-accent block size-[6px] rounded-full" />
         </span>
-        Behind BSU main gate ▾
+        <DeliveryLabel fallback="Behind BSU main gate" />
+        <span className="shrink-0">▾</span>
       </div>
 
       <div className="mx-xl bg-surface-raised text-body-med text-text-secondary mt-lg rounded-[16px] px-lg py-md">
