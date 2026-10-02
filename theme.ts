@@ -43,6 +43,11 @@ export const dark = {
   surfaceRaised:   '#242621',
   border:          '#2E312C',
   borderStrong:    '#3A3C38',
+  /** A form field's outline: neutral grey, so it reads as an edge and not as
+   *  a tint of the page. The focused field takes the darker of the pair —
+   *  still grey, but plainly the one being typed in. */
+  fieldBorder:       '#4A4A4A',
+  fieldBorderActive: '#8A8A8A',
 
   /* --- The ops ground -------------------------------------------------
      The admin panel is a different surface from the marketing site, and in
@@ -117,6 +122,9 @@ export const light = {
   surfaceRaised:   '#EDEBDF',
   border:          '#E4E7DE',
   borderStrong:    '#D3D7CB',
+  /** See the note in the dark palette. */
+  fieldBorder:       '#C4C4C4',
+  fieldBorderActive: '#8C8C8C',
 
   /** See the note in the dark palette. */
   opsBg:             '#E9E9E5',

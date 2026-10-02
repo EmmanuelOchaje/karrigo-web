@@ -13,7 +13,7 @@ const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Frid
 const WEEK = [1, 2, 3, 4, 5, 6, 0];
 
 const timeField =
-  "border-border-strong focus:border-text rounded-field text-site-body bg-bg min-w-0 flex-1 border-[1.5px] px-md py-sm font-medium outline-none disabled:opacity-40";
+  "border-field-border focus:border-field-border-active rounded-field text-site-body bg-bg min-w-0 flex-1 border-[1.5px] px-md py-sm font-medium outline-none disabled:opacity-40";
 
 /** The week's opening hours. The backend takes all seven days at once, so
  *  this saves as one form rather than a row at a time. */

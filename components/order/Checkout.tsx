@@ -28,7 +28,7 @@ const payOptions: { id: PaymentMethod; label: string; sub: string }[] = [
 ];
 
 const field =
-  "border-border-strong focus:border-text rounded-field text-site-body bg-bg border-[1.5px] px-lg py-md font-medium outline-none transition-colors duration-(--duration-fast)";
+  "border-field-border focus:border-field-border-active rounded-field text-site-body bg-bg border-[1.5px] px-lg py-md font-medium outline-none transition-colors duration-(--duration-fast)";
 const fieldLabel = "text-label flex flex-col gap-sm font-bold";
 
 export function Checkout({ customer }: { customer: Customer | null }) {

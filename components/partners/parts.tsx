@@ -7,7 +7,7 @@ import type { Bank } from "@/lib/partners/types";
 import { shrinkImage } from "@/lib/shrink-image";
 
 export const field =
-  "border-border-strong focus:border-text rounded-field text-site-body bg-bg w-full border-[1.5px] px-lg py-md font-medium outline-none transition-colors duration-(--duration-fast)";
+  "border-field-border focus:border-field-border-active rounded-field text-site-body bg-bg w-full border-[1.5px] px-lg py-md font-medium outline-none transition-colors duration-(--duration-fast)";
 export const fieldLabel = "text-label flex flex-col gap-sm font-bold";
 
 type Result = { ok: true } | { ok: false; error: string };

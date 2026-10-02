@@ -23,6 +23,8 @@
   --surface-raised: #EDEBDF;
   --border: #E4E7DE;
   --border-strong: #D3D7CB;
+  --field-border: #C4C4C4;
+  --field-border-active: #8C8C8C;
   --ops-bg: #E9E9E5;
   --ops-surface: #FFFFFF;
   --ops-surface-raised: #F3F3EF;
@@ -57,6 +59,8 @@
   --surface-raised: #242621;
   --border: #2E312C;
   --border-strong: #3A3C38;
+  --field-border: #4A4A4A;
+  --field-border-active: #8A8A8A;
   --ops-bg: #0E0F0D;
   --ops-surface: #161814;
   --ops-surface-raised: #1D201B;
@@ -93,6 +97,8 @@
   --color-surface-raised: var(--surface-raised);
   --color-border: var(--border);
   --color-border-strong: var(--border-strong);
+  --color-field-border: var(--field-border);
+  --color-field-border-active: var(--field-border-active);
   --color-ops-bg: var(--ops-bg);
   --color-ops-surface: var(--ops-surface);
   --color-ops-surface-raised: var(--ops-surface-raised);
