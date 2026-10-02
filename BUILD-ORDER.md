@@ -138,18 +138,21 @@ status change live.
 
 **Done when:** ops can resolve a stuck order without touching the database.
 
-**Where it is now.** The screens are built against fixtures in `lib/admin/` —
-every state clicks through, nothing persists. Still to do when the API lands:
+**Where it is now.** The ops panel and the ordering flow run on the live
+`karrigo-be` API (`KARRIGO_API_URL`; the OpenAPI spec is saved in
+`api/openapi.json`, types in `lib/api/schema.d.ts`, regenerate with
+`npm run api:types`). Sign-in, kitchen and rider approvals, orders, refunds,
+payouts, issues and the overview are real, and every mutation is a Server
+Action that re-checks the role. Tokens live in httpOnly cookies and
+`proxy.ts` rotates them before a page renders.
 
-- Replace `lib/admin/fixtures.ts` with queries; drop the pinned `SHIFT_NOW`
-  clock it uses to keep server and client renders identical.
-- Turn the actions in `lib/admin/store.ts` into Server Actions that re-check
-  the role and write an audit-log row. The names match the actions deliberately.
-- Real auth (M3). `app/(admin)/admin/actions.ts` currently compares against
-  `OPS_ADMIN_EMAIL`/`OPS_ADMIN_PASSWORD` in the environment — one account, no
-  hashing, no rate limiting.
-- Live updates on the order board (M8, Supabase Realtime) — the Refresh button
-  becomes a manual re-sync.
+Still to do:
+
+- Admin screens the API supports but the panel doesn't show yet: customers
+  directory, review moderation, promo codes, admin team, audit log.
+- Live updates on the order board — the backend has Socket.IO, but it isn't in
+  the OpenAPI spec. Today the board is refreshed with the Refresh button.
+- Public order tracking with no login: karrigo-be has no share-token endpoint.
 - Customers and Settings: designed as "next", not built.
 - Phone layout: the design has one, only the desktop layout is built.
 

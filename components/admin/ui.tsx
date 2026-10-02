@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 import { cn } from "@/lib/cn";
 
 /**
@@ -199,5 +201,88 @@ export function Skeleton({ className }: { className?: string }) {
       aria-hidden
       className={cn("bg-text/7 animate-pulse rounded-[10px]", className)}
     />
+  );
+}
+
+/** A filter tab that is a real link — `?status=` in the URL, so every view
+ *  is shareable and server-rendered. Same look as `CountTab`. */
+export function LinkTab({
+  href,
+  label,
+  count,
+  selected,
+}: {
+  href: string;
+  label: string;
+  count?: number | string;
+  selected: boolean;
+}) {
+  return (
+    <Link
+      href={href}
+      aria-current={selected ? "page" : undefined}
+      className={cn(
+        "flex h-8 items-center gap-2 rounded-pill px-3.5 text-[12.5px] font-semibold",
+        selected ? "bg-accent text-on-accent" : "bg-text/7 text-text",
+      )}
+    >
+      {label}
+      {count !== undefined && (
+        <span className={cn(selected ? "text-on-accent/60" : "text-text/55")}>{count}</span>
+      )}
+    </Link>
+  );
+}
+
+/** Previous / next over a paged list, as links. */
+export function Pager({
+  page,
+  pageSize,
+  total,
+  href,
+}: {
+  page: number;
+  pageSize: number;
+  total: number;
+  href: (page: number) => string;
+}) {
+  const last = Math.max(1, Math.ceil(total / pageSize));
+  if (last <= 1) return null;
+  const link = "border-text/16 text-text flex h-8 items-center rounded-pill border px-3.5 text-[12.5px] font-semibold";
+  return (
+    <nav className="flex items-center justify-between gap-3 px-lg py-3.5" aria-label="Pages">
+      {page > 1 ? <Link href={href(page - 1)} className={link}>← Newer</Link> : <span />}
+      <span className="text-text/55 text-[12px]">
+        Page {page} of {last} · {total} in all
+      </span>
+      {page < last ? <Link href={href(page + 1)} className={link}>Older →</Link> : <span />}
+    </nav>
+  );
+}
+
+/** A search box that submits as a plain GET form — works without JS. */
+export function SearchBox({
+  name = "q",
+  defaultValue,
+  placeholder,
+  hidden,
+}: {
+  name?: string;
+  defaultValue?: string;
+  placeholder: string;
+  /** Other query params to keep, such as the selected tab. */
+  hidden?: Record<string, string | undefined>;
+}) {
+  return (
+    <form role="search" className="ml-auto flex w-[min(280px,100%)]">
+      {Object.entries(hidden ?? {}).map(([k, v]) => (v ? <input key={k} type="hidden" name={k} value={v} /> : null))}
+      <input
+        name={name}
+        defaultValue={defaultValue}
+        placeholder={placeholder}
+        aria-label={placeholder}
+        className="bg-text/6 text-text placeholder:text-text/45 h-8 w-full rounded-pill px-3.5 text-[12.5px] font-medium outline-none"
+      />
+    </form>
   );
 }

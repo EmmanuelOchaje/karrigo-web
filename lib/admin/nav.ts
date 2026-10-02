@@ -22,10 +22,13 @@ export const OPS_NAV: OpsSection[] = [
   { href: "/orders", label: "Live orders" },
   { href: "/kitchens", label: "Kitchens", badge: "kitchens" },
   { href: "/riders", label: "Riders", badge: "riders" },
-  { href: "/customers", label: "Customers", later: true },
+  { href: "/customers", label: "Customers" },
   { href: "/money", label: "Money" },
   { href: "/issues", label: "Issues", badge: "issues" },
-  { href: "/settings", label: "Settings", later: true },
+  { href: "/reviews", label: "Reviews" },
+  { href: "/promos", label: "Promo codes" },
+  { href: "/team", label: "Team" },
+  { href: "/audit", label: "Audit log" },
 ];
 
 export const LOGIN_PATH = "/login";

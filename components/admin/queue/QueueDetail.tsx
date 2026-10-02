@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { formatKobo } from "@/lib/money";
@@ -14,6 +14,7 @@ import {
 } from "@/lib/admin/queue";
 import type { AdminRole } from "@/lib/admin/types";
 import { Eyebrow, StatusChip, type Tone } from "@/components/admin/ui";
+import { kitchenDetail, riderDocumentUrl } from "@/app/(admin)/admin/queue-actions";
 
 type Decision = "approve" | "reject" | "suspend" | "payout";
 
@@ -41,21 +42,52 @@ export function QueueDetail({
   role,
   onDecide,
   onPayout,
+  busy,
 }: {
   kind: QueueKind;
   item: QueueItem;
   role: AdminRole;
-  onDecide: (
-    item: QueueItem,
-    status: QueueStatus,
-    note: string,
-    message: string,
-  ) => void;
+  onDecide: (item: QueueItem, status: QueueStatus, note: string) => void;
   onPayout: () => void;
+  busy: boolean;
 }) {
   const [pending, setPending] = useState<Decision | null>(null);
   const [note, setNote] = useState("");
-  const [viewing, setViewing] = useState<string | null>(null);
+  const [viewing, setViewing] = useState<{
+    title: string;
+    url: string | null;
+    error: string | null;
+  } | null>(null);
+  /** The owner's login and dish count, which only the detail endpoint has. */
+  const [more, setMore] = useState<{
+    id: string;
+    fields: { key: string; value: string }[];
+    menuItems: number;
+  } | null>(null);
+
+  useEffect(() => {
+    if (kind !== "kitchens") return;
+    let cancelled = false;
+    kitchenDetail(item.id).then((result) => {
+      if (!cancelled && result.ok) {
+        setMore({ id: item.id, fields: result.fields, menuItems: result.menuItems });
+      }
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [kind, item.id]);
+
+  async function openDocument(which: "license" | "id" | "vehicleReg", label: string) {
+    const title = `${label} · ${item.title}`;
+    setViewing({ title, url: null, error: null });
+    const result = await riderDocumentUrl(item.id, which);
+    setViewing({
+      title,
+      url: result.ok ? result.url : null,
+      error: result.ok ? null : result.error,
+    });
+  }
 
   const isKitchen = kind === "kitchens";
   const noun = isKitchen ? "kitchen" : "rider";
@@ -77,19 +109,14 @@ export function QueueDetail({
               ? `Put ${item.title} back live?`
               : `Approve ${item.title}?`,
           text: isKitchen
-            ? `Customers in ${item.fields[3].value} can order from them straight away.`
+            ? `Customers in ${item.fields[0].value} can order from them straight away.`
             : "They can go online and receive trip offers.",
           button:
             isKitchen && item.status === "SUSPENDED" ? "Reactivate" : "Approve",
           tone: "go" as const,
           requiresNote: false,
           run: () =>
-            onDecide(
-              item,
-              isKitchen ? "ACTIVE" : "APPROVED",
-              note.trim(),
-              `${item.title} ${isKitchen ? "is live" : "approved"}`,
-            ),
+            onDecide(item, isKitchen ? "ACTIVE" : "APPROVED", note.trim()),
         };
       case "reject":
         return {
@@ -100,13 +127,7 @@ export function QueueDetail({
           button: "Reject",
           tone: "bad" as const,
           requiresNote: !isKitchen,
-          run: () =>
-            onDecide(
-              item,
-              isKitchen ? "SUSPENDED" : "REJECTED",
-              note.trim(),
-              `${item.title} rejected`,
-            ),
+          run: () => onDecide(item, isKitchen ? "SUSPENDED" : "REJECTED", note.trim()),
         };
       case "suspend":
         return {
@@ -115,8 +136,7 @@ export function QueueDetail({
           button: "Suspend",
           tone: "bad" as const,
           requiresNote: true,
-          run: () =>
-            onDecide(item, "SUSPENDED", note.trim(), `${item.title} suspended`),
+          run: () => onDecide(item, "SUSPENDED", note.trim()),
         };
       case "payout":
         return {
@@ -154,7 +174,7 @@ export function QueueDetail({
   if (item.status === "ACTIVE" || item.status === "APPROVED") {
     // Only a super admin moves money. The server action checks this too —
     // hiding the button is the courtesy, not the control.
-    if (net > 0 && role === "SUPER_ADMIN") {
+    if (net > 0 && item.payable && role === "SUPER_ADMIN") {
       actions.push({
         label: `Pay out ${formatKobo(net)}`,
         decision: "payout",
@@ -169,7 +189,21 @@ export function QueueDetail({
     actions.push({ label: "Reactivate kitchen", decision: "approve", tone: "go" });
   }
 
-  const fields = [...item.fields, ...balanceFields(kind, item)];
+  const extra = more?.id === item.id ? more : null;
+  const fields = [
+    ...(extra?.fields ?? []),
+    ...item.fields,
+    ...balanceFields(kind, item),
+  ];
+  const checks = extra
+    ? [
+        ...item.checks,
+        {
+          label: extra.menuItems ? `${extra.menuItems} dishes on the menu` : "No dishes yet",
+          ok: extra.menuItems > 0,
+        },
+      ]
+    : item.checks;
   const blocked = !!confirm?.requiresNote && !note.trim();
 
   return (
@@ -205,7 +239,7 @@ export function QueueDetail({
       </dl>
 
       <ul className="border-text/8 flex flex-col gap-2.5 border-b px-[22px] py-lg">
-        {item.checks.map((check) => (
+        {checks.map((check) => (
           <li key={check.label} className="flex items-center gap-2.5">
             <span
               className={cn(
@@ -221,7 +255,7 @@ export function QueueDetail({
             {check.document && check.ok && (
               <button
                 type="button"
-                onClick={() => setViewing(`${check.label} · ${item.title}`)}
+                onClick={() => openDocument(check.document!, check.label)}
                 className="text-accent-text text-[12px] font-semibold"
               >
                 View
@@ -261,7 +295,7 @@ export function QueueDetail({
             <div className="flex gap-2">
               <button
                 type="button"
-                disabled={blocked}
+                disabled={blocked || busy}
                 onClick={confirm.run}
                 className={cn(
                   "h-9 rounded-pill px-lg text-[12.5px] font-bold disabled:opacity-40",
@@ -319,7 +353,7 @@ export function QueueDetail({
         >
           <div className="bg-ops-surface flex w-[min(520px,100%)] flex-col gap-3 rounded-[20px] p-xl">
             <div className="flex items-center justify-between gap-3">
-              <span className="text-[14px] font-semibold">{viewing}</span>
+              <span className="text-[14px] font-semibold">{viewing.title}</span>
               <button
                 type="button"
                 onClick={() => setViewing(null)}
@@ -328,11 +362,26 @@ export function QueueDetail({
                 Close
               </button>
             </div>
-            {/* TODO(M9): the uploaded file from Supabase storage, behind a
-                short-lived signed URL — these are identity documents. */}
-            <div className="bg-text/6 text-text/45 grid h-[280px] place-items-center rounded-[15px] text-[13px]">
-              Document preview
+            <div className="bg-text/6 text-text/62 grid min-h-[280px] place-items-center overflow-hidden rounded-[15px] text-[13px]">
+              {viewing.error ? (
+                <span className="px-lg text-center">{viewing.error}</span>
+              ) : viewing.url ? (
+                // eslint-disable-next-line @next/next/no-img-element -- a short-lived signed URL; next/image would proxy and cache an identity document.
+                <img src={viewing.url} alt={viewing.title} className="max-h-[60vh] w-full object-contain" />
+              ) : (
+                "Opening…"
+              )}
             </div>
+            {viewing.url && (
+              <a
+                href={viewing.url}
+                target="_blank"
+                rel="noreferrer noopener"
+                className="text-accent-text text-[12.5px] font-semibold"
+              >
+                Open in a new tab (PDFs and large files)
+              </a>
+            )}
           </div>
         </div>
       )}

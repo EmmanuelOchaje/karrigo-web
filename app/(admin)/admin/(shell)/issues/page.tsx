@@ -1,10 +1,13 @@
 import { OpsPage, OpsPageHeader } from "@/components/admin/OpsPage";
 import { IssuesBoard } from "@/components/admin/issues/IssuesBoard";
-import { TICKETS } from "@/lib/admin/fixtures";
+import { loadTickets } from "@/lib/admin/data";
+import { requireAdmin } from "@/lib/admin/session";
 
-export default function IssuesPage() {
-  const open = TICKETS.filter((t) => t.status === "OPEN").length;
-  const working = TICKETS.filter((t) => t.status === "IN_PROGRESS").length;
+export default async function IssuesPage() {
+  await requireAdmin();
+  const tickets = await loadTickets();
+  const open = tickets.filter((t) => t.status === "OPEN").length;
+  const working = tickets.filter((t) => t.status === "IN_PROGRESS").length;
 
   return (
     <OpsPage>
@@ -12,7 +15,7 @@ export default function IssuesPage() {
         title="Issues"
         meta={`${open} open · ${working} in progress · newest first`}
       />
-      <IssuesBoard />
+      <IssuesBoard tickets={tickets} />
     </OpsPage>
   );
 }

@@ -1,75 +1,55 @@
 import { cn } from "@/lib/cn";
-import { HOURLY } from "@/lib/admin/fixtures";
+import type { OverviewView } from "@/lib/admin/overview";
+
+const dayName = new Intl.DateTimeFormat("en-GB", { weekday: "short", timeZone: "UTC" });
 
 /**
- * Today against the same weekday last week, hour by hour. Two bars per hour
- * rather than two lines: a dispatcher is comparing pairs, not reading a
- * trend, and the pair is the whole question — "are we busier than last
- * Monday at this hour, and do we have the riders for it?"
- *
- * The current hour is half-drawn, because it is. Dimming it stops a partial
- * hour reading as a collapse in demand.
+ * Orders per day over the last fortnight. The backend aggregates by day, not
+ * by hour, so this reads as a trend rather than a shift curve. Today is
+ * accented and, being part-way through, is the shortest bar on a slow day —
+ * that is not a collapse in demand, so it is dimmed to say so.
  */
-export function OrdersByHour() {
-  const { lastWeek, today, scaleMax } = HOURLY;
-  const currentHour = today.length - 1;
-  const hours = lastWeek.map((_, i) => `${String(8 + i).padStart(2, "0")}`);
+export function OrdersByHour({ trend }: { trend: OverviewView["trend"] }) {
+  const max = Math.max(1, ...trend.map((t) => t.orders));
 
   return (
     <section className="bg-ops-surface min-w-0 rounded-[15px] px-[22px] py-xl">
       <div className="flex flex-wrap items-center justify-between gap-md">
-        <h2 className="text-text text-[16px] font-semibold">Orders by hour</h2>
-        <div className="text-text/62 flex gap-lg text-[12px] font-medium">
-          <span className="flex items-center gap-[7px]">
-            <span className="bg-accent size-2.5 rounded-[3px]" />
-            Today
-          </span>
-          <span className="flex items-center gap-[7px]">
-            <span className="bg-text/22 size-2.5 rounded-[3px]" />
-            Mon 21 Sep
-          </span>
-        </div>
+        <h2 className="text-text text-[16px] font-semibold">Orders per day</h2>
+        <span className="text-text/62 text-[12px] font-medium">Last {trend.length} days</span>
       </div>
 
-      <div className="border-text/10 mt-[18px] grid h-[210px] grid-cols-15 items-end gap-1.5 border-b">
-        {hours.map((hour, i) => {
-          const todayCount = today[i];
-          return (
-            <div
-              key={hour}
-              title={`${hour}:00 · today ${todayCount ?? "—"}${
-                i === currentHour ? " so far" : ""
-              } · last week ${lastWeek[i]}`}
-              className="flex h-full items-end justify-center gap-0.5"
-            >
-              <span
-                className="bg-text/22 w-[42%] rounded-t"
-                style={{ height: `${(lastWeek[i] / scaleMax) * 100}%` }}
-              />
-              <span
-                className={cn(
-                  "bg-accent w-[42%] rounded-t",
-                  i === currentHour && "opacity-55",
-                )}
-                style={{ height: `${((todayCount ?? 0) / scaleMax) * 100}%` }}
-              />
-            </div>
-          );
-        })}
+      <div
+        className="border-text/10 mt-[18px] grid h-[210px] items-end gap-1.5 border-b"
+        style={{ gridTemplateColumns: `repeat(${trend.length}, minmax(0, 1fr))` }}
+      >
+        {trend.map((t) => (
+          <div
+            key={t.day}
+            title={`${t.day} · ${t.orders} order${t.orders === 1 ? "" : "s"}${t.isToday ? " so far" : ""}`}
+            className="flex h-full items-end justify-center"
+          >
+            <span
+              className={cn("w-[70%] min-h-[2px] rounded-t", t.isToday ? "bg-accent opacity-70" : "bg-text/22")}
+              style={{ height: `${(t.orders / max) * 100}%` }}
+            />
+          </div>
+        ))}
       </div>
 
-      <div className="mt-2 grid grid-cols-15 gap-1.5">
-        {hours.map((hour, i) => (
+      <div
+        className="mt-2 grid gap-1.5"
+        style={{ gridTemplateColumns: `repeat(${trend.length}, minmax(0, 1fr))` }}
+      >
+        {trend.map((t) => (
           <span
-            key={hour}
+            key={t.day}
             className={cn(
-              "text-center text-[11.5px]",
-              i === currentHour
-                ? "text-text font-bold"
-                : "text-text/50 font-medium",
+              "text-center text-[11px]",
+              t.isToday ? "text-text font-bold" : "text-text/50 font-medium",
             )}
           >
-            {hour}
+            {dayName.format(new Date(`${t.day}T00:00:00Z`)).slice(0, 2)}
           </span>
         ))}
       </div>

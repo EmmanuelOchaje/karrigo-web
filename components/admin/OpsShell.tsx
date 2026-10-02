@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import type { AdminUser } from "@/lib/admin/types";
 import type { OpsTheme } from "@/lib/admin/theme";
 
-import { Sidebar } from "./Sidebar";
+import { Sidebar, type NavCounts } from "./Sidebar";
 import { Wordmark } from "./Wordmark";
 
 /**
@@ -24,9 +24,13 @@ export function OpsShell({
   admin,
   theme,
   signOut,
+  counts,
+  nowMinutes,
   children,
 }: {
   admin: AdminUser;
+  counts: NavCounts;
+  nowMinutes: number;
   theme: OpsTheme;
   signOut: () => Promise<void>;
   children: React.ReactNode;
@@ -115,6 +119,8 @@ export function OpsShell({
           admin={admin}
           theme={theme}
           signOut={signOut}
+          counts={counts}
+          nowMinutes={nowMinutes}
           onDismiss={() => setOpen(false)}
         />
       </div>

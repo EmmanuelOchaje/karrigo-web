@@ -1,23 +1,28 @@
 "use client";
 
-import { formatClock } from "@/lib/admin/derive";
-import { SHIFT_NOW } from "@/lib/admin/fixtures";
+import { useRouter } from "next/navigation";
+import { useTransition } from "react";
+
 import { say } from "@/lib/admin/store";
 
-/**
- * TODO(M8): the board streams over Supabase Realtime and this becomes a
- * manual re-sync for a flaky connection. Until then it confirms the time the
- * numbers are from, which is the thing ops actually wants to know when they
- * reach for it.
- */
+/** Re-reads every number on the page from the server. */
 export function RefreshButton() {
+  const router = useRouter();
+  const [busy, startTransition] = useTransition();
+
   return (
     <button
       type="button"
-      onClick={() => say(`Updated ${formatClock(SHIFT_NOW)}`)}
-      className="border-text/16 text-text h-[38px] rounded-pill border px-[18px] text-[13px] font-semibold"
+      disabled={busy}
+      onClick={() =>
+        startTransition(() => {
+          router.refresh();
+          say("Updated just now");
+        })
+      }
+      className="border-text/16 text-text h-[38px] rounded-pill border px-[18px] text-[13px] font-semibold disabled:opacity-50"
     >
-      Refresh
+      {busy ? "Refreshing…" : "Refresh"}
     </button>
   );
 }
