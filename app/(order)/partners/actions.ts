@@ -18,6 +18,12 @@ type Failure = { ok: false; error: string };
 type Done<T = object> = ({ ok: true } & T) | Failure;
 
 function failure(error: unknown): Failure {
+  if (error instanceof ApiError && error.status === 409 && error.body.code === "DOCUMENTS_LOCKED") {
+    return {
+      ok: false,
+      error: "You're approved, so your documents and guarantor are locked. Contact Karrigo if something needs changing.",
+    };
+  }
   if (error instanceof ApiError) return { ok: false, error: error.message };
   return { ok: false, error: "That didn't go through. Try again." };
 }

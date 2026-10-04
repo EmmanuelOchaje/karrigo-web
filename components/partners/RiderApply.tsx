@@ -39,6 +39,9 @@ export function RiderApply({
   const done = [!!rider?.vehicleType, docsDone, !!rider?.guarantor, !!rider?.bankAccountName];
   const left = done.filter((d) => !d).length;
   const started = rider !== null;
+  // Approved documents and guarantor are locked by karrigo-be; only ops can
+  // reopen them, by sending the application back with a note.
+  const approved = rider?.status === "APPROVED";
 
   return (
     <div className="gap-lg flex flex-col">
@@ -51,9 +54,10 @@ export function RiderApply({
       ) : rider?.status === "REJECTED" ? (
         <StatusBanner
           tone="stopped"
-          title="We couldn't approve this yet"
-          text="Fix what's below and send it again — adding a new photo puts you back in the queue."
+          title="Karrigo needs a few changes"
+          text="See what to fix below, then send it again. Adding a new photo puts you back in the queue, and you can't go online until it's approved."
           note={rider.note}
+          noteLabel="What to fix"
         />
       ) : left > 0 ? (
         <StatusBanner
@@ -85,7 +89,9 @@ export function RiderApply({
         summary="Licence, ID and vehicle papers added."
         hint="Clear photos, all four corners showing. Only Karrigo's team sees these."
       >
-        {started ? (
+        {approved ? (
+          <ApprovedLock what="documents" />
+        ) : started ? (
           DOCUMENTS.map((d) => (
             <PhotoUpload
               key={d.kind}
@@ -109,7 +115,13 @@ export function RiderApply({
         summary={rider?.guarantor ? `${rider.guarantor.name} · ${rider.guarantor.phone}` : undefined}
         hint="A guarantor is someone who knows you and can be reached if we can't reach you. Tell them first — we may call."
       >
-        {started ? <GuarantorForm guarantor={rider?.guarantor ?? null} /> : <Locked />}
+        {approved ? (
+          <ApprovedLock what="guarantor's details" />
+        ) : started ? (
+          <GuarantorForm guarantor={rider?.guarantor ?? null} />
+        ) : (
+          <Locked />
+        )}
       </Step>
 
       <Step
@@ -122,6 +134,15 @@ export function RiderApply({
         {started ? <BankForm banks={banks} save={saveRiderBank} /> : <Locked />}
       </Step>
     </div>
+  );
+}
+
+function ApprovedLock({ what }: { what: string }) {
+  return (
+    <p className="text-site-label text-text-secondary">
+      Your {what} were approved and are now locked. If something has changed, contact Karrigo and we&rsquo;ll
+      reopen them for you.
+    </p>
   );
 }
 

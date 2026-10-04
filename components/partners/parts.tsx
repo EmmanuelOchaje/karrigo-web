@@ -237,11 +237,13 @@ export function StatusBanner({
   title,
   text,
   note,
+  noteLabel = "From Karrigo",
 }: {
   tone: "waiting" | "live" | "stopped" | "todo";
   title: string;
   text: string;
   note?: string | null;
+  noteLabel?: string;
 }) {
   return (
     <div
@@ -258,7 +260,7 @@ export function StatusBanner({
       <p className="text-site-body text-text-secondary mt-xs">{text}</p>
       {note && (
         <p className="bg-bg text-text rounded-field text-site-label mt-md px-lg py-md font-semibold">
-          From Karrigo: “{note}”
+          {noteLabel}: “{note}”
         </p>
       )}
     </div>
