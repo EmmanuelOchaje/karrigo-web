@@ -8,6 +8,7 @@ import { formatKobo } from "@/lib/money";
 import { say } from "@/lib/order/store";
 import { cancelOrder, fetchOrder, payForOrder, verifyPayment, type TrackedOrder } from "@/app/(order)/actions";
 import { cn } from "@/lib/cn";
+import { useLiveUpdates } from "@/lib/live";
 
 type Status = TrackedOrder["status"];
 
@@ -66,18 +67,32 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
     verifyPayment(id);
   }, [id, backFromPaystack]);
 
+  const live = !!id && (!over || awaitingPayment);
+  async function reload() {
+    if (!id) return;
+    const result = await fetchOrder(id);
+    if (result.ok) {
+      setOrder(result.order);
+      setProblem(null);
+    }
+    // A failed read is ignored: the last good answer stays on screen.
+  }
+
+  useLiveUpdates({
+    scope: "customer",
+    orderId: id,
+    events: ["order:status", "rider:assigned"],
+    onChange: reload,
+    enabled: live,
+  });
+
   useEffect(() => {
-    if (!id || (over && !awaitingPayment)) return;
-    const poll = setInterval(async () => {
-      const result = await fetchOrder(id);
-      if (result.ok) {
-        setOrder(result.order);
-        setProblem(null);
-      }
-      // A failed poll is ignored: the last good answer stays on screen.
-    }, POLL_MS);
+    if (!live) return;
+    const poll = setInterval(reload, POLL_MS);
     return () => clearInterval(poll);
-  }, [id, over, awaitingPayment]);
+    // reload only reads `id`, which `live` already tracks.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [live, id]);
 
   if (!order) {
     return (

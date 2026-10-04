@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
 
 import { setOrderStatus } from "@/app/(order)/my-kitchen/actions";
+import { useLiveUpdates } from "@/lib/live";
 import { cn } from "@/lib/cn";
 import { formatKobo } from "@/lib/money";
 import type { KitchenOrder, OrderStatus } from "@/lib/kitchen/types";
@@ -35,18 +36,23 @@ const GROUPS: { title: string; statuses: OrderStatus[]; hint: string }[] = [
 
 const DONE_LABEL: Partial<Record<OrderStatus, string>> = { PICKED_UP: "Handed to rider", CANCELLED: "Cancelled" };
 
-/** No socket yet for this board, so poll: an order can go from unpaid to
- *  paid, or get cancelled, while the page sits open and untouched. */
-function usePoll(everyMs: number) {
+/** An order can arrive, get paid or be cancelled while the page sits open.
+ *  The socket says so at once; the slow poll covers a dropped socket. */
+function useFreshOrders() {
   const router = useRouter();
+  useLiveUpdates({
+    scope: "kitchen",
+    events: ["order:new", "order:paid", "order:cancelled"],
+    onChange: () => router.refresh(),
+  });
   useEffect(() => {
-    const id = setInterval(() => router.refresh(), everyMs);
+    const id = setInterval(() => router.refresh(), 10_000);
     return () => clearInterval(id);
-  }, [router, everyMs]);
+  }, [router]);
 }
 
 export function OrdersBoard({ orders, isOpen }: { orders: KitchenOrder[]; isOpen: boolean }) {
-  usePoll(7000);
+  useFreshOrders();
   const active = orders.filter((o) => o.status !== "PICKED_UP" && o.status !== "CANCELLED");
   // Newest first, and only the recent ones: this is a shift's record, not a ledger.
   const done = orders
