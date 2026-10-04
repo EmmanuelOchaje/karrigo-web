@@ -16,7 +16,9 @@ import {
   useHydrated,
   useOrderState,
 } from "@/lib/order/store";
-import { placeOrder, priceCartAction, validatePromo } from "@/app/(order)/actions";
+import { addressAt, placeOrder, priceCartAction, validatePromo } from "@/app/(order)/actions";
+import { DELIVERY_RADIUS_KM, insideDeliveryArea } from "@/lib/order/address";
+import { AddressSearch } from "./AddressSearch";
 import type { Customer, PricedCart } from "@/lib/shop/types";
 import { cn } from "@/lib/cn";
 import { QtyStepper } from "./QtyStepper";
@@ -113,9 +115,14 @@ export function Checkout({ customer }: { customer: Customer | null }) {
   function useMyLocation() {
     if (!("geolocation" in navigator)) return say("This browser can't share its location. The landmark is enough.");
     navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        setCoords({ lat: pos.coords.latitude, lng: pos.coords.longitude });
+      async (pos) => {
+        const here = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+        setCoords(here);
         say("Got your location");
+        // Name the spot for the rider, but never overwrite what they typed.
+        if (!customer || address.trim()) return;
+        const named = await addressAt(here.lat, here.lng);
+        if (named.ok && named.address) setDelivery({ address: named.address });
       },
       () => say("No problem — your landmark is enough"),
       { enableHighAccuracy: false, timeout: 8000 },
@@ -193,14 +200,24 @@ export function Checkout({ customer }: { customer: Customer | null }) {
             </label>
             <label className={fieldLabel}>
               Street address (optional)
-              <input
+              <AddressSearch
                 value={address}
-                onChange={(e) => { setDelivery({ address: e.target.value }); setError(""); }}
-                placeholder="12 Old Otukpo Road"
-                autoComplete="street-address"
+                searchable={!!customer}
+                onChange={(text) => { setDelivery({ address: text }); setError(""); }}
+                onPick={(place) => {
+                  setDelivery({ address: place.label });
+                  setCoords({ lat: place.lat, lng: place.lng });
+                  setError("");
+                }}
                 className={field}
               />
             </label>
+            {coords && !insideDeliveryArea(coords) && (
+              <p className="bg-danger-bg text-danger-text rounded-field text-site-label px-md py-sm font-semibold">
+                That spot is more than {DELIVERY_RADIUS_KM} km from the centre of Makurdi, outside where Karrigo
+                delivers today.
+              </p>
+            )}
             <label className={fieldLabel}>
               Note for kitchen or rider
               <textarea

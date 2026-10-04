@@ -5,6 +5,7 @@ import { headers } from "next/headers";
 import { ApiError, api, type Schemas } from "@/lib/api/client";
 import { clearTokens, readRefreshToken, storeTokens } from "@/lib/api/session";
 import { nairaToKobo } from "@/lib/money";
+import { cleanAddressLabel } from "@/lib/order/address";
 import { e164 } from "@/lib/phone";
 import { priceLines } from "@/lib/shop/catalog";
 import { getCustomer } from "@/lib/shop/session";
@@ -129,6 +130,46 @@ export async function priceCartAction(
     return { ok: true, cart: await priceLines(slug, lines) };
   } catch (error) {
     return failure(error, "We couldn't check the menu just now. Try again.");
+  }
+}
+
+/* --------------------------------------------------------------- address */
+
+export type AddressSuggestion = { label: string; lat: number; lng: number };
+
+/** Up to five places matching what the customer typed, biased to Makurdi.
+ *  The backend allows 30 of these a minute, so the field debounces. */
+export async function searchAddresses(query: string): Promise<Done<{ results: AddressSuggestion[] }>> {
+  const q = query.trim();
+  if (q.length < 3) return { ok: true, results: [] };
+  try {
+    const found = await api<Schemas["GeocodeResultResponseDto"][]>("/addresses/search", {
+      scope: "customer",
+      query: { query: q },
+    });
+    const seen = new Set<string>();
+    const results = found
+      .map((r) => ({ label: cleanAddressLabel(r.label), lat: r.lat, lng: r.lng }))
+      .filter((r) => r.label && !seen.has(r.label) && (seen.add(r.label), true));
+    return { ok: true, results };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 429) {
+      return { ok: false, error: "Slow down a little — try the search again in a moment." };
+    }
+    return failure(error, "Address search isn't working right now. Type your landmark instead.");
+  }
+}
+
+/** A readable address for the customer's current location. */
+export async function addressAt(lat: number, lng: number): Promise<Done<{ address: string }>> {
+  try {
+    const r = await api<Schemas["ReverseGeocodeResponseDto"]>("/addresses/reverse-geocode", {
+      scope: "customer",
+      query: { lat, lng },
+    });
+    return { ok: true, address: cleanAddressLabel(r.address) };
+  } catch (error) {
+    return failure(error, "We couldn't name that spot. Your landmark is enough.");
   }
 }
 
