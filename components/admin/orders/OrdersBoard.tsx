@@ -135,6 +135,7 @@ export function stageTone(order: LiveOrder): { tone: Tone; label: string } {
   if (order.stage === "delivered") return { tone: "success", label: "Delivered" };
   if (order.stage === "on_the_way") return { tone: "info", label: "On the way" };
   if (order.stage === "waiting") return { tone: "warning", label: STAGE_LABEL.waiting };
+  if (order.stage === "awaiting_payment") return { tone: "warning", label: STAGE_LABEL.awaiting_payment };
   return { tone: "muted", label: STAGE_LABEL[order.stage] };
 }
 

@@ -35,6 +35,7 @@ export type OverviewView = {
 
 const STAGES: { stage: OrderStage; label: string }[] = [
   { stage: "waiting", label: "Waiting for kitchen" },
+  { stage: "awaiting_payment", label: "Awaiting payment" },
   { stage: "accepted", label: "Accepted" },
   { stage: "cooking", label: "Cooking" },
   { stage: "ready", label: "Ready" },

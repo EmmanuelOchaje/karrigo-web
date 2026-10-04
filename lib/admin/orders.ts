@@ -21,6 +21,7 @@ export const LATE_AFTER_MINUTES = 45;
 
 const STAGE: Record<Status, OrderStage> = {
   PLACED: "waiting",
+  AWAITING_PAYMENT: "awaiting_payment",
   ACCEPTED: "accepted",
   PREPARING: "cooking",
   READY: "ready",
@@ -43,6 +44,10 @@ export type LiveOrder = {
   elapsedMinutes: number;
   placedAt: string;
   placedLabel: string;
+  acceptedAt: string | null;
+  paymentDueAt: string | null;
+  paidAt: string | null;
+  cancelReason: Schemas["AdminOrderListItemDto"]["cancelReason"];
   customerId: string;
   customerName: string;
   customerPhone: string;
@@ -53,9 +58,22 @@ export type LiveOrder = {
   totalKobo: number;
 };
 
+/** `channel` is the real method only once Paystack confirms payment — before
+ *  that, and for any method the backend doesn't map, it's a placeholder
+ *  (SYNC_WEB_ADMIN.md §3). Show "Paid online" rather than a wrong label. */
 export function paymentMethodOf(payment: Schemas["AdminPaymentDto"] | undefined): PaymentMethod {
   if (!payment || payment.provider === "CASH") return "cash";
-  return payment.channel === "BANK_TRANSFER" ? "transfer" : "card";
+  if (payment.status !== "SUCCEEDED") return "online";
+  switch (payment.channel) {
+    case "BANK_TRANSFER":
+      return "transfer";
+    case "USSD":
+      return "ussd";
+    case "CARD":
+      return "card";
+    default:
+      return "online";
+  }
 }
 
 export function liveOrder(o: Schemas["AdminOrderListItemDto"], now = new Date()): LiveOrder {
@@ -83,6 +101,10 @@ export function liveOrder(o: Schemas["AdminOrderListItemDto"], now = new Date())
     elapsedMinutes,
     placedAt: o.placedAt,
     placedLabel: whenLabel(o.placedAt, now),
+    acceptedAt: o.acceptedAt,
+    paymentDueAt: o.paymentDueAt,
+    paidAt: o.paidAt,
+    cancelReason: o.cancelReason,
     customerId: o.customerId,
     customerName: o.customer.name ?? o.customer.phone,
     customerPhone: o.customer.phone,
@@ -167,6 +189,8 @@ export type OrderDetailView = {
 export function orderDetailView(o: Schemas["AdminOrderDetailDto"]): OrderDetailView {
   const steps: { label: string; at: string | null }[] = [
     { label: "Placed", at: o.placedAt },
+    { label: "Every kitchen accepted", at: o.acceptedAt },
+    { label: "Paid", at: o.paidAt },
     { label: "Rider at the kitchen", at: o.riderArrivedAtKitchenAt },
     { label: "Picked up", at: o.pickedUpAt },
     { label: "Delivered", at: o.deliveredAt },

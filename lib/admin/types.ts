@@ -13,6 +13,7 @@
  *  timeline renders them in sequence and "how far along" is a comparison. */
 export const ORDER_STAGES = [
   "waiting",
+  "awaiting_payment",
   "accepted",
   "cooking",
   "ready",
@@ -24,6 +25,7 @@ export type OrderStage = (typeof ORDER_STAGES)[number];
 
 export const STAGE_LABEL: Record<OrderStage, string> = {
   waiting: "Waiting for kitchen",
+  awaiting_payment: "Awaiting payment",
   accepted: "Accepted",
   cooking: "Cooking",
   ready: "Ready",
@@ -31,11 +33,22 @@ export const STAGE_LABEL: Record<OrderStage, string> = {
   delivered: "Delivered",
 };
 
-export type PaymentMethod = "card" | "transfer" | "cash";
+/** Why a cancelled order was cancelled. The customer is never charged in any
+ *  of these cases (SYNC_WEB_ADMIN.md §2). */
+export const CANCEL_REASON_LABEL: Record<"CUSTOMER" | "KITCHENS_DECLINED" | "PAYMENT_EXPIRED" | "KITCHEN_TIMEOUT", string> = {
+  CUSTOMER: "Cancelled by the customer",
+  KITCHENS_DECLINED: "Every kitchen declined",
+  PAYMENT_EXPIRED: "Not paid in time",
+  KITCHEN_TIMEOUT: "No kitchen answered in time",
+};
+
+export type PaymentMethod = "card" | "transfer" | "ussd" | "online" | "cash";
 
 export const PAYMENT_LABEL: Record<PaymentMethod, string> = {
   card: "Card",
   transfer: "Bank transfer",
+  ussd: "USSD",
+  online: "Paid online",
   cash: "Cash on delivery",
 };
 

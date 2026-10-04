@@ -6,7 +6,7 @@ import { cn } from "@/lib/cn";
 import { formatKobo } from "@/lib/money";
 import { isActive, type LiveOrder, type OrderDetailView } from "@/lib/admin/orders";
 import { say } from "@/lib/admin/store";
-import { PAYMENT_LABEL, type AdminRole } from "@/lib/admin/types";
+import { CANCEL_REASON_LABEL, PAYMENT_LABEL, type AdminRole } from "@/lib/admin/types";
 import { Eyebrow } from "@/components/admin/ui";
 import {
   giveCredit,
@@ -85,6 +85,14 @@ export function OrderDetail({ order, role }: { order: LiveOrder; role: AdminRole
             <span className="text-text/45">Loading the address…</span>
           )}
         </p>
+        {order.status === "AWAITING_PAYMENT" && (
+          <p className="text-warning mt-1.5 text-[12.5px] font-semibold">
+            Waiting for the customer to pay{order.paymentDueAt && <> · due {new Date(order.paymentDueAt).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })}</>}
+          </p>
+        )}
+        {order.cancelled && order.cancelReason && (
+          <p className="text-text/62 mt-1.5 text-[12.5px] font-semibold">{CANCEL_REASON_LABEL[order.cancelReason]} · not charged</p>
+        )}
       </header>
 
       <div className="bg-text/8 border-text/8 grid grid-cols-3 gap-px border-b">
