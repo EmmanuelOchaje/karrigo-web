@@ -20,6 +20,74 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Register (or move ownership of) an Expo push token. Upserts on expoPushToken. */
+        post: operations["DevicesController_register"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/devices/{expoPushToken}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Unregister a push token. */
+        delete: operations["DevicesController_unregister"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/notifications/preferences": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every notification key with its current (or default) enabled state. */
+        get: operations["NotificationPreferencesController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/notifications/preferences/{key}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Toggle one notification key. */
+        patch: operations["NotificationPreferencesController_set"];
+        trace?: never;
+    };
     "/v1/auth/otp/request": {
         parameters: {
             query?: never;
@@ -961,6 +1029,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/payments/orders/{orderId}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ask Paystack whether the latest checkout was paid and, if so, confirm the order now. Call after the checkout closes; safe to repeat. Backs up the webhook, which can be late or unreachable. */
+        post: operations["PaymentsController_verify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/payments/orders/{orderId}/pay": {
         parameters: {
             query?: never;
@@ -970,80 +1055,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Initialize a Paystack checkout for an order that hasn’t been charged yet. */
+        /** Start a Paystack checkout. Only while the order is AWAITING_PAYMENT and before paymentDueAt. Each call returns a fresh checkout; the order is confirmed by Paystack’s webhook, never by the redirect, so re-read the order until it shows ACCEPTED. */
         post: operations["PaymentsController_initialize"];
         delete?: never;
         options?: never;
         head?: never;
         patch?: never;
-        trace?: never;
-    };
-    "/v1/devices": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Register (or move ownership of) an Expo push token. Upserts on expoPushToken. */
-        post: operations["DevicesController_register"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/devices/{expoPushToken}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Unregister a push token. */
-        delete: operations["DevicesController_unregister"];
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/notifications/preferences": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** Every notification key with its current (or default) enabled state. */
-        get: operations["NotificationPreferencesController_list"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/notifications/preferences/{key}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        /** Toggle one notification key. */
-        patch: operations["NotificationPreferencesController_set"];
         trace?: never;
     };
     "/v1/reviews": {
@@ -1423,6 +1440,196 @@ export interface paths {
         patch: operations["KitchenConsoleController_updateOrderStatus"];
         trace?: never;
     };
+    "/v1/support-tickets": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** File a support ticket as the signed-in customer/rider. */
+        post: operations["SupportTicketsController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/support-tickets/with-attachment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** File a support ticket with one private image attachment. */
+        post: operations["SupportTicketsController_createWithAttachment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/support-tickets/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The caller's own support tickets. */
+        get: operations["SupportTicketsController_listMine"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/addresses/search": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Search a landmark or street, biased to the Makurdi area. */
+        get: operations["AddressesController_search"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/addresses/reverse-geocode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Turn coordinates (e.g. GPS) into an address label. */
+        get: operations["AddressesController_reverseGeocode"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/addresses": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the caller's saved addresses. */
+        get: operations["AddressesController_list"];
+        put?: never;
+        /** Save a new address for the caller. */
+        post: operations["AddressesController_create"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/addresses/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete one of the caller's addresses. */
+        delete: operations["AddressesController_remove"];
+        options?: never;
+        head?: never;
+        /** Update one of the caller's addresses. */
+        patch: operations["AddressesController_update"];
+        trace?: never;
+    };
+    "/v1/orders": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The caller's order history, most recent first. */
+        get: operations["OrdersController_list"];
+        put?: never;
+        /** Place an order. Nothing is charged yet: the order waits for every kitchen to accept (status PLACED), then moves to AWAITING_PAYMENT with a paymentDueAt deadline, and only then can it be paid via POST /payments/orders/:id/pay. Pricing is computed server-side from live MenuItem prices. */
+        post: operations["OrdersController_place"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orders/promo/validate": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Validate a promo code and preview its discount for the current cart subtotal. */
+        post: operations["OrdersController_validatePromo"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** One order, in full detail. */
+        get: operations["OrdersController_detail"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orders/{id}/cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Cancel an order before paying (PLACED or AWAITING_PAYMENT). Nothing has been charged; store credit and the promo use are returned. */
+        post: operations["OrdersController_cancel"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/riders/onboard": {
         parameters: {
             query?: never;
@@ -1483,7 +1690,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Submit a KYC document. Resets verificationStatus to PENDING for re-review. */
+        /** Submit a KYC document. Resets verificationStatus to PENDING for re-review. Refused with a 409 (`code: DOCUMENTS_LOCKED`) once the documents are APPROVED, until an admin sends them back with a note. */
         post: operations["RidersController_submitDocument"];
         delete?: never;
         options?: never;
@@ -1523,6 +1730,23 @@ export interface paths {
         head?: never;
         /** Set the rider's vehicle type and plate number. */
         patch: operations["RidersController_updateVehicle"];
+        trace?: never;
+    };
+    "/v1/riders/me/payout-account/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Look up the account name for a bank + account number without saving it, so the rider can confirm it before saving. */
+        post: operations["RidersController_resolvePayoutAccount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/v1/riders/me/payout-account": {
@@ -1678,166 +1902,41 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/support-tickets": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** File a support ticket as the signed-in customer/rider. */
-        post: operations["SupportTicketsController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/support-tickets/with-attachment": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** File a support ticket with one private image attachment. */
-        post: operations["SupportTicketsController_createWithAttachment"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/support-tickets/me": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** The caller's own support tickets. */
-        get: operations["SupportTicketsController_listMine"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/addresses": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** List the caller's saved addresses. */
-        get: operations["AddressesController_list"];
-        put?: never;
-        /** Save a new address for the caller. */
-        post: operations["AddressesController_create"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/addresses/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post?: never;
-        /** Delete one of the caller's addresses. */
-        delete: operations["AddressesController_remove"];
-        options?: never;
-        head?: never;
-        /** Update one of the caller's addresses. */
-        patch: operations["AddressesController_update"];
-        trace?: never;
-    };
-    "/v1/orders": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** The caller's order history, most recent first. */
-        get: operations["OrdersController_list"];
-        put?: never;
-        /** Place an order — pricing is computed server-side from live MenuItem prices, never from the client. */
-        post: operations["OrdersController_place"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/orders/promo/validate": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Validate a promo code and preview its discount for the current cart subtotal. */
-        post: operations["OrdersController_validatePromo"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/orders/{id}": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        /** One order, in full detail. */
-        get: operations["OrdersController_detail"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/orders/{id}/cancel": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Cancel an order — only while still PLACED (not yet accepted by any kitchen). */
-        post: operations["OrdersController_cancel"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        RegisterDeviceDto: {
+            expoPushToken: string;
+            /** @enum {string} */
+            platform: "ios" | "android";
+        };
+        DeviceResponseDto: {
+            id: string;
+            userId: string;
+            expoPushToken: string;
+            platform: string;
+            /** Format: date-time */
+            lastSeenAt: string;
+            /** Format: date-time */
+            createdAt: string;
+            lastPushTicketId: string | null;
+        };
+        NotificationPreferenceSummaryDto: {
+            /** @enum {string} */
+            key: "ORDER_UPDATES" | "RIDER_AT_GATE" | "NEW_KITCHENS" | "OFFERS" | "SAVED_KITCHEN_OPENED";
+            enabled: boolean;
+        };
+        SetNotificationPreferenceDto: {
+            enabled: boolean;
+        };
+        NotificationPreferenceResponseDto: {
+            id: string;
+            userId: string;
+            /** @enum {string} */
+            key: "ORDER_UPDATES" | "RIDER_AT_GATE" | "NEW_KITCHENS" | "OFFERS" | "SAVED_KITCHEN_OPENED";
+            enabled: boolean;
+        };
         RequestOtpDto: {
             phone: string;
             /** @enum {string} */
@@ -2006,7 +2105,7 @@ export interface components {
             id: string;
             code: string;
             /** @enum {string} */
-            status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+            status: "PLACED" | "AWAITING_PAYMENT" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
             /** Format: date-time */
             placedAt: string;
         };
@@ -2133,7 +2232,7 @@ export interface components {
             id: string;
             code: string;
             /** @enum {string} */
-            status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+            status: "PLACED" | "AWAITING_PAYMENT" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
             deliveryFeeNaira: number;
             /** Format: date-time */
             placedAt: string;
@@ -2292,7 +2391,7 @@ export interface components {
             riderId: string | null;
             addressId: string;
             /** @enum {string} */
-            status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+            status: "PLACED" | "AWAITING_PAYMENT" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
             subtotalNaira: number;
             deliveryFeeNaira: number;
             discountNaira: number;
@@ -2311,6 +2410,23 @@ export interface components {
             deliveredAt: string | null;
             /** Format: date-time */
             cancelledAt: string | null;
+            /**
+             * Format: date-time
+             * @description When every kitchen had answered and the order moved to AWAITING_PAYMENT.
+             */
+            acceptedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Pay before this, or the order is cancelled (PAYMENT_EXPIRED). Set while AWAITING_PAYMENT.
+             */
+            paymentDueAt: string | null;
+            /**
+             * Format: date-time
+             * @description When payment was confirmed by Paystack — the kitchen may start preparing.
+             */
+            paidAt: string | null;
+            /** @enum {string|null} */
+            cancelReason: "CUSTOMER" | "KITCHENS_DECLINED" | "PAYMENT_EXPIRED" | "KITCHEN_TIMEOUT" | null;
             payoutId: string | null;
             /** Format: date-time */
             createdAt: string;
@@ -2401,7 +2517,7 @@ export interface components {
             riderId: string | null;
             addressId: string;
             /** @enum {string} */
-            status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+            status: "PLACED" | "AWAITING_PAYMENT" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
             subtotalNaira: number;
             deliveryFeeNaira: number;
             discountNaira: number;
@@ -2420,6 +2536,23 @@ export interface components {
             deliveredAt: string | null;
             /** Format: date-time */
             cancelledAt: string | null;
+            /**
+             * Format: date-time
+             * @description When every kitchen had answered and the order moved to AWAITING_PAYMENT.
+             */
+            acceptedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Pay before this, or the order is cancelled (PAYMENT_EXPIRED). Set while AWAITING_PAYMENT.
+             */
+            paymentDueAt: string | null;
+            /**
+             * Format: date-time
+             * @description When payment was confirmed by Paystack — the kitchen may start preparing.
+             */
+            paidAt: string | null;
+            /** @enum {string|null} */
+            cancelReason: "CUSTOMER" | "KITCHENS_DECLINED" | "PAYMENT_EXPIRED" | "KITCHEN_TIMEOUT" | null;
             payoutId: string | null;
             /** Format: date-time */
             createdAt: string;
@@ -2509,7 +2642,7 @@ export interface components {
             riderId: string | null;
             addressId: string;
             /** @enum {string} */
-            status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+            status: "PLACED" | "AWAITING_PAYMENT" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
             subtotalNaira: number;
             deliveryFeeNaira: number;
             discountNaira: number;
@@ -2528,6 +2661,23 @@ export interface components {
             deliveredAt: string | null;
             /** Format: date-time */
             cancelledAt: string | null;
+            /**
+             * Format: date-time
+             * @description When every kitchen had answered and the order moved to AWAITING_PAYMENT.
+             */
+            acceptedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Pay before this, or the order is cancelled (PAYMENT_EXPIRED). Set while AWAITING_PAYMENT.
+             */
+            paymentDueAt: string | null;
+            /**
+             * Format: date-time
+             * @description When payment was confirmed by Paystack — the kitchen may start preparing.
+             */
+            paidAt: string | null;
+            /** @enum {string|null} */
+            cancelReason: "CUSTOMER" | "KITCHENS_DECLINED" | "PAYMENT_EXPIRED" | "KITCHEN_TIMEOUT" | null;
             payoutId: string | null;
             /** Format: date-time */
             createdAt: string;
@@ -2645,7 +2795,7 @@ export interface components {
             id: string;
             code: string;
             /** @enum {string} */
-            status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+            status: "PLACED" | "AWAITING_PAYMENT" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
             totalNaira: number;
             /** Format: date-time */
             placedAt: string;
@@ -2727,7 +2877,7 @@ export interface components {
             id: string;
             code: string;
             /** @enum {string} */
-            status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+            status: "PLACED" | "AWAITING_PAYMENT" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
         };
         AdminTicketListItemDto: {
             hasAttachment: boolean;
@@ -2769,7 +2919,7 @@ export interface components {
             id: string;
             code: string;
             /** @enum {string} */
-            status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+            status: "PLACED" | "AWAITING_PAYMENT" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
             totalNaira: number;
             /** Format: date-time */
             placedAt: string;
@@ -3004,6 +3154,8 @@ export interface components {
         DashboardLiveDto: {
             /** @description Orders not yet delivered, cancelled or refunded. */
             activeOrders: number;
+            /** @description Accepted by every kitchen, waiting on the customer to pay. Included in activeOrders. */
+            awaitingPayment: number;
             ridersAvailable: number;
             ridersOnDelivery: number;
             /** @description ACTIVE kitchens currently toggled open. */
@@ -3104,37 +3256,6 @@ export interface components {
         InitializePaymentResponseDto: {
             authorizationUrl: string;
             reference: string;
-        };
-        RegisterDeviceDto: {
-            expoPushToken: string;
-            /** @enum {string} */
-            platform: "ios" | "android";
-        };
-        DeviceResponseDto: {
-            id: string;
-            userId: string;
-            expoPushToken: string;
-            platform: string;
-            /** Format: date-time */
-            lastSeenAt: string;
-            /** Format: date-time */
-            createdAt: string;
-            lastPushTicketId: string | null;
-        };
-        NotificationPreferenceSummaryDto: {
-            /** @enum {string} */
-            key: "ORDER_UPDATES" | "RIDER_AT_GATE" | "NEW_KITCHENS" | "OFFERS" | "SAVED_KITCHEN_OPENED";
-            enabled: boolean;
-        };
-        SetNotificationPreferenceDto: {
-            enabled: boolean;
-        };
-        NotificationPreferenceResponseDto: {
-            id: string;
-            userId: string;
-            /** @enum {string} */
-            key: "ORDER_UPDATES" | "RIDER_AT_GATE" | "NEW_KITCHENS" | "OFFERS" | "SAVED_KITCHEN_OPENED";
-            enabled: boolean;
         };
         SubmitReviewDto: {
             orderId: string;
@@ -3356,13 +3477,33 @@ export interface components {
             sortOrder?: number;
             isSoldOut?: boolean;
         };
+        KitchenOrderParentAddressDto: {
+            area: string;
+        };
         KitchenOrderParentSummaryDto: {
             code: string;
+            /**
+             * @description AWAITING_PAYMENT = accepted, but don't start yet; ACCEPTED or later = paid.
+             * @enum {string}
+             */
+            status: "PLACED" | "AWAITING_PAYMENT" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
             /** Format: date-time */
             placedAt: string;
-            address: {
-                area: string;
-            };
+            /** Format: date-time */
+            acceptedAt: string | null;
+            /**
+             * Format: date-time
+             * @description While AWAITING_PAYMENT: when the customer's payment window closes.
+             */
+            paymentDueAt: string | null;
+            /**
+             * Format: date-time
+             * @description Set once the customer has paid — the kitchen may start preparing.
+             */
+            paidAt: string | null;
+            /** @enum {string|null} */
+            cancelReason: "CUSTOMER" | "KITCHENS_DECLINED" | "PAYMENT_EXPIRED" | "KITCHEN_TIMEOUT" | null;
+            address: components["schemas"]["KitchenOrderParentAddressDto"];
         };
         KitchenOrderWithDetailsResponseDto: {
             items: components["schemas"]["OrderItemResponseDto"][];
@@ -3397,6 +3538,167 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+        };
+        CreateSupportTicketDto: {
+            orderId?: string;
+            /** @enum {string} */
+            channel?: "WHATSAPP" | "IN_APP";
+            subject: string;
+            body?: string;
+        };
+        AddressResponseDto: {
+            id: string;
+            userId: string;
+            label: string;
+            line1: string;
+            area: string;
+            city: string;
+            state: string;
+            lat: number;
+            lng: number;
+            isDefault: boolean;
+            instructions: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        CreateAddressDto: {
+            label: string;
+            line1: string;
+            area: string;
+            city?: string;
+            state?: string;
+            lat: number;
+            lng: number;
+            isDefault?: boolean;
+            instructions?: string;
+        };
+        UpdateAddressDto: {
+            label?: string;
+            line1?: string;
+            area?: string;
+            city?: string;
+            state?: string;
+            lat?: number;
+            lng?: number;
+            isDefault?: boolean;
+            instructions?: string;
+        };
+        OrderLineInputDto: {
+            menuItemId: string;
+            qty: number;
+        };
+        PlaceOrderDto: {
+            addressId: string;
+            items: components["schemas"]["OrderLineInputDto"][];
+            promoCode?: string;
+            /**
+             * @description Always PAYSTACK: every order is paid online after the kitchen accepts. Cash on delivery isn't offered.
+             * @enum {string}
+             */
+            provider: "PAYSTACK";
+            /** @enum {string} */
+            channel?: "CARD" | "BANK_TRANSFER" | "USSD";
+        };
+        PaymentResponseDto: {
+            id: string;
+            orderId: string;
+            /** @enum {string} */
+            provider: "PAYSTACK" | "CASH";
+            /** @enum {string|null} */
+            channel: "CARD" | "BANK_TRANSFER" | "USSD" | null;
+            providerRef: string | null;
+            /** @enum {string} */
+            status: "PENDING" | "REFUNDED" | "SUCCEEDED" | "FAILED";
+            amountNaira: number;
+            /** @description The raw Paystack webhook payload — returned as-is today (no select filters it out on the order-detail path). Not meant for client consumption; flagged, not changed here. */
+            rawPayload: Record<string, never>;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        OrderDetailKitchenOrderDto: {
+            id: string;
+            orderId: string;
+            kitchenId: string;
+            /** @enum {string} */
+            status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "CANCELLED";
+            subtotalNaira: number;
+            deliveryFeeNaira: number;
+            payoutId: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            kitchen: components["schemas"]["KitchenResponseDto"];
+            items: components["schemas"]["OrderItemResponseDto"][];
+        };
+        OrderDetailRiderDto: {
+            user: {
+                name: string | null;
+                phone: string;
+            };
+            currentLat: number | null;
+            currentLng: number | null;
+        };
+        OrderWithDetailsResponseDto: {
+            id: string;
+            code: string;
+            customerId: string;
+            riderId: string | null;
+            addressId: string;
+            /** @enum {string} */
+            status: "PLACED" | "AWAITING_PAYMENT" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+            subtotalNaira: number;
+            deliveryFeeNaira: number;
+            discountNaira: number;
+            tipNaira: number;
+            totalNaira: number;
+            /** @description How much of the customer's store credit was auto-applied — see User.creditBalanceNaira. */
+            creditAppliedNaira: number;
+            promoCode: string | null;
+            /** Format: date-time */
+            placedAt: string;
+            /** Format: date-time */
+            riderArrivedAtKitchenAt: string | null;
+            /** Format: date-time */
+            pickedUpAt: string | null;
+            /** Format: date-time */
+            deliveredAt: string | null;
+            /** Format: date-time */
+            cancelledAt: string | null;
+            /**
+             * Format: date-time
+             * @description When every kitchen had answered and the order moved to AWAITING_PAYMENT.
+             */
+            acceptedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Pay before this, or the order is cancelled (PAYMENT_EXPIRED). Set while AWAITING_PAYMENT.
+             */
+            paymentDueAt: string | null;
+            /**
+             * Format: date-time
+             * @description When payment was confirmed by Paystack — the kitchen may start preparing.
+             */
+            paidAt: string | null;
+            /** @enum {string|null} */
+            cancelReason: "CUSTOMER" | "KITCHENS_DECLINED" | "PAYMENT_EXPIRED" | "KITCHEN_TIMEOUT" | null;
+            payoutId: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            address: components["schemas"]["AddressResponseDto"];
+            payments: components["schemas"]["PaymentResponseDto"][];
+            kitchenOrders: components["schemas"]["OrderDetailKitchenOrderDto"][];
+            rider: components["schemas"]["OrderDetailRiderDto"] | null;
+        };
+        ValidatePromoDto: {
+            code: string;
+            subtotalNaira: number;
         };
         OnboardRiderDto: {
             vehicleType?: string;
@@ -3491,23 +3793,6 @@ export interface components {
             /** Format: date-time */
             deliveredAt: string | null;
         };
-        AddressResponseDto: {
-            id: string;
-            userId: string;
-            label: string;
-            line1: string;
-            area: string;
-            city: string;
-            state: string;
-            lat: number;
-            lng: number;
-            isDefault: boolean;
-            instructions: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
         AcceptedOrderCustomerDto: {
             phone: string;
             name: string | null;
@@ -3540,7 +3825,7 @@ export interface components {
             riderId: string | null;
             addressId: string;
             /** @enum {string} */
-            status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+            status: "PLACED" | "AWAITING_PAYMENT" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
             subtotalNaira: number;
             deliveryFeeNaira: number;
             discountNaira: number;
@@ -3559,6 +3844,23 @@ export interface components {
             deliveredAt: string | null;
             /** Format: date-time */
             cancelledAt: string | null;
+            /**
+             * Format: date-time
+             * @description When every kitchen had answered and the order moved to AWAITING_PAYMENT.
+             */
+            acceptedAt: string | null;
+            /**
+             * Format: date-time
+             * @description Pay before this, or the order is cancelled (PAYMENT_EXPIRED). Set while AWAITING_PAYMENT.
+             */
+            paymentDueAt: string | null;
+            /**
+             * Format: date-time
+             * @description When payment was confirmed by Paystack — the kitchen may start preparing.
+             */
+            paidAt: string | null;
+            /** @enum {string|null} */
+            cancelReason: "CUSTOMER" | "KITCHENS_DECLINED" | "PAYMENT_EXPIRED" | "KITCHEN_TIMEOUT" | null;
             payoutId: string | null;
             /** Format: date-time */
             createdAt: string;
@@ -3571,130 +3873,6 @@ export interface components {
         };
         ReportProblemDto: {
             reason: string;
-        };
-        CreateSupportTicketDto: {
-            orderId?: string;
-            /** @enum {string} */
-            channel?: "WHATSAPP" | "IN_APP";
-            subject: string;
-            body?: string;
-        };
-        CreateAddressDto: {
-            label: string;
-            line1: string;
-            area: string;
-            city?: string;
-            state?: string;
-            lat: number;
-            lng: number;
-            isDefault?: boolean;
-            instructions?: string;
-        };
-        UpdateAddressDto: {
-            label?: string;
-            line1?: string;
-            area?: string;
-            city?: string;
-            state?: string;
-            lat?: number;
-            lng?: number;
-            isDefault?: boolean;
-            instructions?: string;
-        };
-        OrderLineInputDto: {
-            menuItemId: string;
-            qty: number;
-        };
-        PlaceOrderDto: {
-            addressId: string;
-            items: components["schemas"]["OrderLineInputDto"][];
-            promoCode?: string;
-            /** @enum {string} */
-            provider: "PAYSTACK" | "CASH";
-            /** @enum {string} */
-            channel?: "CARD" | "BANK_TRANSFER" | "USSD";
-        };
-        PaymentResponseDto: {
-            id: string;
-            orderId: string;
-            /** @enum {string} */
-            provider: "PAYSTACK" | "CASH";
-            /** @enum {string|null} */
-            channel: "CARD" | "BANK_TRANSFER" | "USSD" | null;
-            providerRef: string | null;
-            /** @enum {string} */
-            status: "PENDING" | "REFUNDED" | "SUCCEEDED" | "FAILED";
-            amountNaira: number;
-            /** @description The raw Paystack webhook payload — returned as-is today (no select filters it out on the order-detail path). Not meant for client consumption; flagged, not changed here. */
-            rawPayload: Record<string, never>;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
-        OrderDetailKitchenOrderDto: {
-            id: string;
-            orderId: string;
-            kitchenId: string;
-            /** @enum {string} */
-            status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "CANCELLED";
-            subtotalNaira: number;
-            deliveryFeeNaira: number;
-            payoutId: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            kitchen: components["schemas"]["KitchenResponseDto"];
-            items: components["schemas"]["OrderItemResponseDto"][];
-        };
-        OrderDetailRiderDto: {
-            user: {
-                name: string | null;
-                phone: string;
-            };
-            currentLat: number | null;
-            currentLng: number | null;
-        };
-        OrderWithDetailsResponseDto: {
-            id: string;
-            code: string;
-            customerId: string;
-            riderId: string | null;
-            addressId: string;
-            /** @enum {string} */
-            status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
-            subtotalNaira: number;
-            deliveryFeeNaira: number;
-            discountNaira: number;
-            tipNaira: number;
-            totalNaira: number;
-            /** @description How much of the customer's store credit was auto-applied — see User.creditBalanceNaira. */
-            creditAppliedNaira: number;
-            promoCode: string | null;
-            /** Format: date-time */
-            placedAt: string;
-            /** Format: date-time */
-            riderArrivedAtKitchenAt: string | null;
-            /** Format: date-time */
-            pickedUpAt: string | null;
-            /** Format: date-time */
-            deliveredAt: string | null;
-            /** Format: date-time */
-            cancelledAt: string | null;
-            payoutId: string | null;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-            address: components["schemas"]["AddressResponseDto"];
-            payments: components["schemas"]["PaymentResponseDto"][];
-            kitchenOrders: components["schemas"]["OrderDetailKitchenOrderDto"][];
-            rider: components["schemas"]["OrderDetailRiderDto"] | null;
-        };
-        ValidatePromoDto: {
-            code: string;
-            subtotalNaira: number;
         };
     };
     responses: never;
@@ -3721,6 +3899,127 @@ export interface operations {
                 content: {
                     "application/json": string;
                 };
+            };
+        };
+    };
+    DevicesController_register: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterDeviceDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceResponseDto"];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    DevicesController_unregister: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                expoPushToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Device doesn't exist or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    NotificationPreferencesController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPreferenceSummaryDto"][];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    NotificationPreferencesController_set: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                key: "ORDER_UPDATES" | "RIDER_AT_GATE" | "NEW_KITCHENS" | "OFFERS" | "SAVED_KITCHEN_OPENED";
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SetNotificationPreferenceDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["NotificationPreferenceResponseDto"];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
         };
     };
@@ -4788,7 +5087,7 @@ export interface operations {
     AdminController_listOrders: {
         parameters: {
             query: {
-                status?: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+                status?: "PLACED" | "AWAITING_PAYMENT" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
                 /** @description Orders with a slice from this kitchen (Kitchen id). */
                 kitchenId?: string;
                 /** @description Rider id (not the rider's User id). */
@@ -5847,6 +6146,33 @@ export interface operations {
             };
         };
     };
+    PaymentsController_verify: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The order status after verifying. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Order not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     PaymentsController_initialize: {
         parameters: {
             query?: never;
@@ -5891,129 +6217,8 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description This payment is already succeeded/failed. */
+            /** @description `code`: AWAITING_KITCHEN (not accepted yet), PAYMENT_WINDOW_CLOSED (expired or cancelled), or ALREADY_PAID. */
             409: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DevicesController_register: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["RegisterDeviceDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DeviceResponseDto"];
-                };
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    DevicesController_unregister: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                expoPushToken: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Device doesn't exist or belongs to another user. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    NotificationPreferencesController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationPreferenceSummaryDto"][];
-                };
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    NotificationPreferencesController_set: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                key: "ORDER_UPDATES" | "RIDER_AT_GATE" | "NEW_KITCHENS" | "OFFERS" | "SAVED_KITCHEN_OPENED";
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["SetNotificationPreferenceDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["NotificationPreferenceResponseDto"];
-                };
-            };
-            /** @description Missing or invalid access token. */
-            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6978,7 +7183,484 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Not a valid transition from the current status, or no rider has accepted yet (required before PICKED_UP). */
+            /** @description Not a valid transition from the current status; `code: AWAITING_PAYMENT` when moving to PREPARING before the customer has paid; or no rider has accepted yet (required before PICKED_UP). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SupportTicketsController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateSupportTicketDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportTicketResponseDto"];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SupportTicketsController_createWithAttachment: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                    orderId?: string;
+                    subject: string;
+                    body?: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportTicketResponseDto"];
+                };
+            };
+            /** @description Missing image, unsupported type, or over the size limit. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    SupportTicketsController_listMine: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SupportTicketResponseDto"][];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AddressesController_search: {
+        parameters: {
+            query: {
+                /** @description At least 3 characters. */
+                query: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": Record<string, never>[];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AddressesController_reverseGeocode: {
+        parameters: {
+            query: {
+                lat: string;
+                lng: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AddressesController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressResponseDto"][];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AddressesController_create: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateAddressDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressResponseDto"];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AddressesController_remove: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Address doesn't exist or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AddressesController_update: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAddressDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AddressResponseDto"];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Address doesn't exist or belongs to another user. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrdersController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderWithDetailsResponseDto"][];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrdersController_place: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlaceOrderDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderWithDetailsResponseDto"];
+                };
+            };
+            /** @description provider must be PAYSTACK (no cash on delivery), channel is required, or an item is unavailable/sold out. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Address not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description OUTSIDE_DELIVERY_AREA — the address is outside the delivery zone. */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrdersController_validatePromo: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ValidatePromoDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        code?: string;
+                        discountNaira?: number;
+                    };
+                };
+            };
+            /** @description The promo is invalid, expired, exhausted, or below its minimum subtotal. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrdersController_detail: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderWithDetailsResponseDto"];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Order doesn't exist or belongs to another customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrdersController_cancel: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderWithDetailsResponseDto"];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Order doesn't exist or belongs to another customer. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Already cancelled, or already paid — use Report a problem instead. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -7207,6 +7889,42 @@ export interface operations {
                 content: {
                     "application/json": components["schemas"]["RiderResponseDto"];
                 };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is not a rider. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RidersController_resolvePayoutAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitPayoutAccountDto"];
+            };
+        };
+        responses: {
+            /** @description `{ accountNumber, accountName }` as confirmed by the bank. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
             };
             /** @description Missing or invalid access token. */
             401: {
@@ -7591,427 +8309,6 @@ export interface operations {
             };
             /** @description Order doesn't exist or isn't assigned to this rider. */
             404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SupportTicketsController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateSupportTicketDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SupportTicketResponseDto"];
-                };
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SupportTicketsController_createWithAttachment: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "multipart/form-data": {
-                    /** Format: binary */
-                    file: string;
-                    orderId?: string;
-                    subject: string;
-                    body?: string;
-                };
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SupportTicketResponseDto"];
-                };
-            };
-            /** @description Missing image, unsupported type, or over the size limit. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    SupportTicketsController_listMine: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["SupportTicketResponseDto"][];
-                };
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AddressesController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AddressResponseDto"][];
-                };
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AddressesController_create: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["CreateAddressDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AddressResponseDto"];
-                };
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AddressesController_remove: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            204: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Address doesn't exist or belongs to another user. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    AddressesController_update: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["UpdateAddressDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["AddressResponseDto"];
-                };
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Address doesn't exist or belongs to another user. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrdersController_list: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrderWithDetailsResponseDto"][];
-                };
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrdersController_place: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["PlaceOrderDto"];
-            };
-        };
-        responses: {
-            201: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrderWithDetailsResponseDto"];
-                };
-            };
-            /** @description channel is required when provider is PAYSTACK, or an item is unavailable/sold out. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Address not found. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description OUTSIDE_DELIVERY_AREA — the address is outside the delivery zone. */
-            422: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrdersController_validatePromo: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ValidatePromoDto"];
-            };
-        };
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": {
-                        code?: string;
-                        discountNaira?: number;
-                    };
-                };
-            };
-            /** @description The promo is invalid, expired, exhausted, or below its minimum subtotal. */
-            400: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrdersController_detail: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrderWithDetailsResponseDto"];
-                };
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Order doesn't exist or belongs to another customer. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-        };
-    };
-    OrdersController_cancel: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                id: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["OrderWithDetailsResponseDto"];
-                };
-            };
-            /** @description Missing or invalid access token. */
-            401: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Order doesn't exist or belongs to another customer. */
-            404: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Already cancelled, or already past PLACED — use Report a problem instead. */
-            409: {
                 headers: {
                     [name: string]: unknown;
                 };
