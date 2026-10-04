@@ -4,6 +4,7 @@ import { useEffect, useState, useTransition } from "react";
 
 import { cn } from "@/lib/cn";
 import { formatKobo } from "@/lib/money";
+import { durationLabel } from "@/lib/admin/format";
 import { isActive, type LiveOrder, type OrderDetailView } from "@/lib/admin/orders";
 import { say } from "@/lib/admin/store";
 import { CANCEL_REASON_LABEL, PAYMENT_LABEL, type AdminRole } from "@/lib/admin/types";
@@ -70,7 +71,7 @@ export function OrderDetail({ order, role }: { order: LiveOrder; role: AdminRole
         <div className="flex items-center justify-between gap-2.5">
           <span className="text-[22px]/none font-extrabold tracking-[-0.03em]">{order.code}</span>
           <span className="text-text/62 text-[12.5px] font-medium">
-            Placed {order.placedLabel} · {order.elapsedMinutes} min{isActive(order) ? " ago" : " since"}
+            Placed {order.placedLabel} · {durationLabel(order.elapsedMinutes)}{isActive(order) ? " ago" : " since"}
           </span>
         </div>
         <p className="text-text/80 mt-2 text-[13.5px]/[1.5]">

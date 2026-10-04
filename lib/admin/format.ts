@@ -42,3 +42,14 @@ export function ageLabel(iso: string | null | undefined, now = new Date()): stri
   if (minutes < 60 * 24) return `${Math.floor(minutes / 60)} h ago`;
   return whenLabel(iso, now);
 }
+
+/** A span of minutes as ops would say it: "45 min", "5 h 29 min", "2 days 10 h". */
+export function durationLabel(minutes: number): string {
+  const m = Math.max(0, Math.floor(minutes));
+  if (m < 60) return `${m} min`;
+  const days = Math.floor(m / 1440);
+  const hours = Math.floor((m % 1440) / 60);
+  if (days === 0) return m % 60 ? `${hours} h ${m % 60} min` : `${hours} h`;
+  const dayPart = `${days} day${days === 1 ? "" : "s"}`;
+  return hours ? `${dayPart} ${hours} h` : dayPart;
+}

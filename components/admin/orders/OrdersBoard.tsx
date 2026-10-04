@@ -4,6 +4,7 @@ import { useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { formatKobo } from "@/lib/money";
+import { durationLabel } from "@/lib/admin/format";
 import {
   ORDER_FILTERS,
   ORDER_FILTER_LABEL,
@@ -143,7 +144,7 @@ export function stageTone(order: LiveOrder): { tone: Tone; label: string } {
    scans down. They keep fixed widths so they line up; everything to their
    left gives way first, and the panel scrolls before they are squeezed. */
 const ROW_COLUMNS =
-  "grid grid-cols-[4px_78px_minmax(96px,1.1fr)_minmax(96px,1.2fr)_minmax(84px,1fr)_minmax(118px,auto)_58px_86px] gap-2.5";
+  "grid grid-cols-[4px_78px_minmax(96px,1.1fr)_minmax(96px,1.2fr)_minmax(84px,1fr)_minmax(118px,auto)_84px_86px] gap-2.5";
 
 function OrderRow({
   order,
@@ -193,8 +194,8 @@ function OrderRow({
         <StatusChip tone={stage.tone}>{stage.label}</StatusChip>
         {order.late && <StatusChip tone="danger">Late</StatusChip>}
       </span>
-      <span className={cn("text-right font-semibold", order.late ? "text-danger" : "text-text")}>
-        {order.elapsedMinutes} min
+      <span className={cn("text-right font-semibold whitespace-nowrap", order.late ? "text-danger" : "text-text")}>
+        {durationLabel(order.elapsedMinutes)}
       </span>
       <span className="flex flex-col gap-[3px] text-right">
         <span className="font-bold">{formatKobo(order.totalKobo)}</span>

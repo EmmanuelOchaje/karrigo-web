@@ -5,7 +5,7 @@ import { cache } from "react";
 import { api, type Schemas } from "@/lib/api/client";
 import { nairaToKobo } from "@/lib/money";
 import { formatKobo } from "@/lib/money";
-import { ageLabel } from "./format";
+import { ageLabel, durationLabel } from "./format";
 import { ACCEPT_WINDOW_MINUTES, isActive, liveOrder, type LiveOrder } from "./orders";
 import type { OrderStage } from "./types";
 
@@ -137,7 +137,7 @@ export async function loadOverview(): Promise<OverviewView> {
       title:
         o.status === "PLACED"
           ? `${o.code}: ${o.kitchens} hasn't accepted in ${ACCEPT_WINDOW_MINUTES} minutes`
-          : `${o.code} is running late, ${o.elapsedMinutes} min`,
+          : `${o.code} is running late, ${durationLabel(o.elapsedMinutes)}`,
       meta: `${o.customerName} · ${o.customerPhone}`,
       href: `/orders?order=${o.code}`,
       action: "Open order",

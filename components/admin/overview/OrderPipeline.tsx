@@ -1,3 +1,4 @@
+import { durationLabel } from "@/lib/admin/format";
 import { cn } from "@/lib/cn";
 import type { OverviewView } from "@/lib/admin/overview";
 
@@ -41,7 +42,7 @@ export function OrderPipeline({
             </span>
             <span className="flex flex-wrap items-center gap-[7px]">
               <span className={cn("text-[12.5px] font-semibold", stage.slow ? "text-warning" : "text-text")}>
-                {stage.count ? `${stage.oldestMinutes} min` : "—"}
+                {stage.count ? durationLabel(stage.oldestMinutes) : "—"}
               </span>
               {stage.slow && (
                 <span className="bg-warning-bg text-warning inline-flex items-center gap-[5px] rounded-pill px-2 py-0.5 text-[11px] font-bold">
