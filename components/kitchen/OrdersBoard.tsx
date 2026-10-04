@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
+import { useRouter } from "next/navigation";
 
 import { setOrderStatus } from "@/app/(order)/my-kitchen/actions";
 import { cn } from "@/lib/cn";
@@ -34,7 +35,18 @@ const GROUPS: { title: string; statuses: OrderStatus[]; hint: string }[] = [
 
 const DONE_LABEL: Partial<Record<OrderStatus, string>> = { PICKED_UP: "Handed to rider", CANCELLED: "Cancelled" };
 
+/** No socket yet for this board, so poll: an order can go from unpaid to
+ *  paid, or get cancelled, while the page sits open and untouched. */
+function usePoll(everyMs: number) {
+  const router = useRouter();
+  useEffect(() => {
+    const id = setInterval(() => router.refresh(), everyMs);
+    return () => clearInterval(id);
+  }, [router, everyMs]);
+}
+
 export function OrdersBoard({ orders, isOpen }: { orders: KitchenOrder[]; isOpen: boolean }) {
+  usePoll(7000);
   const active = orders.filter((o) => o.status !== "PICKED_UP" && o.status !== "CANCELLED");
   // Newest first, and only the recent ones: this is a shift's record, not a ledger.
   const done = orders
@@ -106,6 +118,9 @@ function OrderCard({ order }: { order: KitchenOrder }) {
   const [busy, startTransition] = useTransition();
   const next = NEXT[order.status];
   const isNew = order.status === "PLACED";
+  // The kitchen's own row is ACCEPTED whether or not the customer has paid —
+  // the parent order is what tells the two apart (SYNC_WEB_CUSTOMER_AND_KITCHEN.md §1).
+  const awaitingPayment = order.status === "ACCEPTED" && !order.order.paidAt;
 
   function move(to: OrderStatus) {
     setError("");
@@ -144,6 +159,12 @@ function OrderCard({ order }: { order: KitchenOrder }) {
         <span>{formatKobo(order.subtotalKobo)}</span>
       </p>
 
+      {awaitingPayment && (
+        <p className="bg-warning-bg text-warning text-site-label rounded-field px-lg py-md font-semibold">
+          Awaiting payment{order.order.paymentDueAt && <> · <Countdown to={order.order.paymentDueAt} /></>}
+        </p>
+      )}
+
       {error && (
         <p role="alert" className="text-danger-text text-site-label shake font-semibold">
           {error}
@@ -179,14 +200,15 @@ function OrderCard({ order }: { order: KitchenOrder }) {
           {next && (
             <button
               type="button"
-              disabled={busy}
+              disabled={busy || awaitingPayment}
+              title={awaitingPayment ? "Waiting for the customer to pay" : undefined}
               onClick={() => move(next.to)}
               className={cn(
                 "rounded-pill text-site-button grow px-xl py-md transition-transform duration-(--duration-fast) active:scale-95 disabled:opacity-50",
                 isNew ? "bg-accent text-on-accent" : "bg-text text-bg",
               )}
             >
-              {moving === next.to ? next.working : next.label}
+              {awaitingPayment ? "Waiting for payment" : moving === next.to ? next.working : next.label}
             </button>
           )}
           {order.status !== "READY" && (
@@ -203,4 +225,20 @@ function OrderCard({ order }: { order: KitchenOrder }) {
       )}
     </article>
   );
+}
+
+/** Ticks down to a server-given deadline. Never a client-side 10-minute
+ *  timer of its own — `paymentDueAt` is the only truth. */
+function Countdown({ to }: { to: string }) {
+  const deadline = new Date(to).getTime();
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const left = Math.max(0, Math.floor((deadline - now) / 1000));
+  if (left <= 0) return <>payment window closed</>;
+  const mins = Math.floor(left / 60);
+  const secs = left % 60;
+  return <>{mins}:{secs.toString().padStart(2, "0")} left to pay</>;
 }

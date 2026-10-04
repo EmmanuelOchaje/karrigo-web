@@ -230,9 +230,13 @@ export async function setOrderStatus(id: string, input: OrderStatus): Promise<Do
     changed();
     return { ok: true };
   } catch (error) {
-    // The order moved on while this screen was showing its old state, or no
-    // rider has taken it yet. Show the current truth alongside the reason.
+    // The order moved on while this screen was showing its old state, no
+    // rider has taken it yet, or (moving to PREPARING) the customer hasn't
+    // paid. Show the current truth alongside the reason.
     changed();
+    if (error instanceof ApiError && error.status === 409 && error.body.code === "AWAITING_PAYMENT") {
+      return { ok: false, error: String(error.body.message ?? "Waiting for the customer to pay.") };
+    }
     return failure(error, {
       409:
         status.data === "PICKED_UP"

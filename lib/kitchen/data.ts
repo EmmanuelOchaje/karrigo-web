@@ -104,6 +104,11 @@ export const listOrders = cache(async (): Promise<KitchenOrder[]> => {
       qty: i.qty,
       unitPriceKobo: nairaToKobo(i.unitPriceNaira),
     })),
+    order: {
+      status: o.order.status,
+      paymentDueAt: o.order.paymentDueAt,
+      paidAt: o.order.paidAt,
+    },
   }));
 });
 

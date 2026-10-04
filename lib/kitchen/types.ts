@@ -36,6 +36,21 @@ export type Kitchen = {
 export const ORDER_STATUSES = ["PLACED", "ACCEPTED", "PREPARING", "READY", "PICKED_UP", "CANCELLED"] as const;
 export type OrderStatus = (typeof ORDER_STATUSES)[number];
 
+/** The parent order's own status: `ACCEPTED` here means every kitchen
+ *  accepted AND the customer paid. `AWAITING_PAYMENT` means accepted but
+ *  not yet paid — nobody may start cooking. */
+export type ParentOrderStatus =
+  | "PLACED"
+  | "AWAITING_PAYMENT"
+  | "ACCEPTED"
+  | "PREPARING"
+  | "READY"
+  | "PICKED_UP"
+  | "DELIVERING"
+  | "DELIVERED"
+  | "CANCELLED"
+  | "REFUNDED";
+
 export type KitchenOrder = {
   id: string;
   code: string;
@@ -44,6 +59,12 @@ export type KitchenOrder = {
   area: string;
   subtotalKobo: number;
   items: { id: string; name: string; qty: number; unitPriceKobo: number }[];
+  /** The parent order, for telling "accepted, unpaid" from "accepted, paid". */
+  order: {
+    status: ParentOrderStatus;
+    paymentDueAt: string | null;
+    paidAt: string | null;
+  };
 };
 
 /** One day of the week. `day` is 0 = Sunday, as `Date.getDay()` has it. */
