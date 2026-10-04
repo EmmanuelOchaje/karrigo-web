@@ -6,22 +6,30 @@ import { Screen } from "@/components/ui/Screen";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { formatKobo } from "@/lib/money";
 import { say } from "@/lib/order/store";
-import { cancelOrder, fetchOrder, payForOrder, type TrackedOrder } from "@/app/(order)/actions";
+import { cancelOrder, fetchOrder, payForOrder, verifyPayment, type TrackedOrder } from "@/app/(order)/actions";
 import { cn } from "@/lib/cn";
 
 type Status = TrackedOrder["status"];
 
 /** The five steps a customer cares about, and which backend statuses they
- *  cover. An order is "placed" until the kitchen accepts it. */
+ *  cover. An order is "placed" until every kitchen accepts it. */
 const stages = [
   { label: "Order placed", status: "Waiting for the kitchen to accept", covers: ["PLACED"] },
-  { label: "Order accepted", status: "The kitchen has your order", covers: ["ACCEPTED"] },
+  { label: "Order accepted", status: "The kitchen has your order", covers: ["AWAITING_PAYMENT", "ACCEPTED"] },
   { label: "Cooking", status: "Your food is on the fire", covers: ["PREPARING", "READY"] },
   { label: "On the way", status: "Your rider is heading to you", covers: ["PICKED_UP", "DELIVERING"] },
   { label: "Delivered", status: "Enjoy your meal", covers: ["DELIVERED"] },
 ] satisfies { label: string; status: string; covers: Status[] }[];
 
-const payLabel = { card: "Paid by card", transfer: "Bank transfer", cash: "Cash on delivery" };
+const payLabel = { card: "Paid by card", transfer: "Paid by bank transfer", online: "Paid online" };
+
+/** The customer was never charged in any of these (SYNC_WEB_CUSTOMER_AND_KITCHEN.md §2.1). */
+const cancelReasonLabel: Record<NonNullable<TrackedOrder["cancelReason"]>, string> = {
+  CUSTOMER: "You cancelled this order.",
+  KITCHENS_DECLINED: "The kitchen couldn't take your order this time. You weren't charged.",
+  PAYMENT_EXPIRED: "Payment wasn't completed in time, so the order was released. You weren't charged.",
+  KITCHEN_TIMEOUT: "The kitchen didn't respond in time. You weren't charged.",
+};
 
 /** How often to ask, in ms. Fast while things are moving, off when it ends. */
 const POLL_MS = 8000;
@@ -44,13 +52,19 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
   // reads as pending — confirming, not unpaid.
   const params = useSearchParams();
   const backFromPaystack = params.has("reference") || params.has("trxref");
-  const unpaid = !!order && order.pay !== "cash" && (order.payment === "pending" || order.payment === "failed");
-  // Payment comes after the kitchen says yes: an order it may still turn
-  // down is not something to charge for.
-  const waitingForKitchen = unpaid && order.status === "PLACED";
-  const canPay = unpaid && !over && order.status !== "PLACED";
-  const awaitingPayment = canPay && order.payment === "pending" && backFromPaystack;
+  // The order can only be paid for while every kitchen has accepted and the
+  // customer hasn't paid yet — that's exactly AWAITING_PAYMENT.
+  const waitingForKitchen = !!order && order.status === "PLACED";
+  const canPay = !!order && order.status === "AWAITING_PAYMENT";
+  const awaitingPayment = canPay && backFromPaystack;
   const mustPay = canPay && !awaitingPayment;
+
+  useEffect(() => {
+    if (!id || !backFromPaystack) return;
+    // Never trust the Paystack redirect alone — ask the backend to confirm
+    // with Paystack directly, which backs up a webhook that can run late.
+    verifyPayment(id);
+  }, [id, backFromPaystack]);
 
   useEffect(() => {
     if (!id || (over && !awaitingPayment)) return;
@@ -84,7 +98,7 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
   const delivered = order.status === "DELIVERED";
   // Before the kitchen accepts, cancelling is immediate. After, it is a
   // request the kitchen has to confirm — until a rider has the food.
-  const cancelNow = order.status === "PLACED";
+  const cancelNow = order.status === "PLACED" || order.status === "AWAITING_PAYMENT";
   const cancelByAsking = order.status === "ACCEPTED" || order.status === "PREPARING" || order.status === "READY";
   const canCancel = cancelNow || (cancelByAsking && !order.cancelRequested);
 
@@ -117,13 +131,20 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
           </h1>
           <p className="text-panel-body text-cream/65 mt-md">
             {cancelled
-              ? order.payment === "paid" || order.payment === "refunded"
-                ? "If you paid online, the money goes back to you."
-                : "You weren't charged."
+              ? order.cancelReason
+                ? cancelReasonLabel[order.cancelReason]
+                : order.payment === "paid" || order.payment === "refunded"
+                  ? "If you paid online, the money goes back to you."
+                  : "You weren't charged."
               : awaitingPayment
                 ? "Paystack is telling us your payment went through. This page updates by itself."
                 : mustPay
-                  ? `Pay ${formatKobo(order.totalKobo)} now and ${order.kitchen} gets cooking · to ${order.to}`
+                  ? <>
+                      Pay {formatKobo(order.amountDueKobo)} now and {order.kitchen} gets cooking · to {order.to}
+                      {order.paymentDueAt && (
+                        <> · <Countdown to={order.paymentDueAt} /></>
+                      )}
+                    </>
                   : waitingForKitchen
                     ? `Waiting for ${order.kitchen} to accept. You pay only once they do · to ${order.to}`
                     : `${stages[stage].status} · to ${order.to}`}
@@ -329,18 +350,16 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
           </div>
           <div className="text-label mt-xs">
             {order.payment === "paid"
-              ? "Paid by " + (order.pay === "transfer" ? "bank transfer" : "card")
+              ? payLabel[order.pay]
               : waitingForKitchen
                 ? `You pay once ${order.kitchen} accepts`
                 : order.payment === "pending"
                   ? awaitingPayment
                     ? "Payment not confirmed yet"
                     : "Not paid yet"
-                : order.payment === "failed"
-                  ? "Payment didn't go through"
-                  : order.payment === "refunded"
-                    ? "Refunded"
-                    : payLabel[order.pay]}
+                  : order.payment === "failed"
+                    ? "Payment didn't go through"
+                    : "Refunded"}
           </div>
         </dl>
         <ButtonLink href="/kitchens" variant="muted" size="site" full className="mt-lg">
@@ -349,4 +368,20 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
       </aside>
     </div>
   );
+}
+
+/** Ticks down to a server-given deadline — never a client-side timer of its
+ *  own (§3: "Drive countdowns from paymentDueAt, not a client timer"). */
+function Countdown({ to }: { to: string }) {
+  const deadline = new Date(to).getTime();
+  const [now, setNow] = useState(() => Date.now());
+  useEffect(() => {
+    const id = setInterval(() => setNow(Date.now()), 1000);
+    return () => clearInterval(id);
+  }, []);
+  const left = Math.max(0, Math.floor((deadline - now) / 1000));
+  if (left <= 0) return <>time&rsquo;s up</>;
+  const mins = Math.floor(left / 60);
+  const secs = left % 60;
+  return <>{mins}:{secs.toString().padStart(2, "0")} left to pay</>;
 }

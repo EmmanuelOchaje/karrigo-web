@@ -147,7 +147,10 @@ export async function validatePromo(code: string, subtotalKobo: number): Promise
 
 /* ----------------------------------------------------------------- order */
 
-export type PayChoice = "card" | "transfer" | "cash";
+/** What a payment actually went through as, once Paystack confirms it.
+ *  `online` covers USSD and anything else Paystack offers that we don't
+ *  label by name (SYNC_WEB_CUSTOMER_AND_KITCHEN.md §2.5). */
+export type PayChoice = "card" | "transfer" | "online";
 
 export type PlaceInput = {
   kitchenSlug: string;
@@ -157,7 +160,6 @@ export type PlaceInput = {
   area: string;
   note: string;
   email: string;
-  pay: PayChoice;
   promoCode?: string;
   /** From the browser's location, when they chose to share it. */
   coords?: { lat: number; lng: number };
@@ -193,9 +195,9 @@ export async function placeOrder(
     }
     if (!cart.lines.length) return { ok: false, error: "Your cart is empty." };
 
-    // Cards and transfers go through Paystack, which needs an email for the
+    // Every order pays through Paystack, which needs an email for the
     // receipt. Save it once so it is not asked again.
-    if (input.pay !== "cash" && !customer.email) {
+    if (!customer.email) {
       const email = input.email.trim();
       if (!/^\S+@\S+\.\S+$/.test(email)) {
         return { ok: false, error: "Add your email so Paystack can send your receipt." };
@@ -218,15 +220,17 @@ export async function placeOrder(
       body: {
         addressId,
         items: cart.lines.map((l) => ({ menuItemId: l.dishId, qty: l.qty })),
-        provider: input.pay === "cash" ? "CASH" : "PAYSTACK",
-        ...(input.pay === "card" ? { channel: "CARD" } : input.pay === "transfer" ? { channel: "BANK_TRANSFER" } : {}),
+        // Paystack's own page offers every method, so there's no picker here
+        // any more — this is a placeholder until payment succeeds.
+        provider: "PAYSTACK",
+        channel: "CARD",
         ...(input.promoCode ? { promoCode: input.promoCode } : {}),
       },
     });
 
-    // Nobody pays here. A kitchen can still turn the order down, so a card
-    // or transfer is only asked for once it has accepted — on the order's
-    // own page, through `payForOrder`.
+    // Nobody pays here. Every kitchen has to accept first, so paying only
+    // happens once the order is AWAITING_PAYMENT — on the order's own page,
+    // through `payForOrder`.
     return { ok: true, orderId: order.id };
   } catch (error) {
     if (error instanceof ApiError && error.status === 422) {
@@ -294,8 +298,9 @@ function paymentFailure(error: unknown): Failure {
 
 /**
  * Open Paystack for an order — the first time, or again after a payment was
- * abandoned or failed. Refused until the kitchen has accepted: the button is
- * hidden until then, but hiding is not the rule, this is.
+ * abandoned or failed. Only possible once every kitchen has accepted and put
+ * the order into AWAITING_PAYMENT; the button is hidden outside that window,
+ * but hiding is not the rule, this is.
  */
 export async function payForOrder(orderId: string): Promise<Done<{ payUrl: string }>> {
   try {
@@ -309,6 +314,9 @@ export async function payForOrder(orderId: string): Promise<Done<{ payUrl: strin
     if (order.status === "CANCELLED" || order.status === "REFUNDED") {
       return { ok: false, error: "This order was cancelled, so there is nothing to pay." };
     }
+    if (order.status !== "AWAITING_PAYMENT") {
+      return { ok: false, error: "This order is already paid." };
+    }
   } catch (error) {
     return failure(error);
   }
@@ -316,7 +324,31 @@ export async function payForOrder(orderId: string): Promise<Done<{ payUrl: strin
   try {
     return { ok: true, payUrl: await startPayment(orderId) };
   } catch (error) {
+    if (error instanceof ApiError && error.status === 409) {
+      switch (error.body.code) {
+        case "AWAITING_KITCHEN":
+          return { ok: false, error: "The kitchen hasn't accepted your order yet. You'll pay as soon as they do." };
+        case "PAYMENT_WINDOW_CLOSED":
+          return { ok: false, error: "The window to pay for this order has closed. Order again to try once more." };
+        case "ALREADY_PAID":
+          return { ok: false, error: "This order is already paid." };
+      }
+    }
     return paymentFailure(error);
+  }
+}
+
+/**
+ * Ask the backend to check with Paystack directly, in case its webhook is
+ * running late. Safe to call repeatedly — call it on the return page and
+ * keep reading the order until it's ACCEPTED.
+ */
+export async function verifyPayment(orderId: string): Promise<Done> {
+  try {
+    await api(`/payments/orders/${encodeURIComponent(orderId)}/verify`, { method: "POST", scope: "customer" });
+    return { ok: true };
+  } catch (error) {
+    return failure(error, "Still confirming your payment. Hang on.");
   }
 }
 
@@ -337,13 +369,27 @@ export type TrackedOrder = {
   totalKobo: number;
   pay: PayChoice;
   /** Paystack payment still to be made or confirmed. */
-  payment: "paid" | "pending" | "failed" | "refunded" | "cash";
+  payment: "paid" | "pending" | "failed" | "refunded";
+  /** Set while AWAITING_PAYMENT: the deadline to pay, and what's due — both
+   *  from the server, never a client-side timer (§2.3, §3). */
+  paymentDueAt: string | null;
+  amountDueKobo: number;
+  /** Why a cancelled order was cancelled. The customer was never charged. */
+  cancelReason: Schemas["OrderWithDetailsResponseDto"]["cancelReason"];
   rider: { name: string; phone: string | null } | null;
   placedAt: string;
   /** The customer has asked to cancel after the kitchen accepted, and is
    *  waiting for the kitchen to confirm. */
   cancelRequested: boolean;
 };
+
+/** `channel` is a real method only once Paystack confirms payment; before
+ *  that, or for a method we don't map (e.g. mobile money), it's a
+ *  placeholder — show a neutral "paid online" rather than a wrong label. */
+function payChoiceOf(p: Schemas["OrderWithDetailsResponseDto"]["payments"][number] | undefined): PayChoice {
+  if (!p || p.status !== "SUCCEEDED") return "online";
+  return p.channel === "BANK_TRANSFER" ? "transfer" : p.channel === "CARD" ? "card" : "online";
+}
 
 export async function fetchOrder(id: string): Promise<Done<{ order: TrackedOrder }>> {
   try {
@@ -375,8 +421,11 @@ export async function fetchOrder(id: string): Promise<Done<{ order: TrackedOrder
         discountKobo: nairaToKobo(o.discountNaira),
         creditKobo: nairaToKobo(o.creditAppliedNaira),
         totalKobo: nairaToKobo(o.totalNaira),
-        pay: !p || p.provider === "CASH" ? "cash" : p.channel === "BANK_TRANSFER" ? "transfer" : "card",
-        payment: !p || p.provider === "CASH" ? "cash" : ({ SUCCEEDED: "paid", PENDING: "pending", FAILED: "failed", REFUNDED: "refunded" } as const)[p.status],
+        pay: payChoiceOf(p),
+        payment: !p ? "pending" : ({ SUCCEEDED: "paid", PENDING: "pending", FAILED: "failed", REFUNDED: "refunded" } as const)[p.status],
+        paymentDueAt: o.paymentDueAt,
+        amountDueKobo: p ? nairaToKobo(p.amountNaira) : nairaToKobo(o.totalNaira),
+        cancelReason: o.cancelReason,
         rider: o.rider ? { name: riderUser?.name ?? "Your rider", phone: riderUser?.phone ?? null } : null,
         placedAt: o.placedAt,
         // Only worth asking while a request could still be outstanding.
@@ -419,12 +468,12 @@ export async function cancelOrder(id: string): Promise<Done<{ requested: boolean
       scope: "customer",
     });
 
-    if (order.status === "PLACED") {
+    if (order.status === "PLACED" || order.status === "AWAITING_PAYMENT") {
       try {
         await api(`/orders/${encodeURIComponent(id)}/cancel`, { method: "POST", scope: "customer" });
         return { ok: true, requested: false };
       } catch (error) {
-        // Accepted in the moment between looking and cancelling: ask instead.
+        // Paid in the moment between looking and cancelling: ask instead.
         if (!(error instanceof ApiError && error.status === 409)) throw error;
       }
     } else if (order.status !== "ACCEPTED" && order.status !== "PREPARING" && order.status !== "READY") {

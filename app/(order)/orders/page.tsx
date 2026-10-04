@@ -10,6 +10,7 @@ export const metadata: Metadata = { title: "My orders · Karrigo" };
 
 const LABEL: Record<Schemas["OrderWithDetailsResponseDto"]["status"], string> = {
   PLACED: "Waiting for the kitchen",
+  AWAITING_PAYMENT: "Waiting for payment",
   ACCEPTED: "Accepted",
   PREPARING: "Cooking",
   READY: "Ready for pickup",

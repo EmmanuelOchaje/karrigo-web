@@ -32,9 +32,6 @@ export const codeSchema = z
   .string()
   .regex(/^\d{6}$/, { message: "Enter the 6-digit code we sent you." });
 
-export const paymentMethods = ["card", "transfer", "cash"] as const;
-export type PaymentMethod = (typeof paymentMethods)[number];
-
 /** The areas Karrigo delivers to today. */
 export const AREAS = [
   "High Level",
@@ -52,7 +49,6 @@ export const deliverySchema = z
     address: z.string().trim(),
     area: z.string().trim().min(1, { message: "Pick the area you're in." }),
     note: z.string().trim().max(200),
-    pay: z.enum(paymentMethods),
   })
   .refine((d) => d.landmark.length >= 3 || d.address.length >= 3, {
     message: "Add an address or a landmark so your rider can find you.",

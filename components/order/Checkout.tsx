@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { formatKobo } from "@/lib/money";
-import { AREAS, deliverySchema, firstIssue, type PaymentMethod } from "@/lib/order/schema";
+import { AREAS, deliverySchema, firstIssue } from "@/lib/order/schema";
 import {
   addDish,
   clearCart,
@@ -21,12 +21,6 @@ import type { Customer, PricedCart } from "@/lib/shop/types";
 import { cn } from "@/lib/cn";
 import { QtyStepper } from "./QtyStepper";
 
-const payOptions: { id: PaymentMethod; label: string; sub: string }[] = [
-  { id: "card", label: "Card", sub: "Pay once the kitchen accepts" },
-  { id: "transfer", label: "Bank transfer", sub: "Pay once the kitchen accepts" },
-  { id: "cash", label: "Cash on delivery", sub: "Pay your rider at the gate" },
-];
-
 const field =
   "border-field-border focus:border-field-border-active rounded-field text-site-body bg-bg border-[1.5px] px-lg py-md font-medium outline-none transition-colors duration-(--duration-fast)";
 const fieldLabel = "text-label flex flex-col gap-sm font-bold";
@@ -37,7 +31,6 @@ export function Checkout({ customer }: { customer: Customer | null }) {
   const { cart, landmark, address, area } = useOrderState();
   const [note, setNote] = useState("");
   const [email, setEmail] = useState("");
-  const [pay, setPay] = useState<PaymentMethod>("card");
   const [error, setError] = useState("");
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [promo, setPromo] = useState("");
@@ -113,7 +106,7 @@ export function Checkout({ customer }: { customer: Customer | null }) {
   }
 
   const { kitchen } = priced;
-  const needsEmail = pay !== "cash" && !customer?.email;
+  const needsEmail = !customer?.email;
   const creditKobo = Math.min(customer?.creditKobo ?? 0, Math.max(0, priced.totalKobo - (discount?.kobo ?? 0)));
   const totalKobo = Math.max(0, priced.totalKobo - (discount?.kobo ?? 0) - creditKobo);
 
@@ -145,7 +138,7 @@ export function Checkout({ customer }: { customer: Customer | null }) {
       router.push("/login?next=/checkout");
       return;
     }
-    const parsed = deliverySchema.safeParse({ landmark, address, area, note, pay });
+    const parsed = deliverySchema.safeParse({ landmark, address, area, note });
     if (!parsed.success) return setError(firstIssue(parsed.error));
     setError("");
 
@@ -158,14 +151,12 @@ export function Checkout({ customer }: { customer: Customer | null }) {
         area: parsed.data.area,
         note: parsed.data.note,
         email,
-        pay: parsed.data.pay,
         promoCode: discount?.code,
         coords: coords ?? undefined,
       });
       if (!result.ok) return setError(result.error);
       clearCart();
-      // Card and transfer are paid from the order's page, once the kitchen
-      // has accepted.
+      // Paid from the order's page, once every kitchen has accepted.
       router.push(`/track?order=${result.orderId}`);
     });
   }
@@ -232,30 +223,9 @@ export function Checkout({ customer }: { customer: Customer | null }) {
 
           <section className="bg-bg rounded-panel-sm p-xl md:p-xxl">
             <h2 className="text-h1 font-extrabold">Payment</h2>
-            <div className="gap-sm mt-md grid sm:grid-cols-3" role="radiogroup" aria-label="Payment method">
-              {payOptions.map((option) => {
-                const on = pay === option.id;
-                return (
-                  <button
-                    key={option.id}
-                    type="button"
-                    role="radio"
-                    aria-checked={on}
-                    onClick={() => setPay(option.id)}
-                    data-theme={on ? "dark" : undefined}
-                    className={cn(
-                      "rounded-slot bg-bg border-[1.5px] px-lg py-lg text-left transition-colors duration-(--duration-fast) active:scale-[0.98]",
-                      on ? "border-bg" : "border-border-strong",
-                    )}
-                  >
-                    <div className={cn("text-site-question", on && "text-accent-text")}>{option.label}</div>
-                    <div className={cn("text-site-chip mt-xs font-medium", on ? "text-cream/60" : "text-text-secondary")}>
-                      {option.sub}
-                    </div>
-                  </button>
-                );
-              })}
-            </div>
+            <p className="text-site-body text-text-secondary mt-sm">
+              You&rsquo;ll pay securely on Paystack once the kitchen accepts — card, bank transfer or USSD, whichever you prefer.
+            </p>
             {needsEmail && customer && (
               <label className={cn(fieldLabel, "mt-lg")}>
                 Email for your Paystack receipt
