@@ -58,6 +58,7 @@ export function QueueDetail({
     url: string | null;
     error: string | null;
   } | null>(null);
+  const [viewingGuarantor, setViewingGuarantor] = useState(false);
   /** The owner's login and dish count, which only the detail endpoint has. */
   const [more, setMore] = useState<{
     id: string;
@@ -110,7 +111,9 @@ export function QueueDetail({
               : `Approve ${item.title}?`,
           text: isKitchen
             ? `Customers in ${item.fields[0].value} can order from them straight away.`
-            : "They can go online and receive trip offers.",
+            : item.guarantor
+              ? "They can go online and receive trip offers."
+              : "They can go online and receive trip offers. No guarantor's form is on file yet.",
           button:
             isKitchen && item.status === "SUSPENDED" ? "Reactivate" : "Approve",
           tone: "go" as const,
@@ -119,16 +122,25 @@ export function QueueDetail({
             onDecide(item, isKitchen ? "ACTIVE" : "APPROVED", note.trim()),
         };
       case "reject":
-        return {
-          title: `Reject ${item.title}?`,
-          text: isKitchen
-            ? "The kitchen is marked suspended. Add a note so they know what to fix."
-            : "The rider sees this note in the app and can re-upload.",
-          button: "Reject",
-          tone: "bad" as const,
-          requiresNote: !isKitchen,
-          run: () => onDecide(item, isKitchen ? "SUSPENDED" : "REJECTED", note.trim()),
-        };
+        return item.status === "APPROVED"
+          ? {
+              title: `Ask ${item.title} to update their documents?`,
+              text: "Approved documents are locked. This unlocks them and sends your note to the rider. They can't go online again until they resubmit and you approve.",
+              button: "Send request",
+              tone: "bad" as const,
+              requiresNote: true,
+              run: () => onDecide(item, "REJECTED", note.trim()),
+            }
+          : {
+              title: `Reject ${item.title}?`,
+              text: isKitchen
+                ? "The kitchen is marked suspended. Add a note so they know what to fix."
+                : "The rider sees this note in the app and can re-upload.",
+              button: "Reject",
+              tone: "bad" as const,
+              requiresNote: !isKitchen,
+              run: () => onDecide(item, isKitchen ? "SUSPENDED" : "REJECTED", note.trim()),
+            };
       case "suspend":
         return {
           title: `Suspend ${item.title}?`,
@@ -183,6 +195,8 @@ export function QueueDetail({
     }
     if (isKitchen) {
       actions.push({ label: "Suspend kitchen", decision: "suspend", tone: "bad" });
+    } else if (item.status === "APPROVED") {
+      actions.push({ label: "Request document changes", decision: "reject", tone: "bad" });
     }
   }
   if (item.status === "SUSPENDED") {
@@ -252,14 +266,26 @@ export function QueueDetail({
               {check.ok ? "✓" : "!"}
             </span>
             <span className="flex-1 text-[13px]">{check.label}</span>
-            {check.document && check.ok && (
+            {check.document === "guarantor" ? (
               <button
                 type="button"
-                onClick={() => openDocument(check.document!, check.label)}
-                className="text-accent-text text-[12px] font-semibold"
+                disabled={!check.ok}
+                onClick={() => setViewingGuarantor(true)}
+                className="text-accent-text text-[12px] font-semibold disabled:opacity-40"
               >
                 View
               </button>
+            ) : (
+              check.document &&
+              check.ok && (
+                <button
+                  type="button"
+                  onClick={() => openDocument(check.document as "license" | "id" | "vehicleReg", check.label)}
+                  className="text-accent-text text-[12px] font-semibold"
+                >
+                  View
+                </button>
+              )
             )}
           </li>
         ))}
@@ -285,9 +311,11 @@ export function QueueDetail({
                 onChange={(event) => setNote(event.target.value)}
                 rows={2}
                 placeholder={
-                  confirm.requiresNote
-                    ? `Reason (required) · the ${noun} sees this`
-                    : "Reason (optional)"
+                  pending === "reject" && item.status === "APPROVED"
+                    ? "What needs to change? (required)"
+                    : confirm.requiresNote
+                      ? `Reason (required) · the ${noun} sees this`
+                      : "Reason (optional)"
                 }
                 className="border-text/16 bg-ops-surface text-text placeholder:text-text/45 rounded-xl border px-3 py-2 text-[12.5px] outline-none"
               />
@@ -343,6 +371,48 @@ export function QueueDetail({
             ))}
           </div>
         )
+      )}
+
+      {viewingGuarantor && item.guarantor && (
+        <div
+          data-anim="fade"
+          className="bg-scrim fixed inset-0 z-50 grid place-items-center p-lg"
+          onClick={() => setViewingGuarantor(false)}
+        >
+          <div
+            className="bg-ops-surface flex w-[min(420px,100%)] flex-col gap-3 rounded-[20px] p-xl"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <div className="flex items-center justify-between gap-3">
+              <span className="text-[14px] font-semibold">Guarantor&rsquo;s form · {item.title}</span>
+              <button
+                type="button"
+                onClick={() => setViewingGuarantor(false)}
+                className="text-text/62 text-[13px] font-semibold"
+              >
+                Close
+              </button>
+            </div>
+            <dl className="flex flex-col gap-2.5">
+              <div className="flex flex-col gap-1">
+                <Eyebrow className="text-[10.5px]">Name</Eyebrow>
+                <dd className="text-[14px] font-semibold">{item.guarantor.name}</dd>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Eyebrow className="text-[10.5px]">Phone</Eyebrow>
+                <dd className="text-[14px] font-semibold">
+                  <a href={`tel:${item.guarantor.phone}`} className="text-accent-text">
+                    {item.guarantor.phone}
+                  </a>
+                </dd>
+              </div>
+              <div className="flex flex-col gap-1">
+                <Eyebrow className="text-[10.5px]">Address</Eyebrow>
+                <dd className="text-[14px] font-semibold">{item.guarantor.address}</dd>
+              </div>
+            </dl>
+          </div>
+        </div>
       )}
 
       {viewing && (

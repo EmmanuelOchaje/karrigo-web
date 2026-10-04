@@ -17,8 +17,9 @@ export type QueueCheck = {
   label: string;
   ok: boolean;
   /** An uploaded file ops can open, rather than a fact we hold. Names which
-   *  one, so the viewer can ask for just that signed URL. */
-  document?: "license" | "id" | "vehicleReg";
+   *  one, so the viewer can ask for just that signed URL. `guarantor` is not
+   *  a file — it opens from `QueueItem.guarantor`, already in hand. */
+  document?: "license" | "id" | "vehicleReg" | "guarantor";
 };
 
 export type QueueItem = {
@@ -43,6 +44,9 @@ export type QueueItem = {
   cashHeldKobo: number;
   /** False when there is no confirmed bank account to send to. */
   payable: boolean;
+  /** Rider only: the guarantor's form, read straight off the rider record —
+   *  there is no signed URL for it, it isn't a file (SYNC_WEB_ADMIN.md §1b). */
+  guarantor?: { name: string; phone: string; address: string } | null;
 };
 
 /** What actually leaves our account. A rider has already been paid part of
@@ -129,13 +133,20 @@ export function riderItem(
       { label: "Driver's licence", ok: !!rider.licenseDocUrl, document: "license" },
       { label: "Government ID", ok: !!rider.idDocUrl, document: "id" },
       { label: "Vehicle papers", ok: !!rider.vehicleRegDocUrl, document: "vehicleReg" },
-      { label: "Guarantor details", ok: !!rider.guarantorName && !!rider.guarantorPhone },
+      { label: "Guarantor's form", ok: !!rider.guarantorName, document: "guarantor" },
       { label: "Payout bank account", ok: !!rider.payoutAccountName },
     ],
     unpaidKobo: due ? nairaToKobo(due.earnedNaira + due.waitPayNaira) : 0,
     netKobo: due ? nairaToKobo(due.netNaira) : 0,
     cashHeldKobo: due ? nairaToKobo(due.cashHeldNaira) : 0,
     payable: !!due?.hasPayoutAccount,
+    guarantor: rider.guarantorName
+      ? {
+          name: rider.guarantorName,
+          phone: rider.guarantorPhone ?? "—",
+          address: rider.guarantorAddress ?? "—",
+        }
+      : null,
   };
 }
 
