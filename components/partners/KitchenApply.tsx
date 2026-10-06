@@ -1,11 +1,13 @@
 "use client";
 
+import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { applyKitchen, kitchenLogIn } from "@/app/(order)/partners/actions";
 import { AREAS } from "@/lib/order/schema";
+import { Screen } from "@/components/ui/Screen";
 import { cn } from "@/lib/cn";
 import { FormError, SubmitButton, field, fieldLabel } from "./parts";
 
@@ -113,39 +115,94 @@ export function KitchenLogin() {
   const [busy, startTransition] = useTransition();
 
   return (
-    <form
-      noValidate
-      className="bg-bg rounded-panel-sm p-xl md:p-xxl gap-md mx-auto flex max-w-[520px] flex-col"
-      onSubmit={(e) => {
-        e.preventDefault();
-        if (!email.trim() || !password) return setError("Enter your email and password.");
-        startTransition(async () => {
-          const result = await kitchenLogIn(email, password);
-          if (!result.ok) return setError(result.error);
-          // A live kitchen lands on its console; one still applying is sent
-          // on from there to its application.
-          router.push("/my-kitchen");
-          router.refresh();
-        });
-      }}
-    >
-      <h1 className="text-h1 font-extrabold">Log in to your kitchen</h1>
-      <label className={fieldLabel}>
-        Email
-        <input type="email" value={email} onChange={(e) => { setEmail(e.target.value); setError(""); }} autoComplete="email" className={field} />
-      </label>
-      <label className={fieldLabel}>
-        Password
-        <input type="password" value={password} onChange={(e) => { setPassword(e.target.value); setError(""); }} autoComplete="current-password" className={field} />
-      </label>
-      <FormError>{error}</FormError>
-      <SubmitButton busy={busy} idle="Log in" working="One moment…" />
-      <p className="text-site-label text-text-secondary">
-        New here?{" "}
-        <Link href="/partners/kitchen" className="text-accent-text font-bold">
-          Apply to cook with Karrigo
-        </Link>
-      </p>
-    </form>
+    <div className="bg-bg rounded-panel-lg mx-auto grid max-w-[1000px] overflow-hidden md:grid-cols-2">
+      <Screen
+        mode="dark"
+        className="p-xxl md:p-gap-wide gap-xxl relative flex flex-col justify-between overflow-hidden md:min-h-[420px]"
+      >
+        <div
+          aria-hidden
+          className="border-accent/20 pointer-events-none absolute top-[-150px] right-[-130px] size-[320px] rounded-full border-[1.5px]"
+        />
+        <div className="relative">
+          <h1 className="text-panel-small md:text-panel text-cream text-balance">
+            Open up.
+            <br />
+            <span className="text-accent-text">Makurdi&rsquo;s hungry.</span>
+          </h1>
+          <p className="text-panel-body text-cream/66 mt-lg max-w-[30ch]">
+            Take orders, change today&rsquo;s prices and mark a dish sold out — all from your phone.
+          </p>
+        </div>
+        <div className="rounded-step bg-surface relative hidden aspect-[16/10] overflow-hidden md:block">
+          <Image
+            src="/food/terkimbis-kitchen.jpg"
+            alt="A kitchen plating up an order"
+            fill
+            sizes="(max-width: 768px) 100vw, 440px"
+            className="object-cover"
+          />
+        </div>
+      </Screen>
+
+      <form
+        noValidate
+        className="p-xxl md:p-gap-wide gap-md flex flex-col justify-center"
+        onSubmit={(e) => {
+          e.preventDefault();
+          if (!email.trim() || !password) return setError("Enter your email and password.");
+          startTransition(async () => {
+            const result = await kitchenLogIn(email, password);
+            if (!result.ok) return setError(result.error);
+            // A live kitchen lands on its console; one still applying is sent
+            // on from there to its application.
+            router.push("/my-kitchen");
+            router.refresh();
+          });
+        }}
+      >
+        <div className="mb-xs">
+          <h2 className="text-h1 font-extrabold">Log in to your kitchen</h2>
+          <p className="text-site-label text-text-secondary mt-xs">
+            Use the email and password you set up your kitchen with.
+          </p>
+        </div>
+        <label className={fieldLabel}>
+          Email
+          <input
+            type="email"
+            value={email}
+            onChange={(e) => { setEmail(e.target.value); setError(""); }}
+            autoComplete="email"
+            placeholder="you@yourkitchen.com"
+            className={field}
+          />
+        </label>
+        <label className={fieldLabel}>
+          Password
+          <input
+            type="password"
+            value={password}
+            onChange={(e) => { setPassword(e.target.value); setError(""); }}
+            autoComplete="current-password"
+            className={field}
+          />
+        </label>
+        <FormError>{error}</FormError>
+        <SubmitButton busy={busy} idle="Log in" working="One moment…" />
+        <p className="text-site-label text-text-secondary border-surface-raised mt-sm border-t pt-lg">
+          New here?{" "}
+          <Link href="/partners/kitchen" className="text-accent-text font-bold">
+            Apply to cook with Karrigo
+          </Link>
+        </p>
+        <p className="text-site-label text-text-secondary">
+          Riding instead?{" "}
+          <Link href="/partners/rider" className="text-accent-text font-bold">
+            Deliver with Karrigo
+          </Link>
+        </p>
+      </form>
+    </div>
   );
 }
