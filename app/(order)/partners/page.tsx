@@ -14,6 +14,12 @@ const ways = [
     action: "List my kitchen",
   },
   {
+    href: "/partners/store",
+    title: "Sell your groceries on Karrigo",
+    text: "New customers across Makurdi, without opening another branch. Karrigo keeps 10% of what you sell.",
+    action: "Register my store",
+  },
+  {
     href: "/partners/rider",
     title: "Ride with Karrigo",
     text: "Deliver when it suits you. You're paid per trip, paid for waiting at a slow kitchen, and every tip is yours.",

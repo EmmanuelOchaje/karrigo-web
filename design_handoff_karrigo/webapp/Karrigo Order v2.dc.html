@@ -1,0 +1,935 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#DEDEDE;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#0E0F0D;-webkit-font-smoothing:antialiased}
+button,input,textarea{font-family:inherit}
+a{color:#4E6B00;text-decoration:none}a:hover{color:#3A5000}
+@keyframes kg-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+::view-transition-old(root){animation:kg-out-l .4s cubic-bezier(.4,0,.2,1) both}
+::view-transition-new(root){animation:kg-in-r .55s cubic-bezier(.2,.8,.2,1) both}
+html[data-kg-dir=back]::view-transition-old(root){animation-name:kg-out-r}
+html[data-kg-dir=back]::view-transition-new(root){animation-name:kg-in-l}
+::view-transition-old(kg-nav),::view-transition-new(kg-nav){animation:none}
+@keyframes kg-out-l{to{opacity:0;transform:translateX(-70px)}}
+@keyframes kg-out-r{to{opacity:0;transform:translateX(70px)}}
+@keyframes kg-in-r{from{opacity:0;transform:translateX(90px)}}
+@keyframes kg-in-l{from{opacity:0;transform:translateX(-90px)}}
+@keyframes kg-pop{0%{transform:scale(.55)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes kg-shake{0%,100%{transform:none}25%{transform:translateX(-6px)}75%{transform:translateX(6px)}}
+@keyframes kg-toast{from{opacity:0;transform:translate(-50%,20px) scale(.96)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes kg-pulse{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:1;transform:scale(1.35)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+
+<div style="position:sticky;top:0;z-index:20;padding:14px 18px 12px;margin-bottom:-12px;view-transition-name:kg-nav;background:{{ navBg }};backdrop-filter:{{ navBlur }};-webkit-backdrop-filter:{{ navBlur }};box-shadow:{{ navLine }};transition:background .35s,backdrop-filter .35s,box-shadow .35s">
+<div style="max-width:1240px;margin:0 auto;display:flex;align-items:center;gap:10px;padding:8px 8px 8px 18px;background:{{ pillBg }};backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);border-radius:999px;box-shadow:0 12px 30px -14px rgba(14,15,13,.55);transition:background .35s">
+<a href="M-Kart Web v4.dc.html" style="flex:none;display:flex;align-items:center;gap:9px"><svg width="30" height="30" viewBox="0 0 56 56" aria-label="Karrigo"><rect width="56" height="56" rx="16" fill="#C6F432"></rect><path d="M15 22h26l-2.6 20.5a2.5 2.5 0 0 1-2.5 2.2H20.1a2.5 2.5 0 0 1-2.5-2.2Z" fill="#0E0F0D"></path><path d="M22 24v-4a6 6 0 0 1 12 0v4" stroke="#0E0F0D" stroke-width="4" fill="none" stroke-linecap="round"></path></svg><span style="font-weight:800;font-size:21px;letter-spacing:-.055em;color:#fff">karrigo</span></a>
+<button onClick="{{ goHome }}" style="flex:0 1 auto;min-width:0;margin-left:8px;display:flex;align-items:center;gap:8px;padding:10px 16px;border:0;border-radius:999px;background:rgba(255,255,255,.08);color:rgba(255,255,255,.8);font-weight:600;font-size:13.5px;cursor:pointer;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:background .18s" style-hover="background:rgba(255,255,255,.16)"><span style="flex:none;width:8px;height:8px;border-radius:50%;background:#C6F432"></span><span style="overflow:hidden;text-overflow:ellipsis">{{ addressLabel }}</span></button>
+<div style="margin-left:auto;flex:none;display:flex;align-items:center;gap:6px">
+<sc-if value="{{ hasOrder }}" hint-placeholder-val="{{ false }}"><button onClick="{{ goTrack }}" style="padding:11px 16px;border:0;border-radius:999px;background:transparent;color:#C6F432;font-weight:700;font-size:14px;cursor:pointer;white-space:nowrap;transition:background .18s" style-hover="background:rgba(198,244,50,.12)">Track order</button></sc-if>
+<sc-if value="{{ user }}" hint-placeholder-val="{{ false }}"><button onClick="{{ logout }}" style="padding:11px 16px;border:0;border-radius:999px;background:transparent;color:rgba(255,255,255,.75);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;transition:all .18s" style-hover="background:rgba(255,255,255,.1);color:#fff">{{ userFirst }} · Log out</button></sc-if>
+<sc-if value="{{ guest }}" hint-placeholder-val="{{ true }}"><button onClick="{{ goLogin }}" style="padding:11px 16px;border:0;border-radius:999px;background:transparent;color:rgba(255,255,255,.75);font-weight:600;font-size:14px;cursor:pointer;white-space:nowrap;transition:all .18s" style-hover="background:rgba(255,255,255,.1);color:#fff">Log in</button></sc-if>
+<button onClick="{{ goCart }}" style="display:flex;align-items:center;gap:8px;padding:12px 18px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:14.5px;cursor:pointer;white-space:nowrap;transition:transform .18s,box-shadow .18s" style-hover="transform:translateY(-2px);box-shadow:0 10px 22px -8px rgba(198,244,50,.7)" style-active="transform:scale(.96)">Cart{{ cartBadge }}</button>
+</div>
+</div>
+</div>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;left:50%;bottom:24px;z-index:50;transform:translateX(-50%);padding:14px 22px;border-radius:999px;background:#0E0F0D;color:#FFF4D6;font-weight:600;font-size:14px;box-shadow:0 18px 40px -16px rgba(0,0,0,.6);animation:kg-toast .35s cubic-bezier(.2,.8,.2,1);max-width:calc(100vw - 36px);text-align:center">{{ toast }}</div>
+</sc-if>
+
+<sc-if value="{{ isAuth }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="Auth" style="padding:22px 18px 60px">
+<div style="max-width:1000px;margin:0 auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,340px),1fr));background:#fff;border-radius:44px;overflow:hidden">
+<div style="position:relative;overflow:hidden;background:#0E0F0D;padding:clamp(28px,4vw,52px);display:flex;flex-direction:column;justify-content:space-between;gap:28px;min-height:360px">
+<div style="position:absolute;bottom:-160px;right:-120px;width:420px;height:420px;border-radius:50%;border:1.5px solid rgba(198,244,50,.2);pointer-events:none"></div>
+<div style="position:relative">
+<h1 style="margin:0;font-weight:800;font-size:clamp(32px,4vw,48px);line-height:1;letter-spacing:-.045em;color:#FFF4D6;text-wrap:balance">Hungry?<br><span style="color:#C6F432">Let’s get you fed.</span></h1>
+<p style="margin:16px 0 0;max-width:30ch;font-weight:500;font-size:15.5px;line-height:1.55;color:rgba(255,244,214,.66)">One account for ordering, saved landmarks and live rider tracking.</p>
+</div>
+<img src="public/food/jollof-chicken.jpg" alt="" style="position:relative;width:100%;aspect-ratio:16/10;object-fit:cover;border-radius:26px;background:#1C1E19">
+</div>
+<div style="padding:clamp(28px,4vw,52px)">
+<div style="position:relative;display:flex;padding:5px;background:#EFEEE8;border-radius:999px"><span style="position:absolute;top:5px;bottom:5px;left:5px;width:calc(50% - 5px);border-radius:999px;background:#fff;box-shadow:0 6px 14px -8px rgba(14,15,13,.35);transform:{{ tabX }};transition:transform .4s cubic-bezier(.2,.8,.2,1)"></span>
+<button onClick="{{ goLogin }}" style="flex:1;padding:11px;border:0;border-radius:999px;position:relative;background:transparent;color:#0E0F0D;font-weight:700;font-size:14.5px;cursor:pointer;transition:background .2s">Log in</button>
+<button onClick="{{ goSignup }}" style="flex:1;padding:11px;border:0;border-radius:999px;position:relative;background:transparent;color:#0E0F0D;font-weight:700;font-size:14.5px;cursor:pointer;transition:background .2s">Sign up</button>
+</div>
+<sc-if value="{{ authNote }}" hint-placeholder-val="{{ false }}"><p style="margin:18px 0 0;padding:12px 16px;border-radius:18px;background:#F3FBD9;color:#4E6B00;font-weight:600;font-size:14px">{{ authNote }}</p></sc-if>
+<form onSubmit="{{ submit }}" style="margin-top:22px;display:flex;flex-direction:column;gap:14px">
+<sc-if value="{{ isSignup }}" hint-placeholder-val="{{ false }}">
+<label style="display:flex;flex-direction:column;gap:7px;font-weight:700;font-size:13px;animation:kg-in .35s cubic-bezier(.2,.8,.2,1)">Full name<input value="{{ fName }}" onChange="{{ onName }}" placeholder="Doosuur Terhemba" autocomplete="name" style="padding:15px 18px;border:1.5px solid #E2E1D9;border-radius:18px;background:#fff;font-weight:500;font-size:15px;color:#0E0F0D;outline:none" style-focus="border-color:#0E0F0D"></label>
+</sc-if>
+<label style="display:flex;flex-direction:column;gap:7px;font-weight:700;font-size:13px">Phone number<input value="{{ fPhone }}" onChange="{{ onPhone }}" placeholder="0803 123 4567" inputmode="tel" autocomplete="tel" style="padding:15px 18px;border:1.5px solid #E2E1D9;border-radius:18px;background:#fff;font-weight:500;font-size:15px;color:#0E0F0D;outline:none" style-focus="border-color:#0E0F0D"></label>
+<label style="display:flex;flex-direction:column;gap:7px;font-weight:700;font-size:13px">Password<input type="password" value="{{ fPass }}" onChange="{{ onPass }}" placeholder="At least 6 characters" autocomplete="current-password" style="padding:15px 18px;border:1.5px solid #E2E1D9;border-radius:18px;background:#fff;font-weight:500;font-size:15px;color:#0E0F0D;outline:none" style-focus="border-color:#0E0F0D"></label>
+<sc-if value="{{ err }}" hint-placeholder-val="{{ false }}"><p style="margin:0;color:#C2410C;font-weight:600;font-size:13.5px;animation:kg-shake .35s ease-in-out">{{ err }}</p></sc-if>
+<button type="submit" style="margin-top:4px;padding:16px;border:0;border-radius:999px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:15.5px;cursor:pointer;transition:transform .18s" style-hover="transform:translateY(-2px)" style-active="transform:scale(.98)">{{ submitLabel }}</button>
+</form>
+<div style="margin-top:18px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px;font-weight:600;font-size:13.5px;color:#6F7565">
+<button onClick="{{ switchMode }}" style="padding:0;border:0;background:none;color:#4E6B00;font-weight:700;font-size:13.5px;cursor:pointer">{{ switchLabel }}</button>
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ true }}"><button onClick="{{ forgot }}" style="padding:0;border:0;background:none;color:#6F7565;font-weight:600;font-size:13.5px;cursor:pointer">Forgot password?</button></sc-if>
+</div>
+<button onClick="{{ goHome }}" style="margin-top:26px;padding:0;border:0;background:none;color:#6F7565;font-weight:600;font-size:13.5px;cursor:pointer">Browse kitchens first →</button>
+</div>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<section data-screen-label="Home" style="padding:26px 18px 60px">
+<div style="max-width:1240px;margin:0 auto">
+<div style="position:relative;display:grid;grid-template-columns:1fr 1fr;width:min(100%,320px);padding:5px;margin-bottom:22px;background:#fff;border-radius:999px">
+<span style="position:absolute;top:5px;bottom:5px;left:5px;width:calc(50% - 5px);border-radius:999px;background:#0E0F0D;transform:{{ modeX }};transition:transform .4s cubic-bezier(.2,.8,.2,1)"></span>
+<button onClick="{{ modeFood }}" style="position:relative;padding:12px;border:0;background:transparent;color:{{ modeFoodFg }};font-weight:700;font-size:14.5px;cursor:pointer;transition:color .3s">Food</button>
+<button onClick="{{ modeGroc }}" style="position:relative;padding:12px;border:0;background:transparent;color:{{ modeGrocFg }};font-weight:700;font-size:14.5px;cursor:pointer;transition:color .3s">Groceries</button>
+</div>
+<sc-if value="{{ grocMode }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Groceries home" style="animation:kg-in .4s cubic-bezier(.2,.8,.2,1)">
+<div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px">
+<div><span style="display:inline-flex;padding:6px 14px;border-radius:999px;background:#0E0F0D;font-weight:700;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:#C6F432">Now or scheduled</span>
+<h1 style="margin:14px 0 0;font-weight:800;font-size:clamp(32px,4.4vw,56px);line-height:1;letter-spacing:-.04em">Groceries in Makurdi</h1></div>
+<div style="flex:0 1 460px;min-width:240px;display:flex;gap:8px">
+<button onClick="{{ gGoSearch }}" style="flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:16px 20px;border:0;border-radius:999px;background:#fff;font-weight:500;font-size:15px;color:#8A8F7C;cursor:pointer;text-align:left;white-space:nowrap;overflow:hidden"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A8F7C" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>Search every store</button>
+<button onClick="{{ gGoLists }}" style="flex:none;padding:0 20px;white-space:nowrap;border:0;border-radius:999px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:14px;cursor:pointer" style-hover="background:#1C1E19">My lists</button>
+</div></div>
+<sc-if value="{{ gHasBuyAgain }}" hint-placeholder-val="{{ true }}">
+<h2 style="margin:34px 0 14px;font-weight:800;font-size:24px;letter-spacing:-.03em">Buy again</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:14px">
+<sc-for list="{{ gBuyAgain }}" as="b" hint-placeholder-count="6">
+<div style="padding:10px;background:#fff;border-radius:26px;animation:kg-in .5s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:{{ b.delay }}">
+<div style="aspect-ratio:4/3;border-radius:18px;background:#EDEBDF;display:grid;place-items:center;font-weight:800;font-size:22px;letter-spacing:-.03em;color:#8A8F7C">{{ b.abbr }}</div>
+<div style="padding:10px 6px 4px"><div style="font-weight:700;font-size:14.5px;line-height:1.25">{{ b.name }}</div><div style="margin-top:3px;font-weight:500;font-size:12.5px;color:#6F7565">{{ b.size }}</div>
+<div style="margin-top:10px;display:flex;align-items:center;justify-content:space-between"><span style="font-weight:700;font-size:15px">{{ b.price }}</span><button onClick="{{ b.add }}" aria-label="Add" style="width:36px;height:36px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:18px;cursor:pointer;transition:transform .15s" style-hover="transform:translateY(-2px)" style-active="transform:scale(.9)">+</button></div></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<h2 style="margin:34px 0 14px;font-weight:800;font-size:24px;letter-spacing:-.03em">Shop by category</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:10px">
+<sc-for list="{{ gCatTiles }}" as="c" hint-placeholder-count="9"><button onClick="{{ c.open }}" style="min-height:84px;padding:16px;border:0;border-radius:22px;background:#fff;text-align:left;display:flex;align-items:flex-end;font-weight:700;font-size:15px;line-height:1.2;color:#0E0F0D;cursor:pointer;transition:transform .2s,background .2s" style-hover="transform:translateY(-3px);background:#F3FBD9" style-active="transform:scale(.97)">{{ c.label }}</button></sc-for>
+</div>
+<h2 style="margin:34px 0 14px;font-weight:800;font-size:24px;letter-spacing:-.03em">Stores near you</h2>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:clamp(14px,1.8vw,22px)">
+<sc-for list="{{ gStores }}" as="st" hint-placeholder-count="4">
+<button onClick="{{ st.open }}" style="padding:10px;border:0;text-align:left;background:#fff;border-radius:30px;cursor:pointer;color:#0E0F0D;transition:transform .22s,box-shadow .22s;animation:kg-in .55s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:{{ st.delay }}" style-hover="transform:translateY(-6px);box-shadow:0 26px 48px -26px rgba(14,15,13,.4)" style-active="transform:scale(.98)">
+<div style="position:relative;height:130px;border-radius:22px;background:{{ st.tileBg }};display:grid;place-items:center;font-weight:800;font-size:40px;letter-spacing:-.05em;color:{{ st.tileFg }}">{{ st.abbr }}<span style="position:absolute;left:10px;top:10px;padding:6px 12px;border-radius:999px;background:{{ st.badgeBg }};color:{{ st.badgeFg }};font-weight:700;font-size:11.5px">{{ st.badge }}</span></div>
+<div style="padding:15px 11px 11px"><div style="font-weight:700;font-size:17.5px;letter-spacing:-.02em">{{ st.name }}</div><div style="margin-top:5px;font-weight:500;font-size:13.5px;color:#6F7565">{{ st.area }}</div><div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:7px;font-weight:600;font-size:12.5px"><span style="padding:6px 11px;border-radius:999px;background:#DEDEDE">{{ st.km }}</span><span style="padding:6px 11px;border-radius:999px;background:#DEDEDE">{{ st.eta }}</span><span style="padding:6px 11px;border-radius:999px;background:#DEDEDE">{{ st.fee }}</span></div></div>
+</button>
+</sc-for>
+</div>
+</div>
+</sc-if>
+<sc-if value="{{ foodMode }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:18px">
+<div>
+<span style="display:inline-flex;padding:6px 14px;border-radius:999px;background:#0E0F0D;font-weight:700;font-size:11.5px;letter-spacing:.04em;text-transform:uppercase;color:#C6F432">{{ greeting }}</span>
+<h1 style="margin:14px 0 0;font-weight:800;font-size:clamp(32px,4.4vw,56px);line-height:1;letter-spacing:-.04em">Kitchens in Makurdi</h1>
+</div>
+<div style="flex:0 1 380px;min-width:240px;display:flex;align-items:center;gap:10px;padding:6px 6px 6px 18px;background:#fff;border-radius:999px">
+<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A8F7C" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg>
+<input value="{{ q }}" onChange="{{ onSearch }}" placeholder="Search egusi, jollof, suya…" style="flex:1;min-width:0;padding:10px 0;border:0;outline:none;background:transparent;font-weight:500;font-size:15px;color:#0E0F0D">
+</div>
+</div>
+<div style="margin:22px 0 24px;display:flex;flex-wrap:wrap;gap:8px">
+<sc-for list="{{ cats }}" as="c" hint-placeholder-count="5">
+<button onClick="{{ c.pick }}" style="padding:10px 18px;border:0;border-radius:999px;background:{{ c.bg }};color:{{ c.fg }};font-weight:700;font-size:14px;cursor:pointer;transition:background .18s">{{ c.label }}</button>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:clamp(14px,1.8vw,22px)">
+<sc-for list="{{ kitchens }}" as="k" hint-placeholder-count="4">
+<button onClick="{{ k.onOpen }}" style="padding:10px;border:0;text-align:left;background:#fff;border-radius:30px;cursor:pointer;color:#0E0F0D;transition:transform .22s,box-shadow .22s;animation:kg-in .55s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:{{ k.delay }}" style-hover="transform:translateY(-6px);box-shadow:0 26px 48px -26px rgba(14,15,13,.4)" style-active="transform:scale(.98)">
+<div style="position:relative;border-radius:22px;overflow:hidden;aspect-ratio:4/3;background:#EDEBDF"><img src="{{ k.img }}" alt="" style="width:100%;height:100%;object-fit:cover;display:block">
+<sc-if value="{{ k.badge }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:10px;top:10px;padding:6px 12px;border-radius:999px;background:{{ k.badgeBg }};color:{{ k.badgeFg }};font-weight:700;font-size:11.5px">{{ k.badge }}</span></sc-if></div>
+<div style="padding:15px 11px 11px"><div style="font-weight:700;font-size:17.5px;line-height:1.2;letter-spacing:-.02em">{{ k.name }}</div><div style="margin-top:5px;font-weight:500;font-size:13.5px;color:#6F7565">{{ k.sub }}</div><div style="margin-top:12px;display:flex;flex-wrap:wrap;gap:7px;font-weight:600;font-size:12.5px"><span style="padding:6px 11px;border-radius:999px;background:#DEDEDE">{{ k.km }}</span><span style="padding:6px 11px;border-radius:999px;background:#DEDEDE">{{ k.eta }}</span><span style="padding:6px 11px;border-radius:999px;background:#DEDEDE">from {{ k.from }}</span></div></div>
+</button>
+</sc-for>
+</div>
+<sc-if value="{{ noResults }}" hint-placeholder-val="{{ false }}"><p style="margin:10px 0 0;padding:40px;border-radius:30px;background:#fff;text-align:center;font-weight:600;font-size:15px;color:#6F7565">No kitchen serves “{{ q }}” yet. Try jollof, suya or egusi.</p></sc-if>
+</sc-if>
+</div>
+</section>
+</sc-if>
+
+
+<sc-if value="{{ isKitchen }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="Kitchen menu" style="padding:22px 18px 60px">
+<div style="max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+<div style="flex:2 1 520px;min-width:0;display:flex;flex-direction:column;gap:18px">
+<button onClick="{{ goHome }}" style="align-self:flex-start;padding:10px 16px;border:0;border-radius:999px;background:#fff;color:#0E0F0D;font-weight:700;font-size:13.5px;cursor:pointer" style-hover="background:#F3F2EC">← All kitchens</button>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,260px),1fr));gap:0;background:#0E0F0D;border-radius:36px;overflow:hidden">
+<div style="padding:clamp(24px,3vw,40px);display:flex;flex-direction:column;justify-content:center">
+<h1 style="margin:0;font-weight:800;font-size:clamp(30px,3.6vw,46px);line-height:1;letter-spacing:-.045em;color:#FFF4D6;text-wrap:balance">{{ kName }}</h1>
+<p style="margin:10px 0 0;font-weight:500;font-size:15px;color:rgba(255,244,214,.62)">{{ kSub }}</p>
+<div style="margin-top:18px;display:flex;flex-wrap:wrap;gap:7px;font-weight:600;font-size:12.5px;color:#FFF4D6"><span style="padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.1)">{{ kKm }}</span><span style="padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.1)">{{ kEta }}</span><span style="padding:7px 12px;border-radius:999px;background:rgba(198,244,50,.16);color:#C6F432">{{ kFee }}</span></div>
+</div>
+<img src="{{ kImg }}" alt="" style="width:100%;height:100%;min-height:220px;object-fit:cover;display:block">
+</div>
+<div style="background:#fff;border-radius:30px;padding:8px clamp(14px,2vw,24px)">
+<sc-for list="{{ menu }}" as="m" hint-placeholder-count="5">
+<div style="display:flex;align-items:center;gap:16px;padding:18px 4px;border-bottom:1px solid #EFEEE8;animation:kg-in .5s cubic-bezier(.2,.8,.2,1) backwards;animation-delay:{{ m.delay }}">
+<div style="flex:1;min-width:0"><div style="font-weight:700;font-size:16.5px;letter-spacing:-.015em">{{ m.name }}</div><div style="margin-top:4px;font-weight:500;font-size:13.5px;color:#6F7565">{{ m.desc }}</div><div style="margin-top:8px;font-weight:700;font-size:15px">{{ m.price }}</div></div>
+<sc-if value="{{ m.none }}" hint-placeholder-val="{{ true }}"><button onClick="{{ m.add }}" style="flex:none;padding:12px 20px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:14px;cursor:pointer;transition:transform .15s" style-hover="transform:translateY(-2px)" style-active="transform:scale(.94)">Add</button></sc-if>
+<sc-if value="{{ m.some }}" hint-placeholder-val="{{ false }}"><div style="flex:none;display:flex;align-items:center;gap:4px;padding:4px;border-radius:999px;background:#0E0F0D;animation:kg-pop .35s cubic-bezier(.2,.8,.2,1)"><button onClick="{{ m.dec }}" aria-label="Remove one" style="width:36px;height:36px;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font-weight:700;font-size:18px;cursor:pointer" style-active="transform:scale(.9)">−</button><span style="min-width:24px;text-align:center;color:#C6F432;font-weight:800;font-size:15px">{{ m.qty }}</span><button onClick="{{ m.add }}" aria-label="Add one" style="width:36px;height:36px;border:0;border-radius:50%;background:#C6F432;color:#12180A;font-weight:700;font-size:18px;cursor:pointer" style-active="transform:scale(.9)">+</button></div></sc-if>
+</div>
+</sc-for>
+</div>
+</div>
+<aside style="flex:1 1 300px;min-width:0;position:sticky;top:96px;background:#fff;border-radius:30px;padding:24px">
+<div style="font-weight:800;font-size:20px;letter-spacing:-.03em">Your order</div>
+<sc-if value="{{ emptyCart }}" hint-placeholder-val="{{ true }}"><p style="margin:12px 0 0;font-weight:500;font-size:14px;line-height:1.5;color:#6F7565">Nothing yet. Tap Add on a dish to start.</p></sc-if>
+<sc-if value="{{ hasLines }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ otherKitchen }}" hint-placeholder-val="{{ false }}"><p style="margin:10px 0 0;padding:10px 14px;border-radius:14px;background:#FFF1E8;color:#9A3412;font-weight:600;font-size:13px;line-height:1.45">This cart is from {{ cartKitchen }}. Adding here starts a new cart.</p></sc-if>
+<div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ lines }}" as="l" hint-placeholder-count="2"><div style="display:flex;gap:10px;font-weight:600;font-size:14px;animation:kg-in .3s ease-out"><span style="flex:none;color:#4E6B00">{{ l.qty }}×</span><span style="flex:1;min-width:0">{{ l.name }}</span><span style="flex:none">{{ l.price }}</span></div></sc-for>
+</div>
+<div style="margin-top:16px;padding-top:14px;border-top:1px solid #EFEEE8;display:flex;justify-content:space-between;font-weight:700;font-size:15px"><span>Subtotal</span><span>{{ subtotal }}</span></div>
+<button onClick="{{ goCheckout }}" style="margin-top:16px;width:100%;padding:16px;border:0;border-radius:999px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:15px;cursor:pointer;transition:transform .18s" style-hover="transform:translateY(-2px)" style-active="transform:scale(.98)">Go to checkout</button>
+</sc-if>
+</aside>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isCheckout }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="Checkout" style="padding:22px 18px 60px">
+<div style="max-width:1240px;margin:0 auto">
+<h1 style="margin:10px 0 22px;font-weight:800;font-size:clamp(30px,4vw,50px);line-height:1;letter-spacing:-.045em">Food checkout</h1>
+<sc-if value="{{ gHasLines }}" hint-placeholder-val="{{ false }}"><div style="margin:-6px 0 22px;display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:16px 16px 16px 22px;border-radius:26px;background:#0E0F0D;color:#FFF4D6"><span style="flex:1;min-width:220px;font-weight:500;font-size:14.5px;line-height:1.5">You also have <b style="color:#C6F432">{{ gCount }} grocery items</b> from {{ gStoreName }}. They check out separately and come with their own rider.</span><button onClick="{{ gGoCheckout }}" style="padding:13px 22px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:14px;cursor:pointer">Grocery checkout</button></div></sc-if>
+<sc-if value="{{ emptyCart }}" hint-placeholder-val="{{ false }}">
+<div style="padding:48px 24px;border-radius:30px;background:#fff;text-align:center"><p style="margin:0;font-weight:700;font-size:18px">Your cart is empty</p><p style="margin:8px 0 20px;font-weight:500;font-size:14.5px;color:#6F7565">Pick a kitchen and add a few dishes.</p><button onClick="{{ goHome }}" style="padding:14px 26px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:15px;cursor:pointer">Browse kitchens</button></div>
+</sc-if>
+<sc-if value="{{ hasLines }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+<div style="flex:2 1 480px;min-width:0;display:flex;flex-direction:column;gap:18px">
+<div style="background:#fff;border-radius:30px;padding:clamp(20px,2.6vw,32px);display:flex;flex-direction:column;gap:14px">
+<div style="font-weight:800;font-size:20px;letter-spacing:-.03em">Where should we bring it?</div>
+<label style="display:flex;flex-direction:column;gap:7px;font-weight:700;font-size:13px">Landmark<input value="{{ landmark }}" onChange="{{ onLandmark }}" placeholder="Behind BSU main gate, blue gate" style="padding:15px 18px;border:1.5px solid #E2E1D9;border-radius:18px;font-weight:500;font-size:15px;color:#0E0F0D;outline:none" style-focus="border-color:#0E0F0D"></label>
+<label style="display:flex;flex-direction:column;gap:7px;font-weight:700;font-size:13px">Street address (optional)<input value="{{ address }}" onChange="{{ onAddress }}" placeholder="12 Old Otukpo Road, High Level" style="padding:15px 18px;border:1.5px solid #E2E1D9;border-radius:18px;font-weight:500;font-size:15px;color:#0E0F0D;outline:none" style-focus="border-color:#0E0F0D"></label>
+<label style="display:flex;flex-direction:column;gap:7px;font-weight:700;font-size:13px">Note for kitchen or rider<textarea value="{{ note }}" onChange="{{ onNote }}" rows="2" placeholder="Less pepper, call when you reach the junction" style="padding:15px 18px;border:1.5px solid #E2E1D9;border-radius:18px;font-weight:500;font-size:15px;color:#0E0F0D;outline:none;resize:vertical" style-focus="border-color:#0E0F0D"></textarea></label>
+</div>
+<div style="background:#fff;border-radius:30px;padding:clamp(20px,2.6vw,32px)">
+<div style="font-weight:800;font-size:20px;letter-spacing:-.03em">Payment</div>
+<div style="margin-top:14px;display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px">
+<sc-for list="{{ pays }}" as="p" hint-placeholder-count="3"><button onClick="{{ p.pick }}" style="padding:16px 18px;border:1.5px solid {{ p.bd }};border-radius:22px;background:{{ p.bg }};text-align:left;cursor:pointer;transition:all .18s" style-active="transform:scale(.98)"><div style="font-weight:700;font-size:15px;color:{{ p.fg }}">{{ p.label }}</div><div style="margin-top:4px;font-weight:500;font-size:12.5px;color:{{ p.sfg }}">{{ p.sub }}</div></button></sc-for>
+</div>
+</div>
+</div>
+<aside style="flex:1 1 320px;min-width:0;position:sticky;top:96px;background:#fff;border-radius:30px;padding:24px">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-weight:800;font-size:20px;letter-spacing:-.03em">{{ cartKitchen }}</div><button onClick="{{ backToKitchen }}" style="padding:0;border:0;background:none;color:#4E6B00;font-weight:700;font-size:13.5px;cursor:pointer;white-space:nowrap">Add more</button></div>
+<div style="margin-top:14px;display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ lines }}" as="l" hint-placeholder-count="2"><div style="display:flex;align-items:center;gap:10px;animation:kg-in .3s ease-out"><div style="flex:1;min-width:0;font-weight:600;font-size:14px">{{ l.name }}<div style="margin-top:2px;font-weight:700;font-size:13.5px;color:#6F7565">{{ l.price }}</div></div><div style="flex:none;display:flex;align-items:center;gap:2px;padding:3px;border-radius:999px;background:#EFEEE8"><button onClick="{{ l.dec }}" aria-label="Remove one" style="width:30px;height:30px;border:0;border-radius:50%;background:#fff;font-weight:700;font-size:16px;cursor:pointer">−</button><span style="min-width:22px;text-align:center;font-weight:800;font-size:14px">{{ l.qty }}</span><button onClick="{{ l.inc }}" aria-label="Add one" style="width:30px;height:30px;border:0;border-radius:50%;background:#C6F432;font-weight:700;font-size:16px;cursor:pointer">+</button></div></div></sc-for>
+</div>
+<div style="margin-top:18px;padding-top:14px;border-top:1px solid #EFEEE8;display:flex;flex-direction:column;gap:8px;font-weight:600;font-size:14px;color:#6F7565">
+<div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>{{ subtotal }}</span></div>
+<div style="display:flex;justify-content:space-between"><span>Delivery</span><span>{{ fee }}</span></div>
+<div style="display:flex;justify-content:space-between;margin-top:4px;font-weight:800;font-size:18px;color:#0E0F0D"><span>Total</span><span>{{ total }}</span></div>
+</div>
+<sc-if value="{{ coErr }}" hint-placeholder-val="{{ false }}"><p style="margin:14px 0 0;color:#C2410C;font-weight:600;font-size:13.5px;line-height:1.45;animation:kg-shake .35s ease-in-out">{{ coErr }}</p></sc-if>
+<button onClick="{{ place }}" style="margin-top:18px;width:100%;padding:17px;border:0;border-radius:999px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:15.5px;cursor:pointer;transition:transform .18s" style-hover="transform:translateY(-2px)" style-active="transform:scale(.98)">{{ placeLabel }}</button>
+</aside>
+</div>
+</sc-if>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isTrack }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="Tracking" style="padding:22px 18px 60px">
+<div style="max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+<div style="flex:2 1 480px;min-width:0;position:relative;overflow:hidden;background:#0E0F0D;border-radius:40px;padding:clamp(24px,3.4vw,48px)">
+<div style="position:absolute;top:-160px;right:-120px;width:440px;height:440px;border-radius:50%;border:1.5px solid rgba(198,244,50,.18);pointer-events:none"></div>
+<div style="position:relative">
+<div style="font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,244,214,.5)">Order {{ oId }} · {{ oKitchen }}</div>
+<h1 style="margin:10px 0 0;font-weight:800;font-size:clamp(30px,4vw,52px);line-height:1;letter-spacing:-.045em;color:#FFF4D6">{{ oTitle }}</h1>
+<p style="margin:12px 0 0;font-weight:500;font-size:15.5px;color:rgba(255,244,214,.65)">{{ oStatus }} · to {{ oTo }}</p>
+<div style="margin-top:26px;height:8px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden"><div style="height:100%;width:{{ oProgress }};border-radius:999px;background:#C6F432;transition:width .8s cubic-bezier(.2,.8,.2,1)"></div></div>
+<div style="margin-top:26px;display:flex;flex-direction:column;gap:16px">
+<sc-for list="{{ steps }}" as="st" hint-placeholder-count="5"><div style="display:flex;align-items:center;gap:14px;font-weight:600;font-size:15px;color:{{ st.fg }};transition:color .4s"><span style="flex:none;width:12px;height:12px;border-radius:50%;background:{{ st.dot }};transition:background .4s;animation:{{ st.anim }}"></span>{{ st.label }}</div></sc-for>
+</div>
+<sc-if value="{{ riderOn }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:28px;display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:14px 14px 14px 16px;border-radius:26px;background:rgba(255,255,255,.07);animation:kg-in .3s ease-out">
+<span style="flex:none;width:46px;height:46px;border-radius:50%;background:#C6F432;color:#12180A;display:grid;place-items:center;font-weight:800;font-size:15px">DT</span>
+<div style="flex:1;min-width:120px"><div style="font-weight:700;font-size:15.5px;color:#FFF4D6">Doosuur Terhemba</div><div style="margin-top:3px;font-weight:500;font-size:13px;color:rgba(255,244,214,.55)">Your rider · ★ 4.9 · Red Bajaj</div></div>
+<button onClick="{{ callRider }}" style="padding:12px 20px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:14px;cursor:pointer" style-active="transform:scale(.95)">Call</button>
+</div>
+</sc-if>
+<div style="margin-top:22px;display:flex;flex-wrap:wrap;gap:10px">
+<sc-if value="{{ notDelivered }}" hint-placeholder-val="{{ true }}"><button onClick="{{ share }}" style="padding:13px 22px;border:0;border-radius:999px;background:rgba(198,244,50,.14);color:#C6F432;font-weight:700;font-size:14px;cursor:pointer">Share tracking link</button></sc-if>
+<sc-if value="{{ delivered }}" hint-placeholder-val="{{ false }}"><button onClick="{{ orderAgain }}" style="padding:13px 22px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:14px;cursor:pointer">Order something else</button></sc-if>
+</div>
+</div>
+</div>
+<aside style="flex:1 1 300px;min-width:0;background:#fff;border-radius:30px;padding:24px">
+<div style="font-weight:800;font-size:20px;letter-spacing:-.03em">Receipt</div>
+<div style="margin-top:14px;display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ oItems }}" as="i" hint-placeholder-count="2"><div style="display:flex;gap:10px;font-weight:600;font-size:14px"><span style="flex:none;color:#4E6B00">{{ i.qty }}×</span><span style="flex:1;min-width:0">{{ i.name }}</span><span style="flex:none">{{ i.price }}</span></div></sc-for>
+</div>
+<div style="margin-top:16px;padding-top:14px;border-top:1px solid #EFEEE8;display:flex;flex-direction:column;gap:8px;font-weight:600;font-size:14px;color:#6F7565">
+<div style="display:flex;justify-content:space-between"><span>Subtotal</span><span>{{ oSub }}</span></div>
+<div style="display:flex;justify-content:space-between"><span>Delivery</span><span>{{ oFee }}</span></div>
+<div style="display:flex;justify-content:space-between;margin-top:4px;font-weight:800;font-size:18px;color:#0E0F0D"><span>Total</span><span>{{ oTotal }}</span></div>
+<div style="margin-top:4px;font-size:13px">{{ oPay }}</div>
+</div>
+<button onClick="{{ goHome }}" style="margin-top:18px;width:100%;padding:15px;border:0;border-radius:999px;background:#EFEEE8;color:#0E0F0D;font-weight:700;font-size:14.5px;cursor:pointer" style-hover="background:#E4E3DB">Back to kitchens</button>
+</aside>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isStore }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="Store" style="padding:22px 18px 60px">
+<div style="max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+<div style="flex:2 1 560px;min-width:0;display:flex;flex-direction:column;gap:18px">
+<button onClick="{{ gBackHome }}" style="align-self:flex-start;padding:10px 16px;border:0;border-radius:999px;background:#fff;color:#0E0F0D;font-weight:700;font-size:13.5px;cursor:pointer" style-hover="background:#F3F2EC">← All stores</button>
+<div style="position:relative;overflow:hidden;background:#0E0F0D;border-radius:36px;padding:clamp(24px,3vw,40px)">
+<div style="position:absolute;top:-140px;right:-100px;width:360px;height:360px;border-radius:50%;border:1.5px solid rgba(198,244,50,.18);pointer-events:none"></div>
+<h1 style="position:relative;margin:0;font-weight:800;font-size:clamp(30px,3.6vw,46px);line-height:1;letter-spacing:-.045em;color:#FFF4D6">{{ gsName }}</h1>
+<p style="position:relative;margin:10px 0 0;font-weight:500;font-size:15px;color:rgba(255,244,214,.62)">{{ gsArea }}</p>
+<div style="position:relative;margin-top:18px;display:flex;flex-wrap:wrap;gap:7px;font-weight:600;font-size:12.5px;color:#FFF4D6"><span style="padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.1)">{{ gsKm }}</span><span style="padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.1)">{{ gsEta }}</span><span style="padding:7px 12px;border-radius:999px;background:rgba(255,255,255,.1)">{{ gsFee }}</span><span style="padding:7px 12px;border-radius:999px;background:rgba(198,244,50,.16);color:#C6F432">Min order {{ gsMin }}</span></div>
+<sc-if value="{{ gsClosed }}" hint-placeholder-val="{{ false }}"><div style="position:relative;margin-top:18px;padding:14px 18px;border-radius:20px;background:rgba(255,106,43,.16);color:#FFF4D6;font-weight:500;font-size:14px;line-height:1.5"><b style="color:#FF6A2B">Closed now · {{ gsOpens }}.</b> Fill your basket and schedule delivery for tomorrow morning.</div></sc-if>
+</div>
+<div style="position:sticky;top:96px;z-index:5;display:flex;flex-direction:column;gap:10px;padding:10px;border-radius:28px;background:rgba(222,222,222,.82);backdrop-filter:blur(14px);-webkit-backdrop-filter:blur(14px)">
+<div style="display:flex;align-items:center;gap:10px;padding:6px 6px 6px 18px;background:#fff;border-radius:999px"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A8F7C" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input value="{{ gsq }}" onChange="{{ gOnSq }}" placeholder="Search this store" style="flex:1;min-width:0;padding:10px 0;border:0;outline:none;background:transparent;font-weight:500;font-size:15px;color:#0E0F0D"></div>
+<div style="display:flex;gap:6px;overflow-x:auto;scrollbar-width:none"><sc-for list="{{ gCatChips }}" as="c" hint-placeholder-count="8"><button onClick="{{ c.pick }}" style="flex:none;padding:10px 16px;border:0;border-radius:999px;background:{{ c.bg }};color:{{ c.fg }};font-weight:700;font-size:13.5px;cursor:pointer;white-space:nowrap;transition:background .18s,color .18s">{{ c.label }}</button></sc-for></div>
+</div>
+<div style="background:#fff;border-radius:30px;padding:8px clamp(14px,2vw,24px) 14px">
+<sc-for list="{{ gGroups }}" as="g" hint-placeholder-count="2">
+<div style="padding:18px 4px 4px;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;color:#6F7565">{{ g.label }}</div>
+<sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:14px;padding:13px 4px;border-bottom:1px solid #EFEEE8">
+<button onClick="{{ r.open }}" style="flex:1;min-width:0;display:flex;align-items:center;gap:14px;padding:0;border:0;background:none;text-align:left;cursor:pointer;color:#0E0F0D"><span style="flex:none;width:52px;height:52px;border-radius:16px;background:#EDEBDF;display:grid;place-items:center;font-weight:800;font-size:14px;color:#6F7565">{{ r.abbr }}</span><span style="min-width:0"><span style="display:block;font-weight:700;font-size:15.5px;letter-spacing:-.015em">{{ r.name }}</span><span style="display:block;margin-top:3px;font-weight:500;font-size:13px;color:#6F7565">{{ r.size }} · {{ r.unit }}</span></span></button>
+<span style="flex:none;font-weight:700;font-size:15px;white-space:nowrap">{{ r.price }}</span>
+<sc-if value="{{ r.none }}" hint-placeholder-val="{{ true }}"><button onClick="{{ r.add }}" style="flex:none;padding:11px 18px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:14px;cursor:pointer;transition:transform .15s" style-hover="transform:translateY(-2px)" style-active="transform:scale(.94)">Add</button></sc-if>
+<sc-if value="{{ r.some }}" hint-placeholder-val="{{ false }}"><div style="flex:none;display:flex;align-items:center;gap:4px;padding:4px;border-radius:999px;background:#0E0F0D;animation:kg-pop .35s cubic-bezier(.2,.8,.2,1)"><button onClick="{{ r.dec }}" aria-label="Remove one" style="width:34px;height:34px;border:0;border-radius:50%;background:rgba(255,255,255,.1);color:#fff;font-weight:700;font-size:17px;cursor:pointer">−</button><span style="min-width:40px;text-align:center;color:#C6F432;font-weight:800;font-size:13.5px">{{ r.qty }}</span><button onClick="{{ r.add }}" aria-label="Add one" style="width:34px;height:34px;border:0;border-radius:50%;background:#C6F432;color:#12180A;font-weight:700;font-size:17px;cursor:pointer">+</button></div></sc-if>
+</div>
+</sc-for>
+</sc-for>
+<sc-if value="{{ gNoRows }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:40px 10px;text-align:center;font-weight:600;font-size:15px;color:#6F7565">{{ gsName }} has nothing called “{{ gsq }}”.</p></sc-if>
+</div>
+</div>
+<aside style="flex:1 1 300px;min-width:0;position:sticky;top:96px;background:#fff;border-radius:30px;padding:24px">
+<div style="font-weight:800;font-size:20px;letter-spacing:-.03em">Your basket</div>
+<sc-if value="{{ gEmpty }}" hint-placeholder-val="{{ true }}"><p style="margin:12px 0 0;font-weight:500;font-size:14px;line-height:1.5;color:#6F7565">Nothing yet. Add items or drop in a whole list.</p><button onClick="{{ gGoLists }}" style="margin-top:14px;padding:12px 18px;border:0;border-radius:999px;background:#EFEEE8;font-weight:700;font-size:13.5px;color:#0E0F0D;cursor:pointer">Open my lists</button></sc-if>
+<sc-if value="{{ gHasLines }}" hint-placeholder-val="{{ false }}">
+<sc-if value="{{ gOtherStore }}" hint-placeholder-val="{{ false }}"><p style="margin:10px 0 0;padding:10px 14px;border-radius:14px;background:#FFF1E8;color:#9A3412;font-weight:600;font-size:13px;line-height:1.45">This basket is from {{ gStoreName }}. Adding here asks before starting a new one.</p></sc-if>
+<div style="margin-top:12px;display:flex;justify-content:space-between;font-weight:600;font-size:14px;color:#6F7565"><span>{{ gCount }} items</span><span>{{ gSub }}</span></div>
+<sc-if value="{{ gBelowMin }}" hint-placeholder-val="{{ false }}"><div style="margin-top:12px;padding:12px 14px;border-radius:18px;background:#FFF3DE;color:#9A5F00;font-weight:600;font-size:13px;line-height:1.45">Add {{ gShortfall }} more to reach the {{ gMin }} minimum.<div style="margin-top:8px;height:6px;border-radius:999px;background:rgba(154,95,0,.15);overflow:hidden"><div style="height:100%;width:{{ gMinPct }};border-radius:999px;background:#9A5F00;transition:width .4s"></div></div></div></sc-if>
+<sc-if value="{{ gLarge }}" hint-placeholder-val="{{ false }}"><div style="margin-top:12px;padding:12px 14px;border-radius:18px;background:#0E0F0D;color:#FFF4D6;font-weight:500;font-size:13px;line-height:1.45"><b style="color:#C6F432">Large order · about {{ gKg }}.</b> Comes on a keke or two bikes, so delivery is {{ gFee }}.</div></sc-if>
+<div style="margin-top:14px;padding-top:12px;border-top:1px solid #EFEEE8;display:flex;justify-content:space-between;font-weight:800;font-size:17px"><span>Estimated</span><span>{{ gEst }}</span></div>
+<button onClick="{{ gGoCheckout }}" style="margin-top:16px;width:100%;padding:16px;border:0;border-radius:999px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:15px;cursor:pointer;transition:transform .18s" style-hover="transform:translateY(-2px)" style-active="transform:scale(.98)">Review basket</button>
+</sc-if>
+</aside>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{ gModal }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ gCloseModal }}" style="position:fixed;inset:0;z-index:40;background:rgba(14,15,13,.45);display:grid;place-items:center;padding:18px;animation:kg-in .2s ease-out">
+<div onClick="{{ gStop }}" data-screen-label="Product" style="width:min(100%,820px);max-height:calc(100vh - 36px);overflow:auto;display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,300px),1fr));background:#fff;border-radius:36px;animation:kg-in .35s cubic-bezier(.2,.8,.2,1)">
+<div style="position:relative;margin:10px;min-height:260px;border-radius:28px;background:#EDEBDF;display:grid;place-items:center;font-weight:800;font-size:64px;letter-spacing:-.05em;color:#8A8F7C">{{ gpAbbr }}<sc-if value="{{ gpEst }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;left:14px;top:14px;padding:7px 13px;border-radius:999px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:12px;letter-spacing:0">Sold by weight</span></sc-if></div>
+<div style="padding:clamp(20px,3vw,32px);display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start"><h2 style="margin:0;font-weight:800;font-size:28px;line-height:1.05;letter-spacing:-.04em">{{ gpName }}</h2><button onClick="{{ gCloseModal }}" aria-label="Close" style="flex:none;width:38px;height:38px;border:0;border-radius:999px;background:#EFEEE8;font-size:15px;cursor:pointer">✕</button></div>
+<div style="display:flex;align-items:baseline;gap:10px;flex-wrap:wrap"><span style="font-weight:800;font-size:24px;letter-spacing:-.03em">{{ gpPrice }}</span><span style="font-weight:600;font-size:13.5px;color:#6F7565">{{ gpPer }}</span></div>
+<div style="margin-top:-8px;font-weight:500;font-size:13.5px;color:#6F7565">{{ gpUnit }} · {{ gsName }}</div>
+<sc-if value="{{ gpHasOpts }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ gpOpts }}" as="o" hint-placeholder-count="3"><button onClick="{{ o.pick }}" style="padding:10px 16px;border:1.5px solid {{ o.bd }};border-radius:999px;background:{{ o.bg }};color:{{ o.fg }};font-weight:700;font-size:13px;cursor:pointer;transition:all .2s">{{ o.label }} · {{ o.price }}</button></sc-for></div></sc-if>
+<sc-if value="{{ gpEst }}" hint-placeholder-val="{{ false }}"><div style="padding:13px 16px;border-radius:18px;background:#E6F0FC;color:#2A5FA0;font-weight:500;font-size:13.5px;line-height:1.5"><b>Final price may change.</b> Your shopper weighs it in the store and you pay for what’s packed. You see the exact amount before anything is charged.</div></sc-if>
+<div style="display:flex;align-items:center;justify-content:space-between"><span style="font-weight:700;font-size:15px">{{ gpQtyLabel }}</span><div style="display:flex;align-items:center;gap:4px;padding:4px;border-radius:999px;background:#EFEEE8"><button onClick="{{ gpDec }}" aria-label="Less" style="width:36px;height:36px;border:0;border-radius:50%;background:#fff;font-weight:700;font-size:17px;cursor:pointer">−</button><span style="min-width:56px;text-align:center;font-weight:800;font-size:14px">{{ gpQty }}</span><button onClick="{{ gpInc }}" aria-label="More" style="width:36px;height:36px;border:0;border-radius:50%;background:#C6F432;color:#12180A;font-weight:700;font-size:17px;cursor:pointer">+</button></div></div>
+<div><div style="font-weight:700;font-size:15px">If it’s not on the shelf</div><div style="margin-top:3px;font-weight:500;font-size:12.5px;color:#6F7565">Your default for this item. You can change it at checkout.</div></div>
+<div style="display:flex;flex-direction:column;gap:6px"><sc-for list="{{ gpSubs }}" as="o" hint-placeholder-count="4"><button onClick="{{ o.pick }}" style="display:flex;align-items:center;gap:12px;padding:12px 16px;border:1.5px solid {{ o.bd }};border-radius:18px;background:#fff;text-align:left;cursor:pointer;color:#0E0F0D;opacity:{{ o.op }};transition:border-color .2s"><span style="flex:none;width:18px;height:18px;border-radius:50%;border:2px solid {{ o.bd }};display:grid;place-items:center"><span style="width:8px;height:8px;border-radius:50%;background:{{ o.dot }}"></span></span><span><span style="display:block;font-weight:700;font-size:14px">{{ o.label }}</span><span style="display:block;font-weight:500;font-size:12.5px;color:#6F7565">{{ o.sub }}</span></span></button></sc-for></div>
+<button onClick="{{ gpAdd }}" style="padding:16px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:15.5px;cursor:pointer;transition:transform .18s" style-hover="transform:translateY(-2px)" style-active="transform:scale(.98)">{{ gpCta }}</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ gConfirm }}" hint-placeholder-val="{{ false }}">
+<div style="position:fixed;inset:0;z-index:45;background:rgba(14,15,13,.45);display:grid;place-items:center;padding:18px;animation:kg-in .2s ease-out">
+<div style="width:min(100%,460px);padding:28px;border-radius:32px;background:#fff;animation:kg-in .3s cubic-bezier(.2,.8,.2,1)">
+<div style="font-weight:800;font-size:22px;letter-spacing:-.03em">Start a new basket?</div>
+<p style="margin:10px 0 0;font-weight:500;font-size:14.5px;line-height:1.55;color:#6F7565">Your basket at {{ gStoreName }} has {{ gCount }} items. Each grocery order comes from one store. Your food cart stays as it is.</p>
+<div style="margin-top:20px;display:flex;flex-direction:column;gap:8px"><button onClick="{{ gConfirmNew }}" style="padding:15px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:14.5px;cursor:pointer">Start new basket at {{ gConfirmStore }}</button><button onClick="{{ gConfirmKeep }}" style="padding:15px;border:0;border-radius:999px;background:#EFEEE8;color:#0E0F0D;font-weight:700;font-size:14.5px;cursor:pointer">Keep my {{ gStoreName }} basket</button></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isGSearch }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="Search all stores" style="padding:22px 18px 60px">
+<div style="max-width:1000px;margin:0 auto;display:flex;flex-direction:column;gap:18px">
+<button onClick="{{ gBackHome }}" style="align-self:flex-start;padding:10px 16px;border:0;border-radius:999px;background:#fff;color:#0E0F0D;font-weight:700;font-size:13.5px;cursor:pointer">← Groceries</button>
+<div style="display:flex;align-items:center;gap:12px;padding:8px 8px 8px 22px;background:#fff;border-radius:999px;box-shadow:0 0 0 2px #0E0F0D"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0E0F0D" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"></circle><path d="m20 20-3.5-3.5"></path></svg><input value="{{ gq }}" onChange="{{ gOnGq }}" placeholder="Search every store in Makurdi" style="flex:1;min-width:0;padding:12px 0;border:0;outline:none;background:transparent;font-weight:600;font-size:18px;color:#0E0F0D"></div>
+<sc-if value="{{ gqEmpty }}" hint-placeholder-val="{{ true }}"><div style="display:flex;gap:8px;flex-wrap:wrap"><sc-for list="{{ gRecent }}" as="r" hint-placeholder-count="4"><button onClick="{{ r.pick }}" style="padding:10px 18px;border:0;border-radius:999px;background:#fff;font-weight:700;font-size:14px;color:#0E0F0D;cursor:pointer">{{ r.label }}</button></sc-for></div></sc-if>
+<sc-if value="{{ gHasCompare }}" hint-placeholder-val="{{ false }}">
+<div style="position:relative;overflow:hidden;padding:clamp(22px,3vw,34px);border-radius:36px;background:#0E0F0D;color:#FFF4D6;animation:kg-in .35s cubic-bezier(.2,.8,.2,1)">
+<div style="font-weight:700;font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,244,214,.5)">Price compared</div>
+<div style="margin-top:6px;font-weight:800;font-size:26px;letter-spacing:-.035em">{{ gCmpName }}</div>
+<div style="margin-top:16px;display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:10px"><sc-for list="{{ gCmpRows }}" as="c" hint-placeholder-count="3"><div style="padding:14px 16px;border-radius:20px;background:{{ c.bg }};color:{{ c.fg }}"><div style="font-weight:600;font-size:13px">{{ c.store }}</div><div style="margin-top:4px;font-weight:800;font-size:20px;letter-spacing:-.02em">{{ c.price }}</div><div style="font-weight:700;font-size:11.5px">{{ c.tag }}</div></div></sc-for></div>
+</div>
+</sc-if>
+<sc-for list="{{ gsGroups }}" as="g" hint-placeholder-count="0">
+<div style="background:#fff;border-radius:30px;padding:20px clamp(14px,2vw,24px) 10px">
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:8px"><span style="font-weight:800;font-size:19px;letter-spacing:-.025em">{{ g.store }}</span><span style="font-weight:600;font-size:13px;color:#6F7565">{{ g.meta }}</span></div>
+<sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="2"><div style="display:flex;align-items:center;gap:14px;padding:12px 0;border-bottom:1px solid #EFEEE8"><span style="flex:none;width:46px;height:46px;border-radius:14px;background:#EDEBDF;display:grid;place-items:center;font-weight:800;font-size:13px;color:#6F7565">{{ r.abbr }}</span><span style="flex:1;min-width:0"><span style="display:block;font-weight:700;font-size:15px">{{ r.name }}</span><span style="display:block;font-weight:500;font-size:12.5px;color:#6F7565">{{ r.size }} · {{ r.unit }}</span></span><span style="flex:none;text-align:right"><span style="display:block;font-weight:700;font-size:15px">{{ r.price }}</span><sc-if value="{{ r.best }}" hint-placeholder-val="{{ false }}"><span style="font-weight:700;font-size:11.5px;color:#4E6B00">Cheapest</span></sc-if></span><button onClick="{{ r.add }}" aria-label="Add" style="flex:none;width:38px;height:38px;border:0;border-radius:50%;background:#C6F432;color:#12180A;font-weight:700;font-size:18px;cursor:pointer" style-active="transform:scale(.9)">+</button></div></sc-for>
+</div>
+</sc-for>
+<sc-if value="{{ gqNone }}" hint-placeholder-val="{{ false }}"><p style="margin:0;padding:40px;border-radius:30px;background:#fff;text-align:center;font-weight:600;font-size:15px;color:#6F7565">No store in Makurdi lists “{{ gq }}” yet.</p></sc-if>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isLists }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="Lists" style="padding:22px 18px 60px">
+<div style="max-width:1240px;margin:0 auto">
+<button onClick="{{ gBackHome }}" style="padding:10px 16px;border:0;border-radius:999px;background:#fff;color:#0E0F0D;font-weight:700;font-size:13.5px;cursor:pointer">← Groceries</button>
+<h1 style="margin:18px 0 6px;font-weight:800;font-size:clamp(30px,4vw,50px);line-height:1;letter-spacing:-.045em">My lists</h1>
+<p style="margin:0 0 22px;font-weight:500;font-size:15px;color:#6F7565">Add a whole list to your basket in one go. Priced at {{ gStoreName }}.</p>
+<div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+<div style="flex:1 1 300px;min-width:0;display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ gListCards }}" as="l" hint-placeholder-count="3"><button onClick="{{ l.open }}" style="padding:18px 20px;border:2px solid {{ l.bd }};border-radius:26px;background:#fff;text-align:left;cursor:pointer;color:#0E0F0D;transition:border-color .2s"><div style="font-weight:800;font-size:18px;letter-spacing:-.02em">{{ l.name }}</div><div style="margin-top:4px;font-weight:500;font-size:13px;color:#6F7565">{{ l.meta }}</div></button></sc-for>
+<button onClick="{{ gSaveList }}" style="padding:16px;border:2px dashed #BDBDB5;border-radius:26px;background:transparent;font-weight:700;font-size:14px;color:#0E0F0D;cursor:pointer">+ Save current basket as a list</button>
+</div>
+<div style="flex:2 1 460px;min-width:0;background:#fff;border-radius:30px;padding:clamp(20px,2.6vw,30px)">
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:10px"><h2 style="margin:0;font-weight:800;font-size:26px;letter-spacing:-.035em">{{ glName }}</h2><span style="font-weight:600;font-size:13px;color:#6F7565">{{ glUsed }}</span></div>
+<div style="margin-top:10px"><sc-for list="{{ glRows }}" as="r" hint-placeholder-count="6"><div style="display:flex;align-items:center;gap:12px;padding:11px 0;border-bottom:1px solid #EFEEE8;opacity:{{ r.op }}"><span style="flex:none;min-width:46px;font-weight:800;font-size:13.5px;color:#4E6B00">{{ r.qty }}</span><span style="flex:1;min-width:0"><span style="display:block;font-weight:700;font-size:15px">{{ r.name }}</span><span style="display:block;font-weight:500;font-size:12.5px;color:#6F7565">{{ r.size }}</span></span><span style="flex:none;font-weight:700;font-size:14.5px">{{ r.price }}</span></div></sc-for></div>
+<sc-if value="{{ glMissing }}" hint-placeholder-val="{{ false }}"><p style="margin:14px 0 0;padding:12px 16px;border-radius:18px;background:#FFF3DE;color:#9A5F00;font-weight:600;font-size:13.5px;line-height:1.5">{{ glMissing }}</p></sc-if>
+<button onClick="{{ glAdd }}" style="margin-top:18px;width:100%;padding:16px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:15px;cursor:pointer;transition:transform .18s" style-hover="transform:translateY(-2px)">{{ glCta }}</button>
+</div>
+</div>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isGCheckout }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="Grocery checkout" style="padding:22px 18px 60px">
+<div style="max-width:1240px;margin:0 auto">
+<h1 style="margin:10px 0 22px;font-weight:800;font-size:clamp(30px,4vw,50px);line-height:1;letter-spacing:-.045em">Grocery checkout</h1>
+<sc-if value="{{ foodHasLines }}" hint-placeholder-val="{{ false }}"><div style="margin:-6px 0 22px;display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:16px 16px 16px 22px;border-radius:26px;background:#0E0F0D;color:#FFF4D6"><span style="flex:1;min-width:220px;font-weight:500;font-size:14.5px;line-height:1.5">Your food cart from <b style="color:#C6F432">{{ cartKitchen }}</b> checks out separately, with its own rider.</span><button onClick="{{ goCheckout }}" style="padding:13px 22px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:14px;cursor:pointer">Food checkout</button></div></sc-if>
+<sc-if value="{{ gEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:48px 24px;border-radius:30px;background:#fff;text-align:center"><p style="margin:0;font-weight:700;font-size:18px">Your grocery basket is empty</p><p style="margin:8px 0 20px;font-weight:500;font-size:14.5px;color:#6F7565">Pick a store, or add one of your lists.</p><div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap"><button onClick="{{ gBackHome }}" style="padding:14px 26px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:15px;cursor:pointer">Browse stores</button><button onClick="{{ gGoLists }}" style="padding:14px 26px;border:0;border-radius:999px;background:#EFEEE8;color:#0E0F0D;font-weight:700;font-size:15px;cursor:pointer">My lists</button></div></div></sc-if>
+<sc-if value="{{ gHasLines }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+<div style="flex:2 1 520px;min-width:0;display:flex;flex-direction:column;gap:18px">
+<div style="background:#fff;border-radius:30px;padding:clamp(20px,2.6vw,32px)">
+<div style="display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:10px"><div style="font-weight:800;font-size:20px;letter-spacing:-.03em">{{ gStoreName }} · {{ gCount }} items</div><button onClick="{{ gBackStore }}" style="padding:0;border:0;background:none;color:#4E6B00;font-weight:700;font-size:13.5px;cursor:pointer">Add more</button></div>
+<div style="margin-top:18px;font-weight:700;font-size:14.5px">If something’s missing</div>
+<div style="margin-top:8px;display:flex;flex-wrap:wrap;gap:6px"><sc-for list="{{ gAllSubChips }}" as="c" hint-placeholder-count="4"><button onClick="{{ c.pick }}" style="padding:10px 16px;border:0;border-radius:999px;background:{{ c.bg }};color:{{ c.fg }};font-weight:700;font-size:13px;cursor:pointer;transition:all .18s">{{ c.label }}</button></sc-for></div>
+<div style="margin-top:6px;font-weight:500;font-size:12.5px;color:#8A8F7C">Applies to every item. Click an item’s line to change just that one.</div>
+<sc-for list="{{ gCGroups }}" as="g" hint-placeholder-count="3">
+<div style="padding:20px 0 4px;font-weight:800;font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:#6F7565">{{ g.label }} · {{ g.count }}</div>
+<sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="2">
+<div style="padding:12px 0;border-bottom:1px solid #EFEEE8;animation:kg-in .3s ease-out">
+<div style="display:flex;align-items:center;gap:12px;flex-wrap:wrap"><span style="flex:1;min-width:160px"><span style="display:block;font-weight:700;font-size:15px">{{ r.name }}</span><span style="display:block;font-weight:500;font-size:12.5px;color:#6F7565">{{ r.size }} · {{ r.unit }}</span></span>
+<span style="flex:none;font-weight:700;font-size:14.5px;white-space:nowrap">{{ r.total }}</span>
+<div style="flex:none;display:flex;align-items:center;gap:2px;padding:3px;border-radius:999px;background:#EFEEE8"><button onClick="{{ r.dec }}" aria-label="Remove one" style="width:30px;height:30px;border:0;border-radius:50%;background:#fff;font-weight:700;font-size:16px;cursor:pointer">−</button><span style="min-width:40px;text-align:center;font-weight:800;font-size:13px">{{ r.qty }}</span><button onClick="{{ r.inc }}" aria-label="Add one" style="width:30px;height:30px;border:0;border-radius:50%;background:#C6F432;font-weight:700;font-size:16px;cursor:pointer">+</button></div></div>
+<button onClick="{{ r.cycle }}" style="margin-top:8px;padding:6px 12px;border:0;border-radius:999px;background:#F3FBD9;font-weight:600;font-size:12.5px;color:#4E6B00;cursor:pointer;max-width:100%;text-align:left" style-hover="background:#E9F6C2">{{ r.subLabel }} ↻</button>
+</div>
+</sc-for>
+</sc-for>
+<label style="margin-top:20px;display:flex;flex-direction:column;gap:7px;font-weight:700;font-size:13px">Note to your shopper<textarea value="{{ gNote }}" onChange="{{ gOnNote }}" rows="2" placeholder="Firm tomatoes only. Big yam, not the small ones." style="padding:15px 18px;border:1.5px solid #E2E1D9;border-radius:18px;font-weight:500;font-size:15px;color:#0E0F0D;outline:none;resize:vertical" style-focus="border-color:#0E0F0D"></textarea></label>
+</div>
+<div style="background:#fff;border-radius:30px;padding:clamp(20px,2.6vw,32px);display:flex;flex-direction:column;gap:14px">
+<div style="font-weight:800;font-size:20px;letter-spacing:-.03em">When</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px"><sc-for list="{{ gWhenOpts }}" as="w" hint-placeholder-count="2"><button onClick="{{ w.pick }}" style="padding:16px 18px;border:1.5px solid {{ w.bd }};border-radius:22px;background:{{ w.bg }};text-align:left;cursor:pointer;transition:all .18s;opacity:{{ w.op }}"><div style="font-weight:700;font-size:15px;color:{{ w.fg }}">{{ w.label }}</div><div style="margin-top:4px;font-weight:500;font-size:12.5px;color:{{ w.sfg }}">{{ w.sub }}</div></button></sc-for></div>
+<sc-if value="{{ gIsSched }}" hint-placeholder-val="{{ false }}"><div style="display:flex;gap:8px;flex-wrap:wrap;animation:kg-in .3s ease-out"><sc-for list="{{ gSlots }}" as="sl" hint-placeholder-count="6"><button onClick="{{ sl.pick }}" style="padding:10px 16px;border:0;border-radius:999px;background:{{ sl.bg }};color:{{ sl.fg }};font-weight:700;font-size:13px;cursor:pointer;transition:all .18s">{{ sl.label }}</button></sc-for></div></sc-if>
+<div style="margin-top:6px;font-weight:800;font-size:20px;letter-spacing:-.03em">Where</div>
+<label style="display:flex;flex-direction:column;gap:7px;font-weight:700;font-size:13px">Landmark<input value="{{ landmark }}" onChange="{{ onLandmark }}" placeholder="Behind BSU main gate, blue gate" style="padding:15px 18px;border:1.5px solid #E2E1D9;border-radius:18px;font-weight:500;font-size:15px;color:#0E0F0D;outline:none" style-focus="border-color:#0E0F0D"></label>
+<div style="font-weight:500;font-size:12.5px;color:#8A8F7C">Try “Apir junction” to see what happens outside a store’s range.</div>
+</div>
+</div>
+<aside style="flex:1 1 330px;min-width:0;position:sticky;top:96px;background:#fff;border-radius:30px;padding:24px;display:flex;flex-direction:column;gap:12px">
+<sc-if value="{{ gBelowMin }}" hint-placeholder-val="{{ false }}"><div style="padding:12px 14px;border-radius:18px;background:#FFF3DE;color:#9A5F00;font-weight:600;font-size:13px;line-height:1.45">Add {{ gShortfall }} more to reach {{ gStoreName }}’s {{ gMin }} minimum.<div style="margin-top:8px;height:6px;border-radius:999px;background:rgba(154,95,0,.15);overflow:hidden"><div style="height:100%;width:{{ gMinPct }};border-radius:999px;background:#9A5F00;transition:width .4s"></div></div></div></sc-if>
+<sc-if value="{{ gLarge }}" hint-placeholder-val="{{ false }}"><div style="padding:14px 16px;border-radius:20px;background:#0E0F0D;color:#FFF4D6;font-weight:500;font-size:13.5px;line-height:1.5"><b style="color:#C6F432">Large order · about {{ gKg }}.</b> Too heavy for one bike. It comes on a keke or two bikes, so delivery is {{ gFee }} instead of {{ gBaseFee }}.</div></sc-if>
+<div style="font-weight:800;font-size:20px;letter-spacing:-.03em">Payment</div>
+<div style="display:flex;flex-direction:column;gap:8px"><sc-for list="{{ gPayOpts }}" as="p" hint-placeholder-count="3"><button onClick="{{ p.pick }}" style="padding:14px 16px;border:1.5px solid {{ p.bd }};border-radius:20px;background:{{ p.bg }};text-align:left;cursor:pointer;transition:all .18s" style-active="transform:scale(.98)"><div style="font-weight:700;font-size:14.5px;color:{{ p.fg }}">{{ p.label }}</div><div style="margin-top:3px;font-weight:500;font-size:12.5px;color:{{ p.sfg }}">{{ p.sub }}</div></button></sc-for></div>
+<div style="padding-top:12px;border-top:1px solid #EFEEE8;display:flex;flex-direction:column;gap:8px;font-weight:600;font-size:14px;color:#6F7565">
+<div style="display:flex;justify-content:space-between"><span>Items</span><span>{{ gSub }}</span></div>
+<div style="display:flex;justify-content:space-between"><span>{{ gFeeLabel }}</span><span>{{ gFee }}</span></div>
+<div style="display:flex;justify-content:space-between;margin-top:4px;font-weight:800;font-size:18px;color:#0E0F0D"><span>Estimated total</span><span>{{ gEst }}</span></div>
+</div>
+<p style="margin:0;padding:12px 14px;border-radius:18px;background:#F3FBD9;color:#0E0F0D;font-weight:500;font-size:13px;line-height:1.5">{{ gPayLine }}</p>
+<sc-if value="{{ gErr }}" hint-placeholder-val="{{ false }}"><p style="margin:0;color:#C2410C;font-weight:600;font-size:13.5px;line-height:1.45;animation:kg-shake .35s ease-in-out">{{ gErr }}</p></sc-if>
+<button onClick="{{ gPlace }}" style="padding:17px;border:0;border-radius:999px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:15.5px;cursor:pointer;opacity:{{ gCtaOp }};transition:transform .18s,opacity .2s" style-hover="transform:translateY(-2px)" style-active="transform:scale(.98)">{{ gPlaceCta }}</button>
+<button onClick="{{ gSaveList }}" style="padding:0;border:0;background:none;color:#4E6B00;font-weight:700;font-size:13.5px;cursor:pointer;text-align:left">Save this basket as a list</button>
+</aside>
+</div>
+</sc-if>
+</div>
+</section>
+</sc-if>
+
+<sc-if value="{{ isGTrack }}" hint-placeholder-val="{{ false }}">
+<section data-screen-label="Grocery tracking" style="padding:22px 18px 60px">
+<div style="max-width:1240px;margin:0 auto;display:flex;flex-wrap:wrap;gap:22px;align-items:flex-start">
+<div style="flex:2 1 480px;min-width:0;position:relative;overflow:hidden;background:#0E0F0D;border-radius:40px;padding:clamp(24px,3.4vw,48px)">
+<div style="position:absolute;top:-160px;right:-120px;width:440px;height:440px;border-radius:50%;border:1.5px solid rgba(198,244,50,.18);pointer-events:none"></div>
+<div style="position:relative">
+<div style="font-weight:700;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,244,214,.5)">{{ goCode }} · {{ goStore }} · {{ goWhen }}</div>
+<h1 style="margin:10px 0 0;font-weight:800;font-size:clamp(30px,4vw,52px);line-height:1;letter-spacing:-.045em;color:#FFF4D6">{{ goTitle }}</h1>
+<p style="margin:12px 0 0;font-weight:500;font-size:15.5px;line-height:1.55;color:rgba(255,244,214,.65)">{{ goSubtitle }}</p>
+<sc-if value="{{ goPicking }}" hint-placeholder-val="{{ false }}"><div style="margin-top:22px;padding:18px 20px;border-radius:24px;background:rgba(255,255,255,.07)"><div style="display:flex;justify-content:space-between;font-weight:700;font-size:15px;color:#FFF4D6"><span>Ngozi is picking</span><span style="color:#C6F432">{{ goPicked }} of {{ goN }}</span></div><div style="margin-top:12px;height:8px;border-radius:999px;background:rgba(255,255,255,.1);overflow:hidden"><div style="height:100%;width:{{ goPickPct }};border-radius:999px;background:#C6F432;transition:width .8s cubic-bezier(.2,.8,.2,1)"></div></div><div style="margin-top:10px;font-weight:500;font-size:13px;color:rgba(255,244,214,.55)">Now in: {{ goAisle }}</div></div></sc-if>
+<div style="margin-top:26px;display:flex;flex-direction:column;gap:16px">
+<sc-for list="{{ goSteps }}" as="st" hint-placeholder-count="6"><div style="display:flex;align-items:center;gap:14px"><span style="flex:none;width:12px;height:12px;border-radius:50%;background:{{ st.dot }};animation:{{ st.anim }};transition:background .4s"></span><span style="font-weight:600;font-size:15px;color:{{ st.fg }};transition:color .4s">{{ st.label }}</span><span style="font-weight:500;font-size:13px;color:rgba(255,244,214,.45)">{{ st.sub }}</span></div></sc-for>
+</div>
+<sc-if value="{{ goRider }}" hint-placeholder-val="{{ false }}"><div style="margin-top:28px;display:flex;flex-wrap:wrap;align-items:center;gap:14px;padding:14px 14px 14px 16px;border-radius:26px;background:rgba(255,255,255,.07);animation:kg-in .3s ease-out"><span style="flex:none;width:46px;height:46px;border-radius:50%;background:#C6F432;color:#12180A;display:grid;place-items:center;font-weight:800;font-size:15px">TA</span><div style="flex:1;min-width:120px"><div style="font-weight:700;font-size:15.5px;color:#FFF4D6">Terna Aondo</div><div style="margin-top:3px;font-weight:500;font-size:13px;color:rgba(255,244,214,.55)">{{ goBags }} bags · {{ goVehicle }} · ★ 4.9</div></div><button onClick="{{ callRider }}" style="padding:12px 20px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:14px;cursor:pointer">Call</button></div></sc-if>
+<sc-if value="{{ goDone }}" hint-placeholder-val="{{ false }}"><button onClick="{{ gOrderAgain }}" style="margin-top:22px;padding:13px 22px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:14px;cursor:pointer">Shop again</button></sc-if>
+</div>
+</div>
+<aside style="flex:1 1 340px;min-width:0;background:#fff;border-radius:30px;padding:24px">
+<sc-if value="{{ goNeedsYou }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Approve substitutions" style="animation:kg-in .35s cubic-bezier(.2,.8,.2,1)">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:10px"><div style="font-weight:800;font-size:20px;letter-spacing:-.03em">{{ goAskCount }} items need your answer</div><span style="flex:none;padding:7px 13px;border-radius:999px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:13px">{{ goTimer }}</span></div>
+<p style="margin:8px 0 0;font-weight:500;font-size:13.5px;line-height:1.5;color:#6F7565">Ngozi couldn’t find these and suggests replacements. When the timer ends, your default for each item applies.</p>
+<div style="margin-top:14px;display:flex;flex-direction:column;gap:12px">
+<sc-for list="{{ goAsks }}" as="a" hint-placeholder-count="2">
+<div style="padding:16px;border:1.5px solid #EFEEE8;border-radius:24px">
+<div style="font-weight:500;font-size:12px;color:#6F7565">Not on the shelf</div>
+<div style="font-weight:600;font-size:14px;color:#8A8F7C;text-decoration:line-through">{{ a.from }} · {{ a.fromT }}</div>
+<div style="margin-top:12px;display:flex;gap:14px;align-items:center"><span style="flex:none;width:72px;height:72px;border-radius:18px;background:#EDEBDF;display:grid;place-items:center;font-weight:600;font-size:10px;color:#8A8F7C;text-align:center">Shopper’s photo</span><span style="flex:1;min-width:0"><span style="display:block;font-weight:700;font-size:15px">{{ a.to }}</span><span style="display:block;margin-top:2px;font-weight:700;font-size:14px">{{ a.toT }}</span><span style="display:inline-block;margin-top:6px;padding:3px 10px;border-radius:999px;background:{{ a.diffBg }};color:{{ a.diffFg }};font-weight:700;font-size:12px">{{ a.diff }}</span></span></div>
+<div style="margin-top:8px;font-weight:500;font-size:12.5px;color:#8A8F7C">Your default: {{ a.def }}</div>
+<sc-if value="{{ a.open }}" hint-placeholder-val="{{ true }}"><div style="margin-top:12px;display:grid;grid-template-columns:1fr 1fr;gap:8px"><button onClick="{{ a.reject }}" style="padding:12px;border:1.5px solid #D3D7CB;border-radius:999px;background:#fff;font-weight:700;font-size:13.5px;color:#0E0F0D;cursor:pointer">Refund instead</button><button onClick="{{ a.accept }}" style="padding:12px;border:0;border-radius:999px;background:#C6F432;color:#12180A;font-weight:700;font-size:13.5px;cursor:pointer" style-active="transform:scale(.97)">Accept</button></div></sc-if>
+<sc-if value="{{ a.closed }}" hint-placeholder-val="{{ false }}"><div style="margin-top:12px;padding:11px 14px;border-radius:16px;background:{{ a.resBg }};color:{{ a.resFg }};font-weight:700;font-size:13px;animation:kg-in .25s ease-out">{{ a.result }}</div></sc-if>
+</div>
+</sc-for>
+</div>
+<button onClick="{{ gExpire }}" style="margin-top:12px;padding:0;border:0;background:none;color:#6F7565;font-weight:600;font-size:12.5px;cursor:pointer">Prototype: let the timer run out</button>
+</div>
+</sc-if>
+<sc-if value="{{ goReceipt }}" hint-placeholder-val="{{ false }}">
+<div data-screen-label="Final receipt" style="animation:kg-in .35s cubic-bezier(.2,.8,.2,1)">
+<div style="font-weight:800;font-size:20px;letter-spacing:-.03em">Final receipt</div>
+<div style="margin-top:12px;padding:18px;border-radius:24px;background:#0E0F0D;color:#FFF4D6"><div style="display:flex;justify-content:space-between;font-weight:500;font-size:13px;color:rgba(255,244,214,.55)"><span>Estimated at checkout</span><span style="text-decoration:line-through">{{ goEst }}</span></div><div style="margin-top:6px;display:flex;justify-content:space-between;align-items:baseline"><span style="font-weight:700;font-size:16px">Final amount</span><span style="font-weight:800;font-size:28px;letter-spacing:-.03em;color:#C6F432">{{ goFinal }}</span></div><div style="margin-top:8px;font-weight:500;font-size:13px;line-height:1.5;color:rgba(255,244,214,.62)">{{ goRefundLine }}</div></div>
+<sc-if value="{{ grHasRep }}" hint-placeholder-val="{{ true }}"><div style="margin-top:18px;font-weight:800;font-size:14.5px">Replaced · {{ grRepCount }}</div><sc-for list="{{ grRep }}" as="r" hint-placeholder-count="2"><div style="padding:10px 0;border-bottom:1px solid #EFEEE8"><div style="font-weight:500;font-size:12.5px;color:#8A8F7C;text-decoration:line-through">{{ r.from }}</div><div style="display:flex;justify-content:space-between;gap:10px;font-weight:700;font-size:14px"><span>{{ r.to }}</span><span>{{ r.toT }}</span></div><div style="font-weight:500;font-size:12px;color:#6F7565">{{ r.note }}</div></div></sc-for></sc-if>
+<sc-if value="{{ grHasRef }}" hint-placeholder-val="{{ true }}"><div style="margin-top:18px;font-weight:800;font-size:14.5px">Refunded · {{ grRefCount }}</div><sc-for list="{{ grRef }}" as="r" hint-placeholder-count="1"><div style="display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #EFEEE8;font-weight:700;font-size:14px"><span>{{ r.name }}</span><span style="color:#1F7A55">−{{ r.amt }}</span></div></sc-for></sc-if>
+<sc-if value="{{ grHasW }}" hint-placeholder-val="{{ true }}"><div style="margin-top:18px;font-weight:800;font-size:14.5px">Weighed in store</div><sc-for list="{{ grW }}" as="r" hint-placeholder-count="1"><div style="padding:10px 0;border-bottom:1px solid #EFEEE8"><div style="display:flex;justify-content:space-between;font-weight:700;font-size:14px"><span>{{ r.name }}</span><span>{{ r.actT }}</span></div><div style="font-weight:500;font-size:12px;color:#6F7565">Ordered {{ r.estQ }} · packed {{ r.actQ }} · estimate {{ r.estT }}</div></div></sc-for></sc-if>
+<div style="margin-top:18px;font-weight:800;font-size:14.5px">Picked as ordered · {{ grPickCount }}</div>
+<sc-for list="{{ grPick }}" as="r" hint-placeholder-count="4"><div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #EFEEE8;font-weight:600;font-size:13.5px"><span style="flex:none;min-width:42px;color:#4E6B00">{{ r.qty }}</span><span style="flex:1;min-width:0">{{ r.name }}</span><span>{{ r.total }}</span></div></sc-for>
+<div style="margin-top:10px;display:flex;justify-content:space-between;font-weight:600;font-size:14px;color:#6F7565"><span>Delivery</span><span>{{ goFee }}</span></div>
+</div>
+</sc-if>
+<sc-if value="{{ goWaiting }}" hint-placeholder-val="{{ true }}">
+<div style="font-weight:800;font-size:20px;letter-spacing:-.03em">Your basket</div>
+<div style="margin-top:12px;display:flex;flex-direction:column;gap:8px;font-weight:600;font-size:14px;color:#6F7565"><div style="display:flex;justify-content:space-between"><span>{{ goN }} items · estimated</span><span>{{ goEst }}</span></div><div style="display:flex;justify-content:space-between"><span>{{ goHoldLabel }}</span><span>{{ goHold }}</span></div></div>
+<p style="margin:14px 0 0;padding:12px 14px;border-radius:18px;background:#F3FBD9;font-weight:500;font-size:13.5px;line-height:1.5">{{ goHoldLine }}</p>
+<div style="margin-top:14px;display:flex;flex-direction:column;gap:8px"><sc-for list="{{ goItems }}" as="i" hint-placeholder-count="4"><div style="display:flex;gap:10px;font-weight:600;font-size:13.5px"><span style="flex:none;min-width:42px;color:#4E6B00">{{ i.qty }}</span><span style="flex:1;min-width:0">{{ i.name }}</span><span style="color:#6F7565">{{ i.sub }}</span></div></sc-for></div>
+</sc-if>
+</aside>
+</div>
+</section>
+</sc-if>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const NGN = n => '₦' + Number(n).toLocaleString('en-NG');
+const KITCHENS = [
+  { id: 'terkimbi', name: "Terkimbi's Kitchen", cat: 'Swallow', sub: 'Swallow & soups · Wurukum', km: '0.8 km', eta: '20–30 min', free: true, img: 'public/food/poundo.jpg',
+    menu: [['Pounded yam & egusi', 'With assorted meat', 2800], ['Amala & ewedu', 'Gbegiri and stew on the side', 2400], ['Semo & okra soup', 'With fresh fish', 2600], ['Goat meat pepper soup', 'Hot, one bowl', 3000], ['Zobo', 'Chilled, 50cl', 500]] },
+  { id: 'sewuese', name: 'Sewuese Rice Spot', cat: 'Rice', sub: 'Jollof & chicken · North Bank', km: '1.4 km', eta: '25–35 min', img: 'public/food/jollof-chicken.jpg',
+    menu: [['Jollof rice & chicken', 'Party-style, with plantain', 2500], ['Fried rice & turkey', 'With coleslaw', 3200], ['Ofada rice & ayamase', 'Green pepper sauce', 2700], ['Extra plantain', 'Dodo, one portion', 600], ['Chapman', 'Chilled, 50cl', 800]] },
+  { id: 'grills', name: 'Benue Grills', cat: 'Grills', sub: 'Grills & barbecue · Judges Quarters', km: '2.6 km', eta: '35–45 min', img: 'public/food/barbeque.jpg',
+    menu: [['Grilled chicken (half)', 'Peppered, with chips', 4500], ['Barbecue fish', 'Whole catfish, spicy sauce', 6000], ['Beef skewers', 'Four sticks', 2800], ['Roasted yam', 'With palm oil sauce', 1500], ['Chilled malt', '33cl can', 700]] },
+  { id: 'suya', name: 'Modern Market Suya', cat: 'Suya', sub: 'Suya & grills · Modern Market', km: '3.1 km', eta: '30–40 min', late: true, img: 'public/food/meat.jpg',
+    menu: [['Beef suya', 'Wrapped, with onions and yaji', 2000], ['Ram suya', 'Wrapped, extra yaji', 2500], ['Kilishi', '100g pack', 1800], ['Chicken suya', 'Half bird', 3500], ['Kunu', 'Chilled, 50cl', 500]] }
+];
+const STAGES = [['Order accepted', 'The kitchen has your order'], ['Cooking', 'Your food is on the fire'], ['Picked up', 'Your rider has left the kitchen'], ['On the way', 'Your rider is heading to you'], ['Delivered', 'Enjoy your meal']];
+const KEY = 'karrigo-web';
+const K = k => '₦' + Math.round(k / 100).toLocaleString('en-NG');
+const GCATS = [['grains', 'Grains & flour'], ['oils', 'Oils & spices'], ['prov', 'Provisions'], ['drinks', 'Drinks'], ['frozen', 'Frozen'], ['fresh', 'Fresh produce'], ['toil', 'Toiletries'], ['house', 'Household'], ['baby', 'Baby']];
+const AISLE = { grains: 'Aisle 2 · Grains & flour', oils: 'Aisle 3 · Oils & spices', prov: 'Aisle 1 · Provisions', drinks: 'Aisle 5 · Drinks', frozen: 'Freezers', fresh: 'Fresh produce', toil: 'Aisle 6 · Toiletries', house: 'Aisle 7 · Household', baby: 'Aisle 6 · Baby' };
+const RAW = [
+  ['semo1', 'Golden Penny Semovita', '1kg', 'grains', 'pack', 'pack', 1650, 1, ['Honeywell Semolina 1kg', 1800], [['1kg', 1650, 1], ['2kg', 3200, 2], ['5kg', 7600, 5]]],
+  ['rice', 'Local rice', 'per mudu', 'grains', 'measure', 'mudu', 2800, 1.6, ['Mama Gold rice, by the mudu', 3100]],
+  ['mamagold', 'Mama Gold rice', '5kg bag', 'grains', 'pack', 'bag', 9500, 5, ['Royal Stallion rice 5kg', 9200], [['5kg bag', 9500, 5], ['10kg bag', 18500, 10], ['25kg bag', 44000, 25]]],
+  ['indomie', 'Indomie Chicken 70g', 'carton of 40', 'grains', 'pack', 'carton', 9800, 3, ['Indomie Onion Chicken, carton of 40', 9800], [['Carton of 40', 9800, 3], ['Pack of 5', 1250, .35], ['Single', 250, .07]]],
+  ['spag', 'Dangote Spaghetti', '500g', 'grains', 'piece', 'pack', 850, .5, ['Golden Penny Spaghetti 500g', 900]],
+  ['garri', 'White garri', 'per mudu', 'grains', 'measure', 'mudu', 1400, 1.3, ['Yellow garri, by the mudu', 1500]],
+  ['beans', 'Oloyin beans', 'per mudu', 'grains', 'measure', 'mudu', 3000, 1.4, ['Brown beans, by the mudu', 2700]],
+  ['goil', 'Kings groundnut oil', '5L', 'oils', 'pack', 'bottle', 12500, 4.6, ['Power Oil 5L', 13200]],
+  ['palm', 'Palm oil', '1L bottle', 'oils', 'piece', 'bottle', 2200, .9, null],
+  ['maggi', 'Maggi Star cubes', 'pack of 100', 'oils', 'pack', 'pack', 1600, .4, ['Knorr cubes, pack of 100', 1700]],
+  ['cray', 'Ground crayfish', 'per cup', 'oils', 'measure', 'cup', 1200, .15, null],
+  ['peak', 'Peak milk evaporated', '160g tin', 'prov', 'piece', 'tin', 600, .17, ['Three Crowns milk 160g tin', 500]],
+  ['peakp', 'Peak milk powder', '400g refill', 'prov', 'pack', 'pack', 3400, .4, ['Dano milk powder 400g', 3100]],
+  ['sugar', 'Dangote sugar', '500g', 'prov', 'pack', 'pack', 900, .5, ['Golden Penny sugar 500g', 950]],
+  ['milo', 'Milo', '500g refill', 'prov', 'pack', 'pack', 3100, .5, ['Bournvita 500g refill', 3000]],
+  ['eggs', 'Eggs', 'crate of 30', 'prov', 'pack', 'crate', 5200, 1.9, null],
+  ['coke', 'Coca-Cola', '50cl bottle', 'drinks', 'piece', 'bottle', 400, .55, ['Pepsi 50cl', 400]],
+  ['cokecr', 'Coca-Cola 35cl', 'crate of 24', 'drinks', 'pack', 'crate', 7200, 14, null],
+  ['eva', 'Eva water 75cl', 'pack of 12', 'drinks', 'pack', 'pack', 2400, 9, ['Nestlé Pure Life 75cl, pack of 12', 2600]],
+  ['chick', 'Frozen chicken', 'per kg', 'frozen', 'weight', 'kg', 4800, 1, ['Frozen turkey wings, per kg', 5600]],
+  ['titus', 'Titus fish (mackerel)', 'per kg', 'frozen', 'weight', 'kg', 5500, 1, ['Croaker fish, per kg', 6000]],
+  ['tom', 'Tomatoes', 'small basket', 'fresh', 'weight', 'basket', 6500, 6, null],
+  ['onion', 'Onions', 'per kg', 'fresh', 'weight', 'kg', 1500, 1, null],
+  ['yam', 'Yam', 'medium tuber', 'fresh', 'weight', 'tuber', 2500, 2.5, null],
+  ['ugu', 'Ugu leaves', 'bunch', 'fresh', 'piece', 'bunch', 300, .2, ['Green (spinach), bunch', 300]],
+  ['plant', 'Plantain', 'hand of 4', 'fresh', 'pack', 'hand', 1200, 1.2, null],
+  ['close', 'Close-Up toothpaste', '140g', 'toil', 'piece', 'tube', 1100, .15, ['Pepsodent 140g', 1000]],
+  ['joy', 'Joy beauty soap', '150g', 'toil', 'piece', 'bar', 450, .15, null],
+  ['hypo', 'Hypo bleach', '1L', 'house', 'piece', 'bottle', 900, 1, null],
+  ['mfresh', 'Morning Fresh', '400ml', 'house', 'piece', 'bottle', 1300, .45, null],
+  ['ariel', 'Ariel detergent', '900g', 'house', 'pack', 'pack', 2600, .9, ['Omo 900g', 2400]],
+  ['molfix', 'Molfix diapers, size 3', 'pack of 56', 'baby', 'pack', 'pack', 12000, 2, ['Pampers size 3, pack of 50', 13500]],
+  ['cerelac', 'Nestlé Cerelac (wheat)', '400g tin', 'baby', 'piece', 'tin', 4200, .4, null]
+];
+const P = {};
+RAW.forEach(r => { P[r[0]] = { id: r[0], name: r[1], size: r[2], cat: r[3], u: r[4], per: r[5], price: r[6] * 100, kg: r[7], alt: r[8] ? { name: r[8][0], price: r[8][1] * 100 } : null, opts: r[9] ? r[9].map(o => ({ label: o[0], price: o[1] * 100, kg: o[2] })) : null }; });
+const STORES = [
+  { id: 'mega', name: 'Makurdi Mega Store', area: 'Old GRA · biggest range', km: '2.1 km', eta: '45–60 min', fee: 60000, min: 500000, f: 1, open: true },
+  { id: 'wuru', name: 'Wurukum Provisions', area: 'Wurukum · provisions & drinks', km: '0.9 km', eta: '40–50 min', fee: 40000, min: 300000, f: .97, open: true, missing: ['chick', 'titus', 'molfix', 'cerelac', 'tom', 'cokecr'] },
+  { id: 'hl', name: 'High Level Mini Mart', area: 'High Level · closes 9pm', km: '1.6 km', eta: '45–55 min', fee: 50000, min: 250000, f: 1.06, open: true, missing: ['mamagold', 'cokecr', 'tom', 'yam', 'titus'] },
+  { id: 'mmf', name: 'Modern Market Fresh', area: 'Modern Market · fresh produce', km: '3.0 km', eta: '50–60 min', fee: 70000, min: 300000, f: .92, open: false, opens: 'Opens 6:00am', only: ['fresh', 'frozen', 'oils', 'grains'] }
+];
+const GSUBS = [['similar', 'Replace with similar', 'Your shopper picks the closest match'], ['specific', 'Replace with a specific item', ''], ['refund', 'Don’t replace, refund it', 'You get the money back'], ['call', 'Call me', 'Your shopper calls before deciding']];
+const SUBSHORT = { similar: 'Replace with similar', specific: 'Specific item', refund: 'Refund it', call: 'Call me' };
+const GLISTS = [
+  { id: 'monthly', name: 'Monthly provisions', used: 'Last used 12 Sep', items: [['semo1', 0, 2], ['mamagold', 0, 1], ['goil', 0, 1], ['peak', 0, 12], ['peakp', 0, 1], ['sugar', 0, 2], ['milo', 0, 1], ['maggi', 0, 1], ['indomie', 0, 1], ['eggs', 0, 1], ['ariel', 0, 1], ['mfresh', 0, 1], ['close', 0, 2], ['hypo', 0, 1]] },
+  { id: 'soup', name: 'Egusi soup things', used: 'Last used 2 Oct', items: [['palm', 0, 1], ['cray', 0, 2], ['ugu', 0, 3], ['onion', 0, 1], ['titus', 0, 1], ['maggi', 0, 1]] },
+  { id: 'baby', name: 'Baby', used: 'Last used 28 Sep', items: [['molfix', 0, 1], ['cerelac', 0, 2]] }
+];
+const SLOTS = ['Today, 4–5pm', 'Today, 5–6pm', 'Today, 6–7pm', 'Tomorrow, 8–9am', 'Tomorrow, 9–10am', 'Tomorrow, 10–11am'];
+const abbr = n => n.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+const mmss = s => `${Math.floor(Math.max(0, s) / 60)}:${String(Math.max(0, s) % 60).padStart(2, '0')}`;
+
+class Component extends DCLogic {
+  state = this.load();
+  load() {
+    let s = {};
+    try { s = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch (e) {}
+    return { screen: 'home', authMode: 'login', authNote: '', kid: 'terkimbi', q: '', cat: 'All', form: { name: '', phone: '', password: '' }, err: '', coErr: '', pay: 'card', address: '', landmark: '', note: '', toast: '', pending: false, user: null, accounts: {}, cart: {}, ckid: null, order: null, mode: 'food', gsel: 'mega', gsid: 'mega', glines: {}, gorder: null, glists: GLISTS, gcat: 'all', gsq: '', gq: '', gpid: null, gpoi: 0, gpq: 1, gpsub: 'similar', gallSub: '', gnote: '', gwhen: 'now', gslot: SLOTS[1], gpay: 'card', gconfirm: null, glid: 'monthly', gErr: '', ...s };
+  }
+  componentDidMount() {
+    this.onHash = () => {
+      const h = location.hash.slice(1);
+      if (h === 'login' || h === 'signup') this.go('auth', { authMode: h });
+      else if (h === 'kitchens') this.go('home');
+      else if (h.startsWith('kitchen-')) this.go('kitchen', { kid: h.slice(8) });
+      else if (h === 'track' && this.state.order) this.go('track');
+      else if (h === 'groceries') this.go('home', { mode: 'groceries' });
+      else if (h.startsWith('store-')) this.go('store', { gsel: h.slice(6), mode: 'groceries' });
+    };
+    this.gIv = setInterval(() => this.gTick(), 1000);
+    this.onHash();
+    this.onScroll = () => { const sc = window.scrollY > 8; if (sc !== this.state.scrolled) this.setState({ scrolled: sc }); };
+    this.onScroll();
+    window.addEventListener('scroll', this.onScroll, { passive: true });
+    window.addEventListener('hashchange', this.onHash);
+    this.tick = setInterval(() => {
+      const o = this.state.order;
+      if (o && o.stage < 4) this.setState({ order: { ...o, stage: o.stage + 1 } });
+    }, 6000);
+  }
+  componentWillUnmount() { window.removeEventListener('hashchange', this.onHash); window.removeEventListener('scroll', this.onScroll); clearInterval(this.tick); clearInterval(this.gIv); clearTimeout(this.tt); }
+  componentDidUpdate() {
+    const { user, accounts, cart, ckid, order, address, landmark, mode, gsid, glines, gorder, glists } = this.state;
+    try { localStorage.setItem(KEY, JSON.stringify({ user, accounts, cart, ckid, order, address, landmark, mode, gsid, glines, gorder, glists })); } catch (e) {}
+  }
+  go(screen, extra = {}) {
+    const next = { screen, err: '', coErr: '', ...extra };
+    const RANK = { home: 0, kitchen: 1, store: 1, gsearch: 1, lists: 1, checkout: 2, gcheckout: 2, auth: 3, track: 4, gtrack: 4 };
+    if (screen === this.state.screen || !document.startViewTransition || matchMedia('(prefers-reduced-motion: reduce)').matches) { this.setState(next); window.scrollTo(0, 0); return; }
+    document.documentElement.dataset.kgDir = (RANK[screen] ?? 0) >= (RANK[this.state.screen] ?? 0) ? 'fwd' : 'back';
+    document.startViewTransition(() => new Promise(res => this.setState(next, () => { window.scrollTo(0, 0); res(); })));
+  }
+  say(toast) { clearTimeout(this.tt); this.setState({ toast }); this.tt = setTimeout(() => this.setState({ toast: '' }), 2600); }
+  kitchen(id) { return KITCHENS.find(k => k.id === id) || KITCHENS[0]; }
+  add(kid, i) {
+    let { cart, ckid } = this.state;
+    const k = `${kid}:${i}`;
+    if (ckid && ckid !== kid && Object.keys(cart).length) { cart = {}; this.say(`New cart started at ${this.kitchen(kid).name}`); }
+    this.setState({ cart: { ...cart, [k]: (cart[k] || 0) + 1 }, ckid: kid });
+  }
+  dec(k) {
+    const cart = { ...this.state.cart };
+    cart[k] = (cart[k] || 0) - 1;
+    if (cart[k] <= 0) delete cart[k];
+    this.setState({ cart, ckid: Object.keys(cart).length ? this.state.ckid : null });
+  }
+  setF(f) { return e => this.setState({ form: { ...this.state.form, [f]: e.target.value }, err: '' }); }
+  submit = e => {
+    e && e.preventDefault();
+    const { form, authMode, accounts, pending } = this.state;
+    const phone = form.phone.replace(/\D/g, '');
+    const fail = err => this.setState({ err });
+    if (authMode === 'signup' && form.name.trim().length < 2) return fail('Enter your name.');
+    if (!/^0\d{10}$/.test(phone)) return fail('Enter an 11-digit phone number, like 0803 123 4567.');
+    if (form.password.length < 6) return fail('Password needs at least 6 characters.');
+    let user, acc = accounts;
+    if (authMode === 'signup') {
+      if (accounts[phone]) return fail('That number already has an account. Log in instead.');
+      user = { name: form.name.trim(), phone };
+      acc = { ...accounts, [phone]: { name: user.name, pw: form.password } };
+    } else {
+      const a = accounts[phone];
+      if (!a) return fail('No account with that number. Sign up instead.');
+      if (a.pw !== form.password) return fail('Wrong password. Try again.');
+      user = { name: a.name, phone };
+    }
+    history.replaceState(null, '', location.pathname + location.search);
+    this.go(pending ? (pending === 'g' ? 'gcheckout' : 'checkout') : 'home', { user, accounts: acc, pending: false, authNote: '', form: { name: '', phone: '', password: '' } });
+    this.say(authMode === 'signup' ? `Welcome to Karrigo, ${user.name.split(' ')[0]}` : `Welcome back, ${user.name.split(' ')[0]}`);
+  };
+  place = () => {
+    const { user, address, landmark, cart, ckid, pay, note } = this.state;
+    if (!user) return this.go('auth', { authMode: 'login', pending: true, authNote: 'Log in or sign up to place your order. Your cart is saved.' });
+    if (address.trim().length < 3 && landmark.trim().length < 3) return this.setState({ coErr: 'Add an address or a landmark so your rider can find you.' });
+    const k = this.kitchen(ckid);
+    const items = Object.entries(cart).map(([key, q]) => { const m = k.menu[key.split(':')[1]]; return { name: m[0], qty: q, price: m[2] * q }; });
+    const sub = items.reduce((s, i) => s + i.price, 0);
+    const fee = k.free ? 0 : 500;
+    const order = { id: 1000 + Math.floor(Math.random() * 9000), kitchen: k.name, items, sub, fee, total: sub + fee, pay, note, to: landmark || address, placed: Date.now(), stage: 0 };
+    this.go('track', { order, cart: {}, ckid: null });
+  };
+  gst(id) { return STORES.find(x => x.id === id) || STORES[0]; }
+  sp(st, k) { return Math.round(k * st.f / 5000) * 5000; }
+  has(st, pid) { const p = P[pid]; return !(st.missing && st.missing.includes(pid)) && !(st.only && !st.only.includes(p.cat)); }
+  unit(p, oi) { const o = p.opts ? p.opts[oi || 0] : null; return { size: o ? o.label : p.size, price: o ? o.price : p.price, kg: o ? o.kg : p.kg }; }
+  step(p) { return p.per === 'kg' ? .5 : 1; }
+  qtyTxt(p, q) { return p.per === 'kg' ? `${q} kg` : p.u === 'measure' ? `${q} ${p.per}${q > 1 ? 's' : ''}` : `${q}`; }
+  unitTxt(p) { return { piece: 'each', pack: `per ${p.per}`, measure: `by the ${p.per}`, weight: p.per === 'kg' ? '≈ by weight' : `≈ per ${p.per}, weighed` }[p.u]; }
+  priceTxt(st, p, oi) { const k = K(this.sp(st, this.unit(p, oi).price)); return p.u === 'weight' ? (p.per === 'kg' ? `${k}/kg` : `≈ ${k}`) : k; }
+  subLabel(p, sub) { return { similar: 'If missing: shopper picks similar', specific: `If missing: ${p.alt ? p.alt.name : 'similar'}`, refund: 'If missing: refund it', call: 'If missing: call me' }[sub]; }
+  gAdd(sid, pid, oi = 0, q = null, sub = null) {
+    const s = this.state;
+    if (Object.keys(s.glines).length && s.gsid !== sid) return this.setState({ gconfirm: { sid, pid, oi, q, sub } });
+    const p = P[pid]; const key = `${pid}:${oi}`; const cur = s.glines[key];
+    this.setState({ gsid: sid, glines: { ...s.glines, [key]: { q: (cur ? cur.q : 0) + (q || this.step(p)), sub: sub || (cur && cur.sub) || s.gallSub || 'similar' } } });
+    return true;
+  }
+  gDec(key) { const p = P[key.split(':')[0]]; const gl = { ...this.state.glines }; const q = gl[key].q - this.step(p); if (q <= 0) delete gl[key]; else gl[key] = { ...gl[key], q }; this.setState({ glines: gl }); }
+  gAddList(lid, sid) {
+    const s = this.state; const l = s.glists.find(x => x.id === lid); const st = this.gst(sid);
+    if (Object.keys(s.glines).length && s.gsid !== sid) return this.setState({ gconfirm: { sid, list: lid } });
+    const gl = { ...s.glines }; const miss = [];
+    l.items.forEach(([pid, oi, q]) => { if (!this.has(st, pid)) return miss.push(P[pid].name); const k = `${pid}:${oi}`; gl[k] = { q: (gl[k] ? gl[k].q : 0) + q, sub: (gl[k] && gl[k].sub) || s.gallSub || 'similar' }; });
+    this.setState({ glines: gl, gsid: sid });
+    this.say(miss.length ? `Added ${l.items.length - miss.length} items. ${st.name} doesn’t stock ${miss.join(', ')}.` : `Added all ${l.items.length} items from “${l.name}”`);
+  }
+  gLines(gl = this.state.glines, sid = this.state.gsid) {
+    const st = this.gst(sid);
+    return Object.entries(gl).map(([key, v]) => { const [pid, oi] = key.split(':'); const p = P[pid]; const u = this.unit(p, +oi); return { key, p, oi: +oi, q: v.q, sub: v.sub, u, total: Math.round(this.sp(st, u.price) * v.q), est: p.u === 'weight', kg: u.kg * v.q, count: p.per === 'kg' ? 1 : v.q }; });
+  }
+  gTotals(ls = this.gLines()) {
+    const st = this.gst(this.state.gsid);
+    const sub = ls.reduce((a, l) => a + l.total, 0); const kg = ls.reduce((a, l) => a + l.kg, 0);
+    const large = kg > 25 || ls.some(l => l.p.id === 'cokecr'); const fee = ls.length ? st.fee * (large ? 2 : 1) : 0;
+    const wEst = ls.filter(l => l.est).reduce((a, l) => a + l.total, 0); const est = sub + fee;
+    return { sub, kg, large, fee, est, hold: est + Math.ceil(wEst * .1 / 10000) * 10000, count: ls.reduce((a, l) => a + l.count, 0), store: st };
+  }
+  gMake() {
+    const s = this.state; const ls = this.gLines(); const t = this.gTotals(ls); const st = t.store;
+    const missKeys = ls.filter(l => !l.est && l.p.alt).slice(0, 3).map(l => l.key);
+    const refundLine = ls.find(l => l.sub === 'refund' && !missKeys.includes(l.key));
+    const asks = [], autos = [], refunds = [], weighed = [];
+    ls.forEach(l => {
+      const nm = `${l.p.name} ${l.u.size}${l.q > 1 && !l.est ? ` × ${l.q}` : ''}`;
+      if (missKeys.includes(l.key)) {
+        const toT = this.sp(st, l.p.alt.price) * l.q; const to = l.p.alt.name + (l.q > 1 ? ` × ${l.q}` : '');
+        if (l.sub === 'specific') autos.push({ key: l.key, from: nm, fromT: l.total, to, toT });
+        else if (l.sub === 'refund') refunds.push({ key: l.key, name: nm, amt: l.total });
+        else asks.push({ key: l.key, from: nm, fromT: l.total, to, toT, def: l.sub, d: null });
+      } else if (refundLine && l.key === refundLine.key) refunds.push({ key: l.key, name: nm, amt: l.total });
+      else if (l.est) { const f = [1.05, .96, 1.03][weighed.length % 3]; weighed.push({ key: l.key, name: l.p.name, estQ: this.qtyTxt(l.p, l.q) + (l.p.per !== 'kg' ? ` ${l.p.per}` : ''), actQ: l.p.per === 'kg' ? `${(l.q * f).toFixed(2)} kg` : `${(l.u.kg * l.q * f).toFixed(1)} kg`, estT: l.total, actT: Math.round(l.total * f / 1000) * 1000 }); }
+    });
+    return { code: 'KR-' + (4800 + Math.floor(Math.random() * 190)), sid: s.gsid, ls, n: t.count, picked: 0, stage: 0, t: 0, asks, autos, refunds, weighed, fee: t.fee, large: t.large, est: t.est, hold: t.hold, pay: s.gpay, when: s.gwhen === 'now' ? 'Delivery now' : s.gslot, timer: 300, bags: Math.max(2, Math.ceil(t.count / 5)) + (t.large ? 1 : 0) };
+  }
+  gFinal(o) {
+    const out = new Set([...o.refunds.map(r => r.key), ...o.asks.filter(a => a.d === 'rejected').map(a => a.key)]);
+    let tot = o.fee;
+    o.ls.forEach(l => { if (out.has(l.key)) return; const a = o.asks.find(x => x.key === l.key && x.d === 'accepted') || o.autos.find(x => x.key === l.key); const w = o.weighed.find(x => x.key === l.key); tot += a ? a.toT : w ? w.actT : l.total; });
+    return tot;
+  }
+  gTick() {
+    const o = this.state.gorder; if (!o || o.stage >= 5) return;
+    const n = { ...o, t: o.t + 1 }; const target = o.n - o.asks.length;
+    if (o.stage === 0 && n.t >= 3) { n.stage = 1; n.t = 0; }
+    else if (o.stage === 1) { n.picked = Math.min(target, o.picked + (o.n > 20 ? 2 : 1)); if (n.picked >= target) { n.stage = o.asks.length ? 2 : 3; n.t = 0; } }
+    else if (o.stage === 2) { n.timer = o.timer - 1; if (n.timer <= 0 || o.asks.every(a => a.d)) { n.asks = o.asks.map(a => a.d ? a : { ...a, d: a.def === 'call' ? 'rejected' : 'accepted', auto: true }); n.stage = 3; n.t = 0; n.picked = o.n; if (n.timer <= 0) this.say('Time ran out, so your defaults were used'); } }
+    else if (o.stage === 3 && n.t >= 4) { n.stage = 4; n.t = 0; }
+    else if (o.stage === 4 && n.t >= 7) n.stage = 5;
+    this.setState({ gorder: n });
+  }
+  gPlace = () => {
+    const s = this.state; const t = this.gTotals();
+    if (!t.count) return;
+    if (t.sub < t.store.min) return this.setState({ gErr: `Add ${K(t.store.min - t.sub)} more to reach ${t.store.name}’s minimum.` });
+    if (!s.user) return this.go('auth', { authMode: 'login', pending: 'g', authNote: 'Log in or sign up to place your grocery order. Your basket is saved.' });
+    if (s.landmark.trim().length < 3) return this.setState({ gErr: 'Add a landmark so your rider can find you.' });
+    if (/apir|yelwata|daudu/i.test(s.landmark)) return this.setState({ gErr: `${t.store.name} can’t reach that landmark yet. It’s about 9.4 km away, past its 6 km limit. Change the landmark or shop at High Level Mini Mart.` });
+    if (!t.store.open && s.gwhen === 'now') return this.setState({ gErr: `${t.store.name} is closed now. Pick a slot for tomorrow.` });
+    this.go('gtrack', { gorder: this.gMake(), glines: {}, gErr: '' });
+  };
+  gOpen(sid, pid) { const s = this.state; const key = Object.keys(s.glines).find(k => k.startsWith(pid + ':')); this.setState({ gpid: pid, gpoi: 0, gpq: this.step(P[pid]), gpsub: key && s.gsid === sid ? s.glines[key].sub : s.gallSub || 'similar' }); }
+  gVals(s, foodCount, foodHasLines) {
+    const store = this.gst(s.gsel); const gstore = this.gst(s.gsid);
+    const ls = this.gLines(); const t = this.gTotals(ls); const o = s.gorder;
+    const sel = on => ({ bg: on ? '#0E0F0D' : '#fff', fg: on ? '#C6F432' : '#0E0F0D' });
+    const row = (st, p, oi = 0) => { const key = `${p.id}:${oi}`; const line = s.gsid === st.id ? s.glines[key] : null; const q = line ? line.q : 0; return { abbr: abbr(p.name), name: p.name, size: this.unit(p, oi).size, unit: this.unitTxt(p), price: this.priceTxt(st, p, oi), none: !q, some: !!q, qty: this.qtyTxt(p, q), add: () => this.gAdd(st.id, p.id, oi), dec: () => this.gDec(key), open: () => this.gOpen(st.id, p.id) }; };
+    const sq = s.gsq.trim().toLowerCase();
+    const inStore = RAW.map(r => P[r[0]]).filter(p => this.has(store, p.id) && (s.gcat === 'all' || p.cat === s.gcat) && (!sq || (p.name + ' ' + p.size).toLowerCase().includes(sq)));
+    const groups = GCATS.filter(c => inStore.some(p => p.cat === c[0])).map(c => ({ label: c[1], rows: inStore.filter(p => p.cat === c[0]).map(p => row(store, p)) }));
+    const p = s.gpid ? P[s.gpid] : P.chick; const pu = this.unit(p, s.gpoi); const pTot = Math.round(this.sp(store, pu.price) * s.gpq);
+    const gq = s.gq.trim().toLowerCase();
+    const matches = gq.length > 1 ? RAW.map(r => P[r[0]]).filter(x => (x.name + ' ' + x.size).toLowerCase().includes(gq)) : [];
+    const bestOf = x => Math.min(...STORES.filter(st => this.has(st, x.id)).map(st => this.sp(st, x.price)));
+    const cmp = matches[0];
+    const list = s.glists.find(l => l.id === s.glid) || s.glists[0];
+    const listTotal = l => l.items.filter(([pid]) => this.has(gstore, pid)).reduce((a, [pid, oi, q]) => a + this.sp(gstore, this.unit(P[pid], oi).price) * q, 0);
+    const listMiss = list.items.filter(([pid]) => !this.has(gstore, pid)).map(([pid]) => P[pid].name);
+    const below = t.count > 0 && t.sub < gstore.min;
+    const gcount = t.count; const all = foodCount + gcount;
+    const fin = o ? this.gFinal(o) : 0; const diff = o ? o.hold - fin : 0;
+    const asksOpen = o ? o.asks.filter(a => !a.d).length : 0;
+    const oStore = o ? this.gst(o.sid) : gstore;
+    const STEPS = [['Order placed', o ? o.when : ''], ['Shopper picking', o ? `${Math.min(o.picked, o.n)} of ${o.n} items` : ''], ['Your answers', o ? (o.asks.length ? `${o.asks.length} replacements` : 'Nothing to check') : ''], ['Packed', o ? `${o.bags} bags` : ''], ['Rider on the way', o && o.large ? 'Keke, large order' : 'Motorbike'], ['Delivered', '']];
+    const titles = o ? [o.pay === 'card' ? `Holding ${K(o.hold)} on your card` : 'Order placed', `${Math.min(o.picked, o.n)} of ${o.n} items picked`, `${asksOpen} items need your answer`, `Packed in ${o.bags} bags`, 'Terna is on the way', 'Delivered. Check your bags.'] : [];
+    const subs2 = o ? [`${oStore.name} has your list. Ngozi starts picking in a moment.`, 'Ngozi is walking the aisles with your list. She’ll ask if something’s missing.', 'Ngozi found replacements. Accept or refund each one on the right.', 'The final amount is set. Terna is coming to collect.', `Arriving in about 14 minutes at ${s.landmark || 'your landmark'}.`, 'Your final receipt is on the right.'] : [];
+    const payLines = { card: `We hold ${K(t.hold)} on your card now and charge only the final amount after packing. The rest is released at once.`, transfer: `Transfer ${K(t.hold)} now. Whatever isn’t used goes back to your Karrigo wallet once your order is packed.`, cash: 'Pay the final amount in cash when your rider arrives. We tell you the exact figure after packing.' };
+    const special = o ? new Set([...o.refunds, ...o.asks, ...o.autos, ...o.weighed].map(x => x.key)) : new Set();
+    const pm = (v) => `${v >= 0 ? '+' : '−'}${K(Math.abs(v))}`;
+    return {
+      cartBadge: React.createElement('span', { key: all, style: { minWidth: 22, height: 22, padding: '0 6px', borderRadius: 999, background: '#0E0F0D', color: '#C6F432', fontSize: 12, display: 'grid', placeItems: 'center', animation: all ? 'kg-pop .4s cubic-bezier(.2,.8,.2,1)' : 'none' } }, all),
+      hasOrder: ((!!s.order && s.order.stage < 4) || (!!o && o.stage < 5)) && s.screen !== 'track' && s.screen !== 'gtrack',
+      goTrack: () => this.go(o && (o.stage < 5 || !s.order) ? 'gtrack' : 'track'),
+      goCart: () => this.go((gcount && (s.mode === 'groceries' || !foodCount)) ? 'gcheckout' : foodCount ? 'checkout' : s.mode === 'groceries' ? 'gcheckout' : 'checkout'),
+      modeX: s.mode === 'groceries' ? 'translateX(100%)' : 'translateX(0)', modeFoodFg: s.mode === 'groceries' ? '#0E0F0D' : '#C6F432', modeGrocFg: s.mode === 'groceries' ? '#C6F432' : '#0E0F0D',
+      modeFood: () => this.setState({ mode: 'food' }), modeGroc: () => this.setState({ mode: 'groceries' }), grocMode: s.mode === 'groceries', foodMode: s.mode !== 'groceries',
+      gGoSearch: () => this.go('gsearch', { gq: '' }), gGoLists: () => this.go('lists'), gBackHome: () => this.go('home', { mode: 'groceries' }), gGoCheckout: () => this.go('gcheckout', { gErr: '' }), gBackStore: () => this.go('store', { gsel: s.gsid, gcat: 'all', gsq: '' }),
+      gHasBuyAgain: !!s.user || !!s.gorder, gBuyAgain: ['peak', 'sugar', 'indomie', 'goil', 'eggs', 'semo1'].map((id, i) => { const x = P[id]; return { abbr: abbr(x.name), name: x.name, size: this.unit(x, 0).size, price: K(this.sp(this.gst('mega'), this.unit(x, 0).price)), delay: i * 60 + 'ms', add: () => { if (this.gAdd('mega', id)) this.say(`Added ${x.name} to your Mega Store basket`); } }; }),
+      gCatTiles: GCATS.map(c => ({ label: c[1], open: () => this.go('store', { gsel: 'mega', gcat: c[0], gsq: '' }) })),
+      gStores: STORES.map((st, i) => ({ abbr: abbr(st.name), name: st.name, area: st.area, km: st.km, eta: st.eta, fee: `${K(st.fee)} delivery`, delay: i * 70 + 'ms', tileBg: st.open ? '#0E0F0D' : '#EDEBDF', tileFg: st.open ? '#C6F432' : '#8A8F7C', badge: st.open ? `Min ${K(st.min)}` : st.opens, badgeBg: st.open ? '#C6F432' : '#FF6A2B', badgeFg: st.open ? '#12180A' : '#fff', open: () => this.go('store', { gsel: st.id, gcat: 'all', gsq: '' }) })),
+      isStore: s.screen === 'store', isGSearch: s.screen === 'gsearch', isLists: s.screen === 'lists', isGCheckout: s.screen === 'gcheckout', isGTrack: s.screen === 'gtrack' && !!o,
+      gsName: store.name, gsArea: store.area, gsKm: store.km, gsEta: store.eta, gsFee: `${K(store.fee)} delivery`, gsMin: K(store.min), gsClosed: !store.open, gsOpens: store.opens || '',
+      gsq: s.gsq, gOnSq: e => this.setState({ gsq: e.target.value }),
+      gCatChips: [['all', 'All'], ...GCATS.filter(c => !store.only || store.only.includes(c[0]))].map(c => ({ label: c[1], ...sel(s.gcat === c[0]), pick: () => this.setState({ gcat: c[0] }) })),
+      gGroups: groups, gNoRows: groups.length === 0,
+      gEmpty: !ls.length, gHasLines: ls.length > 0, gOtherStore: ls.length > 0 && s.gsid !== s.gsel, gStoreName: gstore.name, gCount: gcount, gSub: K(t.sub), gEst: K(t.est),
+      gBelowMin: below, gShortfall: K(gstore.min - t.sub), gMin: K(gstore.min), gMinPct: `${Math.min(100, Math.round(t.sub / gstore.min * 100))}%`,
+      gLarge: t.large, gKg: `${Math.round(t.kg)} kg`, gFee: K(t.fee), gBaseFee: K(gstore.fee), gFeeLabel: t.large ? 'Delivery · large order' : 'Delivery',
+      gModal: !!s.gpid, gCloseModal: () => this.setState({ gpid: null }), gStop: e => e.stopPropagation(),
+      gpAbbr: abbr(p.name), gpName: p.name, gpEst: p.u === 'weight', gpPrice: this.priceTxt(store, p, s.gpoi),
+      gpPer: pu.kg >= .3 && p.u !== 'weight' ? `${K(this.sp(store, pu.price) / pu.kg)} per kg` : p.id === 'indomie' && s.gpoi === 0 ? `${K(this.sp(store, pu.price) / 40)} per pack` : pu.size,
+      gpUnit: { piece: 'Sold by the piece', pack: `Sold by the ${p.per}`, measure: `Sold by the ${p.per}, measured in store`, weight: p.per === 'kg' ? 'Sold by weight, price per kg' : `Sold by the ${p.per}, priced by weight` }[p.u],
+      gpHasOpts: !!p.opts, gpOpts: (p.opts || []).map((op, i) => ({ label: op.label, price: K(this.sp(store, op.price)), bg: s.gpoi === i ? '#0E0F0D' : '#fff', fg: s.gpoi === i ? '#C6F432' : '#0E0F0D', bd: s.gpoi === i ? '#0E0F0D' : '#D3D7CB', pick: () => this.setState({ gpoi: i }) })),
+      gpQtyLabel: p.per === 'kg' ? 'How much' : 'Quantity', gpQty: this.qtyTxt(p, s.gpq), gpDec: () => this.setState({ gpq: Math.max(this.step(p), s.gpq - this.step(p)) }), gpInc: () => this.setState({ gpq: s.gpq + this.step(p) }),
+      gpSubs: GSUBS.map(([id, label, sub]) => { const off = id === 'specific' && !p.alt; const on = s.gpsub === id; return { label, sub: id === 'specific' ? (p.alt ? `${p.alt.name} · ${K(this.sp(store, p.alt.price))}` : 'No close match in this store') : sub, op: off ? .45 : 1, bd: on ? '#0E0F0D' : '#D3D7CB', dot: on ? '#0E0F0D' : 'transparent', pick: () => !off && this.setState({ gpsub: id }) }; }),
+      gpCta: `Add to basket · ${p.u === 'weight' ? '≈ ' : ''}${K(pTot)}`,
+      gpAdd: () => { if (this.gAdd(s.gsel, p.id, s.gpoi, s.gpq, s.gpsub)) { this.setState({ gpid: null }); this.say(`Added ${this.qtyTxt(p, s.gpq)} ${p.name}`); } else this.setState({ gpid: null }); },
+      gConfirm: !!s.gconfirm, gConfirmStore: s.gconfirm ? this.gst(s.gconfirm.sid).name : '', gConfirmKeep: () => this.setState({ gconfirm: null }),
+      gConfirmNew: () => { const c = s.gconfirm; this.setState({ glines: {}, gsid: c.sid, gconfirm: null }, () => { if (c.list) this.gAddList(c.list, c.sid); else this.gAdd(c.sid, c.pid, c.oi, c.q, c.sub); }); },
+      gq: s.gq, gOnGq: e => this.setState({ gq: e.target.value }), gqEmpty: gq.length < 2, gqNone: gq.length > 1 && !matches.length,
+      gRecent: ['Peak milk', 'Semovita', 'Indomie', 'Tomatoes'].map(r => ({ label: r, pick: () => this.setState({ gq: r }) })),
+      gHasCompare: !!cmp, gCmpName: cmp ? `${cmp.name}, ${cmp.size}` : '',
+      gCmpRows: cmp ? STORES.filter(st => this.has(st, cmp.id)).map(st => { const best = this.sp(st, cmp.price) === bestOf(cmp); return { store: st.name, price: this.priceTxt(st, cmp, 0), tag: best ? 'Cheapest' : st.open ? st.eta : st.opens, bg: best ? '#C6F432' : 'rgba(255,255,255,.07)', fg: best ? '#12180A' : '#FFF4D6' }; }) : [],
+      gsGroups: STORES.filter(st => matches.some(x => this.has(st, x.id))).map(st => ({ store: st.name, meta: `${st.eta} · ${K(st.fee)} delivery${st.open ? '' : ' · ' + st.opens}`, rows: matches.filter(x => this.has(st, x.id)).map(x => ({ ...row(st, x), best: this.sp(st, x.price) === bestOf(x) && STORES.filter(z => this.has(z, x.id)).length > 1 })) })),
+      gListCards: s.glists.map(l => ({ name: l.name, meta: `${l.items.length} items · ${l.used} · about ${K(listTotal(l))}`, bd: l.id === list.id ? '#0E0F0D' : 'transparent', open: () => this.setState({ glid: l.id }) })),
+      gSaveList: () => { if (!ls.length) return this.say('Add something to your basket first'); this.setState({ glists: [...s.glists, { id: 'l' + Date.now(), name: `${gstore.name} basket`, used: 'Saved today', items: ls.map(l => [l.p.id, l.oi, l.q]) }] }); this.say(`Saved ${ls.length} items as a list`); },
+      glName: list.name, glUsed: list.used,
+      glRows: list.items.map(([pid, oi, q]) => { const x = P[pid]; const ok = this.has(gstore, pid); return { qty: this.qtyTxt(x, q) + (x.u === 'measure' ? '' : '×'), name: x.name, size: this.unit(x, oi).size, price: ok ? K(this.sp(gstore, this.unit(x, oi).price) * q) : 'Not stocked', op: ok ? 1 : .45 }; }),
+      glMissing: listMiss.length ? `${gstore.name} doesn’t stock ${listMiss.join(', ')}. They’ll be left out.` : '',
+      glCta: `Add ${list.items.length - listMiss.length} items to basket · about ${K(listTotal(list))}`, glAdd: () => { this.gAddList(list.id, s.gsid); if (!(Object.keys(s.glines).length && s.gsid !== s.gsid)) this.go('gcheckout', { gErr: '' }); },
+      foodHasLines,
+      gAllSubChips: GSUBS.map(([id]) => ({ label: SUBSHORT[id], ...sel(s.gallSub === id), pick: () => { const gl = {}; Object.entries(s.glines).forEach(([k, v]) => { gl[k] = { ...v, sub: id === 'specific' && !P[k.split(':')[0]].alt ? 'similar' : id }; }); this.setState({ gallSub: id, glines: gl }); this.say(id === 'specific' ? 'Each item uses its suggested match. Items without one use “similar”.' : `“${SUBSHORT[id]}” applied to every item`); } })),
+      gCGroups: GCATS.filter(c => ls.some(l => l.p.cat === c[0])).map(c => { const rows = ls.filter(l => l.p.cat === c[0]); return { label: c[1], count: rows.reduce((a, l) => a + l.count, 0), rows: rows.map(l => ({ name: l.p.name, size: l.u.size, unit: this.unitTxt(l.p), total: (l.est ? '≈ ' : '') + K(l.total), qty: this.qtyTxt(l.p, l.q), inc: () => this.gAdd(s.gsid, l.p.id, l.oi), dec: () => this.gDec(l.key), subLabel: this.subLabel(l.p, l.sub), cycle: () => { const ord = ['similar', 'specific', 'refund', 'call'].filter(x => x !== 'specific' || l.p.alt); const nx = ord[(ord.indexOf(l.sub) + 1) % ord.length]; this.setState({ glines: { ...s.glines, [l.key]: { ...s.glines[l.key], sub: nx } }, gallSub: '' }); } })) }; }),
+      gNote: s.gnote, gOnNote: e => this.setState({ gnote: e.target.value }),
+      gWhenOpts: [['now', 'Now', gstore.open ? '45–60 min' : `Closed · ${gstore.opens}`], ['sched', 'Schedule', s.gwhen === 'sched' ? s.gslot : 'Later today or tomorrow']].map(([id, label, sub]) => { const on = s.gwhen === id; const off = id === 'now' && !gstore.open; return { label, sub, op: off ? .5 : 1, bg: on ? '#0E0F0D' : '#fff', fg: on ? '#C6F432' : '#0E0F0D', sfg: on ? 'rgba(255,244,214,.6)' : '#6F7565', bd: on ? '#0E0F0D' : '#E2E1D9', pick: () => off ? this.say(`${gstore.name} is closed. Pick a slot for tomorrow.`) : this.setState({ gwhen: id, gErr: '', gslot: id === 'sched' && !gstore.open ? SLOTS[3] : s.gslot }) }; }),
+      gIsSched: s.gwhen === 'sched', gSlots: SLOTS.filter(x => gstore.open || x.startsWith('Tomorrow')).map(x => ({ label: x, ...sel(s.gslot === x), pick: () => this.setState({ gslot: x }) })),
+      gPayOpts: [['card', 'Card', 'Holds the estimate, charges the final amount'], ['transfer', 'Bank transfer', 'Pay the estimate, unused money goes to your wallet'], ['cash', 'Cash on delivery', 'Pay the final amount to your rider']].map(([id, label, sub]) => { const on = s.gpay === id; return { label, sub, bg: on ? '#0E0F0D' : '#fff', fg: on ? '#C6F432' : '#0E0F0D', sfg: on ? 'rgba(255,244,214,.6)' : '#6F7565', bd: on ? '#0E0F0D' : '#E2E1D9', pick: () => this.setState({ gpay: id }) }; }),
+      gPayLine: payLines[s.gpay], gErr: s.gErr, gPlace: this.gPlace, gCtaOp: below ? .45 : 1,
+      gPlaceCta: !s.user ? 'Log in to place order' : s.gpay === 'card' ? `Place order · hold ${K(t.hold)}` : s.gpay === 'transfer' ? `Place order · transfer ${K(t.hold)}` : `Place order · ${K(t.est)} est.`,
+      goCode: o ? o.code : '', goStore: oStore.name, goWhen: o ? o.when : '', goTitle: o ? titles[o.stage] : '', goSubtitle: o ? subs2[o.stage] : '',
+      goPicking: !!o && o.stage === 1, goPicked: o ? Math.min(o.picked, o.n) : 0, goN: o ? o.n : 0, goPickPct: o ? `${Math.round(Math.min(o.picked, o.n) / Math.max(1, o.n) * 100)}%` : '0%',
+      goAisle: o && o.ls.length ? AISLE[(o.ls[Math.min(o.ls.length - 1, Math.floor(o.picked / Math.max(1, o.n) * o.ls.length))] || o.ls[0]).p.cat] : '',
+      goSteps: STEPS.map((x, i) => ({ label: x[0], sub: x[1], fg: o && i <= o.stage ? '#FFF4D6' : 'rgba(255,244,214,.4)', dot: o && i < o.stage ? '#C6F432' : o && i === o.stage ? (i === 5 ? '#C6F432' : '#FF6A2B') : 'rgba(255,255,255,.18)', anim: o && i === o.stage && o.stage < 5 ? 'kg-pulse 1.4s ease-in-out infinite' : 'none' })),
+      goRider: !!o && o.stage >= 4, goBags: o ? o.bags : 0, goVehicle: o && o.large ? 'Bajaj keke' : 'Motorbike', goDone: !!o && o.stage === 5,
+      gOrderAgain: () => this.go('home', { mode: 'groceries', gorder: null }),
+      goNeedsYou: !!o && o.stage === 2 && asksOpen > 0, goReceipt: !!o && o.stage === 5, goWaiting: !!o && !(o.stage === 2 && asksOpen > 0) && o.stage !== 5,
+      goAskCount: o ? o.asks.length : 0, goTimer: o ? mmss(o.timer) : '', gExpire: () => this.setState({ gorder: { ...o, timer: 1 } }),
+      goAsks: o ? o.asks.map((a, i) => { const dv = a.toT - a.fromT; return { from: a.from, fromT: K(a.fromT), to: a.to, toT: K(a.toT), diff: dv === 0 ? 'Same price' : pm(dv), diffBg: dv > 0 ? '#FFF3DE' : '#E3F7EE', diffFg: dv > 0 ? '#9A5F00' : '#1F7A55', def: GSUBS.find(x => x[0] === a.def)[1].toLowerCase(), open: !a.d, closed: !!a.d, result: a.d === 'accepted' ? `Accepted · Ngozi is adding ${a.to}` : `Refund · ${K(a.fromT)} comes off your total`, resBg: a.d === 'accepted' ? '#E3F7EE' : '#EFEEE8', resFg: a.d === 'accepted' ? '#1F7A55' : '#0E0F0D', accept: () => this.setState({ gorder: { ...o, asks: o.asks.map((x, j) => j === i ? { ...x, d: 'accepted' } : x) } }), reject: () => this.setState({ gorder: { ...o, asks: o.asks.map((x, j) => j === i ? { ...x, d: 'rejected' } : x) } }) }; }) : [],
+      goEst: o ? K(o.est) : '', goHold: o ? K(o.pay === 'cash' ? o.est : o.hold) : '', goHoldLabel: o ? { card: 'Held on card', transfer: 'Transferred', cash: 'Pay in cash' }[o.pay] : '',
+      goHoldLine: o ? (o.stage >= 3 ? `Final amount ${K(fin)}. ${o.pay === 'cash' ? 'Pay this to Terna.' : `${K(Math.max(0, diff))} ${o.pay === 'card' ? 'released back to your card' : 'goes to your wallet'}.`}` : 'The final amount is set when Ngozi finishes packing. Weighed items and replacements can move it.') : '',
+      goItems: o ? o.ls.slice(0, 10).map(l => ({ qty: this.qtyTxt(l.p, l.q) + (l.p.u === 'measure' || l.p.per === 'kg' ? '' : '×'), name: l.p.name, sub: SUBSHORT[l.sub] })) : [],
+      goFinal: K(fin), goFee: o ? K(o.fee) : '',
+      goRefundLine: o ? (o.pay === 'card' ? `${K(o.hold)} was held on your card. ${K(fin)} charged, ${K(Math.max(0, diff))} released back to it.` : o.pay === 'transfer' ? `You transferred ${K(o.hold)}. ${K(Math.max(0, diff))} is back in your Karrigo wallet.` : `Paid ${K(fin)} in cash to Terna.`) : '',
+      grRep: o ? [...o.autos.map(a => ({ from: a.from, to: a.to, toT: K(a.toT), note: `Your chosen replacement · ${pm(a.toT - a.fromT)}` })), ...o.asks.filter(a => a.d === 'accepted').map(a => ({ from: a.from, to: a.to, toT: K(a.toT), note: `${a.auto ? 'Default applied' : 'You accepted'} · ${pm(a.toT - a.fromT)}` }))] : [],
+      grHasRep: !!o && (o.autos.length + o.asks.filter(a => a.d === 'accepted').length) > 0, grRepCount: o ? o.autos.length + o.asks.filter(a => a.d === 'accepted').length : 0,
+      grRef: o ? [...o.refunds.map(r => ({ name: r.name, amt: K(r.amt) })), ...o.asks.filter(a => a.d === 'rejected').map(a => ({ name: a.from, amt: K(a.fromT) }))] : [],
+      grHasRef: !!o && (o.refunds.length + o.asks.filter(a => a.d === 'rejected').length) > 0, grRefCount: o ? o.refunds.length + o.asks.filter(a => a.d === 'rejected').length : 0,
+      grW: o ? o.weighed.map(w => ({ name: w.name, estQ: w.estQ, actQ: w.actQ, estT: K(w.estT), actT: K(w.actT) })) : [], grHasW: !!o && o.weighed.length > 0,
+      grPick: o ? o.ls.filter(l => !special.has(l.key)).map(l => ({ qty: this.qtyTxt(l.p, l.q) + (l.p.u === 'measure' || l.p.per === 'kg' ? '' : '×'), name: `${l.p.name}, ${l.u.size}`, total: K(l.total) })) : [],
+      grPickCount: o ? o.ls.filter(l => !special.has(l.key)).reduce((a, l) => a + l.count, 0) : 0
+    };
+  }
+  renderVals() {
+    const s = this.state;
+    const k = this.kitchen(s.kid);
+    const ck = s.ckid ? this.kitchen(s.ckid) : null;
+    const lines = ck ? Object.entries(s.cart).map(([key, q]) => {
+      const m = ck.menu[key.split(':')[1]];
+      return { key, name: m[0], qty: q, price: NGN(m[2] * q), inc: () => this.add(ck.id, key.split(':')[1]), dec: () => this.dec(key) };
+    }) : [];
+    const count = Object.values(s.cart).reduce((a, b) => a + b, 0);
+    const sub = ck ? Object.entries(s.cart).reduce((t, [key, q]) => t + ck.menu[key.split(':')[1]][2] * q, 0) : 0;
+    const fee = ck && !ck.free ? 500 : 0;
+    const ql = s.q.trim().toLowerCase();
+    const list = KITCHENS.filter(x => (s.cat === 'All' || x.cat === s.cat) && (!ql || (x.name + x.sub + x.menu.map(m => m[0]).join(' ')).toLowerCase().includes(ql)));
+    const o = s.order;
+    const eta = o ? new Date(o.placed + 35 * 60000).toLocaleTimeString('en-NG', { hour: 'numeric', minute: '2-digit' }) : '';
+    const payOpt = (id, label, sub2) => ({ label, sub: sub2, pick: () => this.setState({ pay: id }), bg: s.pay === id ? '#0E0F0D' : '#fff', fg: s.pay === id ? '#C6F432' : '#0E0F0D', sfg: s.pay === id ? 'rgba(255,244,214,.6)' : '#6F7565', bd: s.pay === id ? '#0E0F0D' : '#E2E1D9' });
+    const base = {
+      isAuth: s.screen === 'auth', isHome: s.screen === 'home', isKitchen: s.screen === 'kitchen', isCheckout: s.screen === 'checkout', isTrack: s.screen === 'track' && !!o,
+      user: !!s.user, guest: !s.user, userFirst: s.user ? s.user.name.split(' ')[0] : '', hasOrder: !!o && o.stage < 4 && s.screen !== 'track',
+      addressLabel: s.landmark || s.address ? `Deliver to ${s.landmark || s.address}` : 'Makurdi · Set address at checkout',
+      cartCount: count, toast: s.toast,
+      navBg: s.scrolled ? 'rgba(222,222,222,.55)' : 'rgba(222,222,222,0)', navBlur: s.scrolled ? 'blur(18px) saturate(1.5)' : 'blur(0px)',
+      navLine: s.scrolled ? '0 1px 0 rgba(14,15,13,.06)' : '0 1px 0 rgba(14,15,13,0)', pillBg: s.scrolled ? 'rgba(14,15,13,.86)' : '#0E0F0D',
+      goHome: () => this.go('home'), goTrack: () => this.go('track'), goCart: () => this.go('checkout'),
+      goLogin: () => this.go('auth', { authMode: 'login' }), goSignup: () => this.go('auth', { authMode: 'signup' }),
+      tabX: s.authMode === 'signup' ? 'translateX(100%)' : 'translateX(0)',
+      cartBadge: React.createElement('span', { key: count, style: { minWidth: 22, height: 22, padding: '0 6px', borderRadius: 999, background: '#0E0F0D', color: '#C6F432', fontSize: 12, display: 'grid', placeItems: 'center', animation: count ? 'kg-pop .4s cubic-bezier(.2,.8,.2,1)' : 'none' } }, count),
+      logout: () => { this.go('home', { user: null }); this.say('Logged out'); },
+      isLogin: s.authMode === 'login', isSignup: s.authMode === 'signup', authNote: s.authNote,
+      tabLoginBg: s.authMode === 'login' ? '#fff' : 'transparent', tabSignupBg: s.authMode === 'signup' ? '#fff' : 'transparent',
+      fName: s.form.name, fPhone: s.form.phone, fPass: s.form.password, onName: this.setF('name'), onPhone: this.setF('phone'), onPass: this.setF('password'),
+      err: s.err, submit: this.submit, submitLabel: s.authMode === 'signup' ? 'Create account' : 'Log in',
+      switchLabel: s.authMode === 'signup' ? 'Have an account? Log in' : 'New here? Create an account',
+      switchMode: () => this.setState({ authMode: s.authMode === 'signup' ? 'login' : 'signup', err: '' }),
+      forgot: () => this.say(s.form.phone ? `Reset code sent to ${s.form.phone}` : 'Enter your phone number first'),
+      greeting: s.user ? `Hi ${s.user.name.split(' ')[0]} · open right now` : 'Open right now',
+      q: s.q, onSearch: e => this.setState({ q: e.target.value }),
+      cats: ['All', 'Swallow', 'Rice', 'Grills', 'Suya'].map(c => ({ label: c, pick: () => this.setState({ cat: c }), bg: s.cat === c ? '#0E0F0D' : '#fff', fg: s.cat === c ? '#C6F432' : '#0E0F0D' })),
+      kitchens: list.map(x => ({ name: x.name, sub: x.sub, km: x.km, eta: x.eta, img: x.img, from: NGN(Math.min(...x.menu.map(m => m[2]).filter(p => p > 1000))),
+        badge: x.free ? 'Free delivery' : x.late ? 'Open till 11pm' : '', badgeBg: x.free ? '#C6F432' : '#FF6A2B', badgeFg: x.free ? '#12180A' : '#fff',
+        onOpen: () => this.go('kitchen', { kid: x.id }) })).map((x, i) => ({ ...x, delay: i * 70 + 'ms' })),
+      noResults: list.length === 0,
+      kName: k.name, kSub: k.sub, kImg: k.img, kKm: k.km, kEta: k.eta, kFee: k.free ? 'Free delivery' : '₦500 delivery',
+      menu: k.menu.map((m, i) => { const q = s.cart[`${k.id}:${i}`] || 0; return { name: m[0], desc: m[1], price: NGN(m[2]), qty: q, none: q === 0, some: q > 0, add: () => this.add(k.id, i), dec: () => this.dec(`${k.id}:${i}`), delay: i * 55 + 'ms' }; }),
+      lines, hasLines: lines.length > 0, emptyCart: lines.length === 0, cartKitchen: ck ? ck.name : '', otherKitchen: !!ck && ck.id !== k.id,
+      subtotal: NGN(sub), fee: fee ? NGN(fee) : 'Free', total: NGN(sub + fee), goCheckout: () => this.go('checkout'), backToKitchen: () => this.go('kitchen', { kid: s.ckid || s.kid }),
+      address: s.address, landmark: s.landmark, note: s.note,
+      onAddress: e => this.setState({ address: e.target.value, coErr: '' }), onLandmark: e => this.setState({ landmark: e.target.value, coErr: '' }), onNote: e => this.setState({ note: e.target.value }),
+      pays: [payOpt('card', 'Card', 'Pay now with Paystack'), payOpt('transfer', 'Bank transfer', 'We show account details next'), payOpt('cash', 'Cash on delivery', 'Pay your rider at the gate')],
+      coErr: s.coErr, place: this.place, placeLabel: s.user ? `Place order · ${NGN(sub + fee)}` : 'Log in to place order',
+      oId: o ? o.id : '', oKitchen: o ? o.kitchen : '', oTo: o ? o.to : '', oEta: eta, oTotal: o ? NGN(o.total) : '', oFee: o ? (o.fee ? NGN(o.fee) : 'Free') : '', oSub: o ? NGN(o.sub) : '',
+      oPay: o ? { card: 'Paid by card', transfer: 'Bank transfer', cash: 'Cash on delivery' }[o.pay] : '',
+      oItems: o ? o.items.map(i => ({ name: i.name, qty: i.qty, price: NGN(i.price) })) : [],
+      oTitle: o ? (o.stage === 4 ? 'Delivered. Enjoy!' : `Arriving about ${eta}`) : '', oStatus: o ? STAGES[o.stage][1] : '',
+      oProgress: o ? `${Math.max(6, o.stage * 25)}%` : '0%', delivered: !!o && o.stage === 4, notDelivered: !!o && o.stage < 4, riderOn: !!o && o.stage >= 2,
+      steps: STAGES.map((st, i) => ({ label: st[0], done: o && i <= o.stage, dot: o && i < o.stage ? '#C6F432' : o && i === o.stage ? '#FF6A2B' : 'rgba(255,255,255,.18)', fg: o && i <= o.stage ? '#FFF4D6' : 'rgba(255,244,214,.4)', anim: o && i === o.stage && o.stage < 4 ? 'kg-pulse 1.4s ease-in-out infinite' : 'none' })),
+      callRider: () => this.say('Calling Doosuur… (0803 555 0142)'), share: () => this.say('Tracking link copied'),
+      orderAgain: () => this.go('home', { order: s.order && s.order.stage === 4 ? null : s.order })
+    };
+    return { ...base, ...this.gVals(s, count, lines.length > 0) };
+  }
+}
+
+</script>
+</body>
+</html>

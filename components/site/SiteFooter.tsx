@@ -7,6 +7,7 @@ const columns = [
     heading: "Order",
     links: [
       { href: "/kitchens", label: "Kitchens" },
+      { href: "/stores", label: "Stores" },
       { href: "/areas", label: "Areas we cover" },
       { href: "/help", label: "Help" },
     ],
@@ -15,6 +16,7 @@ const columns = [
     heading: "Partner",
     links: [
       { href: "/partners/kitchen", label: "List your kitchen" },
+      { href: "/partners/store", label: "Register your store" },
       { href: "/partners/rider", label: "Ride with us" },
     ],
   },
@@ -38,8 +40,7 @@ export function SiteFooter() {
             <div>
               <Logo mode="dark" />
               <p className="text-site-answer text-cream/55 mt-lg max-w-[32ch]">
-                Food delivery in Makurdi, Benue State. Cooked locally, carried
-                by riders who know the roads.
+                Food and groceries from around Makurdi.
               </p>
             </div>
 

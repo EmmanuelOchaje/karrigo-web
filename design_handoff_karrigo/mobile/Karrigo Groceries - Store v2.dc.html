@@ -1,0 +1,336 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#DEDEDE;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#0E0F0D;-webkit-font-smoothing:antialiased}
+button,input,textarea{font-family:inherit}
+a{color:#4E6B00;text-decoration:none}a:hover{color:#0E0F0D}
+@keyframes kg-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes kg-r{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:none}}
+@keyframes kg-l{from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:none}}
+@keyframes kg-pulse{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:1;transform:scale(1.35)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+
+<section id="B" data-screen-label="B · Store v2" style="padding:56px 64px 40px">
+<div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap"><span style="padding:6px 14px;border-radius:99px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:12px">B v2</span><h1 style="margin:0;font-weight:800;font-size:44px;letter-spacing:-.04em">Groceries · store app</h1></div>
+<p style="margin:10px 0 0;max-width:76ch;font-size:15px;line-height:1.55;color:#6F7565">Matched to the customer rebuild. The store sees an order, removes anything it hasn’t got, accepts, packs the list and hands the bags to a rider. No catalogue review, no substitutions, no weights, no rider app.</p>
+<p style="margin:8px 0 0;max-width:76ch;font-size:13.5px;line-height:1.55;color:#8A8F7C">Clickable. Open the new order, untick what is out of stock, accept, tick the pack list, then hand over.</p>
+
+<div style="margin-top:32px;display:flex;gap:48px;align-items:flex-start;flex-wrap:wrap">
+<div id="B1" style="display:flex;flex-direction:column;gap:12px">
+<span style="align-self:flex-start;padding:5px 12px;border-radius:99px;background:#C6F432;color:#12180A;font-weight:700;font-size:12px">B1–B5 · prototype</span>
+<div style="padding:8px;border-radius:58px;background:#171815;box-shadow:0 40px 80px -40px rgba(14,15,13,.6)">
+<div style="position:relative;width:390px;height:844px;border-radius:50px;overflow:hidden;background:#F6F5EE">
+<div style="position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-weight:600;font-size:14px;z-index:5"><span>9:41</span><span style="width:110px;height:30px;border-radius:99px;background:#000"></span><span>5G</span></div>
+
+<sc-if value="{{ isQueue }}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;animation:{{ anim }}">
+<div style="padding:12px 16px 14px;border-bottom:1px solid #E4E7DE;background:#fff">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+<div style="min-width:0"><div style="font-size:11px;color:#6F7565">Store</div><div style="font-weight:700;font-size:17px;letter-spacing:-.4px">Makurdi Mega Store</div></div>
+<button onClick="{{ toggleOpen }}" style="flex:none;height:34px;padding:0 14px;border:0;border-radius:99px;background:{{ openBg }};color:{{ openFg }};font-weight:700;font-size:12px;cursor:pointer">{{ openLabel }}</button>
+</div>
+</div>
+<div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:16px 16px 40px">
+<sc-if value="{{ closed }}" hint-placeholder-val="{{ false }}">
+<div style="margin-bottom:16px;padding:14px 16px;border-radius:16px;background:#0E0F0D;color:#FFF4D6;animation:kg-up .3s ease-out"><div style="font-weight:700;font-size:14px">Closed to new orders</div><div style="margin-top:4px;font-size:12.5px;line-height:1.5;opacity:.8">Customers see the store greyed out. Orders already accepted still need packing.</div></div>
+</sc-if>
+<div style="display:flex;gap:8px;margin-bottom:16px">
+<sc-for list="{{ filters }}" as="f" hint-placeholder-count="3">
+<button onClick="{{ f.pick }}" style="flex:1;height:36px;border:1px solid {{ f.bd }};border-radius:99px;background:{{ f.bg }};color:{{ f.fg }};font-weight:600;font-size:12.5px;cursor:pointer">{{ f.label }}</button>
+</sc-for>
+</div>
+<div style="display:flex;flex-direction:column;gap:10px">
+<sc-for list="{{ queue }}" as="o" hint-placeholder-count="3">
+<button onClick="{{ o.open }}" style="display:block;width:100%;text-align:left;padding:14px 16px;border:1px solid #E4E7DE;border-left:4px solid {{ o.accent }};border-radius:16px;background:#fff;cursor:pointer">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+<span style="font-weight:700;font-size:14px">{{ o.code }}</span>
+<span style="padding:4px 10px;border-radius:99px;background:{{ o.chipBg }};color:{{ o.chipFg }};font-weight:700;font-size:10.5px;letter-spacing:.03em;text-transform:uppercase">{{ o.status }}</span>
+</div>
+<div style="margin-top:6px;font-size:12.5px;color:#6F7565">{{ o.meta }}</div>
+<div style="margin-top:8px;display:flex;align-items:baseline;justify-content:space-between"><span style="font-weight:700;font-size:15px">{{ o.total }}</span><span style="font-size:12px;color:#8A8F7C">{{ o.ago }}</span></div>
+</button>
+</sc-for>
+</div>
+<sc-if value="{{ queueEmpty }}" hint-placeholder-val="{{ false }}">
+<div style="padding:40px 16px;text-align:center;color:#8A8F7C;font-size:13.5px">Nothing here right now.</div>
+</sc-if>
+</div>
+<div style="padding:10px 16px 22px;border-top:1px solid #E4E7DE;background:#fff;display:flex;justify-content:space-between;font-size:11.5px;color:#6F7565"><span>Today · {{ doneCount }} handed over</span><span>{{ newCount }} waiting</span></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isReview }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;animation:{{ anim }}">
+<div style="padding:8px 12px 12px;border-bottom:1px solid #E4E7DE;background:#fff;display:flex;align-items:center;gap:10px">
+<button onClick="{{ back }}" style="flex:none;width:36px;height:36px;border:0;border-radius:99px;background:#EDEBDF;font-size:16px;cursor:pointer">‹</button>
+<div style="min-width:0"><div style="font-weight:700;font-size:16px">{{ cur.code }}</div><div style="font-size:11.5px;color:#6F7565">{{ cur.meta }}</div></div>
+</div>
+<div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:16px 16px 20px">
+<div style="padding:13px 15px;border-radius:16px;background:#EDEBDF;font-size:12.5px;line-height:1.5;color:#4A4F3E">Untick anything you haven’t got. The customer is charged for what is left and told what was removed.</div>
+<div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ items }}" as="it" hint-placeholder-count="5">
+<button onClick="{{ it.toggle }}" style="display:flex;width:100%;align-items:center;gap:12px;padding:12px 14px;border:1px solid {{ it.bd }};border-radius:15px;background:{{ it.bg }};cursor:pointer;text-align:left">
+<span style="flex:none;width:22px;height:22px;border-radius:7px;border:2px solid {{ it.boxBd }};background:{{ it.boxBg }};color:#12180A;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center">{{ it.tick }}</span>
+<span style="flex:1;min-width:0"><span style="display:block;font-weight:600;font-size:13.5px;text-decoration:{{ it.strike }};color:{{ it.fg }}">{{ it.name }}</span><span style="display:block;margin-top:2px;font-size:11.5px;color:#8A8F7C">× {{ it.qty }}</span></span>
+<span style="flex:none;font-weight:700;font-size:13.5px;color:{{ it.fg }}">{{ it.line }}</span>
+</button>
+</sc-for>
+</div>
+<div style="margin-top:16px;padding:14px 16px;border:1px solid #E4E7DE;border-radius:16px;background:#fff;font-size:13px">
+<div style="display:flex;justify-content:space-between;margin-bottom:6px;color:#6F7565"><span>Ordered</span><span style="text-decoration:{{ origStrike }}">{{ origTotal }}</span></div>
+<div style="display:flex;justify-content:space-between;margin-bottom:6px;color:#6F7565"><span>Removed</span><span>{{ removedCount }} item(s)</span></div>
+<div style="display:flex;justify-content:space-between;font-weight:800;font-size:16px"><span>To charge</span><span>{{ newTotal }}</span></div>
+</div>
+<sc-if value="{{ allRemoved }}" hint-placeholder-val="{{ false }}">
+<div style="margin-top:12px;padding:13px 15px;border-radius:15px;background:#FFE3E3;color:#7A1B1B;font-size:12.5px;line-height:1.5;animation:kg-up .25s ease-out">Nothing left to pack. Reject the order instead so the customer is refunded in full.</div>
+</sc-if>
+</div>
+<div style="padding:12px 16px 24px;border-top:1px solid #E4E7DE;background:#fff;display:flex;gap:10px">
+<button onClick="{{ reject }}" style="flex:none;height:50px;padding:0 18px;border:1px solid #C4C4C4;border-radius:15px;background:#fff;font-weight:700;font-size:14px;color:#7A1B1B;cursor:pointer">Reject</button>
+<button onClick="{{ accept }}" disabled="{{ allRemoved }}" style="flex:1;height:50px;border:0;border-radius:15px;background:{{ acceptBg }};color:{{ acceptFg }};font-weight:700;font-size:15px;cursor:{{ acceptCur }}">{{ acceptLabel }}</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPack }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;animation:{{ anim }}">
+<div style="padding:8px 12px 12px;border-bottom:1px solid #E4E7DE;background:#fff;display:flex;align-items:center;gap:10px">
+<button onClick="{{ back }}" style="flex:none;width:36px;height:36px;border:0;border-radius:99px;background:#EDEBDF;font-size:16px;cursor:pointer">‹</button>
+<div style="min-width:0;flex:1"><div style="font-weight:700;font-size:16px">Pack {{ cur.code }}</div><div style="font-size:11.5px;color:#6F7565">{{ packedCount }} of {{ keptCount }} in the bag</div></div>
+<span style="flex:none;padding:5px 11px;border-radius:99px;background:#C6F432;color:#12180A;font-weight:700;font-size:11px">Accepted</span>
+</div>
+<div style="height:4px;background:#E4E7DE"><div style="height:100%;width:{{ packPct }};background:#4E6B00;transition:width .35s ease-out"></div></div>
+<div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:16px 16px 20px">
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ packList }}" as="p" hint-placeholder-count="4">
+<button onClick="{{ p.toggle }}" style="display:flex;width:100%;align-items:center;gap:12px;padding:13px 14px;border:1px solid {{ p.bd }};border-radius:15px;background:{{ p.bg }};cursor:pointer;text-align:left">
+<span style="flex:none;width:24px;height:24px;border-radius:99px;border:2px solid {{ p.boxBd }};background:{{ p.boxBg }};color:#12180A;font-weight:800;font-size:12px;display:flex;align-items:center;justify-content:center">{{ p.tick }}</span>
+<span style="flex:1;min-width:0;font-weight:600;font-size:13.5px;color:{{ p.fg }}">{{ p.name }}</span>
+<span style="flex:none;font-size:12.5px;color:#6F7565">× {{ p.qty }}</span>
+</button>
+</sc-for>
+</div>
+<sc-if value="{{ removedCount }}" hint-placeholder-val="{{ 0 }}">
+<div style="margin-top:14px;padding:13px 15px;border-radius:15px;background:#EDEBDF;font-size:12.5px;line-height:1.5;color:#4A4F3E"><strong style="font-weight:700">Removed when you accepted:</strong> {{ removedNames }}. The customer has been told.</div>
+</sc-if>
+</div>
+<div style="padding:12px 16px 24px;border-top:1px solid #E4E7DE;background:#fff">
+<button onClick="{{ ready }}" disabled="{{ notAllPacked }}" style="width:100%;height:52px;border:0;border-radius:15px;background:{{ readyBg }};color:{{ readyFg }};font-weight:700;font-size:15px;cursor:{{ readyCur }}">{{ readyLabel }}</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isHandover }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;animation:{{ anim }}">
+<div style="padding:8px 12px 12px;border-bottom:1px solid #E4E7DE;background:#fff;display:flex;align-items:center;gap:10px">
+<button onClick="{{ back }}" style="flex:none;width:36px;height:36px;border:0;border-radius:99px;background:#EDEBDF;font-size:16px;cursor:pointer">‹</button>
+<div><div style="font-weight:700;font-size:16px">Hand over {{ cur.code }}</div><div style="font-size:11.5px;color:#6F7565">Ready for pickup</div></div>
+</div>
+<div style="flex:1;overflow-y:auto;scrollbar-width:none;padding:22px 16px">
+<div style="padding:20px;border-radius:20px;background:#fff;border:1px solid #E4E7DE;text-align:center">
+<div style="margin:0 auto 14px;width:64px;height:64px;border-radius:99px;background:#EDEBDF;display:flex;align-items:center;justify-content:center;font-size:26px">🛍️</div>
+<div style="font-weight:700;font-size:18px;letter-spacing:-.4px">{{ keptCount }} items packed</div>
+<div style="margin-top:4px;font-size:13px;color:#6F7565">{{ newTotal }} · {{ cur.meta }}</div>
+</div>
+<div style="margin-top:14px;padding:16px;border-radius:20px;background:#0E0F0D;color:#F6F5EE;display:flex;align-items:center;gap:14px">
+<span style="flex:none;width:44px;height:44px;border-radius:99px;background:#C6F432;color:#12180A;font-weight:800;font-size:15px;display:flex;align-items:center;justify-content:center">TA</span>
+<span style="flex:1;min-width:0"><span style="display:block;font-weight:700;font-size:15px">Terver A.</span><span style="display:block;margin-top:2px;font-size:12.5px;opacity:.75">Rider · arriving now</span></span>
+<span style="flex:none;width:10px;height:10px;border-radius:99px;background:#C6F432;animation:kg-pulse 1.6s infinite"></span>
+</div>
+<div style="margin-top:14px;padding:14px 16px;border-radius:16px;background:#EDEBDF;font-size:12.5px;line-height:1.5;color:#4A4F3E">Give the rider the bags and confirm. Delivery is tracked in the customer app from here.</div>
+</div>
+<div style="padding:12px 16px 24px;border-top:1px solid #E4E7DE;background:#fff">
+<button onClick="{{ handover }}" style="width:100%;height:52px;border:0;border-radius:15px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:15px;cursor:pointer">Handed to rider</button>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDone }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;padding:40px 28px;text-align:center;animation:kg-up .35s ease-out">
+<div style="width:76px;height:76px;border-radius:99px;background:#C6F432;color:#12180A;font-weight:800;font-size:32px;display:flex;align-items:center;justify-content:center">✓</div>
+<div style="font-weight:800;font-size:22px;letter-spacing:-.5px">{{ cur.code }} on its way</div>
+<p style="margin:0;font-size:13.5px;line-height:1.55;color:#6F7565">Payout for this order lands in Money at the end of the day, less the 10% groceries rate.</p>
+<button onClick="{{ back }}" style="margin-top:6px;height:48px;padding:0 24px;border:0;border-radius:15px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:14px;cursor:pointer">Back to orders</button>
+</div>
+</sc-if>
+</div>
+</div>
+<div style="display:flex;gap:8px;flex-wrap:wrap;max-width:406px">
+<sc-for list="{{ jumps }}" as="j" hint-placeholder-count="5">
+<button onClick="{{ j.go }}" style="height:32px;padding:0 13px;border:1px solid #C4C4C4;border-radius:99px;background:{{ j.bg }};color:{{ j.fg }};font-weight:600;font-size:12px;cursor:pointer">{{ j.label }}</button>
+</sc-for>
+</div>
+</div>
+
+<div style="flex:1;min-width:300px;max-width:440px;display:flex;flex-direction:column;gap:14px">
+<div style="padding:22px 24px;border-radius:24px;background:#fff;border:1px solid #E4E7DE">
+<h2 style="margin:0 0 12px;font-weight:700;font-size:18px;letter-spacing:-.4px">What the store can do</h2>
+<div style="display:flex;flex-direction:column;gap:10px;font-size:13.5px;line-height:1.5;color:#4A4F3E">
+<div>Accept or reject an incoming order.</div>
+<div>Remove items it hasn’t got, which lowers what the customer is charged.</div>
+<div>Pack against a tick list and mark the order ready.</div>
+<div>Hand the bags to a rider and confirm.</div>
+<div>Open or close the store to new orders.</div>
+</div>
+</div>
+<div style="padding:22px 24px;border-radius:24px;background:#0E0F0D;color:#FFF4D6">
+<h2 style="margin:0 0 12px;font-weight:700;font-size:18px;letter-spacing:-.4px">Stripped out</h2>
+<div style="display:flex;flex-direction:column;gap:9px;font-size:13.5px;line-height:1.5;opacity:.85">
+<div>Catalogue review and item approval.</div>
+<div>Substitution suggestions and customer chat.</div>
+<div>Weighed items and price adjustments.</div>
+<div>Bag counts, weights and the rider app.</div>
+<div>Prep estimates, slots and large-order handling.</div>
+</div>
+</div>
+<div style="padding:22px 24px;border-radius:24px;background:#EDEBDF">
+<h2 style="margin:0 0 10px;font-weight:700;font-size:18px;letter-spacing:-.4px">Still open</h2>
+<p style="margin:0;font-size:13.5px;line-height:1.55;color:#4A4F3E">Whether a rejected order refunds automatically or waits on admin, and whether the store can edit quantities as well as remove lines. Both need a backend answer.</p>
+</div>
+</div>
+</div>
+</section>
+
+<section id="B6" data-screen-label="B6 · Edge states" style="padding:20px 64px 80px">
+<div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap"><span style="padding:6px 14px;border-radius:99px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:12px">B6</span><h2 style="margin:0;font-weight:800;font-size:32px;letter-spacing:-.03em">Edge states</h2></div>
+<p style="margin:10px 0 28px;max-width:76ch;font-size:14px;line-height:1.55;color:#6F7565">The four cases the store app has to show. Each is reachable in the prototype.</p>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px">
+<sc-for list="{{ edges }}" as="e" hint-placeholder-count="4">
+<div style="padding:20px 22px;border-radius:20px;background:#fff;border:1px solid #E4E7DE;display:flex;flex-direction:column;gap:8px">
+<span style="align-self:flex-start;padding:4px 11px;border-radius:99px;background:#EDEBDF;font-weight:700;font-size:11px">{{ e.tag }}</span>
+<div style="font-weight:700;font-size:15.5px;letter-spacing:-.3px">{{ e.title }}</div>
+<p style="margin:0;font-size:13px;line-height:1.55;color:#6F7565">{{ e.body }}</p>
+</div>
+</sc-for>
+</div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{}">
+const ORDERS = [
+  { id:'o1', code:'#G-4821', meta:'Mbaakor T. · Wurukum, 3.4 km', ago:'2 min ago', status:'new',
+    items:[{n:'Peak milk refill 400g',q:2,p:4200},{n:'Golden Penny semovita 2kg',q:1,p:3800},{n:'Crate of eggs',q:1,p:5200},{n:'Mamador oil 1L',q:1,p:3100},{n:'Indomie carton',q:1,p:7400}] },
+  { id:'o2', code:'#G-4818', meta:'Iorwuese A. · High Level, 5.1 km', ago:'11 min ago', status:'packing',
+    items:[{n:'Dangote sugar 1kg',q:2,p:2600},{n:'Titus sardines',q:4,p:1800},{n:'Bama mayonnaise',q:1,p:2900}] },
+  { id:'o3', code:'#G-4809', meta:'Ngodoo S. · Gboko Road, 8.7 km', ago:'34 min ago', status:'ready',
+    items:[{n:'Rice 5kg',q:1,p:11500},{n:'Groundnut oil 2L',q:1,p:6200}] }
+];
+const naira = n => '₦' + n.toLocaleString('en-NG');
+
+class Component extends DCLogic {
+  state = { screen:'queue', dir:'f', filter:'new', cur:'o1', closed:false, removed:{}, packed:{}, done:[] };
+  go(screen, dir) { this.setState({ screen, dir: dir || 'f' }); }
+  order() { return ORDERS.find(o => o.id === this.state.cur) || ORDERS[0]; }
+  kept() { const r = this.state.removed[this.state.cur] || {}; return this.order().items.filter((_,i) => !r[i]); }
+  total(list) { return list.reduce((s,i) => s + i.p * i.q, 0); }
+
+  renderVals() {
+    const s = this.state, cur = this.order(), rem = s.removed[s.cur] || {}, pk = s.packed[s.cur] || {};
+    const kept = this.kept(), removedItems = cur.items.filter((_,i) => rem[i]);
+    const allRemoved = kept.length === 0;
+    const packedCount = kept.filter((_,i) => pk[i]).length;
+    const notAllPacked = packedCount < kept.length;
+    const statusOf = o => s.done.includes(o.id) ? 'handed over' : (o.id === s.cur && s.screen === 'pack' ? 'packing' : o.status);
+    const chip = st => st === 'new' ? ['#C6F432','#12180A'] : st === 'packing' ? ['#FFE9B8','#5A3C00'] : st === 'ready' ? ['#DDE7FF','#1C3470'] : ['#EDEBDF','#6F7565'];
+    const accent = st => st === 'new' ? '#C6F432' : st === 'packing' ? '#E8B64C' : st === 'ready' ? '#5B7BD6' : '#C4C4C4';
+    const visible = ORDERS.filter(o => { const st = statusOf(o); return s.filter === 'all' ? true : s.filter === 'new' ? st === 'new' : st === 'packing' || st === 'ready'; });
+
+    return {
+      isQueue: s.screen === 'queue', isReview: s.screen === 'review', isPack: s.screen === 'pack',
+      isHandover: s.screen === 'handover', isDone: s.screen === 'done',
+      anim: s.dir === 'f' ? 'kg-r .3s ease-out' : 'kg-l .3s ease-out',
+      cur: { code: cur.code, meta: cur.meta },
+      closed: s.closed,
+      toggleOpen: () => this.setState(p => ({ closed: !p.closed })),
+      openLabel: s.closed ? 'Closed' : 'Open',
+      openBg: s.closed ? '#0E0F0D' : '#C6F432',
+      openFg: s.closed ? '#FFF4D6' : '#12180A',
+      filters: [
+        { key:'new', label:'New' }, { key:'active', label:'Packing' }, { key:'all', label:'All' }
+      ].map(f => ({ label:f.label, pick: () => this.setState({ filter:f.key }),
+        bg: s.filter===f.key ? '#0E0F0D' : '#fff', fg: s.filter===f.key ? '#F6F5EE' : '#0E0F0D',
+        bd: s.filter===f.key ? '#0E0F0D' : '#C4C4C4' })),
+      queue: visible.map(o => {
+        const st = statusOf(o), c = chip(st), r = s.removed[o.id] || {};
+        const live = o.items.filter((_,i) => !r[i]);
+        return { code:o.code, meta:o.meta, ago:o.ago, status:st, chipBg:c[0], chipFg:c[1], accent:accent(st),
+          total: naira(this.total(live)) + ' · ' + live.length + ' items',
+          open: () => this.setState({ cur:o.id, screen: st==='new' ? 'review' : st==='ready' ? 'handover' : 'pack', dir:'f' }) };
+      }),
+      queueEmpty: visible.length === 0,
+      doneCount: 12 + s.done.length,
+      newCount: ORDERS.filter(o => statusOf(o) === 'new').length,
+
+      items: cur.items.map((it,i) => {
+        const off = !!rem[i];
+        return { name:it.n, qty:it.q, line: naira(it.p * it.q), tick: off ? '' : '✓',
+          bg: off ? '#F1EFE6' : '#fff', bd: off ? '#D8D6CA' : '#E4E7DE',
+          boxBg: off ? 'transparent' : '#C6F432', boxBd: off ? '#B9B7AB' : '#C6F432',
+          fg: off ? '#A3A396' : '#0E0F0D', strike: off ? 'line-through' : 'none',
+          toggle: () => this.setState(p => ({ removed: { ...p.removed, [s.cur]: { ...(p.removed[s.cur]||{}), [i]: !off } } })) };
+      }),
+      origTotal: naira(this.total(cur.items)),
+      origStrike: removedItems.length ? 'line-through' : 'none',
+      removedCount: removedItems.length,
+      removedNames: removedItems.map(i => i.n).join(', '),
+      newTotal: naira(this.total(kept)),
+      allRemoved,
+      acceptLabel: removedItems.length ? 'Accept ' + kept.length + ' items' : 'Accept order',
+      acceptBg: allRemoved ? '#E4E7DE' : '#0E0F0D',
+      acceptFg: allRemoved ? '#A3A396' : '#C6F432',
+      acceptCur: allRemoved ? 'not-allowed' : 'pointer',
+      accept: () => { if (!allRemoved) this.go('pack'); },
+      reject: () => this.setState({ screen:'queue', dir:'b', filter:'all' }),
+
+      packList: kept.map((it,i) => {
+        const on = !!pk[i];
+        return { name:it.n, qty:it.q, tick: on ? '✓' : '',
+          bg: on ? '#F3F7E6' : '#fff', bd: on ? '#C6F432' : '#E4E7DE',
+          boxBg: on ? '#C6F432' : 'transparent', boxBd: on ? '#C6F432' : '#C4C4C4',
+          fg: on ? '#4E6B00' : '#0E0F0D',
+          toggle: () => this.setState(p => ({ packed: { ...p.packed, [s.cur]: { ...(p.packed[s.cur]||{}), [i]: !on } } })) };
+      }),
+      keptCount: kept.length, packedCount, notAllPacked,
+      packPct: Math.round(packedCount / Math.max(kept.length,1) * 100) + '%',
+      readyLabel: notAllPacked ? 'Pack ' + (kept.length - packedCount) + ' more' : 'Mark ready for pickup',
+      readyBg: notAllPacked ? '#E4E7DE' : '#0E0F0D',
+      readyFg: notAllPacked ? '#A3A396' : '#C6F432',
+      readyCur: notAllPacked ? 'not-allowed' : 'pointer',
+      ready: () => { if (!notAllPacked) this.go('handover'); },
+      handover: () => this.setState(p => ({ screen:'done', dir:'f', done:[...p.done, p.cur] })),
+      back: () => this.setState({ screen:'queue', dir:'b' }),
+
+      jumps: [
+        { label:'B1 Queue', k:'queue' }, { label:'B2 Review', k:'review' }, { label:'B3 Pack', k:'pack' },
+        { label:'B4 Handover', k:'handover' }, { label:'B5 Sent', k:'done' }
+      ].map(j => ({ label:j.label, go: () => this.setState({ screen:j.k, dir:'f' }),
+        bg: s.screen===j.k ? '#0E0F0D' : '#fff', fg: s.screen===j.k ? '#F6F5EE' : '#0E0F0D' })),
+
+      edges: [
+        { tag:'B6a', title:'Nothing in stock', body:'If every line is removed the accept button locks and the store is told to reject instead, so the customer gets a full refund rather than an empty bag.' },
+        { tag:'B6b', title:'Store closed', body:'Closing hides the store from the groceries tab. Orders already accepted stay in the queue until they are handed over.' },
+        { tag:'B6c', title:'Rejected order', body:'The order leaves the queue and the customer is told the store could not take it. Refund handling is still an open backend question.' },
+        { tag:'B6d', title:'Part packed', body:'Marking ready is blocked until every kept line is ticked, so a bag never leaves short without the customer being told.' }
+      ]
+    };
+  }
+}
+
+</script>
+</body>
+</html>

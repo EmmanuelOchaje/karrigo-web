@@ -5,8 +5,9 @@ import { Screen } from "@/components/ui/Screen";
 
 const links = [
   { href: "/kitchens", label: "Kitchens" },
+  { href: "/stores", label: "Stores" },
   { href: "/areas", label: "Areas" },
-  { href: "/partners/kitchen", label: "Restaurants" },
+  { href: "/partners/kitchen", label: "Partner with Karrigo" },
   { href: "/partners/rider", label: "Riders" },
 ];
 

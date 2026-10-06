@@ -3,6 +3,8 @@ import Image from "next/image";
 import { SiteNav } from "@/components/site/SiteNav";
 import { SiteFooter } from "@/components/site/SiteFooter";
 import { AddressForm } from "@/components/site/AddressForm";
+import { HeroTabs } from "@/components/site/HeroTabs";
+import { StoreCard } from "@/components/site/StoreCard";
 import { StoreButtons } from "@/components/site/StoreButtons";
 import { KitchenCard } from "@/components/site/KitchenCard";
 import { KitchenRail } from "@/components/site/KitchenRail";
@@ -14,10 +16,11 @@ import { AppPreviewPhone } from "@/components/site/AppPreviewPhone";
 import { Eyebrow } from "@/components/site/Eyebrow";
 import { Screen } from "@/components/ui/Screen";
 import { ButtonLink } from "@/components/ui/Button";
-import { kitchens, heroStats } from "@/lib/fixtures";
+import { kitchens, stores, heroStats } from "@/lib/fixtures";
 
 export default function HomePage() {
   const shownKitchens = kitchens.slice(0, 4);
+  const shownStores = stores.slice(0, 4);
 
   return (
     // grow so the ground colour fills the viewport on short pages — the body
@@ -52,21 +55,19 @@ export default function HomePage() {
           <div className="gap-xxl relative grid items-center px-xl pt-xxl md:px-pad-hero-x md:pt-pad-hero xl:grid-cols-2">
             <div className="min-w-0">
               <h1 className="text-hero-small md:text-hero text-cream rise text-balance">
-                Makurdi eats.
+                Food, groceries,
                 <br />
-                <span className="text-accent-text">We deliver.</span>
+                <span className="text-accent-text">at your doorstep.</span>
               </h1>
 
               <p className="text-lede-small md:text-lede text-cream/66 rise rise-1 mt-xl max-w-[34ch] text-pretty">
-                Order from kitchens around you and follow your rider from the
-                pot to your gate.
+                Order from the kitchens and stores near you. A Karrigo rider
+                brings it over, wherever your landmark is.
               </p>
 
               <AddressForm className="rise rise-2 mt-xxl max-w-[440px] xl:max-w-[520px]" />
 
-              <p className="text-site-label text-cream/50 rise rise-3 mt-md">
-                No street address? A landmark works — our riders know Makurdi.
-              </p>
+              <HeroTabs className="rise rise-3 mt-lg" />
 
               <dl className="rise rise-4 gap-sm mt-xxl flex flex-wrap pb-xxl">
                 {heroStats.map((stat) => (
@@ -104,7 +105,7 @@ export default function HomePage() {
           <div>
             <Eyebrow className="rise">Open right now</Eyebrow>
             <h2 className="text-section-small md:text-section rise rise-1 mt-md">
-              Kitchens in Makurdi
+              Open near you
             </h2>
           </div>
           <ButtonLink
@@ -113,13 +114,21 @@ export default function HomePage() {
             size="site"
             className="rise rise-1"
           >
-            See all kitchens
+            See what&rsquo;s near me
           </ButtonLink>
         </div>
 
+        <div className="text-site-title rise rise-1 mb-lg">Kitchens open now</div>
         <div className="gap-xl rise rise-2 grid sm:grid-cols-2 lg:grid-cols-4">
           {shownKitchens.map((kitchen) => (
             <KitchenCard key={kitchen.slug} kitchen={kitchen} />
+          ))}
+        </div>
+
+        <div className="text-site-title rise rise-2 mt-xxl mb-lg">Stores open now</div>
+        <div className="gap-xl rise rise-3 grid sm:grid-cols-2 lg:grid-cols-4">
+          {shownStores.map((store) => (
+            <StoreCard key={store.slug} store={store} />
           ))}
         </div>
       </section>
@@ -143,7 +152,7 @@ export default function HomePage() {
         id="riders"
         className="px-screen-x mx-auto w-full max-w-[1240px] pt-section-sm md:pt-section"
       >
-        <div className="gap-xl grid sm:grid-cols-2">
+        <div className="gap-xl grid sm:grid-cols-2 lg:grid-cols-3">
           <div className="bg-accent text-on-accent rounded-panel-md p-xxl md:p-pad-card flex flex-col">
             {/* The slot is white on both cards, whatever the card is. Left to
                 the surrounding palette it would go near-black on the dark one,
@@ -203,6 +212,34 @@ export default function HomePage() {
               </ButtonLink>
             </div>
           </Screen>
+
+          <div className="bg-cream text-on-accent rounded-panel-md p-xxl md:p-pad-card flex flex-col">
+            {/* No store photo yet — see the StoreCard placeholder note. */}
+            <div
+              data-theme="light"
+              className="bg-bg text-text-tertiary text-site-label rounded-slot flex h-[200px] items-center justify-center overflow-hidden md:h-[248px]"
+            >
+              Inside a Makurdi store
+            </div>
+            <h2 className="text-card-title-small md:text-card-title mt-xxl">
+              Sell your groceries on Karrigo
+            </h2>
+            <div className="text-site-body text-on-accent/74 mt-md flex flex-col gap-sm">
+              <span>
+                New customers across Makurdi, without opening another branch.
+              </span>
+              <span>We list your products for you from your price list.</span>
+              <span>
+                <strong className="font-bold">10% commission</strong> on what
+                you sell. No sign-up fee. Weekly payouts to your bank.
+              </span>
+            </div>
+            <div className="mt-auto pt-xxl">
+              <ButtonLink href="/partners/store" variant="dark" size="site">
+                Register your store
+              </ButtonLink>
+            </div>
+          </div>
         </div>
       </section>
 

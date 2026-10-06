@@ -32,6 +32,19 @@ export type Kitchen = {
   menu: Dish[];
 };
 
+export type Store = {
+  slug: string;
+  /** No store photos yet — real photos are needed before launch. */
+  name: string;
+  category: string;
+  area: string;
+  etaMinutes: [number, number];
+  deliveryFeeKobo?: number;
+  /** Checkout is blocked below this, with the shortfall shown in naira. */
+  minOrderKobo?: number;
+  closesAt?: string;
+};
+
 export type Dish = {
   id: string;
   name: string;
@@ -186,6 +199,45 @@ export function fromPriceKobo(kitchen: Kitchen): number {
   return Math.min(...(mains.length ? mains : kitchen.menu).map((d) => d.priceKobo));
 }
 
+export const stores: Store[] = [
+  {
+    slug: "makurdi-mega-store",
+    name: "Makurdi Mega Store",
+    category: "Supermarket",
+    area: "Wurukum",
+    etaMinutes: [25, 40],
+    deliveryFeeKobo: 70000,
+    closesAt: "Open until 9pm",
+  },
+  {
+    slug: "wurukum-provisions",
+    name: "Wurukum Provisions",
+    category: "Provisions",
+    area: "Wurukum",
+    etaMinutes: [20, 35],
+    minOrderKobo: 300000,
+    closesAt: "Open until 9pm",
+  },
+  {
+    slug: "high-level-mini-mart",
+    name: "High Level Mini Mart",
+    category: "Provisions",
+    area: "High Level",
+    etaMinutes: [25, 40],
+    deliveryFeeKobo: 60000,
+    closesAt: "Open until 9pm",
+  },
+  {
+    slug: "modern-market-fresh",
+    name: "Modern Market Fresh",
+    category: "Fresh produce",
+    area: "Modern Market",
+    etaMinutes: [30, 45],
+    minOrderKobo: 250000,
+    closesAt: "Open until 9pm",
+  },
+];
+
 export const dishes = [
   { name: "Pounded yam & egusi", image: "/food/poundo.jpg", priceKobo: 330000 },
   { name: "Jollof & chicken", image: "/food/jollof-chicken.jpg", priceKobo: 280000 },
@@ -282,6 +334,14 @@ export const faqs = [
   {
     q: "Which areas do you deliver to?",
     a: "Seven areas around Makurdi today. We open a new area only when we have enough riders to serve it properly, rather than taking orders we cannot deliver.",
+  },
+  {
+    q: "Is there a minimum order for stores?",
+    a: "Yes, it's set per store and shown before you check out. If your cart is below it, we'll show you exactly how much more to add.",
+  },
+  {
+    q: "What if a store is out of something I ordered?",
+    a: "The store removes it when they review your order, before they accept — you're only charged for what's actually sent. You'll see the updated total on your receipt.",
   },
 ];
 

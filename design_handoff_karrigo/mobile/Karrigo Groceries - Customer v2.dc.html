@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#DEDEDE;font-family:"Plus Jakarta Sans",system-ui,sans-serif;color:#0E0F0D;-webkit-font-smoothing:antialiased}
+button,input,textarea{font-family:inherit}
+a{color:#4E6B00;text-decoration:none}a:hover{color:#0E0F0D}
+@keyframes kg-r{from{opacity:0;transform:translateX(36px)}to{opacity:1;transform:none}}
+@keyframes kg-l{from{opacity:0;transform:translateX(-36px)}to{opacity:1;transform:none}}
+@keyframes kg-up{from{opacity:0;transform:translateY(24px)}to{opacity:1;transform:none}}
+@keyframes kg-pop{0%{transform:scale(.55)}60%{transform:scale(1.15)}100%{transform:scale(1)}}
+@keyframes kg-pulse{0%,100%{opacity:.45;transform:scale(1)}50%{opacity:1;transform:scale(1.35)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</helmet>
+
+<section id="A" data-screen-label="A · Customer v2" style="padding:56px 64px 40px">
+<div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap"><span style="padding:6px 14px;border-radius:99px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:12px">A v2</span><h1 style="margin:0;font-weight:800;font-size:44px;letter-spacing:-.04em">Groceries · customer app</h1></div>
+<p style="margin:10px 0 0;max-width:76ch;font-size:15px;line-height:1.55;color:#6F7565">Rebuilt to the backend note of 6 October. A store is a kitchen that serves groceries, a customer holds one cart at a time, products are a name and a price, and the store removes anything it hasn’t got when it accepts. Substitutions, weights, estimates, holds, cash, slots and large orders are gone.</p>
+<p style="margin:8px 0 0;max-width:76ch;font-size:13.5px;line-height:1.55;color:#8A8F7C">Clickable. Start on Home, open Makurdi Mega Store, add items, check out, then watch the store accept and trim the order. The jump list skips to any screen.</p>
+
+<div style="margin-top:32px;display:flex;gap:48px;align-items:flex-start;flex-wrap:wrap">
+<div id="A1" style="display:flex;flex-direction:column;gap:12px">
+<span style="align-self:flex-start;padding:5px 12px;border-radius:99px;background:#C6F432;color:#12180A;font-weight:700;font-size:12px">A1–A8 · prototype</span>
+<div style="padding:8px;border-radius:58px;background:#171815;box-shadow:0 40px 80px -40px rgba(14,15,13,.6)">
+<div style="position:relative;width:390px;height:844px;border-radius:50px;overflow:hidden;background:{{ phoneBg }};transition:background .3s">
+<div style="position:absolute;top:0;left:0;right:0;height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-weight:600;font-size:14px;color:{{ barFg }};z-index:5"><span>9:41</span><span style="width:110px;height:30px;border-radius:99px;background:#000"></span><span>5G</span></div>
+
+<sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+<div style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;animation:{{ anim }}">
+<div style="flex:1;overflow-y:auto;scrollbar-width:none;padding-bottom:110px">
+<div style="display:flex;align-items:center;gap:12px;padding:8px 16px 0">
+<div style="flex:1;min-width:0"><div style="font-size:11px;color:#6F7565">Deliver to</div><div style="font-weight:600;font-size:14px;letter-spacing:-.2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ landmark }}</div></div>
+<button onClick="{{ goLists }}" style="flex:none;height:36px;padding:0 14px;border:0;border-radius:99px;background:#EDEBDF;font-weight:600;font-size:12px;color:#0E0F0D;cursor:pointer;white-space:nowrap">My lists</button>
+</div>
+<div style="margin:14px 16px 0;position:relative;display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:99px;background:#EDEBDF">
+<span style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:99px;background:#fff;box-shadow:0 4px 12px -6px rgba(10,11,9,.3);transform:{{ tabX }};transition:transform .4s cubic-bezier(.2,.8,.2,1)"></span>
+<button onClick="{{ tabFood }}" style="position:relative;height:38px;border:0;background:transparent;font-weight:600;font-size:14px;color:#0E0F0D;cursor:pointer">Food</button>
+<button onClick="{{ tabGroc }}" style="position:relative;height:38px;border:0;background:transparent;font-weight:600;font-size:14px;color:#0E0F0D;cursor:pointer">Groceries</button>
+</div>
+<sc-if value="{{ isGroc }}" hint-placeholder-val="{{ true }}">
+<div style="animation:kg-up .35s ease-out">
+<button onClick="{{ goSearch }}" style="margin:14px 16px 0;width:calc(100% - 32px);height:46px;display:flex;align-items:center;gap:10px;padding:0 16px;border:1px solid #C4C4C4;border-radius:15px;background:#fff;font-size:13px;color:#8A8F7C;cursor:pointer;text-align:left">⌕ <span>Search Peak milk, semovita, eggs…</span></button>
+<sc-if value="{{ hasBuyAgain }}" hint-placeholder-val="{{ true }}">
+<div style="margin:22px 16px 10px;display:flex;justify-content:space-between;align-items:baseline"><h2 style="margin:0;font-weight:600;font-size:17px;letter-spacing:-.5px">Buy again</h2><span style="font-size:11px;color:#6F7565">From your last orders</span></div>
+<div style="display:flex;gap:10px;overflow-x:auto;scrollbar-width:none;padding:0 16px">
+<sc-for list="{{ buyAgain }}" as="b" hint-placeholder-count="4">
+<div style="flex:none;width:124px;padding:8px;border:1px solid #E4E7DE;border-radius:15px">
+<div style="height:64px;border-radius:11px;background:#EDEBDF;display:grid;place-items:center;font-weight:700;font-size:15px;color:#6F7565">{{ b.abbr }}</div>
+<div style="margin-top:8px;font-weight:600;font-size:12px;line-height:1.3;height:47px;overflow:hidden">{{ b.name }}</div>
+<div style="margin-top:4px;display:flex;align-items:center;justify-content:space-between"><span style="font-weight:600;font-size:13px">{{ b.price }}</span><button onClick="{{ b.add }}" aria-label="Add" style="width:28px;height:28px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:700;font-size:16px;cursor:pointer" style-active="transform:scale(.9)">+</button></div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+<h2 style="margin:24px 16px 10px;font-weight:600;font-size:17px;letter-spacing:-.5px">Shop by category</h2>
+<div style="padding:0 16px;display:grid;grid-template-columns:repeat(3,1fr);gap:8px">
+<sc-for list="{{ catTiles }}" as="c" hint-placeholder-count="9"><button onClick="{{ c.open }}" style="height:64px;padding:10px;border:0;border-radius:15px;background:#EDEBDF;text-align:left;display:flex;align-items:flex-end;font-weight:600;font-size:12px;line-height:1.25;color:#0E0F0D;cursor:pointer" style-active="transform:scale(.97)">{{ c.label }}</button></sc-for>
+</div>
+<h2 style="margin:24px 16px 4px;font-weight:600;font-size:17px;letter-spacing:-.5px">Stores near you</h2>
+<div style="padding:0 16px">
+<sc-for list="{{ storeRows }}" as="s" hint-placeholder-count="5">
+<button onClick="{{ s.open }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:10px 0;border:0;border-bottom:1px solid #E4E7DE;background:transparent;text-align:left;cursor:pointer;color:#0E0F0D">
+<span style="flex:none;width:46px;height:46px;border-radius:11px;background:#EDEBDF;display:grid;place-items:center;font-weight:700;font-size:13px;color:#6F7565;opacity:{{ s.op }}">{{ s.abbr }}</span>
+<span style="flex:1;min-width:0;opacity:{{ s.op }}"><span style="display:block;font-weight:600;font-size:14px;letter-spacing:-.2px">{{ s.name }}</span><span style="display:block;font-size:11px;color:#6F7565">{{ s.area }} · min {{ s.min }} · up to {{ s.cap }} items</span><span style="margin-top:4px;display:flex;gap:8px;align-items:center;font-size:11px;color:#6F7565"><span style="font-weight:600;color:#4E6B00">{{ s.km }}</span>·<span>{{ s.eta }}</span>·<span>{{ s.fee }}</span></span></span>
+<sc-if value="{{ s.tag }}" hint-placeholder-val="{{ false }}"><span style="flex:none;padding:4px 9px;border-radius:99px;background:{{ s.tagBg }};color:{{ s.tagFg }};font-weight:600;font-size:10px;white-space:nowrap">{{ s.tag }}</span></sc-if>
+</button>
+</sc-for>
+</div>
+<p style="margin:12px 16px 0;font-size:11px;line-height:17px;color:#8A8F7C">You can look at any store. You can only order from one within 15 km of your delivery address.</p>
+</div>
+</sc-if>
+<sc-if value="{{ isFood }}" hint-placeholder-val="{{ false }}">
+<div style="padding:8px 16px 0;animation:kg-up .35s ease-out">
+<sc-for list="{{ kitchens }}" as="k" hint-placeholder-count="4"><button onClick="{{ k.open }}" style="width:100%;display:flex;align-items:center;gap:12px;padding:10px 0;border:0;border-bottom:1px solid #E4E7DE;background:transparent;text-align:left;cursor:pointer;color:#0E0F0D"><span style="flex:none;width:46px;height:46px;border-radius:11px;background:#EDEBDF;display:grid;place-items:center;font-weight:700;font-size:13px;color:#6F7565">{{ k.abbr }}</span><span style="flex:1;min-width:0"><span style="display:block;font-weight:600;font-size:14px">{{ k.name }}</span><span style="display:block;font-size:11px;color:#6F7565">{{ k.sub }}</span><span style="margin-top:4px;display:flex;gap:8px;font-size:11px;color:#6F7565"><span style="font-weight:600;color:#4E6B00">{{ k.km }}</span>·<span>{{ k.eta }}</span>·<span>{{ k.fee }}</span></span></span><sc-if value="{{ k.both }}" hint-placeholder-val="{{ false }}"><span style="flex:none;padding:4px 9px;border-radius:99px;background:#EDEBDF;font-weight:600;font-size:10px;color:#4E6B00;white-space:nowrap">Also groceries</span></sc-if></button></sc-for>
+</div>
+</sc-if>
+</div>
+<sc-if value="{{ hasCart }}" hint-placeholder-val="{{ true }}">
+<button onClick="{{ goCart }}" style="position:absolute;left:16px;right:16px;bottom:24px;height:54px;display:flex;align-items:center;gap:10px;padding:0 8px 0 20px;border:0;border-radius:99px;background:#0E0F0D;color:#fff;cursor:pointer;box-shadow:0 14px 30px -12px rgba(14,15,13,.6);animation:kg-up .35s ease-out"><span style="flex:1;text-align:left;font-weight:600;font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ cartLabel }}</span><span style="flex:none;height:38px;padding:0 16px;border-radius:99px;background:#C6F432;color:#12180A;display:grid;place-items:center;font-weight:600;font-size:13px">View</span></button>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isStore }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;animation:{{ anim }}">
+<div style="flex:1;overflow-y:auto;scrollbar-width:none;padding-bottom:110px">
+<div style="padding:8px 16px 0;display:flex;align-items:center;gap:10px"><button onClick="{{ back }}" aria-label="Back" style="width:29px;height:29px;border:0;border-radius:99px;background:#EDEBDF;font-size:14px;cursor:pointer">←</button><span style="font-size:11px;color:#6F7565">Groceries</span></div>
+<h1 style="margin:12px 16px 0;font-weight:600;font-size:22px;line-height:24px;letter-spacing:-.9px">{{ stName }}</h1>
+<div style="margin:6px 16px 0;display:flex;gap:8px;flex-wrap:wrap;font-size:11px;color:#6F7565"><span style="font-weight:600;color:#4E6B00">{{ stKm }}</span>·<span>{{ stEta }}</span>·<span>{{ stFee }}</span>·<span>Min {{ stMin }}</span>·<span>Up to {{ stCap }} items</span></div>
+<sc-if value="{{ stClosed }}" hint-placeholder-val="{{ false }}"><div style="margin:12px 16px 0;padding:14px;border-radius:15px;background:#0E0F0D;color:#fff"><div style="font-weight:600;font-size:14px">Closed now · {{ stOpens }}</div><div style="margin-top:4px;font-weight:300;font-size:12px;line-height:18px;color:#8E9189">You can fill your cart, but you can only send the order once they open.</div></div></sc-if>
+<sc-if value="{{ stFar }}" hint-placeholder-val="{{ false }}"><div style="margin:12px 16px 0;padding:14px;border-radius:15px;background:#0E0F0D;color:#fff"><div style="font-weight:600;font-size:14px">Too far to deliver to you · {{ stKm }}</div><div style="margin-top:4px;font-weight:300;font-size:12px;line-height:18px;color:#8E9189">Ordering stops past 15 km. Look around all you like, or change your delivery address.</div></div></sc-if>
+<div style="margin:14px 16px 0;height:46px;display:flex;align-items:center;gap:10px;padding:0 16px;border:1px solid #C4C4C4;border-radius:15px"><span style="color:#8A8F7C">⌕</span><input value="{{ sq }}" onChange="{{ onSq }}" placeholder="Search this store" style="flex:1;min-width:0;border:0;outline:none;font-size:13px;background:transparent;color:#0E0F0D"></div>
+<div style="position:sticky;top:0;z-index:2;margin-top:12px;padding:8px 16px;background:#fff;display:flex;gap:6px;overflow-x:auto;scrollbar-width:none">
+<sc-for list="{{ catChips }}" as="c" hint-placeholder-count="6"><button onClick="{{ c.pick }}" style="flex:none;height:34px;padding:0 14px;border:0;border-radius:99px;background:{{ c.bg }};color:{{ c.fg }};font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap;transition:background .2s,color .2s">{{ c.label }}</button></sc-for>
+</div>
+<div style="padding:0 16px">
+<sc-for list="{{ groups }}" as="g" hint-placeholder-count="2">
+<div style="margin-top:14px;font-weight:600;font-size:12px;color:#6F7565">{{ g.label }}</div>
+<sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="4">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #E4E7DE">
+<button onClick="{{ r.open }}" style="flex:1;min-width:0;display:flex;align-items:center;gap:10px;padding:0;border:0;background:transparent;text-align:left;cursor:pointer;color:#0E0F0D"><span style="flex:none;width:42px;height:42px;border-radius:11px;background:#EDEBDF;display:grid;place-items:center;font-weight:700;font-size:12px;color:#6F7565">{{ r.abbr }}</span><span style="min-width:0"><span style="display:block;font-weight:600;font-size:13px;line-height:17px">{{ r.name }}</span><span style="display:block;margin-top:2px;font-weight:600;font-size:13px">{{ r.price }}</span></span></button>
+<sc-if value="{{ r.none }}" hint-placeholder-val="{{ true }}"><button onClick="{{ r.add }}" style="flex:none;height:34px;padding:0 16px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:600;font-size:12px;cursor:pointer" style-active="transform:scale(.93)">Add</button></sc-if>
+<sc-if value="{{ r.some }}" hint-placeholder-val="{{ false }}"><div style="flex:none;display:flex;align-items:center;gap:2px;padding:3px;border-radius:99px;background:#0E0F0D;animation:kg-pop .3s cubic-bezier(.2,.8,.2,1)"><button onClick="{{ r.dec }}" aria-label="Remove one" style="width:30px;height:30px;border:0;border-radius:99px;background:rgba(255,255,255,.1);color:#fff;font-weight:700;font-size:15px;cursor:pointer">−</button><span style="min-width:26px;text-align:center;font-weight:800;font-size:12px;color:#C6F432">{{ r.qty }}</span><button onClick="{{ r.add }}" aria-label="Add one" style="width:30px;height:30px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:700;font-size:15px;cursor:pointer">+</button></div></sc-if>
+</div>
+</sc-for>
+</sc-for>
+<sc-if value="{{ noRows }}" hint-placeholder-val="{{ false }}"><p style="margin:28px 0;text-align:center;font-size:13px;color:#6F7565">{{ stName }} has nothing called “{{ sq }}”.</p></sc-if>
+</div>
+</div>
+<sc-if value="{{ cartHere }}" hint-placeholder-val="{{ false }}"><button onClick="{{ goCart }}" style="position:absolute;left:16px;right:16px;bottom:24px;height:54px;display:flex;align-items:center;gap:10px;padding:0 8px 0 20px;border:0;border-radius:99px;background:#0E0F0D;color:#fff;cursor:pointer;box-shadow:0 14px 30px -12px rgba(14,15,13,.6)"><span style="flex:1;text-align:left;font-weight:600;font-size:13px">{{ count }} items · {{ total }}</span><span style="flex:none;height:38px;padding:0 16px;border-radius:99px;background:#C6F432;color:#12180A;display:grid;place-items:center;font-weight:600;font-size:13px">View cart</span></button></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isProduct }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeProduct }}" style="position:absolute;inset:0;z-index:8;background:rgba(14,15,13,.45);display:flex;align-items:flex-end;animation:kg-up .2s ease-out">
+<div onClick="{{ stop }}" style="width:100%;padding:10px 10px 26px;border-radius:20px 20px 0 0;background:#fff">
+<div style="height:170px;border-radius:15px;background:#EDEBDF;display:grid;place-items:center;font-weight:800;font-size:44px;letter-spacing:-.04em;color:#8A8F7C">{{ pAbbr }}</div>
+<div style="padding:16px 6px 0">
+<div style="display:flex;justify-content:space-between;gap:12px;align-items:flex-start"><h2 style="margin:0;font-weight:600;font-size:21px;line-height:1.1;letter-spacing:-.8px">{{ pName }}</h2><button onClick="{{ closeProduct }}" aria-label="Close" style="flex:none;width:32px;height:32px;border:0;border-radius:99px;background:#EDEBDF;font-size:14px;cursor:pointer">✕</button></div>
+<div style="margin-top:8px;font-weight:700;font-size:20px;letter-spacing:-.5px">{{ pPrice }}</div>
+<div style="margin-top:6px;font-size:12.5px;line-height:19px;color:#6F7565">{{ pDesc }}</div>
+<div style="margin-top:18px;display:flex;align-items:center;justify-content:space-between"><span style="font-weight:600;font-size:14px">Quantity</span><div style="display:flex;align-items:center;gap:2px;padding:3px;border-radius:99px;background:#EDEBDF"><button onClick="{{ pDec }}" aria-label="Less" style="width:32px;height:32px;border:0;border-radius:99px;background:#fff;font-weight:700;font-size:15px;cursor:pointer">−</button><span style="min-width:40px;text-align:center;font-weight:800;font-size:13px">{{ pQty }}</span><button onClick="{{ pInc }}" aria-label="More" style="width:32px;height:32px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:700;font-size:15px;cursor:pointer">+</button></div></div>
+<button onClick="{{ pAdd }}" style="margin-top:18px;width:100%;height:46px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:600;font-size:14px;cursor:pointer" style-active="transform:scale(.98)">{{ pCta }}</button>
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isSearch }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:44px;left:0;right:0;bottom:0;overflow-y:auto;scrollbar-width:none;padding-bottom:40px;animation:{{ anim }}">
+<div style="padding:8px 16px 0;display:flex;align-items:center;gap:10px"><button onClick="{{ back }}" aria-label="Back" style="flex:none;width:29px;height:29px;border:0;border-radius:99px;background:#EDEBDF;font-size:14px;cursor:pointer">←</button>
+<div style="flex:1;height:46px;display:flex;align-items:center;gap:10px;padding:0 14px;border:1.5px solid #8C8C8C;border-radius:15px"><span style="color:#8A8F7C">⌕</span><input value="{{ gq }}" onChange="{{ onGq }}" placeholder="Search all stores" style="flex:1;min-width:0;border:0;outline:none;font-size:13px;background:transparent;color:#0E0F0D"></div></div>
+<sc-if value="{{ gqEmpty }}" hint-placeholder-val="{{ true }}">
+<div style="margin:20px 16px 8px;font-weight:600;font-size:12px;color:#6F7565">Recent</div>
+<div style="padding:0 16px;display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ recent }}" as="r" hint-placeholder-count="4"><button onClick="{{ r.pick }}" style="height:34px;padding:0 14px;border:0;border-radius:99px;background:#EDEBDF;font-weight:500;font-size:12px;color:#0E0F0D;cursor:pointer">{{ r.label }}</button></sc-for></div>
+</sc-if>
+<sc-if value="{{ hasCompare }}" hint-placeholder-val="{{ false }}">
+<div style="margin:16px 16px 0;padding:14px;border-radius:15px;background:#0E0F0D;color:#fff;animation:kg-up .3s ease-out">
+<div style="font-size:11px;font-weight:300;color:#8E9189">Price compared</div>
+<div style="margin-top:2px;font-weight:600;font-size:14px">{{ cmpName }}</div>
+<div style="margin-top:10px;display:flex;flex-direction:column;gap:6px"><sc-for list="{{ cmpRows }}" as="c" hint-placeholder-count="3"><div style="display:flex;align-items:center;gap:8px;font-size:12px"><span style="flex:1;font-weight:300">{{ c.store }}</span><sc-if value="{{ c.best }}" hint-placeholder-val="{{ false }}"><span style="padding:2px 8px;border-radius:99px;background:#C6F432;color:#12180A;font-weight:600;font-size:10px">Cheapest</span></sc-if><span style="font-weight:600">{{ c.price }}</span></div></sc-for></div>
+</div>
+</sc-if>
+<sc-for list="{{ sGroups }}" as="g" hint-placeholder-count="0">
+<div style="margin:20px 16px 0;display:flex;justify-content:space-between;align-items:baseline;gap:8px"><span style="font-weight:600;font-size:15px;letter-spacing:-.3px">{{ g.store }}</span><span style="font-size:11px;color:#6F7565;text-align:right">{{ g.meta }}</span></div>
+<div style="padding:0 16px"><sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #E4E7DE"><span style="flex:none;width:42px;height:42px;border-radius:11px;background:#EDEBDF;display:grid;place-items:center;font-weight:700;font-size:12px;color:#6F7565">{{ r.abbr }}</span><span style="flex:1;min-width:0;font-weight:600;font-size:13px">{{ r.name }}</span><span style="flex:none;text-align:right"><span style="display:block;font-weight:600;font-size:13px">{{ r.price }}</span><sc-if value="{{ r.best }}" hint-placeholder-val="{{ false }}"><span style="font-weight:600;font-size:10px;color:#4E6B00">Cheapest</span></sc-if></span><button onClick="{{ r.add }}" aria-label="Add" style="flex:none;width:30px;height:30px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:700;font-size:15px;cursor:pointer" style-active="transform:scale(.9)">+</button></div>
+</sc-for></div>
+</sc-for>
+<sc-if value="{{ gqNone }}" hint-placeholder-val="{{ false }}"><p style="margin:32px 16px;text-align:center;font-size:13px;color:#6F7565">No store in Makurdi lists “{{ gq }}” yet.</p></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isLists }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;animation:{{ anim }}">
+<div style="flex:1;overflow-y:auto;scrollbar-width:none">
+<div style="padding:8px 16px 0;display:flex;align-items:center;gap:10px"><button onClick="{{ back }}" aria-label="Back" style="width:29px;height:29px;border:0;border-radius:99px;background:#EDEBDF;font-size:14px;cursor:pointer">←</button></div>
+<h1 style="margin:12px 16px 4px;font-weight:600;font-size:22px;letter-spacing:-.9px">My lists</h1>
+<p style="margin:0 16px;font-size:13px;color:#6F7565">Add a whole list to your cart. Priced at {{ listStore }}.</p>
+<div style="margin:16px 16px 0;display:flex;gap:6px;flex-wrap:wrap"><sc-for list="{{ listTabs }}" as="l" hint-placeholder-count="3"><button onClick="{{ l.pick }}" style="height:34px;padding:0 14px;border:0;border-radius:99px;background:{{ l.bg }};color:{{ l.fg }};font-weight:600;font-size:12px;cursor:pointer;white-space:nowrap;transition:all .2s">{{ l.name }}</button></sc-for></div>
+<div style="padding:12px 16px 0"><sc-for list="{{ lRows }}" as="r" hint-placeholder-count="6"><div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #E4E7DE;opacity:{{ r.op }}"><span style="flex:none;min-width:28px;font-weight:700;font-size:12px;color:#4E6B00">{{ r.qty }}×</span><span style="flex:1;min-width:0;font-weight:600;font-size:13px">{{ r.name }}</span><span style="flex:none;font-weight:600;font-size:13px">{{ r.price }}</span></div></sc-for></div>
+<sc-if value="{{ lMissing }}" hint-placeholder-val="{{ false }}"><p style="margin:12px 16px;padding:10px 12px;border-radius:15px;background:#FFF3DE;color:#9A5F00;font-size:12px;line-height:18px">{{ lMissing }}</p></sc-if>
+<button onClick="{{ saveList }}" style="margin:12px 16px 20px;width:calc(100% - 32px);height:44px;border:1.5px dashed #D3D7CB;border-radius:15px;background:transparent;font-weight:600;font-size:13px;color:#0E0F0D;cursor:pointer">+ Save current cart as a list</button>
+</div>
+<div style="flex:none;padding:12px 16px 26px;border-top:1px solid #E4E7DE"><button onClick="{{ lAdd }}" style="width:100%;height:46px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:600;font-size:14px;cursor:pointer">{{ lCta }}</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCart }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;animation:{{ anim }}">
+<div style="flex:1;overflow-y:auto;scrollbar-width:none;padding-bottom:20px">
+<div style="padding:8px 16px 0;display:flex;align-items:center;gap:10px"><button onClick="{{ back }}" aria-label="Back" style="width:29px;height:29px;border:0;border-radius:99px;background:#EDEBDF;font-size:14px;cursor:pointer">←</button><h1 style="margin:0;font-weight:600;font-size:22px;letter-spacing:-.9px">Your cart</h1></div>
+<sc-if value="{{ empty }}" hint-placeholder-val="{{ false }}"><div style="margin:50px 16px;text-align:center"><div style="font-weight:600;font-size:17px">Your cart is empty</div><p style="font-size:13px;color:#6F7565">Add a list, or pick a store.</p><button onClick="{{ goLists }}" style="height:46px;padding:0 20px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:600;font-size:14px;cursor:pointer">Open my lists</button></div></sc-if>
+<sc-if value="{{ hasItems }}" hint-placeholder-val="{{ true }}">
+<div style="margin:14px 16px 0;display:flex;justify-content:space-between;align-items:baseline;gap:10px"><span style="font-weight:600;font-size:15px">{{ cartStore }}</span><button onClick="{{ backToStore }}" style="padding:0;border:0;background:none;font-weight:600;font-size:12px;color:#4E6B00;cursor:pointer">Add more</button></div>
+<div style="margin:4px 16px 0;font-size:11px;color:#6F7565">Groceries · one store per order</div>
+<sc-if value="{{ belowMin }}" hint-placeholder-val="{{ false }}"><div style="margin:12px 16px 0;padding:10px 12px;border-radius:15px;background:#FFF3DE;color:#9A5F00;font-size:12px;line-height:18px">Add {{ shortfall }} more to reach {{ cartStore }}’s {{ min }} minimum.<div style="margin-top:8px;height:5px;border-radius:99px;background:rgba(154,95,0,.15);overflow:hidden"><div style="height:100%;width:{{ minPct }};background:#9A5F00;border-radius:99px;transition:width .4s"></div></div></div></sc-if>
+<sc-if value="{{ atCap }}" hint-placeholder-val="{{ false }}"><div style="margin:12px 16px 0;padding:10px 12px;border-radius:15px;background:#FFEDE8;color:#C0391C;font-size:12px;line-height:18px">{{ count }} of {{ cap }} items. {{ cartStore }} can’t pack more than {{ cap }} in one order. Remove something, or send this and order again.</div></sc-if>
+<div style="padding:0 16px">
+<sc-for list="{{ cGroups }}" as="g" hint-placeholder-count="3">
+<div style="margin-top:16px;font-weight:600;font-size:12px;color:#6F7565">{{ g.label }} · {{ g.count }}</div>
+<sc-for list="{{ g.rows }}" as="r" hint-placeholder-count="2">
+<div style="display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid #E4E7DE"><span style="flex:1;min-width:0;font-weight:600;font-size:13px;line-height:17px">{{ r.name }}</span><span style="flex:none;font-weight:600;font-size:13px">{{ r.total }}</span><div style="flex:none;display:flex;align-items:center;gap:2px;padding:3px;border-radius:99px;background:#EDEBDF"><button onClick="{{ r.dec }}" aria-label="Remove one" style="width:28px;height:28px;border:0;border-radius:99px;background:#fff;font-weight:700;font-size:14px;cursor:pointer">−</button><span style="min-width:24px;text-align:center;font-weight:800;font-size:12px">{{ r.qty }}</span><button onClick="{{ r.inc }}" aria-label="Add one" style="width:28px;height:28px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:700;font-size:14px;cursor:pointer">+</button></div></div>
+</sc-for>
+</sc-for>
+</div>
+<div style="margin:18px 16px 0;font-weight:600;font-size:13px">Note for the store</div>
+<textarea value="{{ note }}" onChange="{{ onNote }}" rows="2" placeholder="Firm tomatoes only. Call me if the semovita is finished." style="margin:8px 16px 0;width:calc(100% - 32px);padding:12px 14px;border:1px solid #C4C4C4;border-radius:15px;font-size:13px;color:#0E0F0D;outline:none;resize:none"></textarea>
+<div style="margin:16px 16px 0;padding:14px;border-radius:15px;background:#F3F3EF;display:flex;flex-direction:column;gap:6px;font-size:13px">
+<div style="display:flex;justify-content:space-between;color:#6F7565"><span>Items ({{ count }})</span><span>{{ sub }}</span></div>
+<div style="display:flex;justify-content:space-between;color:#6F7565"><span>Delivery</span><span>{{ fee }}</span></div>
+<div style="display:flex;justify-content:space-between;font-weight:700;font-size:15px"><span>Total</span><span>{{ total }}</span></div>
+<div style="font-size:11px;line-height:17px;color:#6F7565">If the store hasn’t got something, they take it off when they accept and you pay less. You’ll see exactly what changed.</div>
+</div>
+<button onClick="{{ saveList }}" style="margin:12px 16px 0;padding:0;border:0;background:none;font-weight:600;font-size:12px;color:#4E6B00;cursor:pointer">Save this cart as a list</button>
+</sc-if>
+</div>
+<sc-if value="{{ hasItems }}" hint-placeholder-val="{{ true }}"><div style="flex:none;padding:12px 16px 26px;border-top:1px solid #E4E7DE;background:#fff"><button onClick="{{ goCheckout }}" style="width:100%;height:46px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:600;font-size:14px;cursor:pointer;opacity:{{ ctaOp }};transition:opacity .2s">{{ cartCta }}</button></div></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isCheckout }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;animation:{{ anim }}">
+<div style="flex:1;overflow-y:auto;scrollbar-width:none;padding-bottom:20px">
+<div style="padding:8px 16px 0;display:flex;align-items:center;gap:10px"><button onClick="{{ back }}" aria-label="Back" style="width:29px;height:29px;border:0;border-radius:99px;background:#EDEBDF;font-size:14px;cursor:pointer">←</button><h1 style="margin:0;font-weight:600;font-size:22px;letter-spacing:-.9px">Checkout</h1></div>
+<p style="margin:6px 16px 0;font-size:12px;color:#6F7565">{{ cartStore }} · {{ count }} items</p>
+<div style="margin:20px 16px 8px;font-weight:600;font-size:14px">Where</div>
+<label style="margin:0 16px;display:flex;flex-direction:column;gap:6px;font-weight:500;font-size:12px;color:#6F7565">Landmark<input value="{{ landmark }}" onChange="{{ onLandmark }}" style="height:46px;padding:0 14px;border:1px solid #C4C4C4;border-radius:15px;font-size:13px;color:#0E0F0D;outline:none" style-focus="border-color:#8C8C8C"></label>
+<div style="margin:6px 16px 0;font-size:11px;color:#8A8F7C">{{ distLine }}</div>
+<div style="margin:20px 16px 8px;font-weight:600;font-size:14px">Payment</div>
+<div style="margin:0 16px;display:flex;flex-direction:column;gap:6px">
+<sc-for list="{{ payOpts }}" as="p" hint-placeholder-count="2"><button onClick="{{ p.pick }}" style="display:flex;align-items:center;gap:12px;padding:12px 14px;border:1.5px solid {{ p.bd }};border-radius:15px;background:#fff;text-align:left;cursor:pointer;color:#0E0F0D;transition:border-color .2s"><span style="flex:none;width:18px;height:18px;border-radius:99px;border:2px solid {{ p.bd }};display:grid;place-items:center"><span style="width:8px;height:8px;border-radius:99px;background:{{ p.dot }}"></span></span><span><span style="display:block;font-weight:600;font-size:13px">{{ p.label }}</span><span style="display:block;font-size:11px;color:#6F7565">{{ p.sub }}</span></span></button></sc-for>
+</div>
+<div style="margin:16px 16px 0;padding:14px;border-radius:15px;background:#F3F3EF;display:flex;flex-direction:column;gap:6px;font-size:13px">
+<div style="display:flex;justify-content:space-between;color:#6F7565"><span>Items</span><span>{{ sub }}</span></div>
+<div style="display:flex;justify-content:space-between;color:#6F7565"><span>Delivery</span><span>{{ fee }}</span></div>
+<div style="display:flex;justify-content:space-between;font-weight:700;font-size:15px"><span>Total</span><span>{{ total }}</span></div>
+<div style="font-size:12px;line-height:18px;color:#0E0F0D">{{ payLine }}</div>
+</div>
+<sc-if value="{{ coErr }}" hint-placeholder-val="{{ false }}"><p style="margin:14px 16px 0;padding:12px 14px;border-radius:15px;background:#FFEDE8;color:#C0391C;font-weight:600;font-size:12.5px;line-height:18px">{{ coErr }}</p></sc-if>
+</div>
+<div style="flex:none;padding:12px 16px 26px;border-top:1px solid #E4E7DE;background:#fff"><button onClick="{{ place }}" style="width:100%;height:46px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:600;font-size:14px;cursor:pointer" style-active="transform:scale(.98)">Place order · {{ total }}</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ isTrack }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:44px;left:0;right:0;bottom:0;overflow-y:auto;scrollbar-width:none;padding-bottom:40px;color:#fff;animation:{{ anim }}">
+<div style="padding:8px 16px 0;display:flex;align-items:center;justify-content:space-between"><button onClick="{{ closeTrack }}" aria-label="Close" style="width:29px;height:29px;border:0;border-radius:99px;background:#242621;color:#fff;font-size:13px;cursor:pointer">✕</button><span style="font-weight:300;font-size:11px;color:#8E9189">{{ oCode }} · {{ oStore }}</span></div>
+<h1 style="margin:22px 16px 0;font-weight:600;font-size:25px;line-height:27px;letter-spacing:-1.1px">{{ oTitle }}</h1>
+<p style="margin:8px 16px 0;font-weight:300;font-size:13px;line-height:21px;color:#8E9189">{{ oSubtitle }}</p>
+<sc-if value="{{ oWaiting }}" hint-placeholder-val="{{ false }}"><div style="margin:18px 16px 0;padding:14px;border-radius:15px;background:#1A1C19"><div style="display:flex;justify-content:space-between;font-weight:600;font-size:13px"><span>Waiting for the store</span><span style="color:#C6F432">{{ oTimer }}</span></div><div style="margin-top:10px;height:8px;border-radius:99px;background:#2E312C;overflow:hidden"><div style="height:100%;width:{{ oWaitPct }};border-radius:99px;background:#C6F432;transition:width .9s linear"></div></div><div style="margin-top:8px;font-weight:300;font-size:11px;line-height:17px;color:#8E9189">They have 10 minutes to accept. If nobody answers, the order cancels on its own and nothing is charged.</div></div></sc-if>
+<sc-if value="{{ oTrimmed }}" hint-placeholder-val="{{ false }}">
+<button onClick="{{ goChanges }}" style="margin:18px 16px 0;width:calc(100% - 32px);padding:16px;border:0;border-radius:15px;background:#C6F432;color:#12180A;text-align:left;cursor:pointer;animation:kg-up .35s ease-out"><span style="display:block;font-weight:600;font-size:14px">{{ oRemovedCount }} items weren’t available</span><span style="display:block;margin-top:4px;font-size:12px;line-height:18px">{{ oStore }} took them off and you pay {{ oNewTotal }} instead of {{ oOldTotal }}. Tap to see what changed.</span></button>
+</sc-if>
+<div style="margin:22px 16px 0;display:flex;flex-direction:column;gap:14px">
+<sc-for list="{{ steps }}" as="st" hint-placeholder-count="5"><div style="display:flex;gap:12px;align-items:flex-start"><span style="flex:none;margin-top:4px;width:12px;height:12px;border-radius:99px;background:{{ st.dot }};animation:{{ st.anim }};transition:background .4s"></span><span><span style="display:block;font-weight:600;font-size:14px;color:{{ st.fg }};transition:color .4s">{{ st.label }}</span><span style="display:block;font-weight:300;font-size:11px;color:#8E9189">{{ st.sub }}</span></span></div></sc-for>
+</div>
+<sc-if value="{{ oRider }}" hint-placeholder-val="{{ false }}"><div style="margin:22px 16px 0;display:flex;align-items:center;gap:12px;padding:12px;border-radius:15px;background:#1A1C19;animation:kg-up .3s ease-out"><span style="flex:none;width:44px;height:44px;border-radius:99px;background:#C6F432;color:#12180A;display:grid;place-items:center;font-weight:700;font-size:14px">TA</span><span style="flex:1;min-width:0"><span style="display:block;font-weight:600;font-size:14px">Terna Aondo</span><span style="display:block;font-weight:300;font-size:11px;color:#8E9189">Motorbike · MKD 214 KR · ★ 4.9</span></span><button onClick="{{ callRider }}" style="flex:none;height:36px;padding:0 16px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:600;font-size:12px;cursor:pointer">Call</button></div></sc-if>
+<div style="margin:22px 16px 0;padding:14px;border-radius:15px;background:#1A1C19;display:flex;flex-direction:column;gap:8px;font-size:12px">
+<div style="display:flex;justify-content:space-between"><span style="font-weight:300;color:#8E9189">{{ oPayLabel }}</span><span style="font-weight:600">{{ oTotal }}</span></div>
+<sc-for list="{{ oItems }}" as="i" hint-placeholder-count="4"><div style="display:flex;gap:10px;font-weight:300;color:#8E9189;opacity:{{ i.op }}"><span style="flex:none;min-width:24px;color:#C6F432">{{ i.qty }}×</span><span style="flex:1;min-width:0;text-decoration:{{ i.strike }}">{{ i.name }}</span><span>{{ i.price }}</span></div></sc-for>
+</div>
+<sc-if value="{{ oDone }}" hint-placeholder-val="{{ false }}"><button onClick="{{ orderAgain }}" style="margin:22px 16px 0;width:calc(100% - 32px);height:46px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:600;font-size:14px;cursor:pointer">Shop again</button></sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isChanges }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;top:44px;left:0;right:0;bottom:0;display:flex;flex-direction:column;animation:{{ anim }}">
+<div style="flex:1;overflow-y:auto;scrollbar-width:none;padding-bottom:20px">
+<div style="padding:8px 16px 0;display:flex;align-items:center;gap:10px"><button onClick="{{ back }}" aria-label="Back" style="width:29px;height:29px;border:0;border-radius:99px;background:#EDEBDF;font-size:14px;cursor:pointer">←</button><span style="font-size:11px;color:#6F7565">{{ oCode }}</span></div>
+<h1 style="margin:14px 16px 4px;font-weight:600;font-size:22px;line-height:24px;letter-spacing:-.9px">What {{ oStore }} changed</h1>
+<p style="margin:0 16px;font-size:13px;line-height:20px;color:#6F7565">They didn’t have these, so they came off your order. Nothing was swapped for anything else.</p>
+<div style="margin:16px 16px 4px;font-weight:600;font-size:13px">Taken off · {{ oRemovedCount }}</div>
+<div style="padding:0 16px"><sc-for list="{{ oRemoved }}" as="r" hint-placeholder-count="2"><div style="display:flex;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid #E4E7DE;font-size:13px"><span style="font-weight:600;color:#8A8F7C;text-decoration:line-through">{{ r.qty }}× {{ r.name }}</span><span style="font-weight:600;color:#1F7A55;white-space:nowrap">−{{ r.price }}</span></div></sc-for></div>
+<div style="margin:18px 16px 4px;font-weight:600;font-size:13px">Coming to you · {{ oKeptCount }}</div>
+<div style="padding:0 16px"><sc-for list="{{ oKept }}" as="r" hint-placeholder-count="4"><div style="display:flex;gap:10px;padding:9px 0;border-bottom:1px solid #E4E7DE;font-size:13px"><span style="flex:none;min-width:26px;font-weight:700;color:#4E6B00">{{ r.qty }}×</span><span style="flex:1;min-width:0">{{ r.name }}</span><span style="font-weight:600">{{ r.price }}</span></div></sc-for></div>
+<div style="margin:16px 16px 0;padding:14px;border-radius:15px;background:#0E0F0D;color:#fff;display:flex;flex-direction:column;gap:6px;font-size:12px">
+<div style="display:flex;justify-content:space-between"><span style="font-weight:300;color:#8E9189">Order was</span><span style="text-decoration:line-through;color:#8E9189">{{ oOldTotal }}</span></div>
+<div style="display:flex;justify-content:space-between;align-items:baseline"><span style="font-weight:600;font-size:14px">You pay</span><span style="font-weight:700;font-size:22px;letter-spacing:-.8px;color:#C6F432">{{ oNewTotal }}</span></div>
+<div style="font-weight:300;line-height:18px;color:#8E9189">{{ oRefundLine }}</div>
+</div>
+</div>
+<div style="flex:none;padding:12px 16px 26px;border-top:1px solid #E4E7DE"><button onClick="{{ back }}" style="width:100%;height:46px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:600;font-size:14px;cursor:pointer">Back to tracking</button></div>
+</div>
+</sc-if>
+
+<sc-if value="{{ confirm }}" hint-placeholder-val="{{ false }}">
+<div style="position:absolute;inset:0;z-index:9;background:rgba(14,15,13,.45);display:flex;align-items:flex-end;animation:kg-up .2s ease-out">
+<div style="width:100%;padding:22px 16px 30px;border-radius:20px 20px 0 0;background:#fff">
+<div style="font-weight:600;font-size:17px;letter-spacing:-.5px">{{ confirmTitle }}</div>
+<p style="margin:8px 0 0;font-size:13px;line-height:20px;color:#6F7565">{{ confirmText }}</p>
+<div style="margin-top:18px;display:flex;flex-direction:column;gap:8px"><button onClick="{{ confirmNew }}" style="height:46px;border:0;border-radius:99px;background:#C6F432;color:#12180A;font-weight:600;font-size:14px;cursor:pointer">{{ confirmCta }}</button><button onClick="{{ confirmKeep }}" style="height:46px;border:0;border-radius:99px;background:#EDEBDF;font-weight:600;font-size:14px;color:#0E0F0D;cursor:pointer">Keep my cart</button></div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}"><div style="position:absolute;left:16px;right:16px;bottom:96px;z-index:9;padding:12px 16px;border-radius:15px;background:#242621;color:#fff;font-weight:400;font-size:12.5px;line-height:18px;text-align:center;animation:kg-up .3s ease-out">{{ toast }}</div></sc-if>
+</div>
+</div>
+</div>
+
+<div style="width:250px;display:flex;flex-direction:column;gap:6px;padding-top:40px">
+<div style="font-weight:700;font-size:13px;color:#6F7565;margin-bottom:6px">Jump to</div>
+<sc-for list="{{ jumps }}" as="j" hint-placeholder-count="8"><button onClick="{{ j.go }}" style="display:flex;gap:10px;align-items:center;padding:10px 14px;border:0;border-radius:15px;background:{{ j.bg }};text-align:left;font-weight:600;font-size:13px;color:#0E0F0D;cursor:pointer;transition:background .2s" style-hover="background:#fff"><span style="flex:none;min-width:26px;font-weight:700;font-size:11px;color:#4E6B00">{{ j.id }}</span>{{ j.label }}</button></sc-for>
+<sc-if value="{{ oWaiting }}" hint-placeholder-val="{{ false }}"><button onClick="{{ expire }}" style="margin-top:8px;padding:10px 14px;border:1.5px dashed #8A8F7C;border-radius:15px;background:transparent;text-align:left;font-weight:600;font-size:12px;color:#0E0F0D;cursor:pointer">Let the 10-minute window run out</button></sc-if>
+<button onClick="{{ resetDemo }}" style="margin-top:8px;padding:10px 14px;border:0;border-radius:15px;background:transparent;text-align:left;font-weight:600;font-size:12px;color:#6F7565;cursor:pointer">Reset prototype</button>
+</div>
+</div>
+</section>
+
+<section id="A9" data-screen-label="A9 · Edge states" style="padding:20px 64px 80px">
+<div style="display:flex;align-items:baseline;gap:16px;flex-wrap:wrap"><span style="padding:6px 14px;border-radius:99px;background:#0E0F0D;color:#C6F432;font-weight:700;font-size:12px">A9</span><h2 style="margin:0;font-weight:800;font-size:32px;letter-spacing:-.035em">Empty, error and edge states</h2></div>
+<p style="margin:10px 0 28px;max-width:76ch;font-size:14px;line-height:1.55;color:#6F7565">Minimum order, the item cap, the 15 km limit, a closed store, switching sides and the store trimming an order are all live in the prototype. These are the rest.</p>
+<div style="display:flex;gap:36px;flex-wrap:wrap;align-items:flex-start">
+
+<div id="A9a" style="display:flex;flex-direction:column;gap:10px"><span style="align-self:flex-start;padding:5px 12px;border-radius:99px;background:#fff;font-weight:700;font-size:12px">A9a · Nobody answered in 10 minutes</span>
+<div style="padding:8px;border-radius:58px;background:#171815"><div style="position:relative;width:390px;height:844px;border-radius:50px;overflow:hidden;background:#0E0F0D;color:#fff">
+<div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-weight:600;font-size:14px"><span>9:41</span><span style="width:110px;height:30px;border-radius:99px;background:#000"></span><span>5G</span></div>
+<div style="padding:140px 24px 0"><span style="display:inline-block;padding:6px 12px;border-radius:99px;background:rgba(255,107,74,.14);font-weight:600;font-size:11px;color:#FF8E74">Cancelled</span>
+<h1 style="margin:18px 0 0;font-weight:600;font-size:25px;line-height:27px;letter-spacing:-1.1px">Makurdi Mega Store didn’t answer</h1>
+<p style="margin:12px 0 0;font-weight:300;font-size:13px;line-height:21px;color:#8E9189">They had 10 minutes to accept and nobody did, so KR-4821 cancelled itself. You haven’t been charged and your ₦41,230 is untouched.</p>
+<div style="margin-top:20px;padding:14px;border-radius:15px;background:#1A1C19;font-weight:300;font-size:12px;line-height:19px;color:#8E9189">Your 24 items are still in your cart. Wurukum Provisions is open and 0.9 km from you.</div></div>
+<div style="position:absolute;left:16px;right:16px;bottom:30px;display:flex;flex-direction:column;gap:8px"><span style="height:46px;border-radius:99px;background:#C6F432;color:#12180A;display:grid;place-items:center;font-weight:600;font-size:14px">Try Wurukum Provisions</span><span style="height:46px;border-radius:99px;background:#242621;display:grid;place-items:center;font-weight:600;font-size:14px">Send to Mega Store again</span></div>
+</div></div></div>
+
+<div id="A9b" style="display:flex;flex-direction:column;gap:10px"><span style="align-self:flex-start;padding:5px 12px;border-radius:99px;background:#fff;font-weight:700;font-size:12px">A9b · Nothing was available</span>
+<div style="padding:8px;border-radius:58px;background:#171815"><div style="position:relative;width:390px;height:844px;border-radius:50px;overflow:hidden;background:#0E0F0D;color:#fff">
+<div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-weight:600;font-size:14px"><span>9:41</span><span style="width:110px;height:30px;border-radius:99px;background:#000"></span><span>5G</span></div>
+<div style="padding:120px 24px 0"><span style="display:inline-block;padding:6px 12px;border-radius:99px;background:rgba(255,107,74,.14);font-weight:600;font-size:11px;color:#FF8E74">Cancelled</span>
+<h1 style="margin:18px 0 0;font-weight:600;font-size:25px;line-height:27px;letter-spacing:-1.1px">High Level Mini Mart had none of your 4 items</h1>
+<p style="margin:12px 0 0;font-weight:300;font-size:13px;line-height:21px;color:#8E9189">With everything off the order there was nothing left to deliver, so it cancelled. Nothing was charged.</p>
+<div style="margin-top:18px;display:flex;flex-direction:column;gap:6px;font-size:12px"><div style="padding:10px 12px;border-radius:15px;background:#1A1C19;font-weight:300;color:#8E9189">Peak milk 400g refill</div><div style="padding:10px 12px;border-radius:15px;background:#1A1C19;font-weight:300;color:#8E9189">Milo 500g refill</div><div style="padding:10px 12px;border-radius:15px;background:#1A1C19;font-weight:300;color:#8E9189">Close-Up toothpaste 140g</div><div style="padding:10px 12px;border-radius:15px;background:#1A1C19;font-weight:300;color:#8E9189">Ariel detergent 900g</div></div>
+<p style="margin:16px 0 0;font-weight:300;font-size:12px;line-height:18px;color:#8E9189">Makurdi Mega Store has all four, at ₦1,000 more in total.</p></div>
+<div style="position:absolute;left:16px;right:16px;bottom:30px;display:flex;flex-direction:column;gap:8px"><span style="height:46px;border-radius:99px;background:#C6F432;color:#12180A;display:grid;place-items:center;font-weight:600;font-size:14px">Move cart to Mega Store</span><span style="height:46px;border-radius:99px;background:#242621;display:grid;place-items:center;font-weight:600;font-size:14px">See other stores</span></div>
+</div></div></div>
+
+<div id="A9c" style="display:flex;flex-direction:column;gap:10px"><span style="align-self:flex-start;padding:5px 12px;border-radius:99px;background:#fff;font-weight:700;font-size:12px">A9c · Product no longer sold</span>
+<div style="padding:8px;border-radius:58px;background:#171815"><div style="position:relative;width:390px;height:844px;border-radius:50px;overflow:hidden;background:#fff">
+<div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-weight:600;font-size:14px"><span>9:41</span><span style="width:110px;height:30px;border-radius:99px;background:#000"></span><span>5G</span></div>
+<div style="padding:8px 16px 0"><h1 style="margin:0;font-weight:600;font-size:22px;letter-spacing:-.9px">Your cart</h1><p style="margin:4px 0 0;font-size:12px;color:#6F7565">Wurukum Provisions · 11 items · one store per order</p>
+<div style="margin-top:14px;padding:14px;border-radius:15px;background:#FFEDE8;color:#C0391C"><div style="font-weight:600;font-size:13px">1 item is no longer sold here</div><div style="margin-top:4px;font-size:12px;line-height:18px">Wurukum Provisions took it off their list while it sat in your cart. Remove it to carry on.</div></div>
+<div style="margin-top:12px;padding:12px 0;border-bottom:1px solid #E4E7DE"><div style="display:flex;justify-content:space-between;gap:10px;font-weight:600;font-size:13px;color:#8A8F7C"><span style="text-decoration:line-through">Dangote sugar 500g × 2</span><span>₦1,800</span></div><div style="margin-top:8px;display:flex;gap:6px"><span style="height:32px;padding:0 12px;border-radius:99px;background:#C6F432;color:#12180A;display:grid;place-items:center;font-weight:600;font-size:11.5px">Remove it</span><span style="height:32px;padding:0 12px;border-radius:99px;background:#EDEBDF;display:grid;place-items:center;font-weight:600;font-size:11.5px">Find it elsewhere</span></div></div>
+<div style="padding:12px 0;border-bottom:1px solid #E4E7DE;display:flex;justify-content:space-between;font-weight:600;font-size:13px"><span>Golden Penny Semovita 1kg × 2</span><span>₦3,200</span></div>
+<div style="padding:12px 0;border-bottom:1px solid #E4E7DE;display:flex;justify-content:space-between;font-weight:600;font-size:13px"><span>Indomie Chicken, carton of 40</span><span>₦9,500</span></div>
+<div style="padding:12px 0;border-bottom:1px solid #E4E7DE;display:flex;justify-content:space-between;font-weight:600;font-size:13px"><span>Eggs, crate of 30</span><span>₦5,000</span></div></div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:12px 16px 26px;border-top:1px solid #E4E7DE"><span style="height:46px;border-radius:99px;background:#C6F432;color:#12180A;display:grid;place-items:center;font-weight:600;font-size:14px;opacity:.4">Remove 1 item to check out</span></div>
+</div></div></div>
+
+<div id="A9d" style="display:flex;flex-direction:column;gap:10px"><span style="align-self:flex-start;padding:5px 12px;border-radius:99px;background:#fff;font-weight:700;font-size:12px">A9d · Nothing within 15 km</span>
+<div style="padding:8px;border-radius:58px;background:#171815"><div style="position:relative;width:390px;height:844px;border-radius:50px;overflow:hidden;background:#fff">
+<div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-weight:600;font-size:14px"><span>9:41</span><span style="width:110px;height:30px;border-radius:99px;background:#000"></span><span>5G</span></div>
+<div style="padding:8px 16px 0"><div style="font-size:11px;color:#6F7565">Deliver to</div><div style="font-weight:600;font-size:14px">Yelwata, by the market square</div>
+<div style="margin-top:16px;padding:14px;border-radius:15px;background:#0E0F0D;color:#fff"><div style="font-weight:600;font-size:14px">No store delivers to Yelwata yet</div><div style="margin-top:4px;font-weight:300;font-size:12px;line-height:18px;color:#8E9189">The closest is 38 km away, past the 15 km limit. You can still look at what they sell.</div></div>
+<div style="margin-top:14px;font-weight:600;font-size:13px;color:#6F7565">Browse only</div>
+<div style="margin-top:4px"><div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #E4E7DE;opacity:.55"><span style="flex:none;width:46px;height:46px;border-radius:11px;background:#EDEBDF;display:grid;place-items:center;font-weight:700;font-size:13px;color:#6F7565">MM</span><span style="flex:1"><span style="display:block;font-weight:600;font-size:14px">Makurdi Mega Store</span><span style="display:block;font-size:11px;color:#6F7565">Old GRA · 38 km · too far to deliver</span></span></div>
+<div style="display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid #E4E7DE;opacity:.55"><span style="flex:none;width:46px;height:46px;border-radius:11px;background:#EDEBDF;display:grid;place-items:center;font-weight:700;font-size:13px;color:#6F7565">WP</span><span style="flex:1"><span style="display:block;font-weight:600;font-size:14px">Wurukum Provisions</span><span style="display:block;font-size:11px;color:#6F7565">Wurukum · 39 km · too far to deliver</span></span></div></div>
+<p style="margin:16px 0 0;font-size:12px;line-height:18px;color:#6F7565">Set an address in Makurdi to order, or tell us where you are and we’ll let you know when a store reaches you.</p></div>
+<div style="position:absolute;left:0;right:0;bottom:0;padding:12px 16px 26px;border-top:1px solid #E4E7DE;display:flex;flex-direction:column;gap:8px"><span style="height:46px;border-radius:99px;background:#C6F432;color:#12180A;display:grid;place-items:center;font-weight:600;font-size:14px">Change delivery address</span><span style="height:46px;border-radius:99px;background:#EDEBDF;display:grid;place-items:center;font-weight:600;font-size:14px;color:#0E0F0D">Tell me when you reach Yelwata</span></div>
+</div></div></div>
+
+<div id="A9e" style="display:flex;flex-direction:column;gap:10px"><span style="align-self:flex-start;padding:5px 12px;border-radius:99px;background:#fff;font-weight:700;font-size:12px">A9e · Payment failed</span>
+<div style="padding:8px;border-radius:58px;background:#171815"><div style="position:relative;width:390px;height:844px;border-radius:50px;overflow:hidden;background:#0E0F0D;color:#fff">
+<div style="height:44px;display:flex;align-items:center;justify-content:space-between;padding:0 30px;font-weight:600;font-size:14px"><span>9:41</span><span style="width:110px;height:30px;border-radius:99px;background:#000"></span><span>5G</span></div>
+<div style="padding:140px 24px 0"><span style="display:inline-block;padding:6px 12px;border-radius:99px;background:rgba(255,107,74,.14);font-weight:600;font-size:11px;color:#FF8E74">Not placed</span>
+<h1 style="margin:18px 0 0;font-weight:600;font-size:25px;line-height:27px;letter-spacing:-1.1px">Your bank declined the ₦41,230</h1>
+<p style="margin:12px 0 0;font-weight:300;font-size:13px;line-height:21px;color:#8E9189">GTBank card ending 4417 said no. Nothing was taken, your cart is saved, and Makurdi Mega Store hasn’t seen the order.</p></div>
+<div style="position:absolute;left:16px;right:16px;bottom:30px;display:flex;flex-direction:column;gap:8px"><span style="height:46px;border-radius:99px;background:#C6F432;color:#12180A;display:grid;place-items:center;font-weight:600;font-size:14px">Try another card</span><span style="height:46px;border-radius:99px;background:#242621;display:grid;place-items:center;font-weight:600;font-size:14px">Pay by bank transfer</span></div>
+</div></div></div>
+
+</div>
+</section>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const K = k => '₦' + Math.round(k / 100).toLocaleString('en-NG');
+const CATS = [['grains', 'Grains & flour'], ['oils', 'Oils & spices'], ['prov', 'Provisions'], ['drinks', 'Drinks'], ['frozen', 'Frozen'], ['fresh', 'Fresh produce'], ['toil', 'Toiletries'], ['house', 'Household'], ['baby', 'Baby']];
+// id, name (size included), category, naira, description
+const RAW = [
+  ['semo1', 'Golden Penny Semovita 1kg', 'grains', 1650, 'Semolina flour for swallow. Sealed pack.'],
+  ['semo5', 'Golden Penny Semovita 5kg', 'grains', 7600, 'The big pack, for a month of soup.'],
+  ['rice5', 'Mama Gold rice 5kg bag', 'grains', 9500, 'Long grain parboiled rice, sealed bag.'],
+  ['rice25', 'Mama Gold rice 25kg bag', 'grains', 44000, 'Full bag. Our rider brings it to your door.'],
+  ['mudu', 'Local rice, one mudu', 'grains', 2800, 'Measured into a sealed bag before it leaves the store.'],
+  ['indomie', 'Indomie Chicken, carton of 40', 'grains', 9800, '40 single packs of 70g.'],
+  ['indomie5', 'Indomie Chicken, pack of 5', 'grains', 1250, 'Five 70g packs.'],
+  ['spag', 'Dangote Spaghetti 500g', 'grains', 850, 'One 500g pack.'],
+  ['garri', 'White garri, one mudu', 'grains', 1400, 'Measured into a sealed bag before it leaves the store.'],
+  ['beans', 'Oloyin beans, one mudu', 'grains', 3000, 'Honey beans, picked and measured.'],
+  ['goil', 'Kings groundnut oil 5L', 'oils', 12500, 'Sealed 5 litre keg.'],
+  ['palm', 'Palm oil 1L bottle', 'oils', 2200, 'Local red oil in a sealed bottle.'],
+  ['maggi', 'Maggi Star cubes, pack of 100', 'oils', 1600, 'One pack of 100 cubes.'],
+  ['cray', 'Ground crayfish, one cup', 'oils', 1200, 'Measured and bagged.'],
+  ['peak', 'Peak milk 160g tin', 'prov', 600, 'Evaporated milk, one tin.'],
+  ['peakp', 'Peak milk powder 400g refill', 'prov', 3400, 'Refill sachet.'],
+  ['sugar', 'Dangote sugar 500g', 'prov', 900, 'Granulated, one pack.'],
+  ['milo', 'Milo 500g refill', 'prov', 3100, 'Refill sachet.'],
+  ['eggs', 'Eggs, crate of 30', 'prov', 5200, 'Fresh, checked before packing.'],
+  ['coke', 'Coca-Cola 50cl bottle', 'drinks', 400, 'One bottle. Plastic, not glass.'],
+  ['cokecr', 'Coca-Cola 35cl, crate of 24', 'drinks', 7200, 'Full crate of 24 bottles.'],
+  ['eva', 'Eva water 75cl, pack of 12', 'drinks', 2400, 'Shrink-wrapped pack of 12.'],
+  ['chick', 'Frozen chicken, 1kg pack', 'frozen', 4800, 'Pre-packed and weighed in the store, kept frozen.'],
+  ['titus', 'Titus mackerel, 1kg pack', 'frozen', 5500, 'Pre-packed and weighed in the store.'],
+  ['tom', 'Tomatoes, small basket', 'fresh', 6500, 'One small basket, picked this morning.'],
+  ['onion', 'Onions, 1kg bag', 'fresh', 1500, 'Bagged and ready.'],
+  ['yam', 'Yam, medium tuber', 'fresh', 2500, 'One medium tuber.'],
+  ['ugu', 'Ugu leaves, one bunch', 'fresh', 300, 'Washed and tied.'],
+  ['plant', 'Plantain, hand of 4', 'fresh', 1200, 'Four fingers, half ripe.'],
+  ['close', 'Close-Up toothpaste 140g', 'toil', 1100, 'One tube.'],
+  ['joy', 'Joy beauty soap 150g', 'toil', 450, 'One bar.'],
+  ['hypo', 'Hypo bleach 1L', 'house', 900, 'One bottle.'],
+  ['mfresh', 'Morning Fresh 400ml', 'house', 1300, 'Dishwashing liquid, one bottle.'],
+  ['ariel', 'Ariel detergent 900g', 'house', 2600, 'One pack.'],
+  ['molfix', 'Molfix diapers size 3, pack of 56', 'baby', 12000, 'Jumbo pack, 4–9 kg.'],
+  ['cerelac', 'Nestlé Cerelac wheat 400g tin', 'baby', 4200, 'One tin.']
+];
+const P = {};
+RAW.forEach(([id, name, cat, naira, desc]) => { P[id] = { id, name, cat, price: naira * 100, desc }; });
+// kitchens that serve groceries. km is distance from the customer's address
+const STORES = [
+  { id: 'mega', name: 'Makurdi Mega Store', area: 'Old GRA', km: 2.1, eta: '45–60 min', fee: 60000, min: 500000, cap: 40, f: 1, open: true },
+  { id: 'wuru', name: 'Wurukum Provisions', area: 'Wurukum · also cooked food', km: 0.9, eta: '40–50 min', fee: 40000, min: 300000, cap: 30, f: .97, open: true, both: true, missing: ['chick', 'titus', 'molfix', 'cerelac', 'tom', 'cokecr', 'rice25'] },
+  { id: 'hl', name: 'High Level Mini Mart', area: 'High Level', km: 1.6, eta: '45–55 min', fee: 50000, min: 250000, cap: 25, f: 1.06, open: true, missing: ['rice5', 'rice25', 'cokecr', 'tom', 'yam', 'titus'] },
+  { id: 'mmf', name: 'Modern Market Fresh', area: 'Modern Market', km: 3.0, eta: '50–60 min', fee: 70000, min: 300000, cap: 30, f: .92, open: false, opens: 'Opens 6:00am', only: ['fresh', 'frozen', 'oils', 'grains'] },
+  { id: 'apir', name: 'Apir Family Store', area: 'Apir', km: 16.4, eta: '—', fee: 80000, min: 300000, cap: 30, f: 1.02, open: true }
+];
+const KITCH = [['TK', "Terkimbi's Kitchen", 'Swallow & soups', '0.8 km', '20–30 min', 'Free delivery', false], ['WP', 'Wurukum Provisions', 'Rice & stew · also groceries', '0.9 km', '30–40 min', '₦400 delivery', true], ['BG', 'Benue Grills', 'Grills & barbecue', '2.6 km', '35–45 min', '₦500 delivery', false], ['MS', 'Modern Market Suya', 'Suya & grills', '3.1 km', '30–40 min', '₦500 delivery', false]];
+const LISTS = [
+  { id: 'monthly', name: 'Monthly provisions', items: [['semo1', 2], ['rice5', 1], ['goil', 1], ['peak', 12], ['peakp', 1], ['sugar', 2], ['milo', 1], ['maggi', 1], ['indomie', 1], ['eggs', 1], ['ariel', 1], ['mfresh', 1], ['close', 2], ['hypo', 1]] },
+  { id: 'soup', name: 'Egusi soup things', items: [['palm', 1], ['cray', 2], ['ugu', 3], ['onion', 1], ['titus', 1], ['maggi', 1]] },
+  { id: 'baby', name: 'Baby', items: [['molfix', 1], ['cerelac', 2]] }
+];
+const START = { semo1: 2, peak: 6, sugar: 2, goil: 1, indomie: 1, eva: 1, eggs: 1, chick: 2 };
+const abbr = n => n.replace(/[^A-Za-z ]/g, '').split(' ').filter(Boolean).slice(0, 2).map(w => w[0]).join('').toUpperCase();
+const mmss = s => `${Math.floor(Math.max(0, s) / 60)}:${String(Math.max(0, s) % 60).padStart(2, '0')}`;
+const LIMIT = 15;
+
+class Component extends DCLogic {
+  state = this.fresh();
+  fresh() { return { screen: 'home', hist: [], dir: 'f', tab: 'groceries', sid: 'mega', cat: 'all', sq: '', gq: '', pid: null, pq: 1, csid: 'mega', side: 'grocery', lines: { ...START }, note: '', pay: 'card', landmark: 'Behind BSU main gate, blue gate', confirm: null, toast: '', coErr: '', lid: 'monthly', lists: LISTS, order: null }; }
+  componentDidMount() { this.iv = setInterval(() => this.tick(), 1000); }
+  componentWillUnmount() { clearInterval(this.iv); clearTimeout(this.tt); }
+  st(id) { return STORES.find(s => s.id === id) || STORES[0]; }
+  sp(st, k) { return Math.round(k * st.f / 5000) * 5000; }
+  has(st, pid) { const p = P[pid]; return !(st.missing && st.missing.includes(pid)) && !(st.only && !st.only.includes(p.cat)); }
+  near(st) { return st.km <= LIMIT; }
+  go(screen, extra = {}) { this.setState(s => ({ hist: [...s.hist, s.screen].slice(-20), screen, dir: 'f', coErr: '', ...extra })); }
+  back = () => this.setState(s => { const h = [...s.hist]; const screen = h.pop() || 'home'; return { hist: h, screen: screen === s.screen ? 'home' : screen, dir: 'b' }; });
+  say(t) { clearTimeout(this.tt); this.setState({ toast: t }); this.tt = setTimeout(() => this.setState({ toast: '' }), 2800); }
+  count(lines = this.state.lines) { return Object.values(lines).reduce((a, b) => a + b, 0); }
+  add(sid, pid, q = 1) {
+    const s = this.state; const st = this.st(sid);
+    if (this.count() && (s.csid !== sid || s.side !== 'grocery')) return this.setState({ confirm: { sid, pid, q } });
+    if (this.count() + q > st.cap) { this.say(`${st.name} can’t pack more than ${st.cap} items in one order.`); return false; }
+    this.setState({ csid: sid, side: 'grocery', lines: { ...s.lines, [pid]: (s.lines[pid] || 0) + q } });
+    return true;
+  }
+  dec(pid) { const lines = { ...this.state.lines }; lines[pid] -= 1; if (lines[pid] <= 0) delete lines[pid]; this.setState({ lines }); }
+  addList(lid, sid) {
+    const s = this.state; const l = s.lists.find(x => x.id === lid); const st = this.st(sid);
+    if (this.count() && (s.csid !== sid || s.side !== 'grocery')) return this.setState({ confirm: { sid, list: lid } });
+    const lines = { ...s.lines }; const miss = []; let added = 0;
+    l.items.forEach(([pid, q]) => {
+      if (!this.has(st, pid)) return miss.push(P[pid].name);
+      if (this.count(lines) + q > st.cap) return;
+      lines[pid] = (lines[pid] || 0) + q; added += q;
+    });
+    this.setState({ lines, csid: sid, side: 'grocery' });
+    this.say(miss.length ? `Added ${added} items. ${st.name} doesn’t sell ${miss.join(', ')}.` : `Added ${added} items from “${l.name}”`);
+  }
+  lineList(lines = this.state.lines, sid = this.state.csid) {
+    const st = this.st(sid);
+    return Object.entries(lines).map(([pid, q]) => ({ pid, p: P[pid], q, unit: this.sp(st, P[pid].price), total: this.sp(st, P[pid].price) * q }));
+  }
+  totals(ls = this.lineList()) {
+    const st = this.st(this.state.csid);
+    const sub = ls.reduce((a, l) => a + l.total, 0);
+    return { sub, fee: ls.length ? st.fee : 0, total: sub + (ls.length ? st.fee : 0), count: ls.reduce((a, l) => a + l.q, 0), store: st };
+  }
+  make() {
+    const s = this.state; const ls = this.lineList(); const t = this.totals(ls);
+    const removable = ls.filter(l => l.q > 0).slice(1, 3).map(l => l.pid);
+    return { code: 'KR-' + (4800 + Math.floor(Math.random() * 190)), sid: s.csid, ls, removed: removable, stage: 0, t: 0, wait: 600, fee: t.fee, old: t.total, pay: s.pay, note: s.note, seen: false };
+  }
+  newTotal(o) { return o.ls.filter(l => !o.removed.includes(l.pid)).reduce((a, l) => a + l.total, 0) + o.fee; }
+  tick() {
+    const o = this.state.order; if (!o || o.stage >= 4) return;
+    const n = { ...o, t: o.t + 1 };
+    if (o.stage === 0) { n.wait = o.wait - 1; if (n.t >= 6) { n.stage = 1; n.t = 0; } }
+    else if (o.stage === 1 && n.t >= 6) { n.stage = 2; n.t = 0; }
+    else if (o.stage === 2 && n.t >= 7) { n.stage = 3; n.t = 0; }
+    else if (o.stage === 3 && n.t >= 8) n.stage = 4;
+    this.setState({ order: n });
+  }
+  place = () => {
+    const s = this.state; const t = this.totals(); const st = t.store;
+    if (!t.count) return;
+    if (!this.near(st)) return this.setState({ coErr: `${st.name} is ${st.km} km from ${s.landmark}. Ordering stops past 15 km. Change your address, or shop at a store closer to you.` });
+    if (t.sub < st.min) return this.setState({ coErr: `${st.name}’s minimum order is ${K(st.min)}. Add ${K(st.min - t.sub)} more.` });
+    if (t.count > st.cap) return this.setState({ coErr: `${st.name} can’t pack more than ${st.cap} items in one order.` });
+    if (!st.open) return this.setState({ coErr: `${st.name} is closed. ${st.opens} — send the order then.` });
+    if (s.landmark.trim().length < 3) return this.setState({ coErr: 'Add a landmark so your rider can find you.' });
+    this.setState({ order: this.make(), lines: {}, hist: ['home'], screen: 'track', dir: 'f', coErr: '' });
+  };
+  ensure(stage) {
+    let o = this.state.order;
+    if (!o) { if (!this.count()) this.state.lines = { ...START }; o = this.make(); }
+    return { ...o, stage, t: 0, wait: stage === 0 ? 600 : o.wait };
+  }
+  jump(screen) {
+    const extra = {};
+    if (screen === 'track') extra.order = this.ensure(this.state.order ? this.state.order.stage : 1);
+    if (screen === 'changes') extra.order = this.ensure(1);
+    if (screen === 'store') { extra.sid = 'mega'; extra.cat = 'all'; extra.sq = ''; }
+    if (screen === 'search') extra.gq = 'peak';
+    if (screen === 'product') { extra.pid = 'chick'; extra.pq = 1; extra.sid = 'mega'; extra.screen = 'store'; this.setState({ hist: ['home'], screen: 'store', dir: 'f', sid: 'mega', cat: 'all', sq: '', pid: 'chick', pq: 1, confirm: null }); return; }
+    if ((screen === 'cart' || screen === 'checkout') && !this.count()) { extra.lines = { ...START }; extra.csid = 'mega'; extra.side = 'grocery'; }
+    if (screen === 'home') extra.tab = 'groceries';
+    this.setState({ hist: ['home'], screen, dir: 'f', confirm: null, pid: null, ...extra });
+  }
+  renderVals() {
+    const s = this.state; const store = this.st(s.sid); const cst = this.st(s.csid);
+    const ls = this.lineList(); const t = this.totals(ls); const o = s.order; const scr = s.screen;
+    const sel = on => ({ bg: on ? '#0E0F0D' : '#EDEBDF', fg: on ? '#C6F432' : '#0E0F0D' });
+    const row = (st, p) => { const q = (s.csid === st.id && s.side === 'grocery') ? (s.lines[p.id] || 0) : 0; return { abbr: abbr(p.name), name: p.name, price: K(this.sp(st, p.price)), none: !q, some: !!q, qty: q, add: () => this.add(st.id, p.id), dec: () => this.dec(p.id), open: () => this.setState({ pid: p.id, pq: 1, sid: st.id }) }; };
+    const sq = s.sq.trim().toLowerCase();
+    const inStore = RAW.map(r => P[r[0]]).filter(p => this.has(store, p.id) && (s.cat === 'all' || p.cat === s.cat) && (!sq || p.name.toLowerCase().includes(sq)));
+    const groups = CATS.filter(c => inStore.some(p => p.cat === c[0])).map(c => ({ label: c[1], rows: inStore.filter(p => p.cat === c[0]).map(p => row(store, p)) }));
+    const p = s.pid ? P[s.pid] : null;
+    const gq = s.gq.trim().toLowerCase();
+    const matches = gq.length > 1 ? RAW.map(r => P[r[0]]).filter(x => x.name.toLowerCase().includes(gq)) : [];
+    const bestOf = x => Math.min(...STORES.filter(st => this.has(st, x.id) && this.near(st)).map(st => this.sp(st, x.price)));
+    const cmp = matches[0];
+    const list = s.lists.find(l => l.id === s.lid) || s.lists[0];
+    const listTotal = l => l.items.filter(([pid]) => this.has(cst, pid)).reduce((a, [pid, q]) => a + this.sp(cst, P[pid].price) * q, 0);
+    const listMiss = list.items.filter(([pid]) => !this.has(cst, pid)).map(([pid]) => P[pid].name);
+    const below = t.count > 0 && t.sub < cst.min;
+    const kept = o ? o.ls.filter(l => !o.removed.includes(l.pid)) : [];
+    const removedLines = o ? o.ls.filter(l => o.removed.includes(l.pid)) : [];
+    const nt = o ? this.newTotal(o) : 0;
+    const STEPS = [['Order sent', o ? `${o.ls.length} items to ${this.st(o.sid).name}` : ''], ['Accepted', o && o.stage >= 1 ? (o.removed.length ? `${o.removed.length} items weren’t available` : 'Everything was available') : 'They have 10 minutes'], ['Packed', o ? 'Bagged and waiting for the rider' : ''], ['On the way', 'Terna is riding to you'], ['Delivered', '']];
+    const titles = o ? ['Waiting for the store to accept', o.removed.length ? `${this.st(o.sid).name} changed your order` : 'Your order is accepted', 'Packed and waiting for a rider', 'Terna is on the way', 'Delivered. Enjoy.'] : [];
+    const subs = o ? [`${this.st(o.sid).name} has 10 minutes to accept. You’ll see straight away if anything isn’t available.`, o.removed.length ? `They took off what they hadn’t got. You now pay ${K(nt)}.` : `Everything you asked for is available. You pay ${K(nt)}.`, `${kept.length} items bagged. A rider is being found now.`, `Arriving in about 12 minutes at ${s.landmark}.`, `Paid ${K(nt)}${o.pay === 'card' ? ' by card' : ' by transfer'}.`] : [];
+    return {
+      phoneBg: scr === 'track' ? '#0E0F0D' : '#FFFFFF', barFg: scr === 'track' ? '#FFFFFF' : '#0E0F0D', anim: s.dir === 'b' ? 'kg-l .32s cubic-bezier(.2,.8,.2,1)' : 'kg-r .32s cubic-bezier(.2,.8,.2,1)',
+      isHome: scr === 'home', isStore: scr === 'store', isProduct: !!s.pid && scr === 'store', isSearch: scr === 'search', isLists: scr === 'lists', isCart: scr === 'cart', isCheckout: scr === 'checkout', isTrack: scr === 'track' && !!o, isChanges: scr === 'changes' && !!o,
+      back: this.back, toast: s.toast, landmark: s.landmark, onLandmark: e => this.setState({ landmark: e.target.value, coErr: '' }),
+      tabX: s.tab === 'groceries' ? 'translateX(100%)' : 'translateX(0)', isGroc: s.tab === 'groceries', isFood: s.tab === 'food', tabFood: () => this.setState({ tab: 'food' }), tabGroc: () => this.setState({ tab: 'groceries' }),
+      goLists: () => this.go('lists'), goSearch: () => this.go('search', { gq: '' }), goCart: () => this.go('cart'), goCheckout: () => this.go('checkout'), goChanges: () => this.go('changes'),
+      closeTrack: () => this.setState({ screen: 'home', hist: [], dir: 'b', order: o && o.stage === 4 ? null : o }),
+      hasBuyAgain: true,
+      buyAgain: ['peak', 'sugar', 'indomie', 'goil', 'eggs', 'semo1'].map(id => ({ abbr: abbr(P[id].name), name: P[id].name, price: K(this.sp(this.st('mega'), P[id].price)), add: () => { if (this.add('mega', id)) this.say(`Added ${P[id].name}`); } })),
+      catTiles: CATS.map(c => ({ label: c[1], open: () => this.go('store', { sid: 'mega', cat: c[0], sq: '' }) })),
+      storeRows: STORES.map(st => { const far = !this.near(st); return { abbr: abbr(st.name), name: st.name, area: st.area, min: K(st.min), cap: st.cap, km: `${st.km} km`, eta: far ? 'Too far' : st.eta, fee: K(st.fee) + ' delivery', op: st.open && !far ? 1 : .55, tag: far ? 'Browse only' : !st.open ? st.opens : st.both ? 'Food too' : '', tagBg: far ? '#FFEDE8' : '#EDEBDF', tagFg: far ? '#C0391C' : '#6F7565', open: () => this.go('store', { sid: st.id, cat: 'all', sq: '' }) }; }),
+      kitchens: KITCH.map(k => ({ abbr: k[0], name: k[1], sub: k[2], km: k[3], eta: k[4], fee: k[5], both: k[6], open: () => this.say('Food menus work as they do today.') })),
+      hasCart: scr === 'home' && t.count > 0, cartLabel: `${t.count} grocery items · ${K(t.total)} · ${cst.name}`,
+      stName: store.name, stKm: `${store.km} km`, stEta: store.open ? store.eta : '—', stFee: K(store.fee) + ' delivery', stMin: K(store.min), stCap: store.cap, stClosed: !store.open && this.near(store), stOpens: store.opens || '', stFar: !this.near(store),
+      sq: s.sq, onSq: e => this.setState({ sq: e.target.value }),
+      catChips: [['all', 'All'], ...CATS.filter(c => !store.only || store.only.includes(c[0]))].map(c => ({ label: c[1], ...sel(s.cat === c[0]), pick: () => this.setState({ cat: c[0] }) })),
+      groups, noRows: groups.length === 0, cartHere: t.count > 0 && s.csid === s.sid, count: t.count, total: K(t.total), sub: K(t.sub), fee: K(t.fee), cap: cst.cap,
+      pAbbr: p ? abbr(p.name) : '', pName: p ? p.name : '', pPrice: p ? K(this.sp(store, p.price)) : '', pDesc: p ? p.desc : '', pQty: s.pq,
+      pDec: () => this.setState({ pq: Math.max(1, s.pq - 1) }), pInc: () => this.setState({ pq: s.pq + 1 }),
+      pCta: p ? `Add to cart · ${K(this.sp(store, p.price) * s.pq)}` : '', closeProduct: () => this.setState({ pid: null }), stop: e => e.stopPropagation(),
+      pAdd: () => { if (this.add(s.sid, s.pid, s.pq)) { this.say(`Added ${s.pq} × ${P[s.pid].name}`); this.setState({ pid: null }); } else this.setState({ pid: null }); },
+      gq: s.gq, onGq: e => this.setState({ gq: e.target.value }), gqEmpty: gq.length < 2, gqNone: gq.length > 1 && !matches.length,
+      recent: ['Peak milk', 'Semovita', 'Indomie', 'Tomatoes'].map(r => ({ label: r, pick: () => this.setState({ gq: r }) })),
+      hasCompare: !!cmp, cmpName: cmp ? cmp.name : '',
+      cmpRows: cmp ? STORES.filter(st => this.has(st, cmp.id) && this.near(st)).map(st => ({ store: st.name, price: K(this.sp(st, cmp.price)), best: this.sp(st, cmp.price) === bestOf(cmp) })) : [],
+      sGroups: STORES.filter(st => this.near(st) && matches.some(x => this.has(st, x.id))).map(st => ({ store: st.name, meta: `${st.km} km · ${K(st.fee)} delivery${st.open ? '' : ' · ' + st.opens}`, rows: matches.filter(x => this.has(st, x.id)).map(x => ({ ...row(st, x), best: this.sp(st, x.price) === bestOf(x) && STORES.filter(z => this.has(z, x.id) && this.near(z)).length > 1 })) })),
+      listStore: cst.name, listTabs: s.lists.map(l => ({ name: l.name, ...sel(l.id === list.id), pick: () => this.setState({ lid: l.id }) })),
+      lRows: list.items.map(([pid, q]) => { const ok = this.has(cst, pid); return { qty: q, name: P[pid].name, price: ok ? K(this.sp(cst, P[pid].price) * q) : 'Not sold here', op: ok ? 1 : .45 }; }),
+      lMissing: listMiss.length ? `${cst.name} doesn’t sell ${listMiss.join(', ')}. They’ll be left out.` : '',
+      lCta: `Add ${list.items.length - listMiss.length} items · ${K(listTotal(list))}`, lAdd: () => { this.addList(list.id, s.csid); this.go('cart'); },
+      saveList: () => { if (!ls.length) return this.say('Add something to your cart first'); this.setState({ lists: [...s.lists, { id: 'l' + Date.now(), name: `${cst.name} basket`, items: ls.map(l => [l.pid, l.q]) }] }); this.say(`Saved ${ls.length} items as a list`); },
+      empty: !ls.length, hasItems: ls.length > 0, cartStore: cst.name, backToStore: () => this.go('store', { sid: s.csid, cat: 'all', sq: '' }),
+      belowMin: below, shortfall: K(cst.min - t.sub), min: K(cst.min), minPct: `${Math.min(100, Math.round(t.sub / cst.min * 100))}%`, atCap: t.count >= cst.cap,
+      cGroups: CATS.filter(c => ls.some(l => l.p.cat === c[0])).map(c => { const rows = ls.filter(l => l.p.cat === c[0]); return { label: c[1], count: rows.reduce((a, l) => a + l.q, 0), rows: rows.map(l => ({ name: l.p.name, total: K(l.total), qty: l.q, inc: () => this.add(s.csid, l.pid), dec: () => this.dec(l.pid) })) }; }),
+      note: s.note, onNote: e => this.setState({ note: e.target.value }),
+      ctaOp: below ? .45 : 1, cartCta: below ? `Add ${K(cst.min - t.sub)} more to check out` : `Checkout · ${K(t.total)}`,
+      distLine: this.near(cst) ? `${cst.km} km from ${cst.name} · inside the 15 km limit` : `${cst.km} km from ${cst.name} · past the 15 km limit`,
+      payOpts: [['card', 'Card', 'Paystack · paid when the store accepts'], ['transfer', 'Bank transfer', 'We show the account details next']].map(([id, label, sub]) => { const on = s.pay === id; return { label, sub, bd: on ? '#0E0F0D' : '#D3D7CB', dot: on ? '#0E0F0D' : 'transparent', pick: () => this.setState({ pay: id }) }; }),
+      payLine: s.pay === 'card' ? 'You pay when the store accepts. If they haven’t got something, it comes off and you’re charged less.' : 'Transfer after the store accepts. You’ll only be asked for what they can actually supply.',
+      coErr: s.coErr, place: this.place,
+      oCode: o ? o.code : '', oStore: o ? this.st(o.sid).name : '', oTitle: o ? titles[o.stage] : '', oSubtitle: o ? subs[o.stage] : '',
+      oWaiting: !!o && o.stage === 0, oTimer: o ? mmss(o.wait) : '', oWaitPct: o ? `${Math.max(2, Math.round(o.wait / 600 * 100))}%` : '0%',
+      oTrimmed: !!o && o.stage >= 1 && o.removed.length > 0, oRemovedCount: o ? o.removed.length : 0, oOldTotal: o ? K(o.old) : '', oNewTotal: K(nt),
+      oRemoved: removedLines.map(l => ({ qty: l.q, name: l.p.name, price: K(l.total) })), oKept: kept.map(l => ({ qty: l.q, name: l.p.name, price: K(l.total) })), oKeptCount: kept.reduce((a, l) => a + l.q, 0),
+      oRefundLine: o ? (o.pay === 'card' ? `Your card is charged ${K(nt)}, not ${K(o.old)}. Nothing to claim back.` : `Transfer ${K(nt)} instead of ${K(o.old)}.`) : '',
+      steps: STEPS.map((x, i) => ({ label: x[0], sub: x[1], fg: o && i <= o.stage ? '#FFF4D6' : '#6E7169', dot: o && i < o.stage ? '#C6F432' : o && i === o.stage ? (i === 4 ? '#C6F432' : '#FF6A2B') : '#2E312C', anim: o && i === o.stage && o.stage < 4 ? 'kg-pulse 1.4s ease-in-out infinite' : 'none' })),
+      oRider: !!o && o.stage >= 3, callRider: () => this.say('Calling Terna… 0803 555 0142'), oDone: !!o && o.stage === 4,
+      oPayLabel: o ? (o.stage === 0 ? 'To pay when they accept' : o.stage === 4 ? 'Paid' : 'You pay') : '', oTotal: o ? K(o.stage === 0 ? o.old : nt) : '',
+      oItems: o ? o.ls.map(l => { const gone = o.stage >= 1 && o.removed.includes(l.pid); return { qty: l.q, name: l.p.name, price: K(l.total), op: gone ? .5 : 1, strike: gone ? 'line-through' : 'none' }; }) : [],
+      orderAgain: () => this.setState({ screen: 'home', hist: [], dir: 'b', order: null, tab: 'groceries' }),
+      confirm: !!s.confirm, confirmTitle: s.confirm ? (s.side === 'food' ? 'Start a grocery cart?' : 'Start a new cart?') : '',
+      confirmText: s.confirm ? (s.side === 'food' ? `Your food cart from Terkimbi’s Kitchen has ${t.count} items. You can only have one cart at a time, so it will be cleared.` : `Your cart at ${cst.name} has ${t.count} items. A grocery order comes from one store, so this clears it.`) : '',
+      confirmCta: s.confirm ? `Start at ${this.st(s.confirm.sid).name}` : '',
+      confirmNew: () => { const c = s.confirm; this.setState({ lines: {}, csid: c.sid, side: 'grocery', confirm: null }, () => { if (c.list) this.addList(c.list, c.sid); else this.add(c.sid, c.pid, c.q); this.setState({ pid: null }); }); },
+      confirmKeep: () => this.setState({ confirm: null, pid: null }),
+      jumps: [['A1', 'Home · Food / Groceries', 'home'], ['A2', 'Store page', 'store'], ['A3', 'Product', 'product'], ['A4', 'Search all stores', 'search'], ['A5', 'Lists', 'lists'], ['A6', 'Cart', 'cart'], ['A7', 'Checkout', 'checkout'], ['A8', 'Tracking', 'track'], ['A8b', 'What the store changed', 'changes']].map(([id, label, sc]) => ({ id, label, bg: (scr === sc || (sc === 'product' && !!s.pid)) ? '#fff' : 'rgba(255,255,255,.45)', go: () => this.jump(sc) })),
+      expire: () => this.setState({ order: { ...o, stage: 0, wait: 0, t: 0, removed: o.ls.map(l => l.pid) } }),
+      resetDemo: () => this.setState(this.fresh())
+    };
+  }
+}
+
+</script>
+</body>
+</html>

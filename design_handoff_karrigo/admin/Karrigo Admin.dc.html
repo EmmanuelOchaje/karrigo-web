@@ -1,0 +1,1006 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+*{box-sizing:border-box}
+body{--bg:#0E0F0D;--card:#161814;--raise:#1D201B;--raise2:#22251F;--ink:#FFFFFF;--fg:255,255,255;--lime-ink:#C6F432;--cr:#FF6B5B;--wa:#FFB547;--go:#5FD4A4;--in:#7AB8FF}
+body[data-theme="light"]{--bg:#E9E9E5;--card:#FFFFFF;--raise:#F3F3EF;--raise2:#ECECE7;--ink:#0E0F0D;--fg:14,15,13;--lime-ink:#4E6B00;--cr:#C23A2B;--wa:#9A5F00;--go:#1F7A55;--in:#2A5FA0}
+body{margin:0;background:var(--bg);font-family:"Plus Jakarta Sans",system-ui,sans-serif;-webkit-font-smoothing:antialiased;color:var(--ink);transition:background .25s}
+a{color:var(--lime-ink)}a:hover{color:var(--ink)}
+::view-transition-group(kg-theme-thumb){animation-duration:.4s;animation-timing-function:cubic-bezier(.2,.8,.2,1)}
+::view-transition-old(kg-theme-thumb),::view-transition-new(kg-theme-thumb){animation:none;height:100%}
+button{font-family:inherit;cursor:pointer}
+*{scrollbar-width:none;-ms-overflow-style:none}*::-webkit-scrollbar{display:none;width:0;height:0}
+*,*::before,*::after{transition:background-color .35s ease,color .35s ease,border-color .35s ease,box-shadow .35s ease,opacity .25s ease,transform .2s ease}
+button:not(:disabled):hover{filter:brightness(1.06)}
+button:not(:disabled):active{transform:scale(.97)}
+main>*{animation:kg-slide-f .5s cubic-bezier(.2,.8,.2,1) both}
+main[data-dir="back"]>*{animation-name:kg-slide-b}
+main>*:nth-child(2){animation-delay:.03s}main>*:nth-child(3){animation-delay:.06s}main>*:nth-child(4){animation-delay:.09s}
+body[data-vt] *,body[data-vt] *::before,body[data-vt] *::after{transition:none!important}
+::view-transition-old(root),::view-transition-new(root){animation:none;mix-blend-mode:normal}
+::view-transition-new(root){animation:kg-wipe .75s cubic-bezier(.75,0,.2,1) both}
+html[data-wipe="rtl"]::view-transition-new(root){animation-name:kg-wipe-r}
+@keyframes kg-wipe{from{clip-path:inset(0 100% 0 0)}to{clip-path:inset(0 0 0 0)}}
+@keyframes kg-wipe-r{from{clip-path:inset(0 0 0 100%)}to{clip-path:inset(0 0 0 0)}}
+@keyframes kg-slide-f{from{opacity:0;transform:translateX(48px)}to{opacity:1;transform:none}}
+@keyframes kg-slide-b{from{opacity:0;transform:translateX(-48px)}to{opacity:1;transform:none}}
+aside[data-anim],[data-anim="drop"]{animation:kg-drop .32s cubic-bezier(.2,.8,.2,1) both}
+[data-anim="fade"]{animation:kg-fade .25s ease both}
+[data-anim="fade"]>div{animation:kg-pop .32s cubic-bezier(.2,.8,.2,1) both}
+[data-anim="toast"]{animation:kg-toast .35s cubic-bezier(.2,.8,.2,1) both}
+@keyframes kg-rise{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+@keyframes kg-drop{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+@keyframes kg-fade{from{opacity:0}to{opacity:1}}
+@keyframes kg-pop{from{opacity:0;transform:scale(.96)}to{opacity:1;transform:none}}
+@keyframes kg-toast{from{opacity:0;transform:translate(-50%,14px)}to{opacity:1;transform:translate(-50%,0)}}
+@media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+input{font-family:inherit}
+</style>
+</helmet>
+
+<sc-if value="{{ isLogin }}" hint-placeholder-val="{{ false }}">
+<div style="min-height:100vh;display:grid;place-items:center;padding:32px 16px;background:var(--bg);position:relative;overflow:hidden">
+<div style="position:absolute;top:-220px;left:-160px;width:560px;height:560px;border-radius:50%;border:1.5px solid rgba(198,244,50,.18);pointer-events:none"></div>
+<div style="position:absolute;bottom:-240px;right:-180px;width:520px;height:520px;border-radius:50%;border:1.5px solid rgba(255,106,43,.22);pointer-events:none"></div>
+<form onSubmit="{{ signIn }}" style="position:relative;width:min(400px,100%);display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+<svg width="40" height="40" viewBox="0 0 56 56" style="flex:none"><rect width="56" height="56" rx="16" fill="#C6F432"></rect><path d="M15 22h26l-2.6 20.5a2.5 2.5 0 0 1-2.5 2.2H20.1a2.5 2.5 0 0 1-2.5-2.2Z" fill="#0E0F0D"></path><path d="M22 24v-4a6 6 0 0 1 12 0v4" stroke="#0E0F0D" stroke-width="4" fill="none" stroke-linecap="round"></path></svg>
+<span style="display:flex;flex-direction:column;gap:4px"><span style="font:800 24px/1 'Plus Jakarta Sans',sans-serif;letter-spacing:-.055em;color:var(--ink)">karrigo</span><span style="font:600 11px/1 'Plus Jakarta Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:rgba(var(--fg),.55)">Operations</span></span>
+</div>
+<h1 style="margin:0;font:800 34px/1.05 'Plus Jakarta Sans',sans-serif;letter-spacing:-.045em;color:var(--ink)">Sign in to run the day</h1>
+<sc-if value="{{ loginNotice }}"><div style="padding:12px 16px;border-radius:14px;background:rgba(255,181,71,.12);font:500 13px/1.45 'Plus Jakarta Sans',sans-serif;color:var(--wa)">{{ loginNotice }}</div></sc-if>
+<label style="display:flex;flex-direction:column;gap:7px;margin-top:8px"><span style="font:600 12.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.72)">Email</span><input type="email" value="{{ lEmail }}" onChange="{{ onLEmail }}" autoComplete="username" style="height:52px;padding:0 18px;border-radius:99px;border:1px solid {{ lBorder }};background:var(--card);color:var(--ink);font:500 15px 'Plus Jakarta Sans',sans-serif;outline:none"></label>
+<label style="display:flex;flex-direction:column;gap:7px"><span style="font:600 12.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.72)">Password</span><input type="password" value="{{ lPass }}" onChange="{{ onLPass }}" autoComplete="current-password" style="height:52px;padding:0 18px;border-radius:99px;border:1px solid {{ lBorder }};background:var(--card);color:var(--ink);font:500 15px 'Plus Jakarta Sans',sans-serif;outline:none"></label>
+<sc-if value="{{ lError }}"><span style="font:500 13px 'Plus Jakarta Sans',sans-serif;color:var(--cr)">{{ lError }}</span></sc-if>
+<button type="submit" style="height:52px;margin-top:6px;border-radius:99px;border:0;background:#C6F432;color:#0E0F0D;font:800 15px 'Plus Jakarta Sans',sans-serif;opacity:{{ lOp }}">{{ lBtn }}</button>
+<p style="margin:6px 0 0;font:300 12.5px/1.5 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.5)">Admin accounts are set up by the Karrigo team. Lost access? Ask a super admin.</p>
+</form>
+</div>
+</sc-if>
+
+<sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:clamp(196px,17vw,232px) minmax(0,1fr);min-height:100vh;background:var(--bg);font-variant-numeric:tabular-nums">
+
+<aside style="position:sticky;top:0;height:100vh;display:flex;flex-direction:column;padding:22px 14px;border-right:1px solid rgba(var(--fg),.07)">
+<div style="display:flex;align-items:center;gap:10px;padding:0 8px 26px">
+<svg width="30" height="30" viewBox="0 0 56 56" style="flex:none"><rect width="56" height="56" rx="16" fill="#C6F432"></rect><path d="M15 22h26l-2.6 20.5a2.5 2.5 0 0 1-2.5 2.2H20.1a2.5 2.5 0 0 1-2.5-2.2Z" fill="#0E0F0D"></path><path d="M22 24v-4a6 6 0 0 1 12 0v4" stroke="#0E0F0D" stroke-width="4" fill="none" stroke-linecap="round"></path></svg>
+<span style="display:flex;flex-direction:column;gap:3px"><span style="font:800 19px/1 'Plus Jakarta Sans',sans-serif;letter-spacing:-.055em;color:var(--ink)">karrigo</span><span style="font:600 10.5px/1 'Plus Jakarta Sans',sans-serif;letter-spacing:.12em;text-transform:uppercase;color:rgba(var(--fg),.55)">Operations</span></span>
+</div>
+<nav style="position:relative;display:flex;flex-direction:column;gap:2px"><span style="position:absolute;top:0;left:0;right:0;height:40px;border-radius:99px;background:#C6F432;box-shadow:0 8px 18px -10px rgba(198,244,50,.6);transform:{{ navY }};transition:transform .45s cubic-bezier(.2,.8,.2,1);pointer-events:none"></span>
+<sc-for list="{{ nav }}" as="n" hint-placeholder-count="8">
+<button onClick="{{ n.go }}" style="display:flex;align-items:center;justify-content:space-between;gap:10px;height:40px;padding:0 14px;border:0;border-radius:99px;position:relative;background:transparent;color:{{ n.color }};transition:color .3s;font:{{ n.font }};text-align:left">
+<span style="white-space:nowrap">{{ n.label }}</span>
+<sc-if value="{{ n.badge }}"><span style="min-width:22px;height:20px;padding:0 7px;border-radius:99px;background:#FF6B5B;color:#0E0F0D;font:700 11px/20px 'Plus Jakarta Sans',sans-serif;text-align:center">{{ n.badge }}</span></sc-if>
+<sc-if value="{{ n.later }}"><span style="font:500 10.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.4)">next</span></sc-if>
+</button>
+</sc-for>
+</nav>
+<div style="position:relative;margin-top:auto;margin-bottom:8px;display:grid;grid-template-columns:1fr 1fr;padding:4px;border-radius:99px;background:var(--card)"><span style="position:absolute;top:4px;bottom:4px;left:4px;width:calc(50% - 4px);border-radius:99px;background:#C6F432;box-shadow:0 6px 14px -8px rgba(14,15,13,.45);transform:{{ themeX }};transition:transform .4s cubic-bezier(.2,.8,.2,1);view-transition-name:kg-theme-thumb;pointer-events:none"></span>
+<button onClick="{{ setDark }}" style="height:32px;border:0;border-radius:99px;position:relative;background:transparent;color:{{ darkC }};transition:color .3s;view-transition-name:kg-theme-dark;cursor:pointer;font:600 12.5px 'Plus Jakarta Sans',sans-serif">Dark</button>
+<button onClick="{{ setLight }}" style="height:32px;border:0;border-radius:99px;position:relative;background:transparent;color:{{ lightC }};transition:color .3s;view-transition-name:kg-theme-light;cursor:pointer;font:600 12.5px 'Plus Jakarta Sans',sans-serif">Light</button>
+</div>
+<div style="padding:14px;border-radius:15px;background:var(--card);display:flex;flex-direction:column;gap:8px">
+<span style="font:600 11px 'Plus Jakarta Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:rgba(var(--fg),.55)">Shift</span>
+<span style="font:600 14px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">08:00 – 22:00 WAT</span>
+<div style="height:6px;border-radius:99px;background:rgba(var(--fg),.1);overflow:hidden"><div style="width:47%;height:100%;border-radius:99px;background:#C6F432"></div></div>
+<span style="font:300 12.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">7 h 28 min left · Ada Onoja on duty</span>
+</div>
+<div style="margin-top:8px;padding:12px 14px;border-radius:15px;border:1px solid rgba(var(--fg),.08);display:flex;flex-wrap:wrap;align-items:center;gap:10px">
+<span style="width:34px;height:34px;flex:none;border-radius:50%;background:#FF6A2B;display:grid;place-items:center;font:800 13px 'Plus Jakarta Sans',sans-serif;color:#0E0F0D">AO</span>
+<span style="flex:1;min-width:0;display:flex;flex-direction:column;gap:3px"><span style="font:600 13px 'Plus Jakarta Sans',sans-serif;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Ada Onoja</span><span style="font:600 10.5px 'Plus Jakarta Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase;white-space:nowrap;color:{{ roleColor }}">{{ roleLabel }}</span></span>
+<button onClick="{{ signOut }}" style="width:100%;height:34px;border:1px solid rgba(var(--fg),.1);border-radius:99px;background:none;padding:0;color:rgba(var(--fg),.62);font:600 12px 'Plus Jakarta Sans',sans-serif;white-space:nowrap">Sign out</button>
+</div>
+</aside>
+
+<main data-dir="{{ navDir }}" style="min-width:0;padding:26px clamp(16px,2.4vw,32px) 48px;overflow-x:hidden">
+
+<sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+<header style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:22px">
+<div>
+<h1 style="margin:0;font:700 30px/1.1 'Plus Jakarta Sans',sans-serif;letter-spacing:-.035em;color:var(--ink)">Overview</h1>
+<p style="margin:7px 0 0;font:300 14px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">Monday 28 September · 14:32 WAT · compared with Monday 21 September</p>
+</div>
+<div style="display:flex;align-items:center;gap:10px">
+<span style="display:inline-flex;align-items:center;gap:8px;height:38px;padding:0 16px;border-radius:99px;background:rgba(95,212,164,.14);color:var(--go);font:600 13px 'Plus Jakarta Sans',sans-serif"><span style="width:8px;height:8px;border-radius:50%;background:#5FD4A4"></span>Live</span>
+<button onClick="{{ reload }}" style="height:38px;padding:0 18px;border-radius:99px;border:1px solid rgba(var(--fg),.16);background:transparent;color:var(--ink);font:600 13px 'Plus Jakarta Sans',sans-serif">Refresh</button>
+</div>
+</header>
+
+<sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:14px">
+<sc-for list="{{ six }}" as="s" hint-placeholder-count="6"><div style="height:118px;border-radius:15px;background:var(--card);padding:16px;display:flex;flex-direction:column;gap:12px"><div style="width:55%;height:10px;border-radius:99px;background:rgba(var(--fg),.08)"></div><div style="width:75%;height:24px;border-radius:8px;background:rgba(var(--fg),.08)"></div><div style="width:40%;height:10px;border-radius:99px;background:rgba(var(--fg),.06)"></div></div></sc-for>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:14px;margin-bottom:14px"><div style="height:300px;border-radius:15px;background:var(--card)"></div><div style="height:300px;border-radius:15px;background:var(--card)"></div></div>
+<div style="height:128px;border-radius:15px;background:var(--card);margin-bottom:14px"></div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:14px"><div style="height:360px;border-radius:15px;background:var(--card)"></div><div style="height:360px;border-radius:15px;background:var(--card)"></div></div>
+<p style="margin:18px 0 0;font:300 13px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.55)">Loading today’s numbers…</p>
+</sc-if>
+
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:12px;margin-bottom:14px">
+<sc-for list="{{ kpis }}" as="k" hint-placeholder-count="6">
+<div style="min-width:0;padding:16px 16px 15px;border-radius:15px;background:var(--card);display:flex;flex-direction:column;gap:10px">
+<span style="font:500 12.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">{{ k.label }}</span>
+<span style="font:700 25px/1 'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em;color:var(--ink);white-space:nowrap">{{ k.val }}</span>
+<span style="display:flex;align-items:center;gap:7px;flex-wrap:wrap">
+<span style="padding:3px 8px;border-radius:99px;background:{{ k.bg }};color:{{ k.c }};font:700 11.5px 'Plus Jakarta Sans',sans-serif;white-space:nowrap">{{ k.delta }}</span>
+<span style="font:300 12px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.55)">{{ k.vs }}</span>
+</span>
+</div>
+</sc-for>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:14px;margin-bottom:14px">
+<section style="min-width:0;padding:20px 22px;border-radius:15px;background:var(--card)">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+<h2 style="margin:0;font:600 16px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">Orders by hour</h2>
+<div style="display:flex;gap:16px;font:500 12px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">
+<span style="display:flex;align-items:center;gap:7px"><span style="width:10px;height:10px;border-radius:3px;background:#C6F432"></span>Today</span>
+<span style="display:flex;align-items:center;gap:7px"><span style="width:10px;height:10px;border-radius:3px;background:rgba(var(--fg),.22)"></span>Mon 21 Sep</span>
+</div>
+</div>
+<div style="margin-top:18px;height:210px;display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:6px;align-items:end;border-bottom:1px solid rgba(var(--fg),.1)">
+<sc-for list="{{ hours }}" as="h" hint-placeholder-count="15">
+<div title="{{ h.tip }}" style="height:100%;display:flex;align-items:flex-end;justify-content:center;gap:2px">
+<div style="width:42%;height:{{ h.lw }};border-radius:4px 4px 0 0;background:rgba(var(--fg),.22)"></div>
+<div style="width:42%;height:{{ h.td }};border-radius:4px 4px 0 0;background:#C6F432;opacity:{{ h.op }}"></div>
+</div>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:repeat(15,minmax(0,1fr));gap:6px;margin-top:8px">
+<sc-for list="{{ hours }}" as="h" hint-placeholder-count="15"><span style="text-align:center;font:{{ h.lf }};color:{{ h.lc }}">{{ h.label }}</span></sc-for>
+</div>
+</section>
+
+<section style="min-width:0;padding:20px 20px 12px;border-radius:15px;background:var(--card);display:flex;flex-direction:column">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px">
+<h2 style="margin:0;font:600 16px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">Needs attention</h2>
+<button onClick="{{ goIssues }}" style="border:0;background:none;padding:0;color:rgba(var(--fg),.62);font:500 12.5px 'Plus Jakarta Sans',sans-serif">All issues</button>
+</div>
+<sc-if value="{{ attnEmpty }}" hint-placeholder-val="{{ false }}">
+<div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:40px 10px;text-align:center">
+<span style="width:40px;height:40px;border-radius:50%;background:rgba(95,212,164,.14);display:grid;place-items:center"><span style="width:12px;height:12px;border-radius:50%;background:#5FD4A4"></span></span>
+<span style="font:600 14px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">Nothing needs you right now</span>
+<span style="font:300 13px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">New problems show up here the moment they happen.</span>
+</div>
+</sc-if>
+<div style="display:flex;flex-direction:column">
+<sc-for list="{{ attn }}" as="a" hint-placeholder-count="5">
+<div style="display:grid;grid-template-columns:4px minmax(0,1fr) auto;gap:12px;align-items:center;padding:11px 0;border-top:1px solid rgba(var(--fg),.07);opacity:{{ a.op }}">
+<span style="align-self:stretch;border-radius:99px;background:{{ a.c }}"></span>
+<div style="min-width:0;display:flex;flex-direction:column;gap:4px">
+<span style="font:600 13.5px/1.35 'Plus Jakarta Sans',sans-serif;color:var(--ink);text-wrap:pretty">{{ a.title }}</span>
+<span style="font:300 12px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">{{ a.meta }}</span>
+</div>
+<sc-if value="{{ a.open }}"><button onClick="{{ a.act }}" style="height:32px;padding:0 14px;border-radius:99px;border:0;background:#C6F432;color:#0E0F0D;font:700 12px 'Plus Jakarta Sans',sans-serif;white-space:nowrap">{{ a.action }}</button></sc-if>
+<sc-if value="{{ a.done }}"><span style="font:500 12px 'Plus Jakarta Sans',sans-serif;color:var(--go);white-space:nowrap">✓ {{ a.doneLabel }}</span></sc-if>
+</div>
+</sc-for>
+</div>
+</section>
+</div>
+
+<section style="padding:20px 22px;border-radius:15px;background:var(--card);margin-bottom:14px">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:14px;gap:12px;flex-wrap:wrap">
+<h2 style="margin:0;font:600 16px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">Order pipeline <span style="font-weight:300;color:rgba(var(--fg),.62)">· 55 open orders right now</span></h2>
+<span style="font:300 12.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">Average time in stage · target in brackets</span>
+</div>
+<div style="display:flex;flex-wrap:wrap;gap:6px">
+<sc-for list="{{ stages }}" as="s" hint-placeholder-count="5">
+<div style="flex:{{ s.flex }} 1 0;min-width:130px;padding:14px 14px 13px;border-radius:12px;background:{{ s.bg }};border-top:3px solid {{ s.c }};display:flex;flex-direction:column;gap:7px">
+<span style="font:500 12.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.7);white-space:nowrap">{{ s.label }}</span>
+<span style="display:flex;align-items:baseline;gap:8px"><span style="font:700 24px/1 'Plus Jakarta Sans',sans-serif;color:var(--ink)">{{ s.count }}</span><span style="font:300 12.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">orders</span></span>
+<span style="display:flex;align-items:center;gap:7px;flex-wrap:wrap"><span style="font:600 12.5px 'Plus Jakarta Sans',sans-serif;color:{{ s.tc }}">{{ s.avg }}</span><span style="font:300 12px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.5)">({{ s.target }})</span>
+<sc-if value="{{ s.slow }}"><span style="display:inline-flex;align-items:center;gap:5px;padding:2px 8px;border-radius:99px;background:rgba(255,181,71,.15);color:var(--wa);font:700 11px 'Plus Jakarta Sans',sans-serif"><span style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:7px solid #FFB547"></span>Slow</span></sc-if>
+</span>
+</div>
+</sc-for>
+</div>
+</section>
+
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,440px),1fr));gap:14px">
+<section style="min-width:0;padding:20px 22px 8px;border-radius:15px;background:var(--card);overflow-x:auto">
+<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px">
+<h2 style="margin:0;font:600 16px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">Kitchens right now</h2>
+<span style="font:300 12.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">6 open · 1 paused · 1 closed</span>
+</div>
+<div style="display:grid;grid-template-columns:minmax(120px,2fr) 128px 48px 60px 64px 90px;gap:10px;padding:10px 0;border-bottom:1px solid rgba(var(--fg),.08);font:600 11px 'Plus Jakarta Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:rgba(var(--fg),.5)">
+<span>Kitchen</span><span>Status</span><span style="text-align:right">Active</span><span style="text-align:right">Accept</span><span style="text-align:right">Prep</span><span style="text-align:right">Sales</span>
+</div>
+<sc-for list="{{ kitchens }}" as="k" hint-placeholder-count="8">
+<div style="display:grid;grid-template-columns:minmax(120px,2fr) 128px 48px 60px 64px 90px;gap:10px;align-items:center;padding:11px 0;border-bottom:1px solid rgba(var(--fg),.06);font:400 13.5px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">
+<span style="font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ k.name }}</span>
+<span><span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;border-radius:99px;background:{{ k.st.bg }};color:{{ k.st.c }};font:600 12px/1 'Plus Jakarta Sans',sans-serif;white-space:nowrap">
+<sc-if value="{{ k.st.dot }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ k.st.c }}"></span></sc-if>
+<sc-if value="{{ k.st.tri }}"><span style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:7px solid {{ k.st.c }}"></span></sc-if>
+<sc-if value="{{ k.st.ring }}"><span style="width:8px;height:8px;border-radius:50%;border:1.5px solid {{ k.st.c }}"></span></sc-if>
+{{ k.st.label }}</span></span>
+<span style="text-align:right">{{ k.active }}</span>
+<span style="text-align:right;color:{{ k.ac }}">{{ k.accept }}</span>
+<span style="text-align:right;color:{{ k.pc }}">{{ k.prep }}</span>
+<span style="text-align:right;font-weight:600">{{ k.sales }}</span>
+</div>
+</sc-for>
+</section>
+
+<section style="min-width:0;padding:20px 20px 10px;border-radius:15px;background:var(--card)">
+<h2 style="margin:0 0 8px;font:600 16px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">Live activity</h2>
+<sc-if value="{{ feedEmpty }}" hint-placeholder-val="{{ false }}">
+<div style="padding:48px 10px;text-align:center;display:flex;flex-direction:column;gap:6px">
+<span style="font:600 14px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">Quiet so far</span>
+<span style="font:300 13px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">Orders, kitchen and rider events will stream in here.</span>
+</div>
+</sc-if>
+<sc-for list="{{ feed }}" as="f" hint-placeholder-count="10">
+<div style="display:grid;grid-template-columns:44px 10px minmax(0,1fr);gap:10px;align-items:baseline;padding:9px 0;border-bottom:1px solid rgba(var(--fg),.06)">
+<span style="font:500 12px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.5)">{{ f.t }}</span>
+<span style="width:8px;height:8px;border-radius:50%;background:{{ f.c }};transform:translateY(-1px)"></span>
+<span style="font:300 13px/1.45 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.85)"><span style="font-weight:600;color:{{ f.c }}">{{ f.kind }}</span> · {{ f.txt }}</span>
+</div>
+</sc-for>
+</section>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{ isOrders }}" hint-placeholder-val="{{ false }}">
+<header style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:18px">
+<div>
+<h1 style="margin:0;font:700 30px/1.1 'Plus Jakarta Sans',sans-serif;letter-spacing:-.035em;color:var(--ink)">Live orders</h1>
+<p style="margin:7px 0 0;font:300 14px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">Monday 28 September · 14:32 WAT · updates as it happens</p>
+</div>
+<label style="display:flex;align-items:center;gap:10px;width:340px;max-width:100%;height:42px;padding:0 16px;border-radius:15px;background:var(--card);border:1px solid rgba(var(--fg),.1)">
+<span style="width:13px;height:13px;border:1.8px solid rgba(var(--fg),.55);border-radius:50%;flex:none"></span>
+<input value="{{ q }}" onChange="{{ onQ }}" placeholder="Order number, customer, phone, kitchen" style="flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--ink);font:400 13.5px 'Plus Jakarta Sans',sans-serif">
+</label>
+</header>
+
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+<sc-for list="{{ filters }}" as="f" hint-placeholder-count="5">
+<button onClick="{{ f.on }}" style="display:inline-flex;align-items:center;gap:8px;height:36px;padding:0 16px;border:0;border-radius:99px;background:{{ f.bg }};color:{{ f.color }};font:600 13px 'Plus Jakarta Sans',sans-serif">{{ f.label }}<span style="color:{{ f.cc }};font-weight:500">{{ f.count }}</span></button>
+</sc-for>
+</div>
+
+<div style="display:flex;flex-wrap:wrap;gap:14px;align-items:flex-start">
+<section style="flex:999 1 580px;min-width:0;border-radius:15px;background:var(--card);overflow-x:auto">
+<div style="display:grid;grid-template-columns:4px 84px minmax(110px,1.2fr) minmax(110px,1.3fr) minmax(90px,1fr) 150px 64px 90px;gap:12px;padding:12px 16px 12px 0;border-bottom:1px solid rgba(var(--fg),.08);font:600 11px 'Plus Jakarta Sans',sans-serif;letter-spacing:.08em;text-transform:uppercase;color:rgba(var(--fg),.5)">
+<span></span><span>Order</span><span>Customer</span><span>Kitchen</span><span>Rider</span><span>Stage</span><span style="text-align:right">Time</span><span style="text-align:right">Total</span>
+</div>
+
+<sc-if value="{{ ordersLoading }}" hint-placeholder-val="{{ false }}">
+<sc-for list="{{ six }}" as="s" hint-placeholder-count="6">
+<div style="display:grid;grid-template-columns:92px minmax(0,1fr) minmax(0,1fr) 150px 92px;gap:12px;padding:16px;border-bottom:1px solid rgba(var(--fg),.06)">
+<div style="height:12px;border-radius:99px;background:rgba(var(--fg),.08)"></div><div style="height:12px;border-radius:99px;background:rgba(var(--fg),.08)"></div><div style="height:12px;border-radius:99px;background:rgba(var(--fg),.06)"></div><div style="height:12px;border-radius:99px;background:rgba(var(--fg),.06)"></div><div style="height:12px;border-radius:99px;background:rgba(var(--fg),.08)"></div>
+</div>
+</sc-for>
+</sc-if>
+
+<sc-if value="{{ rowsEmpty }}" hint-placeholder-val="{{ false }}">
+<div style="padding:64px 20px;display:flex;flex-direction:column;align-items:center;gap:8px;text-align:center">
+<span style="font:600 15px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">{{ emptyTitle }}</span>
+<span style="font:300 13px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">{{ emptyText }}</span>
+<sc-if value="{{ q }}"><button onClick="{{ clearSearch }}" style="margin-top:8px;height:34px;padding:0 16px;border-radius:99px;border:1px solid rgba(var(--fg),.16);background:transparent;color:var(--ink);font:600 12.5px 'Plus Jakarta Sans',sans-serif">Clear search</button></sc-if>
+</div>
+</sc-if>
+
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="9">
+<div onClick="{{ r.pick }}" style="display:grid;grid-template-columns:4px 84px minmax(110px,1.2fr) minmax(110px,1.3fr) minmax(90px,1fr) 150px 64px 90px;gap:12px;align-items:center;padding:0 16px 0 0;min-height:58px;border-bottom:1px solid rgba(var(--fg),.06);background:{{ r.rowBg }};cursor:pointer;font:400 13.5px 'Plus Jakarta Sans',sans-serif;color:var(--ink)" style-hover="background:rgba(var(--fg),.04)">
+<span style="align-self:stretch;background:{{ r.stripe }}"></span>
+<span style="display:flex;flex-direction:column;gap:3px"><span style="font-weight:700">{{ r.id }}</span><span style="font:300 11.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.55)">{{ r.placed }}</span></span>
+<span style="min-width:0;display:flex;flex-direction:column;gap:3px"><span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.cust }}</span><span style="font:300 11.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.55)">{{ r.area }}</span></span>
+<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.kitchen }}</span>
+<span style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis;color:{{ r.riderColor }}">{{ r.rider }}</span>
+<span style="display:flex;gap:5px;flex-wrap:wrap">
+<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;border-radius:99px;background:{{ r.stageChip.bg }};color:{{ r.stageChip.c }};font:600 12px/1 'Plus Jakarta Sans',sans-serif;white-space:nowrap">
+<sc-if value="{{ r.stageChip.dot }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ r.stageChip.c }}"></span></sc-if>
+<sc-if value="{{ r.stageChip.tri }}"><span style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:7px solid {{ r.stageChip.c }}"></span></sc-if>
+<sc-if value="{{ r.stageChip.ring }}"><span style="width:8px;height:8px;border-radius:50%;border:1.5px solid {{ r.stageChip.c }}"></span></sc-if>
+{{ r.stageChip.label }}</span>
+<sc-if value="{{ r.late }}"><span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;border-radius:99px;background:rgba(255,107,91,.15);color:var(--cr);font:700 12px/1 'Plus Jakarta Sans',sans-serif"><span style="width:7px;height:7px;border-radius:1.5px;background:#FF6B5B;transform:rotate(45deg)"></span>Late</span></sc-if>
+</span>
+<span style="text-align:right;font-weight:600;color:{{ r.elapsedColor }}">{{ r.e }} min</span>
+<span style="text-align:right;display:flex;flex-direction:column;gap:3px"><span style="font-weight:700">{{ r.total }}</span><span style="font:300 11.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.55)">{{ r.payLabel }}</span></span>
+</div>
+</sc-for>
+</section>
+
+<aside style="flex:1 1 360px;max-width:100%;position:sticky;top:20px;min-width:0;border-radius:15px;background:#FFFFFF;color:#0E0F0D;overflow:hidden">
+<sc-if value="{{ noSel }}" hint-placeholder-val="{{ false }}"><div style="padding:60px 24px;text-align:center;font:400 14px 'Plus Jakarta Sans',sans-serif;color:#5D6156">Pick an order to see its details.</div></sc-if>
+<sc-if value="{{ ordersLoading }}" hint-placeholder-val="{{ false }}"><div style="padding:24px;display:flex;flex-direction:column;gap:14px"><div style="width:50%;height:18px;border-radius:99px;background:#EEEFEB"></div><div style="height:90px;border-radius:15px;background:#F4F5F1"></div><div style="height:180px;border-radius:15px;background:#F4F5F1"></div></div></sc-if>
+<sc-if value="{{ hasSel }}" hint-placeholder-val="{{ true }}">
+<div style="padding:22px 22px 16px;border-bottom:1px solid #ECEDE8">
+<div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+<span style="font:800 22px/1 'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em">{{ o.id }}</span>
+<span style="font:500 12.5px 'Plus Jakarta Sans',sans-serif;color:#5D6156">Placed {{ o.placed }} · {{ o.e }} min ago</span>
+</div>
+<p style="margin:8px 0 0;font:400 13.5px/1.5 'Plus Jakarta Sans',sans-serif;color:#3A3D36">{{ o.landmark }}, <strong style="font-weight:600;color:#0E0F0D">{{ o.area }}</strong></p>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:1px;background:#ECEDE8;border-bottom:1px solid #ECEDE8">
+<div style="background:#fff;padding:12px 14px;display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font:600 10.5px 'Plus Jakarta Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#6B6F64">Customer</span><span style="font:600 13px 'Plus Jakarta Sans',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.cust }}</span><span style="font:400 11.5px 'Plus Jakarta Sans',sans-serif;color:#5D6156">{{ o.phone }}</span></div>
+<div style="background:#fff;padding:12px 14px;display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font:600 10.5px 'Plus Jakarta Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#6B6F64">Kitchen</span><span style="font:600 13px 'Plus Jakarta Sans',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.kitchen }}</span></div>
+<div style="background:#fff;padding:12px 14px;display:flex;flex-direction:column;gap:3px;min-width:0"><span style="font:600 10.5px 'Plus Jakarta Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#6B6F64">Rider</span><span style="font:600 13px 'Plus Jakarta Sans',sans-serif;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ o.rider }}</span></div>
+</div>
+
+<div style="padding:16px 22px;border-bottom:1px solid #ECEDE8;display:flex;flex-direction:column;gap:0">
+<sc-for list="{{ o.timeline }}" as="t" hint-placeholder-count="6">
+<div style="display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;align-items:center;height:30px">
+<span style="width:12px;height:12px;border-radius:50%;background:{{ t.dot }};border:2px solid #0E0F0D;opacity:{{ t.op }}"></span>
+<span style="font:{{ t.font }};color:{{ t.color }}">{{ t.label }}</span>
+<span style="font:600 12.5px 'Plus Jakarta Sans',sans-serif;color:{{ t.color }}">{{ t.time }}</span>
+</div>
+</sc-for>
+</div>
+
+<div style="padding:14px 22px;border-bottom:1px solid #ECEDE8;display:flex;flex-direction:column;gap:7px;font:400 13px 'Plus Jakarta Sans',sans-serif">
+<sc-for list="{{ o.items }}" as="i" hint-placeholder-count="2"><div style="display:flex;justify-content:space-between;gap:10px"><span><span style="color:#6B6F64">{{ i.qty }}</span> {{ i.name }}</span><span>{{ i.price }}</span></div></sc-for>
+<div style="display:flex;justify-content:space-between;color:#5D6156"><span>Delivery</span><span>{{ o.fee }}</span></div>
+<sc-if value="{{ o.credit }}"><div style="display:flex;justify-content:space-between;color:#4E6B00;font-weight:600"><span>Late-order credit</span><span>{{ o.credit }}</span></div></sc-if>
+<div style="display:flex;justify-content:space-between;align-items:baseline;margin-top:4px;padding-top:9px;border-top:1px dashed #DADBD5"><span style="font-weight:600">{{ o.payLabel }}</span><span style="font:800 18px 'Plus Jakarta Sans',sans-serif">{{ o.total }}</span></div>
+</div>
+
+<sc-if value="{{ canAct }}" hint-placeholder-val="{{ true }}">
+<div style="padding:16px 22px 20px;display:flex;flex-direction:column;gap:10px">
+<div style="display:flex;gap:8px;flex-wrap:wrap">
+<button onClick="{{ togglePicker }}" style="height:40px;padding:0 18px;border-radius:99px;border:0;background:#0E0F0D;color:#fff;font:700 13px 'Plus Jakarta Sans',sans-serif">Reassign rider</button>
+<sc-if value="{{ notCredited }}"><button onClick="{{ giveCredit }}" style="height:40px;padding:0 18px;border-radius:99px;border:0;background:#C6F432;color:#0E0F0D;font:700 13px 'Plus Jakarta Sans',sans-serif">Give ₦500 credit</button></sc-if>
+<sc-if value="{{ credited }}"><span style="display:inline-flex;align-items:center;height:40px;padding:0 16px;border-radius:99px;background:#F1F7DC;color:#4E6B00;font:700 13px 'Plus Jakarta Sans',sans-serif">✓ ₦500 credit sent</span></sc-if>
+</div>
+<sc-if value="{{ picker }}">
+<div style="border-radius:15px;border:1px solid #E4E5DF;overflow:hidden">
+<sc-for list="{{ near }}" as="n" hint-placeholder-count="3">
+<button onClick="{{ n.pick }}" style="width:100%;display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 14px;border:0;border-bottom:1px solid #EEEFEA;background:#fff;text-align:left" style-hover="background:#F6F7F2"><span style="display:flex;flex-direction:column;gap:2px"><span style="font:600 13px 'Plus Jakarta Sans',sans-serif;color:#0E0F0D">{{ n.name }}</span><span style="font:400 11.5px 'Plus Jakarta Sans',sans-serif;color:#5D6156">Waiting · {{ n.area }}</span></span><span style="font:600 12px 'Plus Jakarta Sans',sans-serif;color:#4E6B00">{{ n.dist }}</span></button>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ notConfirm }}"><button onClick="{{ askCancel }}" style="align-self:flex-start;height:36px;padding:0 4px;border:0;background:none;color:#C23A2B;font:600 13px 'Plus Jakarta Sans',sans-serif">Cancel and refund</button></sc-if>
+<sc-if value="{{ confirm }}">
+<div style="padding:14px;border-radius:15px;background:#FFF1EF;display:flex;flex-direction:column;gap:10px">
+<span style="font:600 13.5px 'Plus Jakarta Sans',sans-serif;color:#0E0F0D">Cancel {{ o.id }}?</span>
+<span style="font:400 12.5px/1.5 'Plus Jakarta Sans',sans-serif;color:#3A3D36">{{ refundLine }}</span>
+<div style="display:flex;gap:8px"><button onClick="{{ doCancel }}" style="height:36px;padding:0 16px;border-radius:99px;border:0;background:#C23A2B;color:#fff;font:700 12.5px 'Plus Jakarta Sans',sans-serif">Cancel and refund</button><button onClick="{{ keep }}" style="height:36px;padding:0 16px;border-radius:99px;border:1px solid #DADBD5;background:#fff;color:#0E0F0D;font:600 12.5px 'Plus Jakarta Sans',sans-serif">Keep order</button></div>
+</div>
+</sc-if>
+</div>
+</sc-if>
+</sc-if>
+</aside>
+</div>
+</sc-if>
+
+<sc-if value="{{ isQueue }}" hint-placeholder-val="{{ false }}">
+<header style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:18px">
+<div style="flex:1;min-width:0">
+<h1 style="margin:0;font:700 30px/1.1 'Plus Jakarta Sans',sans-serif;letter-spacing:-.035em;color:var(--ink)">{{ qTitle }}</h1>
+<p style="margin:7px 0 0;font:300 14px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">{{ qSub }}</p>
+</div>
+</header>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+<sc-for list="{{ qTabs }}" as="t" hint-placeholder-count="3">
+<button onClick="{{ t.on }}" style="display:flex;align-items:center;gap:8px;height:38px;padding:0 16px;border:0;border-radius:99px;white-space:nowrap;background:{{ t.bg }};color:{{ t.color }};font:600 13.5px 'Plus Jakarta Sans',sans-serif">{{ t.label }}<span style="font-weight:500;color:{{ t.cc }}">{{ t.count }}</span></button>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:14px;align-items:start">
+<section style="min-width:0;border-radius:15px;background:var(--card);overflow:hidden">
+<sc-if value="{{ qEmpty }}" hint-placeholder-val="{{ false }}">
+<div style="padding:56px 20px;text-align:center;display:flex;flex-direction:column;gap:6px"><span style="font:600 15px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">{{ qEmptyTitle }}</span><span style="font:300 13px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">New sign-ups land here as they come in.</span></div>
+</sc-if>
+<sc-for list="{{ qRows }}" as="r" hint-placeholder-count="5">
+<button onClick="{{ r.pick }}" style="width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;padding:15px 20px;border:0;border-bottom:1px solid rgba(var(--fg),.06);background:{{ r.bg }};text-align:left;color:var(--ink)">
+<span style="min-width:0;display:flex;flex-direction:column;gap:4px"><span style="font:600 14.5px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">{{ r.title }}</span><span style="font:300 12.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.sub }}</span></span>
+<span style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="padding:4px 10px;border-radius:99px;background:{{ r.chipBg }};color:{{ r.chipC }};font:600 11.5px 'Plus Jakarta Sans',sans-serif;white-space:nowrap">{{ r.chip }}</span><span style="font:400 12px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.5);white-space:nowrap">{{ r.right }}</span></span>
+</button>
+</sc-for>
+</section>
+
+<sc-if value="{{ qHas }}" hint-placeholder-val="{{ false }}">
+<aside key="{{ d.title }}" data-anim="drop" style="position:sticky;top:20px;border-radius:15px;background:#fff;color:#0E0F0D;padding:22px;display:flex;flex-direction:column;gap:18px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+<div style="min-width:0"><div style="font:700 20px/1.15 'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em">{{ d.title }}</div><div style="margin-top:5px;font:400 13px 'Plus Jakarta Sans',sans-serif;color:#5D6156">{{ d.sub }}</div></div>
+<span style="padding:5px 11px;border-radius:99px;background:{{ d.chipBgL }};color:{{ d.chipCL }};font:700 11.5px 'Plus Jakarta Sans',sans-serif;white-space:nowrap">{{ d.chip }}</span>
+</div>
+<div style="display:flex;flex-direction:column;border-top:1px solid #EEEFEA">
+<sc-for list="{{ d.fields }}" as="f" hint-placeholder-count="5">
+<div style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;padding:10px 0;border-bottom:1px solid #EEEFEA;font:400 13px 'Plus Jakarta Sans',sans-serif"><span style="color:#5D6156;white-space:nowrap">{{ f.k }}</span><span style="font-weight:600;text-align:right;min-width:0;overflow-wrap:anywhere">{{ f.v }}</span></div>
+</sc-for>
+</div>
+<div>
+<div style="margin-bottom:8px;font:700 11px 'Plus Jakarta Sans',sans-serif;letter-spacing:.1em;text-transform:uppercase;color:#5D6156">Before go-live</div>
+<div style="display:flex;flex-direction:column;gap:6px">
+<sc-for list="{{ d.checks }}" as="c" hint-placeholder-count="3">
+<div style="display:flex;align-items:center;gap:10px;font:500 13px 'Plus Jakarta Sans',sans-serif"><span style="width:20px;height:20px;flex:none;border-radius:50%;display:grid;place-items:center;background:{{ c.bg }};color:{{ c.fg }};font:800 11px 'Plus Jakarta Sans',sans-serif">{{ c.mark }}</span><span style="flex:1">{{ c.label }}</span><sc-if value="{{ c.view }}"><button onClick="{{ c.view }}" style="border:0;background:none;padding:4px 0;color:#4E6B00;font:700 12.5px 'Plus Jakarta Sans',sans-serif">View</button></sc-if></div>
+</sc-for>
+</div>
+</div>
+<sc-if value="{{ d.note }}"><div style="padding:12px 14px;border-radius:12px;background:#FFF1EF;font:400 13px/1.5 'Plus Jakarta Sans',sans-serif;color:#3A3D36"><strong style="color:#C23A2B">Note sent · </strong>{{ d.note }}</div></sc-if>
+
+<sc-if value="{{ qShowActions }}">
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ d.actions }}" as="a" hint-placeholder-count="2">
+<button onClick="{{ a.go }}" style="height:48px;border-radius:99px;border:{{ a.border }};background:{{ a.bg }};color:{{ a.color }};font:700 14px 'Plus Jakarta Sans',sans-serif">{{ a.label }}</button>
+</sc-for>
+</div>
+</sc-if>
+<sc-if value="{{ qConfirm }}">
+<div data-anim="drop" style="padding:14px;border-radius:15px;background:{{ cf.bg }};display:flex;flex-direction:column;gap:10px">
+<span style="font:600 13.5px/1.45 'Plus Jakarta Sans',sans-serif;color:#0E0F0D">{{ cf.title }}</span>
+<span style="font:400 12.5px/1.5 'Plus Jakarta Sans',sans-serif;color:#3A3D36">{{ cf.text }}</span>
+<sc-if value="{{ cf.needsNote }}"><textarea value="{{ qNote }}" onChange="{{ onNote }}" placeholder="{{ cf.ph }}" rows="3" style="resize:vertical;padding:10px 12px;border-radius:12px;border:1px solid #DADBD5;background:#fff;font:400 13px/1.45 'Plus Jakarta Sans',sans-serif;color:#0E0F0D"></textarea></sc-if>
+<div style="display:flex;gap:8px"><button onClick="{{ cf.go }}" disabled="{{ cf.disabled }}" style="flex:1;height:44px;border-radius:99px;border:0;background:{{ cf.btnBg }};color:{{ cf.btnC }};opacity:{{ cf.op }};font:700 13px 'Plus Jakarta Sans',sans-serif">{{ cf.btn }}</button><button onClick="{{ qBack }}" style="flex:1;height:44px;border-radius:99px;border:1px solid #DADBD5;background:#fff;color:#0E0F0D;font:600 13px 'Plus Jakarta Sans',sans-serif">Back</button></div>
+</div>
+</sc-if>
+</aside>
+</sc-if>
+</div>
+
+<sc-if value="{{ docOpen }}" hint-placeholder-val="{{ false }}">
+<div data-anim="fade" onClick="{{ closeDoc }}" style="position:fixed;inset:0;z-index:40;background:rgba(0,0,0,.72);display:grid;place-items:center;padding:24px">
+<div style="width:min(620px,100%);border-radius:20px;background:var(--card);padding:18px;display:flex;flex-direction:column;gap:14px">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px"><span style="font:600 15px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">{{ docOpen }}</span><span style="font:300 12px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.55)">Signed link · expires in 5 min · click to close</span></div>
+<div style="aspect-ratio:3/2;border-radius:14px;background:repeating-linear-gradient(135deg,var(--raise) 0 10px,var(--raise2) 10px 20px);display:grid;place-items:center;font:500 12px ui-monospace,monospace;color:rgba(var(--fg),.5)">document image</div>
+</div>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{ isIssues }}" hint-placeholder-val="{{ false }}">
+<header style="display:flex;align-items:flex-end;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-bottom:18px">
+<div style="flex:1;min-width:0">
+<h1 style="margin:0;font:700 30px/1.1 'Plus Jakarta Sans',sans-serif;letter-spacing:-.035em;color:var(--ink)">Issues</h1>
+<p style="margin:7px 0 0;font:300 14px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">{{ tSub }}</p>
+</div>
+</header>
+<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px">
+<sc-for list="{{ tTabs }}" as="t" hint-placeholder-count="4">
+<button onClick="{{ t.on }}" style="display:flex;align-items:center;gap:8px;height:38px;padding:0 16px;border:0;border-radius:99px;white-space:nowrap;background:{{ t.bg }};color:{{ t.color }};font:600 13.5px 'Plus Jakarta Sans',sans-serif">{{ t.label }}<span style="font-weight:500;color:{{ t.cc }}">{{ t.count }}</span></button>
+</sc-for>
+</div>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:14px;align-items:start">
+<section style="min-width:0;border-radius:15px;background:var(--card);overflow:hidden">
+<sc-if value="{{ tEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:56px 20px;text-align:center;font:300 13px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">Nothing here right now.</div></sc-if>
+<sc-for list="{{ tRows }}" as="r" hint-placeholder-count="5">
+<button onClick="{{ r.pick }}" style="width:100%;display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px;padding:15px 20px;border:0;border-bottom:1px solid rgba(var(--fg),.06);background:{{ r.bg }};text-align:left;color:var(--ink)">
+<span style="min-width:0;display:flex;flex-direction:column;gap:4px"><span style="font:600 14.5px/1.3 'Plus Jakarta Sans',sans-serif;color:var(--ink)">{{ r.subject }}</span><span style="font:300 12.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.from }}</span></span>
+<span style="display:flex;flex-direction:column;align-items:flex-end;gap:6px"><span style="padding:4px 10px;border-radius:99px;background:{{ r.chBg }};color:{{ r.chC }};font:600 11.5px 'Plus Jakarta Sans',sans-serif;white-space:nowrap">{{ r.channel }}</span><span style="font:400 12px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.5);white-space:nowrap">{{ r.age }}</span></span>
+</button>
+</sc-for>
+</section>
+<sc-if value="{{ tHas }}" hint-placeholder-val="{{ false }}">
+<aside key="{{ tk.id }}" data-anim="drop" style="position:sticky;top:20px;border-radius:15px;background:#fff;color:#0E0F0D;padding:22px;display:flex;flex-direction:column;gap:16px">
+<div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+<div style="min-width:0"><div style="font:700 20px/1.15 'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em">{{ tk.subject }}</div><div style="margin-top:5px;font:400 13px 'Plus Jakarta Sans',sans-serif;color:#5D6156">{{ tk.from }} · {{ tk.age }}</div></div>
+<span style="padding:5px 11px;border-radius:99px;background:{{ tk.stBg }};color:{{ tk.stC }};font:700 11.5px 'Plus Jakarta Sans',sans-serif;white-space:nowrap">{{ tk.status }}</span>
+</div>
+<div style="padding:14px 16px;border-radius:14px;background:#F4F4F1;font:400 14px/1.55 'Plus Jakarta Sans',sans-serif;color:#0E0F0D;text-wrap:pretty">{{ tk.body }}</div>
+<div style="display:flex;flex-direction:column;border-top:1px solid #EEEFEA">
+<div style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;padding:10px 0;border-bottom:1px solid #EEEFEA;font:400 13px 'Plus Jakarta Sans',sans-serif"><span style="color:#5D6156">Channel</span><span style="font-weight:600;text-align:right">{{ tk.channelLong }}</span></div>
+<div style="display:grid;grid-template-columns:auto minmax(0,1fr);gap:16px;padding:10px 0;border-bottom:1px solid #EEEFEA;font:400 13px 'Plus Jakarta Sans',sans-serif"><span style="color:#5D6156">Order</span><span style="text-align:right"><sc-if value="{{ tk.order }}"><button onClick="{{ tk.openOrder }}" style="border:0;background:none;padding:0;color:#4E6B00;font:700 13px 'Plus Jakarta Sans',sans-serif;white-space:nowrap">{{ tk.order }} →</button></sc-if><sc-if value="{{ tk.noOrder }}"><span style="font-weight:600;color:#8A8D84">Not linked</span></sc-if></span></div>
+</div>
+<sc-if value="{{ tk.wa }}"><a href="{{ tk.waHref }}" target="_blank" style="height:46px;display:grid;place-items:center;border-radius:99px;border:1px solid #DADBD5;color:#0E0F0D;font:700 13.5px 'Plus Jakarta Sans',sans-serif;text-decoration:none">Reply on WhatsApp</a></sc-if>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ tk.actions }}" as="a" hint-placeholder-count="2">
+<button onClick="{{ a.go }}" style="height:48px;border-radius:99px;border:{{ a.border }};background:{{ a.bg }};color:{{ a.color }};font:700 14px 'Plus Jakarta Sans',sans-serif">{{ a.label }}</button>
+</sc-for>
+</div>
+</aside>
+</sc-if>
+</div>
+</sc-if>
+
+<sc-if value="{{ isMoney }}" hint-placeholder-val="{{ false }}">
+<header style="margin-bottom:18px">
+<h1 style="margin:0;font:700 30px/1.1 'Plus Jakarta Sans',sans-serif;letter-spacing:-.035em;color:var(--ink)">Money</h1>
+<p style="margin:7px 0 0;font:300 14px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">Payouts go out when you send them · Karrigo keeps 15% of kitchen sales</p>
+</header>
+<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,360px),1fr));gap:14px;align-items:start">
+
+<section style="min-width:0;border-radius:15px;background:var(--card);overflow:hidden">
+<div style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:20px 22px 16px">
+<h2 style="margin:0;font:600 16px/1.3 'Plus Jakarta Sans',sans-serif;color:var(--ink);white-space:nowrap">Due for payout</h2>
+<span style="font:300 12.5px/1.4 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">{{ dueTotal }}</span>
+</div>
+<sc-if value="{{ moneyLocked }}"><div style="margin:0 22px 14px;padding:10px 14px;border-radius:12px;background:rgba(var(--fg),.06);font:500 12.5px/1.45 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.72)">Moderators can see what’s due. Sending payouts needs a super admin.</div></sc-if>
+<sc-if value="{{ dueEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:36px 22px 44px;text-align:center;font:300 13px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">Everyone is paid up.</div></sc-if>
+<sc-for list="{{ due }}" as="p" hint-placeholder-count="6">
+<div style="border-top:1px solid rgba(var(--fg),.06);padding:14px 22px;display:flex;flex-direction:column;gap:10px">
+<div style="display:grid;grid-template-columns:minmax(0,1fr) auto;align-items:center;gap:14px">
+<span style="min-width:0;display:flex;flex-direction:column;gap:4px"><span style="font:600 14.5px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">{{ p.name }}</span><span style="font:300 12.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">{{ p.meta }}</span></span>
+<span style="display:flex;align-items:center;gap:12px"><span style="font:700 15px 'Plus Jakarta Sans',sans-serif;color:var(--ink);white-space:nowrap">{{ p.amount }}</span><sc-if value="{{ p.idle }}"><button onClick="{{ p.ask }}" style="height:36px;padding:0 16px;border-radius:99px;border:0;background:#C6F432;color:#0E0F0D;font:700 13px 'Plus Jakarta Sans',sans-serif;white-space:nowrap">Pay out</button></sc-if></span>
+</div>
+<sc-if value="{{ p.asking }}"><div data-anim="drop" style="padding:12px 14px;border-radius:12px;background:var(--raise);display:flex;flex-wrap:wrap;align-items:center;gap:10px"><span style="flex:1;min-width:200px;font:400 12.5px/1.5 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.75)">{{ p.confirmText }}</span><button onClick="{{ p.send }}" style="height:36px;padding:0 16px;border-radius:99px;border:0;background:#C6F432;color:#0E0F0D;font:700 13px 'Plus Jakarta Sans',sans-serif;white-space:nowrap">Send {{ p.amount }}</button><button onClick="{{ p.cancel }}" style="height:36px;padding:0 14px;border-radius:99px;border:1px solid rgba(var(--fg),.18);background:none;color:var(--ink);font:600 13px 'Plus Jakarta Sans',sans-serif;white-space:nowrap">Back</button></div></sc-if>
+</div>
+</sc-for>
+</section>
+
+<div style="min-width:0;display:flex;flex-direction:column;gap:14px">
+<section style="border-radius:15px;background:#fff;color:#0E0F0D;padding:22px;display:flex;flex-direction:column;gap:14px">
+<div><h2 style="margin:0;font:700 17px 'Plus Jakarta Sans',sans-serif;letter-spacing:-.02em">Refund an order</h2><p style="margin:5px 0 0;font:400 13px/1.5 'Plus Jakarta Sans',sans-serif;color:#5D6156">Enter the order number from the customer’s receipt.</p></div>
+<div style="display:flex;gap:8px"><input value="{{ rq }}" onChange="{{ onRq }}" placeholder="KG-2196" style="flex:1;min-width:0;height:46px;padding:0 16px;border-radius:99px;border:1px solid #DADBD5;font:600 14px 'Plus Jakarta Sans',sans-serif;color:#0E0F0D;text-transform:uppercase"><button onClick="{{ findOrder }}" style="height:46px;padding:0 20px;border-radius:99px;border:0;background:#0E0F0D;color:#fff;font:700 13.5px 'Plus Jakarta Sans',sans-serif">Find</button></div>
+<sc-if value="{{ rNotFound }}"><span style="font:500 13px 'Plus Jakarta Sans',sans-serif;color:#C23A2B">No order {{ rqUp }}. Check the number and try again.</span></sc-if>
+<sc-if value="{{ rHas }}">
+<div data-anim="drop" style="padding:14px;border-radius:14px;background:#F4F4F1;display:flex;flex-direction:column;gap:6px;font:400 13px/1.45 'Plus Jakarta Sans',sans-serif">
+<div style="display:flex;justify-content:space-between;align-items:baseline;gap:10px"><strong style="min-width:0">{{ ro.id }} · {{ ro.cust }}</strong><span style="font-weight:800">{{ ro.total }}</span></div>
+<span style="color:#5D6156">{{ ro.kitchen }} · {{ ro.area }} · placed {{ ro.placed }}</span>
+<span style="color:#5D6156">{{ ro.payLabel }}</span>
+</div>
+<sc-if value="{{ rDone }}"><span style="height:46px;display:grid;place-items:center;border-radius:99px;background:#F1F7DC;color:#4E6B00;font:700 13.5px 'Plus Jakarta Sans',sans-serif">✓ Refund sent · {{ rLine }}</span></sc-if>
+<sc-if value="{{ rCash }}"><span style="font:500 13px/1.5 'Plus Jakarta Sans',sans-serif;color:#5D6156">Cash on delivery: nothing was charged online, so there’s nothing to refund here.</span></sc-if>
+<sc-if value="{{ rLocked }}"><span style="font:500 13px/1.5 'Plus Jakarta Sans',sans-serif;color:#5D6156">Refunds need a super admin. Ask one to send it.</span></sc-if>
+<sc-if value="{{ rCan }}">
+<textarea value="{{ rNote }}" onChange="{{ onRNote }}" rows="2" placeholder="Note for the audit log (optional)" style="resize:vertical;padding:10px 12px;border-radius:12px;border:1px solid #DADBD5;font:400 13px/1.45 'Plus Jakarta Sans',sans-serif;color:#0E0F0D"></textarea>
+<sc-if value="{{ rAskIdle }}"><button onClick="{{ rAsk }}" style="height:46px;border-radius:99px;border:1px solid #F0C9C3;background:#fff;color:#C23A2B;font:700 13.5px 'Plus Jakarta Sans',sans-serif">Refund {{ ro.total }}</button></sc-if>
+<sc-if value="{{ rAsking }}"><div data-anim="drop" style="padding:12px 14px;border-radius:14px;background:#FFF1EF;display:flex;flex-direction:column;gap:10px"><span style="font:400 13px/1.5 'Plus Jakarta Sans',sans-serif;color:#3A3D36">{{ rLine }}. This can’t be undone.</span><div style="display:flex;gap:8px"><button onClick="{{ rSend }}" style="flex:1;height:44px;border-radius:99px;border:0;background:#C23A2B;color:#fff;font:700 13px 'Plus Jakarta Sans',sans-serif">Confirm refund</button><button onClick="{{ rBack }}" style="flex:1;height:44px;border-radius:99px;border:1px solid #DADBD5;background:#fff;color:#0E0F0D;font:600 13px 'Plus Jakarta Sans',sans-serif">Back</button></div></div></sc-if>
+</sc-if>
+</sc-if>
+</section>
+
+<section style="border-radius:15px;background:var(--card);padding:20px 22px;display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap">
+<div style="min-width:0;flex:1"><h2 style="margin:0;font:600 15px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">Clean up push tokens</h2><p style="margin:5px 0 0;font:300 12.5px/1.5 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">{{ sweepLine }}</p></div>
+<button onClick="{{ sweep }}" style="height:40px;padding:0 18px;border-radius:99px;border:1px solid rgba(var(--fg),.18);background:none;color:var(--ink);font:600 13px 'Plus Jakarta Sans',sans-serif;white-space:nowrap">Run now</button>
+</section>
+</div>
+</div>
+</sc-if>
+
+</main>
+</div>
+</sc-if>
+
+<sc-if value="{{ isPhone }}" hint-placeholder-val="{{ false }}">
+<div style="min-height:100vh;display:grid;place-items:center;padding:32px 16px;background:#DEDEDE">
+<div style="width:390px;height:844px;border-radius:52px;padding:11px;background:#000;box-shadow:0 40px 80px -30px rgba(0,0,0,.6)">
+<div style="position:relative;width:100%;height:100%;border-radius:42px;overflow:hidden;background:var(--bg);display:flex;flex-direction:column;font-variant-numeric:tabular-nums">
+<div style="flex:none;height:50px;display:flex;align-items:center;justify-content:space-between;padding:0 30px 0 34px;font:600 14px 'Plus Jakarta Sans',sans-serif;color:var(--ink)"><span>14:32</span><span style="width:110px;height:30px;border-radius:99px;background:#000;position:absolute;left:50%;top:10px;transform:translateX(-50%)"></span><span style="font-size:12px">5G ▮▮▮</span></div>
+
+<div style="flex:1;min-height:0;overflow-y:auto;padding:6px 18px 24px">
+
+<sc-if value="{{ isOverview }}" hint-placeholder-val="{{ true }}">
+<div style="display:flex;align-items:center;justify-content:space-between;margin:6px 0 16px">
+<span style="display:flex;align-items:center;gap:9px"><svg width="28" height="28" viewBox="0 0 56 56"><rect width="56" height="56" rx="16" fill="#C6F432"></rect><path d="M15 22h26l-2.6 20.5a2.5 2.5 0 0 1-2.5 2.2H20.1a2.5 2.5 0 0 1-2.5-2.2Z" fill="#0E0F0D"></path><path d="M22 24v-4a6 6 0 0 1 12 0v4" stroke="#0E0F0D" stroke-width="4" fill="none" stroke-linecap="round"></path></svg><span style="font:700 22px 'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em;color:var(--ink)">Overview</span></span>
+<span style="display:inline-flex;align-items:center;gap:6px;height:30px;padding:0 12px;border-radius:99px;background:rgba(95,212,164,.14);color:var(--go);font:600 12px 'Plus Jakarta Sans',sans-serif"><span style="width:7px;height:7px;border-radius:50%;background:#5FD4A4"></span>Live</span>
+</div>
+<sc-if value="{{ loading }}" hint-placeholder-val="{{ false }}">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px"><sc-for list="{{ six }}" as="s" hint-placeholder-count="6"><div style="height:92px;border-radius:15px;background:var(--card)"></div></sc-for></div>
+<div style="height:220px;margin-top:12px;border-radius:15px;background:var(--card)"></div>
+</sc-if>
+<sc-if value="{{ ready }}" hint-placeholder-val="{{ true }}">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+<sc-for list="{{ kpis }}" as="k" hint-placeholder-count="6">
+<div style="min-width:0;padding:13px 14px;border-radius:15px;background:var(--card);display:flex;flex-direction:column;gap:7px">
+<span style="font:500 12px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">{{ k.label }}</span>
+<span style="font:700 20px/1 'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em;color:var(--ink);white-space:nowrap">{{ k.val }}</span>
+<span style="align-self:flex-start;padding:2px 8px;border-radius:99px;background:{{ k.bg }};color:{{ k.c }};font:700 11px 'Plus Jakarta Sans',sans-serif">{{ k.delta }}</span>
+</div>
+</sc-for>
+</div>
+
+<h2 style="margin:22px 0 8px;font:600 15px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">Needs attention</h2>
+<sc-if value="{{ attnEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:26px 16px;border-radius:15px;background:var(--card);text-align:center;font:300 13px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)"><strong style="display:block;margin-bottom:4px;font-weight:600;color:var(--ink)">Nothing needs you right now</strong>New problems show up here the moment they happen.</div></sc-if>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ attn }}" as="a" hint-placeholder-count="5">
+<div style="display:grid;grid-template-columns:4px minmax(0,1fr);gap:12px;padding:12px 14px 12px 0;border-radius:15px;background:var(--card);overflow:hidden;opacity:{{ a.op }}">
+<span style="background:{{ a.c }}"></span>
+<div style="min-width:0;display:flex;flex-direction:column;gap:8px">
+<span style="font:600 13.5px/1.35 'Plus Jakarta Sans',sans-serif;color:var(--ink)">{{ a.title }}</span>
+<span style="font:300 12px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">{{ a.meta }}</span>
+<sc-if value="{{ a.open }}"><button onClick="{{ a.act }}" style="align-self:flex-start;height:44px;padding:0 18px;border-radius:99px;border:0;background:#C6F432;color:#0E0F0D;font:700 13px 'Plus Jakarta Sans',sans-serif">{{ a.action }}</button></sc-if>
+<sc-if value="{{ a.done }}"><span style="font:500 12px 'Plus Jakarta Sans',sans-serif;color:var(--go)">✓ {{ a.doneLabel }}</span></sc-if>
+</div>
+</div>
+</sc-for>
+</div>
+
+<h2 style="margin:22px 0 8px;font:600 15px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">Order pipeline</h2>
+<div style="border-radius:15px;background:var(--card);overflow:hidden">
+<sc-for list="{{ stages }}" as="s" hint-placeholder-count="5">
+<div style="display:grid;grid-template-columns:3px minmax(0,1fr) auto;gap:12px;align-items:center;padding:12px 14px 12px 0;border-bottom:1px solid rgba(var(--fg),.06)">
+<span style="align-self:stretch;background:{{ s.c }}"></span>
+<span style="display:flex;flex-direction:column;gap:3px"><span style="font:500 13px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">{{ s.label }}</span><span style="font:300 12px 'Plus Jakarta Sans',sans-serif;color:{{ s.tc }}">{{ s.avg }} avg · target {{ s.target }}</span></span>
+<span style="font:700 20px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">{{ s.count }}</span>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</sc-if>
+
+<sc-if value="{{ isOrders }}" hint-placeholder-val="{{ false }}">
+<div style="margin:6px 0 12px;font:700 22px 'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em;color:var(--ink)">Live orders</div>
+<label style="display:flex;align-items:center;gap:10px;height:44px;padding:0 14px;border-radius:15px;background:var(--card);border:1px solid rgba(var(--fg),.1)">
+<span style="width:13px;height:13px;border:1.8px solid rgba(var(--fg),.55);border-radius:50%;flex:none"></span>
+<input value="{{ q }}" onChange="{{ onQ }}" placeholder="Order, customer, kitchen" style="flex:1;min-width:0;border:0;outline:0;background:transparent;color:var(--ink);font:400 14px 'Plus Jakarta Sans',sans-serif">
+</label>
+<div style="display:flex;gap:7px;overflow-x:auto;margin:12px -18px 12px;padding:0 18px">
+<sc-for list="{{ filters }}" as="f" hint-placeholder-count="5"><button onClick="{{ f.on }}" style="flex:none;display:inline-flex;align-items:center;gap:7px;height:44px;padding:0 16px;border:0;border-radius:99px;background:{{ f.bg }};color:{{ f.color }};font:600 13px 'Plus Jakarta Sans',sans-serif">{{ f.label }}<span style="color:{{ f.cc }}">{{ f.count }}</span></button></sc-for>
+</div>
+<sc-if value="{{ ordersLoading }}" hint-placeholder-val="{{ false }}"><div style="display:flex;flex-direction:column;gap:8px"><sc-for list="{{ six }}" as="s" hint-placeholder-count="6"><div style="height:86px;border-radius:15px;background:var(--card)"></div></sc-for></div></sc-if>
+<sc-if value="{{ rowsEmpty }}" hint-placeholder-val="{{ false }}"><div style="padding:40px 16px;text-align:center;display:flex;flex-direction:column;gap:6px;align-items:center"><span style="font:600 14px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">{{ emptyTitle }}</span><span style="font:300 13px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.62)">{{ emptyText }}</span></div></sc-if>
+<div style="display:flex;flex-direction:column;gap:8px">
+<sc-for list="{{ rows }}" as="r" hint-placeholder-count="6">
+<div onClick="{{ r.pick }}" style="display:grid;grid-template-columns:4px minmax(0,1fr);gap:12px;padding:12px 14px 12px 0;border-radius:15px;background:var(--card);overflow:hidden;cursor:pointer">
+<span style="background:{{ r.stripe }}"></span>
+<div style="min-width:0;display:flex;flex-direction:column;gap:7px">
+<div style="display:flex;justify-content:space-between;gap:10px"><span style="font:700 14px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">{{ r.id }} <span style="font-weight:300;color:rgba(var(--fg),.62)">· {{ r.area }}</span></span><span style="font:700 14px 'Plus Jakarta Sans',sans-serif;color:var(--ink)">{{ r.total }}</span></div>
+<span style="font:300 12.5px 'Plus Jakarta Sans',sans-serif;color:rgba(var(--fg),.72);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ r.kitchen }} → {{ r.cust }}</span>
+<div style="display:flex;align-items:center;gap:6px;flex-wrap:wrap">
+<span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;border-radius:99px;background:{{ r.stageChip.bg }};color:{{ r.stageChip.c }};font:600 11.5px/1 'Plus Jakarta Sans',sans-serif">
+<sc-if value="{{ r.stageChip.dot }}"><span style="width:7px;height:7px;border-radius:50%;background:{{ r.stageChip.c }}"></span></sc-if>
+<sc-if value="{{ r.stageChip.tri }}"><span style="width:0;height:0;border-left:4px solid transparent;border-right:4px solid transparent;border-bottom:7px solid {{ r.stageChip.c }}"></span></sc-if>
+<sc-if value="{{ r.stageChip.ring }}"><span style="width:8px;height:8px;border-radius:50%;border:1.5px solid {{ r.stageChip.c }}"></span></sc-if>
+{{ r.stageChip.label }}</span>
+<sc-if value="{{ r.late }}"><span style="display:inline-flex;align-items:center;gap:6px;padding:4px 10px 4px 8px;border-radius:99px;background:rgba(255,107,91,.15);color:var(--cr);font:700 11.5px/1 'Plus Jakarta Sans',sans-serif"><span style="width:7px;height:7px;border-radius:1.5px;background:#FF6B5B;transform:rotate(45deg)"></span>Late</span></sc-if>
+<span style="margin-left:auto;font:600 12px 'Plus Jakarta Sans',sans-serif;color:{{ r.elapsedColor }}">{{ r.e }} min</span>
+</div>
+</div>
+</div>
+</sc-for>
+</div>
+</sc-if>
+</div>
+
+<nav style="flex:none;display:grid;grid-template-columns:repeat(4,1fr);padding:8px 10px 26px;border-top:1px solid rgba(var(--fg),.08);background:var(--bg)">
+<button onClick="{{ goOverview }}" style="height:48px;border:0;background:none;color:{{ tabO }};font:600 12px 'Plus Jakarta Sans',sans-serif">Overview</button>
+<button onClick="{{ goOrders }}" style="height:48px;border:0;background:none;color:{{ tabL }};font:600 12px 'Plus Jakarta Sans',sans-serif">Orders</button>
+<button onClick="{{ goIssues }}" style="height:48px;border:0;background:none;color:rgba(var(--fg),.55);font:600 12px 'Plus Jakarta Sans',sans-serif">Issues <span style="color:var(--cr)">{{ attnCount }}</span></button>
+<button onClick="{{ goIssues }}" style="height:48px;border:0;background:none;color:rgba(var(--fg),.55);font:600 12px 'Plus Jakarta Sans',sans-serif">More</button>
+</nav>
+
+<sc-if value="{{ sheet }}" hint-placeholder-val="{{ false }}">
+<div onClick="{{ closeSheet }}" style="position:absolute;inset:0;background:rgba(0,0,0,.55);z-index:5"></div>
+<div style="position:absolute;left:0;right:0;bottom:0;max-height:86%;overflow-y:auto;border-radius:28px 28px 0 0;background:#fff;color:#0E0F0D;z-index:6;padding:10px 20px 30px">
+<div style="width:40px;height:5px;border-radius:99px;background:#DADBD5;margin:0 auto 14px"></div>
+<div style="display:flex;justify-content:space-between;align-items:center"><span style="font:800 21px 'Plus Jakarta Sans',sans-serif;letter-spacing:-.03em">{{ o.id }}</span><button onClick="{{ closeSheet }}" style="width:44px;height:44px;border-radius:99px;border:0;background:#F1F2EE;font:600 16px 'Plus Jakarta Sans',sans-serif;color:#0E0F0D">×</button></div>
+<p style="margin:6px 0 12px;font:400 13.5px/1.5 'Plus Jakarta Sans',sans-serif;color:#3A3D36">{{ o.landmark }}, <strong style="font-weight:600;color:#0E0F0D">{{ o.area }}</strong></p>
+<div style="display:flex;flex-direction:column;gap:6px;padding:12px 14px;border-radius:15px;background:#F4F5F1;font:400 13px 'Plus Jakarta Sans',sans-serif">
+<div style="display:flex;justify-content:space-between"><span style="color:#5D6156">Customer</span><span style="font-weight:600">{{ o.cust }} · {{ o.phone }}</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#5D6156">Kitchen</span><span style="font-weight:600">{{ o.kitchen }}</span></div>
+<div style="display:flex;justify-content:space-between"><span style="color:#5D6156">Rider</span><span style="font-weight:600">{{ o.rider }}</span></div>
+</div>
+<div style="padding:12px 2px">
+<sc-for list="{{ o.timeline }}" as="t" hint-placeholder-count="6"><div style="display:grid;grid-template-columns:14px minmax(0,1fr) auto;gap:12px;align-items:center;height:28px"><span style="width:12px;height:12px;border-radius:50%;background:{{ t.dot }};border:2px solid #0E0F0D;opacity:{{ t.op }}"></span><span style="font:{{ t.font }};color:{{ t.color }}">{{ t.label }}</span><span style="font:600 12.5px 'Plus Jakarta Sans',sans-serif;color:{{ t.color }}">{{ t.time }}</span></div></sc-for>
+</div>
+<div style="display:flex;flex-direction:column;gap:6px;padding:12px 0;border-top:1px solid #ECEDE8;font:400 13px 'Plus Jakarta Sans',sans-serif">
+<sc-for list="{{ o.items }}" as="i" hint-placeholder-count="2"><div style="display:flex;justify-content:space-between"><span><span style="color:#6B6F64">{{ i.qty }}</span> {{ i.name }}</span><span>{{ i.price }}</span></div></sc-for>
+<div style="display:flex;justify-content:space-between;color:#5D6156"><span>Delivery</span><span>{{ o.fee }}</span></div>
+<sc-if value="{{ o.credit }}"><div style="display:flex;justify-content:space-between;color:#4E6B00;font-weight:600"><span>Late-order credit</span><span>{{ o.credit }}</span></div></sc-if>
+<div style="display:flex;justify-content:space-between;align-items:baseline;padding-top:8px;border-top:1px dashed #DADBD5"><span style="font-weight:600">{{ o.payLabel }}</span><span style="font:800 18px 'Plus Jakarta Sans',sans-serif">{{ o.total }}</span></div>
+</div>
+<sc-if value="{{ canAct }}">
+<div style="display:flex;flex-direction:column;gap:8px">
+<button onClick="{{ togglePicker }}" style="height:48px;border-radius:99px;border:0;background:#0E0F0D;color:#fff;font:700 14px 'Plus Jakarta Sans',sans-serif">Reassign rider</button>
+<sc-if value="{{ picker }}"><div style="border-radius:15px;border:1px solid #E4E5DF;overflow:hidden"><sc-for list="{{ near }}" as="n" hint-placeholder-count="3"><button onClick="{{ n.pick }}" style="width:100%;min-height:52px;display:flex;justify-content:space-between;align-items:center;padding:0 14px;border:0;border-bottom:1px solid #EEEFEA;background:#fff;font:600 13px 'Plus Jakarta Sans',sans-serif;color:#0E0F0D">{{ n.name }} · {{ n.area }}<span style="color:#4E6B00">{{ n.dist }}</span></button></sc-for></div></sc-if>
+<sc-if value="{{ notCredited }}"><button onClick="{{ giveCredit }}" style="height:48px;border-radius:99px;border:0;background:#C6F432;color:#0E0F0D;font:700 14px 'Plus Jakarta Sans',sans-serif">Give ₦500 credit</button></sc-if>
+<sc-if value="{{ credited }}"><span style="height:48px;display:grid;place-items:center;border-radius:99px;background:#F1F7DC;color:#4E6B00;font:700 14px 'Plus Jakarta Sans',sans-serif">✓ ₦500 credit sent</span></sc-if>
+<sc-if value="{{ notConfirm }}"><button onClick="{{ askCancel }}" style="height:48px;border-radius:99px;border:1px solid #F0C9C3;background:#fff;color:#C23A2B;font:700 14px 'Plus Jakarta Sans',sans-serif">Cancel and refund</button></sc-if>
+<sc-if value="{{ confirm }}"><div style="padding:14px;border-radius:15px;background:#FFF1EF;display:flex;flex-direction:column;gap:10px"><span style="font:400 13px/1.5 'Plus Jakarta Sans',sans-serif;color:#3A3D36">{{ refundLine }}</span><div style="display:flex;gap:8px"><button onClick="{{ doCancel }}" style="flex:1;height:44px;border-radius:99px;border:0;background:#C23A2B;color:#fff;font:700 13px 'Plus Jakarta Sans',sans-serif">Confirm cancel</button><button onClick="{{ keep }}" style="flex:1;height:44px;border-radius:99px;border:1px solid #DADBD5;background:#fff;color:#0E0F0D;font:600 13px 'Plus Jakarta Sans',sans-serif">Keep order</button></div></div></sc-if>
+</div>
+</sc-if>
+</div>
+</sc-if>
+
+</div>
+</div>
+</div>
+</sc-if>
+
+<sc-if value="{{ toast }}" hint-placeholder-val="{{ false }}">
+<div data-anim="toast" style="position:fixed;left:50%;bottom:28px;transform:translateX(-50%);padding:13px 20px;border-radius:99px;background:#fff;color:#0E0F0D;font:600 13.5px 'Plus Jakarta Sans',sans-serif;box-shadow:0 18px 40px -12px rgba(0,0,0,.6);z-index:50">{{ toast }}</div>
+</sc-if>
+
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;device&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;desktop&quot;,&quot;phone&quot;],&quot;default&quot;:&quot;desktop&quot;,&quot;tsType&quot;:&quot;'desktop'|'phone'&quot;},&quot;dataState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;live&quot;,&quot;loading&quot;,&quot;empty&quot;],&quot;default&quot;:&quot;live&quot;,&quot;tsType&quot;:&quot;'live'|'loading'|'empty'&quot;},&quot;start&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;app&quot;,&quot;login&quot;],&quot;default&quot;:&quot;app&quot;,&quot;tsType&quot;:&quot;'app'|'login'&quot;},&quot;theme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;'dark'|'light'&quot;},&quot;role&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;SUPER_ADMIN&quot;,&quot;MODERATOR&quot;],&quot;default&quot;:&quot;SUPER_ADMIN&quot;,&quot;tsType&quot;:&quot;'SUPER_ADMIN'|'MODERATOR'&quot;}}">
+const NOW=14*60+32, OFF=[0,2,3,24,28,43];
+const hm=m=>String(Math.floor(m/60)).padStart(2,'0')+':'+String(m%60).padStart(2,'0');
+const N=k=>'₦'+Math.round(k/100).toLocaleString('en-NG');
+const CR='var(--cr)',WA='var(--wa)',GO='var(--go)',IN='var(--in)',MU='rgba(var(--fg),.72)';
+const TINT={[CR]:'rgba(255,107,91,.15)',[WA]:'rgba(255,181,71,.15)',[GO]:'rgba(95,212,164,.15)',[IN]:'rgba(122,184,255,.15)'};
+const chip=(c,label)=>({c,bg:TINT[c]||'rgba(var(--fg),.08)',label,sq:c===CR,tri:c===WA,dot:c===GO||c===IN,ring:c===MU});
+const STG=['Waiting for kitchen','Accepted','Cooking','Ready','On the way','Delivered'];
+const RAW=[
+['KG-2217','Aondona Iyorkyaa','0803 412 7765','Wadata Swallow House',null,'Wadata','Behind St. Theresa’s Church, blue gate',0,3,0,'card',[['Pounded yam & egusi',1,330000],['Chilled zobo',2,40000]]],
+['KG-2216','Mfon Udo','0909 004 3312','Benue Pot',null,'High Level','Federal Housing, block C',1,5,0,'card',[['Catfish pepper soup',1,350000]]],
+['KG-2214','Ngozi Eze','0905 330 1182','Terkimbi’s Kitchen',null,'High Level','Beside First Bank',2,9,0,'card',[['Pounded yam & ogbono',1,300000],['Goat meat',2,80000]]],
+['KG-2211','Iveren Gbaden','0703 221 6650','Iorja Grills & Rice',null,'Wurukum','Opposite Wurukum roundabout, yellow storey building',2,17,0,'transfer',[['Chicken & chips',1,420000]]],
+['KG-2213','Doowuese Ikyaa','0810 552 9981','Modern Market Suya',null,'Modern Market','Gate 2, by the POS stand',3,25,0,'card',[['Suya (large)',2,250000]]],
+['KG-2209','Blessing Ochoche','0706 118 2290','Mama Nkechi’s Kitchen',null,'North Bank','Opposite NASME filling station',3,26,0,'transfer',[['Jollof rice & turkey',2,380000]]],
+['KG-2205','Sesugh Tyav','0816 774 0023','Sewuese Rice Spot','Tersoo Agba','Kanshio','Kanshio market, behind the tyre shop',4,31,0,'cash',[['Ofada rice & ayamase',1,350000],['Fried plantain',1,60000]]],
+['KG-2199','Chinedu Okafor','0802 667 1440','Mama Nkechi’s Kitchen','Aondoakaa Uke','Judges Quarters','House after the mosque, brown gate',4,38,1,'transfer',[['Nkwobi',1,450000],['Fried yam',1,200000]]],
+['KG-2196','Terhemba Akaa','0812 990 4471','Iorja Grills & Rice','Emmanuel Ochaje','Old GRA','Second gate after Old GRA police post',4,52,1,'cash',[['Grilled croaker',1,650000],['Fried rice',1,250000]]],
+['KG-2190','Samuel Adah','0806 192 3345','Benue Pot',null,'Kanshio','Behind Living Faith church','x',40,0,'transfer',[['Egusi & semo',1,280000]]],
+['KG-2188','Joy Agbo','0705 881 2206','Terkimbi’s Kitchen','Msughter Iorkaa','Wadata','Wadata market road, green kiosk',5,64,0,'cash',[['Pounded yam & egusi',2,330000]]],
+['KG-2184','Aver Ityav','0813 440 7721','Iorja Grills & Rice','Emmanuel Ochaje','North Bank','Opposite Uni Agric north gate',5,71,0,'card',[['Grilled chicken (half)',1,550000]]]
+];
+const FEE={'Wadata':80000,'High Level':70000,'Wurukum':60000,'Modern Market':60000,'North Bank':100000,'Kanshio':90000,'Judges Quarters':80000,'Old GRA':80000};
+const PAY={card:'Card',transfer:'Bank transfer',cash:'Cash on delivery'};
+const NEAR=[['Fater Ioryue','Wurukum','1.2 km away'],['Msughter Iorkaa','Wadata','2.0 km away'],['Nguveren Asema','High Level','2.6 km away']];
+
+// id,name,owner,email,phone,area,cuisine,status,submitted,menuItems,located,bank,unpaidKobo,note
+const KQ=[
+['k9','Ochanya’s Pepper Soup','Ochanya Ode','ochanya.ode@gmail.com','0806 551 2231','North Bank','Pepper soup, swallow','PENDING','Today 11:05',9,1,1,0,null],
+['k10','Mama Dooshima Grills','Dooshima Tor','dooshima.grills@gmail.com','0703 998 1204','Wurukum','Grills, rice','PENDING','Yesterday 18:40',14,1,0,0,null],
+['k11','Apir Bukka','Terna Apir','apirbukka@yahoo.com','0815 220 7736','Apir','Swallow, soups','PENDING','Sat 26 Sep',0,0,0,0,null],
+['k1','Mama Nkechi’s Kitchen','Nkechi Obi','nkechi@karrigo.app','0802 114 5520','North Bank','Nigerian classics','ACTIVE','Mar 2026',32,1,1,15657000,null],
+['k2','Iorja Grills & Rice','Iorja Tyokase','iorja@karrigo.app','0813 776 1100','Wurukum','Grills, rice','ACTIVE','Feb 2026',27,1,1,19677500,null],
+['k3','Terkimbi’s Kitchen','Terkimbi Ahule','terkimbi@karrigo.app','0706 331 9087','High Level','Swallow, soups','ACTIVE','Jan 2026',21,1,1,12138000,null],
+['k4','Benue Pot','Mnena Ikyo','benuepot@gmail.com','0909 442 6671','Kanshio','Soups, fish','ACTIVE','Apr 2026',18,1,1,8194000,null],
+['k12','Quick Chops Wadata','Adah Emmanuel','quickchops@gmail.com','0805 110 3349','Wadata','Snacks','SUSPENDED','May 2026',11,1,1,0,'Repeated hygiene complaints from customers, 3 in one week.']
+];
+// id,name,phone,vehicle,plate,area,status,submitted,license,id,reg,guarantor,bank,unpaidKobo,cashKobo,note
+const RQ=[
+['r21','Ushahemba Kwaghga','0810 334 2290','Motorbike','MKD 412 QA','Wurukum','PENDING','Today 09:12',1,1,1,1,1,0,0,null],
+['r22','Blessing Adoga','0703 118 4462','Motorbike','BNU 881 KT','High Level','PENDING','Today 07:48',1,1,0,1,1,0,0,null],
+['r23','Tavershima Iorwuese','0906 772 1030','Bicycle','—','Old GRA','PENDING','Yesterday 16:20',1,1,1,0,0,0,0,null],
+['r1','Emmanuel Ochaje','0812 440 9981','Motorbike','MKD 207 AB','Old GRA','APPROVED','Jan 2026',1,1,1,1,1,4860000,1240000,null],
+['r2','Tersoo Agba','0706 221 7754','Motorbike','BNU 334 GH','Kanshio','APPROVED','Feb 2026',1,1,1,1,1,3915000,4350000,null],
+['r3','Msughter Iorkaa','0815 667 2201','Motorbike','MKD 990 LA','Wadata','APPROVED','Mar 2026',1,1,1,1,1,2780000,0,null],
+['r24','Ikenna Ude','0807 551 8830','Motorbike','ENU 102 XZ','North Bank','REJECTED','Thu 24 Sep',1,1,1,1,1,0,0,'Licence photo is blurry and the plate number doesn’t match the vehicle papers. Please re-upload both.']
+];
+
+// id,subject,body,fromType,fromName,channel,order,status,age,phone
+const TK=[
+['t1','Food arrived cold','The pepper soup was cold when it got here and the rider took almost an hour. I paid ₦9,800 for this.','Customer','Terhemba Akaa','IN_APP','KG-2196','OPEN','8 min ago','2348129904471'],
+['t2','Rider asked for extra money','The rider said I should add ₦300 for fuel before he hands over the food. Is this allowed?','Customer','Joy Agbo','WHATSAPP','KG-2188','OPEN','21 min ago','2347058812206'],
+['t3','Customer not at landmark','I have waited 12 minutes at St Theresa’s Church. The customer is not picking my calls.','Rider','Tersoo Agba','IN_APP','KG-2205','OPEN','34 min ago','2347062217754'],
+['t4','Payout not received','My last payout says sent on Friday but nothing has entered my GTBank account.','Kitchen','Benue Pot','IN_APP',null,'IN_PROGRESS','2 h ago','2349094426671'],
+['t5','Wrong item in my order','I ordered ofada rice and ayamase. I got white rice and stew.','Customer','Sesugh Tyav','WHATSAPP','KG-2205','IN_PROGRESS','3 h ago','2348167740023'],
+['t6','App keeps logging me out','Every time I switch to rider mode it asks me to log in again.','Rider','Msughter Iorkaa','IN_APP',null,'RESOLVED','Yesterday','2348156672201'],
+['t7','Menu photo upload fails','The photo for my egusi keeps failing to upload. It is a normal phone picture.','Kitchen','Terkimbi’s Kitchen','IN_APP',null,'CLOSED','Fri 25 Sep','2347063319087']
+];
+
+class Component extends DCLogic {
+  state={authed:(this.props.start??'app')!=='login',lEmail:'ada@karrigo.app',lPass:'',tTab:'OPEN',view:'overview',sel:'KG-2196',filter:'active',q:'',riderOv:{},credited:{},cancelled:{},confirm:false,picker:false,resolved:{},toast:null,sheet:false};
+  flash(t){this.setState({toast:t});clearTimeout(this._t);this._t=setTimeout(()=>this.setState({toast:null}),2600);}
+  orders(){
+    const s=this.state;
+    return RAW.map(r=>{
+      const [id,cust,phone,kitchen,rider0,area,landmark,st0,e,late,pay,items]=r;
+      const cancelled=st0==='x'||!!s.cancelled[id];
+      const st=st0==='x'?2:st0;
+      const rider=s.riderOv[id]||rider0;
+      const sub=items.reduce((a,i)=>a+i[1]*i[2],0), fee=FEE[area]||80000, credit=s.credited[id]?50000:0;
+      const stageChip=cancelled?chip(MU,'Cancelled'):st===5?chip(GO,'Delivered'):st===4?chip(IN,'On the way'):st===0?chip(WA,'Waiting for kitchen'):chip(MU,STG[st]);
+      return {id,cust,phone,kitchen,area,landmark,st,e,late:!!late&&!cancelled,pay,cancelled,
+        rider:rider||'Unassigned',noRider:!rider&&!cancelled&&st<5,
+        riderColor:!rider&&!cancelled&&st<5?WA:'var(--ink)',
+        elapsed:st===5?(OFF[5]-OFF[0]+'–'+e+' min'):e+' min',
+        elapsedColor:late&&!cancelled?CR:'var(--ink)',
+        stageChip,lateChip:chip(CR,'Late'),
+        total:N(sub+fee-credit),totalK:sub+fee-credit,payLabel:PAY[pay],
+        items:items.map(i=>({name:i[0],qty:i[1]+'×',price:N(i[1]*i[2])})),
+        sub:N(sub),fee:N(fee),credit:credit?'−'+N(credit):null,
+        timeline:STG.map((l,i)=>{const on=!cancelled&&i<=st;return {label:l,time:on?hm(NOW-e+OFF[i]):(cancelled&&i===0?hm(NOW-e):'—'),dot:on?(i===st&&st<5?'#C6F432':'#0E0F0D'):'#fff',op:on?1:.3,font:(on&&i===st&&st<5?'700':'500')+" 13px 'Plus Jakarta Sans',sans-serif",color:on?'#0E0F0D':'#8A8D84'};}),
+        placed:hm(NOW-e)};
+    });
+  }
+  ticketVals(){
+    const s=this.state, ov=s.tStatus||{};
+    const LAB={OPEN:'Open',IN_PROGRESS:'In progress',RESOLVED:'Resolved',CLOSED:'Closed'};
+    const SC={OPEN:['#8A5A00','#FFF3DE'],IN_PROGRESS:['#2A5FA0','#E6F0FC'],RESOLVED:['#1F7A55','#E3F7EE'],CLOSED:['#5D6156','#EEEFEA']};
+    const all=TK.map(([id,subject,body,ft,fn,ch,order,st0,age,ph])=>({id,subject,body,from:fn+' · '+ft.toLowerCase(),ch,order,st:ov[id]||st0,age,ph}));
+    const tab=s.tTab||'OPEN';
+    const tTabs=Object.keys(LAB).map(k=>{const on=tab===k;return {label:LAB[k],count:String(all.filter(t=>t.st===k).length),on:()=>this.setState({tTab:k,tSel:null}),bg:on?'#C6F432':'rgba(var(--fg),.07)',color:on?'#0E0F0D':'var(--ink)',cc:on?'rgba(14,15,13,.6)':'rgba(var(--fg),.55)'};});
+    const list=all.filter(t=>t.st===tab), sel=list.find(t=>t.id===s.tSel)||list[0]||null;
+    const tRows=list.map(t=>({subject:t.subject,from:t.from+(t.order?' · '+t.order:''),age:t.age,channel:t.ch==='WHATSAPP'?'WhatsApp':'In app',chC:t.ch==='WHATSAPP'?GO:'rgba(var(--fg),.72)',chBg:t.ch==='WHATSAPP'?TINT[GO]:'rgba(var(--fg),.08)',
+      bg:sel&&t.id===sel.id?'rgba(198,244,50,.08)':'transparent',pick:()=>this.setState({tSel:t.id})}));
+    let tk=null;
+    if(sel){
+      const mv=(st,msg)=>()=>{this.setState(x=>({tStatus:{...x.tStatus,[sel.id]:st},tSel:null}));this.flash(msg);};
+      const A=(label,go,kind)=>({label,go,bg:kind==='go'?'#C6F432':kind==='dark'?'#0E0F0D':'var(--ink)',color:kind==='go'?'#0E0F0D':kind==='dark'?'#fff':'#0E0F0D',border:kind==='line'?'1px solid #DADBD5':'0'});
+      const acts={OPEN:[A('Start working on it',mv('IN_PROGRESS','Moved to in progress'),'dark'),A('Mark resolved',mv('RESOLVED','Marked resolved'),'go')],
+        IN_PROGRESS:[A('Mark resolved',mv('RESOLVED','Marked resolved'),'go'),A('Back to open',mv('OPEN','Moved back to open'),'line')],
+        RESOLVED:[A('Close ticket',mv('CLOSED','Ticket closed'),'dark'),A('Reopen',mv('OPEN','Ticket reopened'),'line')],
+        CLOSED:[A('Reopen',mv('OPEN','Ticket reopened'),'line')]}[sel.st];
+      tk={...sel,status:LAB[sel.st],stC:SC[sel.st][0],stBg:SC[sel.st][1],channelLong:sel.ch==='WHATSAPP'?'WhatsApp':'In the app',
+        noOrder:!sel.order,openOrder:sel.order?()=>this.setState({view:'orders',sel:sel.order,filter:'all',q:''}):null,
+        wa:sel.ch==='WHATSAPP',waHref:'https://wa.me/'+sel.ph,actions:acts};
+    }
+    const open=all.filter(t=>t.st==='OPEN').length, ip=all.filter(t=>t.st==='IN_PROGRESS').length;
+    return {isIssues:s.view==='issues',tTabs,tRows,tEmpty:tRows.length===0,tHas:!!tk,tk:tk||{},tSub:open+' open · '+ip+' in progress · newest first',openTickets:open};
+  }
+  qVals(){
+    const s=this.state, isK=s.view==='kitchens';
+    const base=isK?KQ:RQ, stOv=s.qStatus||{}, notes=s.qNotes||{}, paid=s.qPaid||{};
+    const items=base.map(r=>{
+      if(isK){const [id,name,owner,email,phone,area,cuisine,st0,sub,menu,loc,bank,unpaid,note]=r;
+        return {id,title:name,status:stOv[id]||st0,sub:owner+' · '+area+' · '+cuisine,when:sub,note:notes[id]??note,unpaid:paid[id]?0:unpaid,
+          fields:[['Owner',owner],['Email',email],['Phone',phone],['Area',area],['Cuisine',cuisine],['Signed up',sub]],
+          checks:[['Location pinned on the map',loc],['Payout bank account confirmed',bank],[menu?menu+' dishes on the menu':'No dishes yet',menu>0]]};}
+      const [id,name,phone,veh,plate,area,st0,sub,lic,idd,reg,guar,bank,unpaid,cash,note]=r;
+      return {id,title:name,status:stOv[id]||st0,sub:veh+' · '+plate+' · '+area,when:sub,note:notes[id]??note,unpaid:paid[id]?0:unpaid,cash:paid[id]?0:cash,
+        fields:[['Phone',phone],['Vehicle',veh],['Plate',plate],['Area',area],['Applied',sub]],
+        checks:[["Driver’s licence",lic,1],['Government ID',idd,1],['Vehicle papers',reg,1],['Guarantor details',guar],['Payout bank account',bank]]};
+    });
+    const TABS=isK?[['PENDING','Waiting for approval'],['ACTIVE','Live'],['SUSPENDED','Suspended']]:[['PENDING','Waiting for review'],['APPROVED','Approved'],['REJECTED','Rejected']];
+    const tab=(isK?s.kTab:s.rTab)||'PENDING';
+    const LAB={PENDING:'Pending',ACTIVE:'Live',SUSPENDED:'Suspended',APPROVED:'Approved',REJECTED:'Rejected'};
+    const CC={PENDING:[WA,TINT[WA],'#8A5A00','#FFF3DE'],ACTIVE:[GO,TINT[GO],'#1F7A55','#E3F7EE'],APPROVED:[GO,TINT[GO],'#1F7A55','#E3F7EE'],SUSPENDED:[CR,TINT[CR],'#C23A2B','#FFF1EF'],REJECTED:[CR,TINT[CR],'#C23A2B','#FFF1EF']};
+    const qTabs=TABS.map(([k,l])=>{const on=tab===k;return {label:l,count:String(items.filter(i=>i.status===k).length),on:()=>this.setState({[isK?'kTab':'rTab']:k,qSel:null,qAct:null,qNote:''}),bg:on?'#C6F432':'rgba(var(--fg),.07)',color:on?'#0E0F0D':'var(--ink)',cc:on?'rgba(14,15,13,.6)':'rgba(var(--fg),.55)'};});
+    const list=items.filter(i=>i.status===tab);
+    const sel=list.find(i=>i.id===s.qSel)||list[0]||null;
+    const qRows=list.map(i=>({title:i.title,sub:i.sub,right:i.status==='PENDING'?i.when:(i.unpaid?N(i.unpaid)+' due':i.when),chip:i.status==='PENDING'?(i.checks.every(c=>c[1])?'Ready to review':i.checks.filter(c=>!c[1]).length+' missing'):LAB[i.status],chipC:CC[i.status][0],chipBg:CC[i.status][1],
+      bg:sel&&i.id===sel.id?'rgba(198,244,50,.08)':'transparent',pick:()=>this.setState({qSel:i.id,qAct:null,qNote:''})}));
+    const set=(id,st,msg)=>{this.setState(x=>({qStatus:{...x.qStatus,[id]:st},qNotes:x.qNote.trim()?{...x.qNotes,[id]:x.qNote.trim()}:x.qNotes,qAct:null,qNote:'',qSel:null}));this.flash(msg);};
+    let d=null,cf=null;
+    if(sel){
+      const p=sel.status, acts=[];
+      const A=(label,act,kind)=>acts.push({label,go:()=>this.setState({qAct:act,qNote:''}),bg:kind==='go'?'#C6F432':kind==='dark'?'#0E0F0D':'var(--ink)',color:kind==='go'?'#0E0F0D':kind==='dark'?'#fff':'#C23A2B',border:kind==='bad'?'1px solid #F0C9C3':'0'});
+      if(p==='PENDING'){A(isK?'Approve and go live':'Approve rider','approve','go');A(isK?'Reject':'Reject with note','reject','bad');}
+      if(p==='ACTIVE'||p==='APPROVED'){if(sel.unpaid&&this.isSuper())A('Pay out '+N(isK?sel.unpaid:Math.max(0,sel.unpaid-sel.cash)),'payout','dark');if(isK)A('Suspend kitchen','suspend','bad');}
+      if(p==='SUSPENDED')A('Reactivate kitchen','approve','go');
+      const f=[...sel.fields];
+      if(sel.unpaid){f.push([isK?'Unpaid sales (after 15%)':'Unpaid trip pay',N(sel.unpaid)]);if(!isK)f.push(['Cash held from COD',N(sel.cash)]);}
+      d={title:sel.title,sub:sel.sub,chip:LAB[p],chipCL:CC[p][2],chipBgL:CC[p][3],note:p==='SUSPENDED'||p==='REJECTED'?sel.note:null,actions:acts,
+        fields:f.map(([k,v])=>({k,v})),
+        checks:sel.checks.map(([label,ok,doc])=>({label,mark:ok?'✓':'!',bg:ok?'#E3F7EE':'#FFF3DE',fg:ok?'#1F7A55':'#8A5A00',view:doc&&ok?()=>this.setState({doc:label+' · '+sel.title}):null}))};
+      const a=s.qAct, nt=(s.qNote||'').trim();
+      if(a){
+        const needs=a==='reject'||a==='suspend', req=needs&&(!isK||a==='suspend');
+        const net=isK?sel.unpaid:Math.max(0,sel.unpaid-sel.cash);
+        const C={
+          approve:[isK?(p==='SUSPENDED'?'Put '+sel.title+' back live?':'Approve '+sel.title+'?'):'Approve '+sel.title+'?',isK?'Customers in '+sel.fields[3][1]+' can order from them straight away.':'They can go online and receive trip offers.',isK?(p==='SUSPENDED'?'Reactivate':'Approve'):'Approve',()=>set(sel.id,isK?'ACTIVE':'APPROVED',sel.title+(isK?' is live':' approved')),'#F1F7DC','#C6F432','#0E0F0D'],
+          reject:['Reject '+sel.title+'?',isK?'The kitchen is marked suspended. Add a note so they know what to fix.':'The rider sees this note in the app and can re-upload.','Reject',()=>set(sel.id,isK?'SUSPENDED':'REJECTED',sel.title+' rejected'),'#FFF1EF','#C23A2B','var(--ink)'],
+          suspend:['Suspend '+sel.title+'?','They disappear from the customer app until reactivated. Open orders still complete.','Suspend',()=>set(sel.id,'SUSPENDED',sel.title+' suspended'),'#FFF1EF','#C23A2B','var(--ink)'],
+          payout:['Send '+N(net)+' to '+sel.title+'?',isK?'Settles every unpaid completed order in one Paystack transfer. This can’t be undone.':N(sel.unpaid)+' trip pay minus '+N(sel.cash)+' cash already held. One Paystack transfer, can’t be undone.','Send '+N(net),()=>{this.setState(x=>({qPaid:{...x.qPaid,[sel.id]:1},qAct:null}));this.flash(N(net)+' sent to '+sel.title);},'#F4F4F1','#0E0F0D','var(--ink)']
+        }[a];
+        const dis=req&&!nt;
+        cf={title:C[0],text:C[1],btn:C[2],go:dis?null:C[3],bg:C[4],btnBg:C[5],btnC:C[6],needsNote:needs,ph:req?'Reason (required) · the '+(isK?'kitchen':'rider')+' sees this':'Reason (optional)',disabled:dis,op:dis?.4:1};
+      }
+    }
+    const pend=items.filter(i=>i.status==='PENDING').length;
+    return {isQueue:s.view==='kitchens'||s.view==='riders',qTitle:isK?'Kitchens':'Riders',
+      qSub:pend?pend+' waiting for '+(isK?'approval':'review')+' · oldest first':'Nothing waiting for review',
+      qTabs,qRows,qEmpty:qRows.length===0,qEmptyTitle:'No '+TABS.find(t=>t[0]===tab)[1].toLowerCase()+' '+(isK?'kitchens':'riders'),
+      qHas:!!d,d:d||{},qShowActions:!!d&&!cf&&d.actions.length>0,qConfirm:!!cf,cf:cf||{},qNote:s.qNote||'',onNote:e=>this.setState({qNote:e.target.value}),qBack:()=>this.setState({qAct:null,qNote:''}),
+      docOpen:s.doc||null,closeDoc:()=>this.setState({doc:null})};
+  }
+  isSuper(){return (this.props.role??'SUPER_ADMIN')==='SUPER_ADMIN';}
+  moneyVals(){
+    const s=this.state, paid=s.qPaid||{}, st=s.qStatus||{};
+    const due=[
+      ...KQ.filter(r=>(st[r[0]]||r[7])==='ACTIVE'&&r[12]&&!paid[r[0]]).map(r=>({id:r[0],name:r[1],meta:'Kitchen · '+r[5],net:r[12],text:'Settles every unpaid completed order after the 15% commission.'})),
+      ...RQ.filter(r=>(st[r[0]]||r[6])==='APPROVED'&&r[13]&&!paid[r[0]]).map(r=>({id:r[0],name:r[1],meta:'Rider · '+N(r[13])+' trip pay − '+N(r[14])+' cash held',net:Math.max(0,r[13]-r[14]),text:'Trip pay and tips, minus cash they already collected.'}))
+    ].sort((a,b)=>b.net-a.net);
+    const total=due.reduce((a,p)=>a+p.net,0);
+    const orders=this.orders(), up=(s.rq||'').trim().toUpperCase(), o=s.rFound?orders.find(x=>x.id===s.rFound):null;
+    const done=!!o&&!!(s.refunded||{})[o.id];
+    const rLine=o?o.total+' back to '+o.cust.split(' ')[0]+' by '+o.payLabel.toLowerCase()+' within 24 h':'';
+    return {isMoney:s.view==='money',
+      moneyLocked:!this.isSuper(),rLocked:!!o&&!done&&o.pay!=='cash'&&!this.isSuper(),
+      due:due.map(p=>({name:p.name,meta:p.meta,amount:N(p.net),idle:s.payAsk!==p.id&&this.isSuper(),asking:s.payAsk===p.id,confirmText:p.text+' One Paystack transfer, can’t be undone.',
+        ask:()=>this.setState({payAsk:p.id}),cancel:()=>this.setState({payAsk:null}),
+        send:()=>{this.setState(x=>({qPaid:{...x.qPaid,[p.id]:1},payAsk:null}));this.flash(N(p.net)+' sent to '+p.name);}})),
+      dueEmpty:due.length===0,dueTotal:due.length?due.length+' waiting · '+N(total)+' in total':'',
+      rq:s.rq||'',rqUp:up,onRq:e=>this.setState({rq:e.target.value,rFound:null,rMiss:false,rAsk:false}),
+      findOrder:()=>{const f=orders.find(x=>x.id===up);this.setState({rFound:f?f.id:null,rMiss:!f,rAsk:false,rNote:''});},
+      rNotFound:!!s.rMiss,rHas:!!o,ro:o||{},rDone:done,rCash:!!o&&!done&&o.pay==='cash',rCan:!!o&&!done&&o.pay!=='cash'&&this.isSuper(),
+      rAskIdle:!s.rAsk,rAsking:!!s.rAsk,rAsk:()=>this.setState({rAsk:true}),rBack:()=>this.setState({rAsk:false}),rLine,
+      rNote:s.rNote||'',onRNote:e=>this.setState({rNote:e.target.value}),
+      rSend:()=>{this.setState(x=>({refunded:{...x.refunded,[o.id]:1},rAsk:false}));this.flash(o.id+' refunded · '+o.total);},
+      sweepLine:s.swept?'Last run 14:32 · removed 38 dead tokens from 1,204 devices':'Removes phones that no longer get notifications · last run Sun 27 Sep, 22:00',
+      sweep:()=>{this.setState({swept:true});this.flash('Removed 38 dead push tokens');}};
+  }
+  theme(){return this.state.theme||this.props.theme||'dark';}
+  applyTheme(){document.body.dataset.theme=this.theme();}
+  componentDidMount(){try{const v=localStorage.getItem('karrigo-admin-theme');if(v)this.setState({theme:v});}catch(e){}this.applyTheme();}
+  componentDidUpdate(){this.applyTheme();}
+  setTheme(v){
+    if(v===this.theme())return;
+    try{localStorage.setItem('karrigo-admin-theme',v);}catch(e){}
+    const b=document.body,de=document.documentElement;
+    if(!document.startViewTransition||matchMedia('(prefers-reduced-motion: reduce)').matches){this.setState({theme:v});return;}
+    de.dataset.wipe=v==='light'?'ltr':'rtl';b.dataset.vt='1';
+    const vt=document.startViewTransition(()=>{b.dataset.theme=v;this.setState({theme:v});});
+    vt.finished.finally(()=>{delete b.dataset.vt;});
+  }
+  loginVals(){
+    const s=this.state, sup=this.isSuper();
+    return {lEmail:s.lEmail||'',lPass:s.lPass||'',onLEmail:e=>this.setState({lEmail:e.target.value,lError:null}),onLPass:e=>this.setState({lPass:e.target.value,lError:null}),
+      lError:s.lError||null,lBorder:s.lError?'rgba(255,107,91,.6)':'rgba(var(--fg),.12)',lBtn:s.lBusy?'Signing in…':'Sign in',lOp:s.lBusy?.6:1,
+      loginNotice:s.signedOut?'You’re signed out. Sign in again to carry on.':null,
+      signIn:e=>{e.preventDefault();if(s.lBusy)return;const em=(s.lEmail||'').trim(),pw=s.lPass||'';
+        if(!/^\S+@\S+\.\S+$/.test(em)||!pw){this.setState({lError:'Enter your email and password.'});return;}
+        this.setState({lBusy:true});setTimeout(()=>{if(pw.length<8)this.setState({lBusy:false,lError:'That email and password don’t match. Check both and try again.'});else this.setState({lBusy:false,authed:true,lPass:'',signedOut:false,view:'overview'});},700);},
+      signOut:()=>this.setState({authed:false,signedOut:true,lPass:'',lError:null}),
+      roleLabel:sup?'Super admin':'Moderator',
+      setDark:()=>this.setTheme('dark'),setLight:()=>this.setTheme('light'),themeX:this.theme()==='light'?'translateX(100%)':'translateX(0)',
+      darkBg:this.theme()==='dark'?'#C6F432':'transparent',darkC:this.theme()==='dark'?'#0E0F0D':'var(--ink)',
+      lightBg:this.theme()==='light'?'#C6F432':'transparent',lightC:this.theme()==='light'?'#0E0F0D':'var(--ink)',roleColor:sup?'var(--lime-ink)':'rgba(var(--fg),.62)'};
+  }
+  renderVals(){
+    const s=this.state, p=this.props;
+    const device=p.device??'desktop', ds=p.dataState??'live';
+    const loading=ds==='loading', empty=ds==='empty';
+    const ORD=['overview','orders','kitchens','riders','customers','money','issues','settings'];
+    const go=v=>()=>{if(v===s.view)return;this.setState({view:v,sheet:false,navDir:ORD.indexOf(v)<ORD.indexOf(s.view)?'back':'fwd'});};
+    const NAV=[['overview','Overview'],['orders','Live orders'],['kitchens','Kitchens'],['riders','Riders'],['customers','Customers'],['money','Money'],['issues','Issues'],['settings','Settings']];
+    const openAttn=5-Object.keys(s.resolved).length, tv=this.ticketVals();
+    const pc=(L,i)=>{const n=L.filter(r=>((s.qStatus||{})[r[0]]||r[i])==='PENDING').length;return n&&!empty?String(n):null;};
+    const pendK=pc(KQ,7),pendR=pc(RQ,6);
+    const nav=NAV.map(([k,l],i)=>{const on=s.view===k,later=k==='customers'||k==='settings';return {label:l,go:later?()=>this.flash(l+' is in the next round'):go(k),bg:on?'#C6F432':'transparent',color:on?'#0E0F0D':later?'rgba(var(--fg),.5)':'var(--ink)',font:(on?'700':'500')+" 14px 'Plus Jakarta Sans',sans-serif",badge:k==='issues'&&tv.openTickets>0&&!empty?String(tv.openTickets):k==='kitchens'?pendK:k==='riders'?pendR:null,later};});
+    const d=(t,good)=>({delta:t,c:good?GO:CR,bg:good?TINT[GO]:TINT[CR]});
+    const kpis=[
+      {label:'Orders',val:'412',vs:'vs 368',...d('▲ 12%',1)},
+      {label:'Sales',val:'₦2,184,600',vs:'vs ₦2,004,100',...d('▲ 9%',1)},
+      {label:'Karrigo revenue',val:'₦368,900',vs:'vs ₦332,300',...d('▲ 11%',1)},
+      {label:'Avg delivery',val:'38 min',vs:'target 35 · was 34',...d('▲ 4 min',0)},
+      {label:'Riders online',val:'46',vs:'vs 41',...d('▲ 5',1)},
+      {label:'Cancellation',val:'3.4%',vs:'vs 2.1%',...d('▲ 1.3 pts',0)}
+    ];
+    const lw=[12,24,38,56,84,104,50,66,58,72,90,96,70,40,18], td=[14,26,41,63,92,118,58];
+    const hours=lw.map((v,i)=>({label:String(8+i).padStart(2,'0'),lw:(v/120*100)+'%',td:td[i]!=null?(td[i]/120*100)+'%':'0%',op:i===6?.55:1,
+      lf:(i===6?'700':'500')+" 11.5px 'Plus Jakarta Sans',sans-serif",lc:i===6?'var(--ink)':'rgba(var(--fg),.5)',
+      tip:String(8+i).padStart(2,'0')+':00 · today '+(td[i]??'—')+(i===6?' so far':'')+' · last week '+v}));
+    const ATTN=[
+      ['a1',CR,'Wadata Swallow House isn’t answering KG-2217','2:40 of the 3:00 accept window · 2 missed today','Call kitchen','Called kitchen'],
+      ['a2',CR,'No rider has accepted KG-2209','Ready for 6 min at Mama Nkechi’s · North Bank','Assign rider','Rider assigned'],
+      ['a3',WA,'KG-2196 is 17 min late','Iorja Grills & Rice → Old GRA · Emmanuel Ochaje','Give ₦500 credit','Credit sent'],
+      ['a4',WA,'Tersoo Agba is holding ₦43,500 cash','Over the ₦40,000 limit for 25 min','Message rider','Message sent'],
+      ['a5',WA,'Only 2 riders in Kanshio for 7 open orders','Nearest spare riders are in Wurukum','Ping riders','Riders pinged']
+    ];
+    const attn=empty?[]:ATTN.map(([id,c,title,meta,action,doneLabel])=>{const done=!!s.resolved[id];return {c,title,meta,action,doneLabel:doneLabel+' · 14:32',open:!done,done,op:done?.55:1,
+      act:()=>{this.setState(x=>({resolved:{...x.resolved,[id]:1},credited:id==='a3'?{...x.credited,'KG-2196':1}:x.credited,riderOv:id==='a2'?{...x.riderOv,'KG-2209':'Fater Ioryue'}:x.riderOv}));this.flash(doneLabel);}};});
+    const SG=[['Waiting for kitchen',7,'2m 10s','3m',0],['Accepted',5,'1m 40s','2m',0],['Cooking',18,'23 min','20 min',1],['Ready',4,'6 min','4 min',1],['On the way',21,'14 min','15 min',0]];
+    const stages=SG.map(([label,count,avg,target,slow])=>({label,count,avg,target,slow:!!slow,flex:count+4,c:slow?WA:'rgba(var(--fg),.14)',bg:slow?'rgba(255,181,71,.06)':'#1D201B',tc:slow?WA:'var(--ink)'}));
+    const K=[['Mama Nkechi’s Kitchen','open',0,6,97,18,18420000],['Iorja Grills & Rice','open',0,9,94,24,23150000],['Wadata Swallow House','open',0,7,83,34,15790000],['Terkimbi’s Kitchen','open',0,4,99,16,14280000],['Sewuese Rice Spot','open',0,5,88,27,11830000],['Benue Pot','paused',12,0,71,31,9640000],['Modern Market Suya','open',0,3,92,12,8860000],['Ochanya’s Pepper Soup','closed',0,0,null,null,4120000]];
+    const kitchens=K.map(([name,st,pm,active,acc,prep,sales])=>({name,active:String(active),accept:acc==null?'—':acc+'%',prep:prep==null?'—':prep+' min',sales:N(sales),
+      ac:acc!=null&&acc<85?WA:'var(--ink)',pc:prep!=null&&prep>30?WA:'var(--ink)',
+      st:st==='open'?chip(GO,'Open'):st==='paused'?chip(WA,'Paused · '+pm+' min'):chip(MU,'Closed today')}));
+    const FK={order:['New order','var(--lime-ink)'],reject:['Rejected',CR],sold:['Sold out',WA],pause:['Paused',WA],online:['Rider online',IN],pickup:['Picked up',IN],accept:['Accepted',GO],deliv:['Delivered',GO],cash:['Cash',MU],settle:['Settled',GO]};
+    const F=[['14:32','order','KG-2217 · Wadata Swallow House · ₦7,400'],['14:31','reject','Benue Pot rejected KG-2215 · “out of catfish”'],['14:30','sold','Iorja Grills & Rice · Grilled croaker'],['14:29','pause','Benue Pot for 30 min'],['14:28','online','Fater Ioryue · Wurukum'],['14:27','pickup','Tersoo Agba · KG-2205 from Sewuese Rice Spot'],['14:26','accept','Terkimbi’s Kitchen · KG-2214 in 38s'],['14:24','deliv','KG-2188 to Wadata · 41 min'],['14:24','cash','Msughter Iorkaa collected ₦7,400 · KG-2188'],['14:20','settle','Card payment · KG-2211 · ₦4,800']];
+    const feed=empty?[]:F.map(([t,k,txt])=>({t,txt,kind:FK[k][0],c:FK[k][1]}));
+    return {
+      isLogin:!s.authed,navDir:s.navDir||'fwd',navY:'translateY('+Math.max(0,NAV.findIndex(n=>n[0]===s.view))*42+'px)',isDesktop:device==='desktop'&&s.authed,isPhone:device==='phone'&&s.authed,
+      ...this.loginVals(),...tv,
+      isOverview:s.view==='overview',isOrders:s.view==='orders',
+      loading,ready:!loading,six:[1,2,3,4,5,6],nav,kpis,hours,attn,attnEmpty:attn.length===0,stages,kitchens,feed,feedEmpty:feed.length===0,
+      reload:()=>this.flash('Updated 14:32'),goIssues:go('issues'),
+      toast:s.toast,
+      goOverview:go('overview'),goOrders:go('orders'),
+      tabO:s.view==='overview'?'var(--lime-ink)':'rgba(var(--fg),.55)',tabL:s.view==='orders'?'var(--lime-ink)':'rgba(var(--fg),.55)',
+      attnCount:String(attn.filter(a=>a.open).length),
+      ...this.ordersVals(loading,empty),
+      ...this.qVals(),
+      ...this.moneyVals()
+    };
+  }
+  ordersVals(loading,empty){
+    const s=this.state, all=empty?[]:this.orders();
+    const test={active:o=>!o.cancelled&&o.st<5,late:o=>o.late,delivered:o=>!o.cancelled&&o.st===5,cancelled:o=>o.cancelled,all:()=>true};
+    const q=s.q.trim().toLowerCase();
+    const rows=all.filter(test[s.filter]).filter(o=>!q||[o.id,o.cust,o.kitchen,o.rider,o.area,o.phone].join(' ').toLowerCase().includes(q));
+    const filters=[['active','Active'],['late','Late'],['delivered','Delivered'],['cancelled','Cancelled'],['all','All']].map(([k,l])=>{const on=s.filter===k;return {label:l,count:String(all.filter(test[k]).length),on:()=>this.setState({filter:k}),bg:on?'#C6F432':'rgba(var(--fg),.07)',color:on?'#0E0F0D':'var(--ink)',cc:on?'rgba(14,15,13,.6)':'rgba(var(--fg),.55)'};});
+    const o=all.find(x=>x.id===s.sel)||null;
+    const rowsV=rows.map(r=>({...r,pick:()=>this.setState({sel:r.id,confirm:false,picker:false,sheet:true}),rowBg:r.id===s.sel?'rgba(198,244,50,.08)':'transparent',stripe:r.late?CR:r.noRider?WA:'transparent'}));
+    const canAct=!!o&&!o.cancelled&&o.st<5;
+    return {
+      rows:rowsV,rowsEmpty:!loading&&rowsV.length===0,ordersLoading:loading,ordersReady:!loading,filters,q:s.q,
+      emptyTitle:q?'No orders match “'+s.q+'”':'No '+(s.filter==='all'?'':s.filter+' ')+'orders',
+      emptyText:q?'Try an order number, customer phone or kitchen name.':'When there are, they’ll appear here.',
+      clearSearch:()=>this.setState({q:''}),
+      onQ:e=>this.setState({q:e.target.value}),
+      o,hasSel:!!o&&!loading,noSel:!o&&!loading,canAct,
+      credited:!!o&&!!s.credited[o.id],notCredited:!!o&&!s.credited[o.id],
+      confirm:s.confirm&&canAct,notConfirm:!s.confirm,
+      picker:s.picker&&canAct,near:NEAR.map(([name,area,dist])=>({name,area,dist,pick:()=>{this.setState(x=>({riderOv:{...x.riderOv,[o.id]:name},picker:false}));this.flash(name+' assigned to '+o.id);}})),
+      togglePicker:()=>this.setState(x=>({picker:!x.picker,confirm:false})),
+      giveCredit:()=>{this.setState(x=>({credited:{...x.credited,[o.id]:1}}));this.flash('₦500 credit sent to '+o.cust.split(' ')[0]);},
+      askCancel:()=>this.setState({confirm:true,picker:false}),keep:()=>this.setState({confirm:false}),
+      doCancel:()=>{this.setState(x=>({cancelled:{...x.cancelled,[o.id]:1},confirm:false}));this.flash(o.id+' cancelled · '+o.total+' refunded');},
+      refundLine:o?(o.pay==='cash'?'Nothing was paid yet — the order is cancelled and the kitchen is told.':o.total+' goes back by '+o.payLabel.toLowerCase()+' within 24 h.'):'',
+      closeSheet:()=>this.setState({sheet:false}),sheet:s.sheet&&!!o
+    };
+  }
+}
+
+</script>
+</body>
+</html>
