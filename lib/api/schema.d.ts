@@ -499,6 +499,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/admin/stores": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Create a store (ACTIVE, no approval step) with an OWNER login. It starts grocery-only (the owner can switch food on in the app); admins do not set its products. The temporary password is returned once and never stored in plain text. The owner must sign in with exactly the returned `ownerEmail` (case-sensitive, as stored). SUPER_ADMIN only. Writes an AuditLog row. */
+        post: operations["AdminController_createStore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin/kitchens": {
         parameters: {
             query?: never;
@@ -548,6 +565,41 @@ export interface paths {
         head?: never;
         /** Approve (→ ACTIVE) or suspend/reject (→ SUSPENDED) a kitchen. Writes an AuditLog row. */
         patch: operations["AdminController_updateKitchenStatus"];
+        trace?: never;
+    };
+    "/v1/admin/menu-items/{id}/flag": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Flag a menu item: hidden from customers and not orderable until cleared. Requires a `note` (1-500) the owner sees. Any admin role (moderation, same policy as banning a kitchen). Writes an AuditLog row. */
+        post: operations["AdminController_flagItem"];
+        /** Clear a menu item flag (and any appeal). Any admin role (moderation, same policy as banning a kitchen). Writes an AuditLog row. */
+        delete: operations["AdminController_clearItemFlag"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/flagged-items": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Flagged menu items, newest flag first. `kitchenId` narrows to one kitchen; `hasAppeal=true` shows only appealed ones. Any admin role. */
+        get: operations["AdminController_listFlaggedItems"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/v1/admin/riders": {
@@ -697,6 +749,23 @@ export interface paths {
         get: operations["AdminController_listPayoutsDue"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/orders/{id}/release-rider-pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Resolve a disputed delivery in the rider's favour: DISPUTED → CONFIRMED, which releases the rider's held pay. A delivery that really didn't arrive needs no call here (it stays held) plus a refund. Writes an AuditLog row. */
+        post: operations["AdminController_releaseRiderPay"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1136,7 +1205,7 @@ export interface paths {
             path?: never;
             cookie?: never;
         };
-        /** A kitchen's public page — profile plus its full menu. */
+        /** A kitchen's public page for one side (?type=, default FOOD) — profile plus that side's menu; flagged items omitted. */
         get: operations["KitchensController_getBySlug"];
         put?: never;
         post?: never;
@@ -1158,6 +1227,40 @@ export interface paths {
         put?: never;
         post?: never;
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kitchen-console/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Register this kitchen app install for push notifications (new orders, payments, cancellations). Upserts on the Expo push token. */
+        post: operations["KitchenConsoleController_registerDevice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kitchen-console/devices/{expoPushToken}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Unregister a push token (on sign-out). */
+        delete: operations["KitchenConsoleController_unregisterDevice"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1209,6 +1312,57 @@ export interface paths {
         get: operations["KitchenConsoleController_reverseGeocode"];
         put?: never;
         post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kitchen-console/kitchen/request-review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Deprecated: always responds 409. Suspended kitchens must use POST /kitchen-console/kitchen/appeal; PENDING/ACTIVE kitchens have nothing to review. OWNER only. */
+        post: operations["KitchenConsoleController_requestReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kitchen-console/kitchen/appeal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Appeal a ban with a message (once per ban). OWNER only. */
+        post: operations["KitchenConsoleController_appeal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kitchen-console/kitchen/payout-account/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Look up the account name for a bank + account number without saving it, so the owner can confirm it first. OWNER only. */
+        post: operations["KitchenConsoleController_resolvePayoutAccount"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1387,6 +1541,23 @@ export interface paths {
         head?: never;
         /** Update a menu item — including moving it to another section via sectionId. */
         patch: operations["KitchenConsoleController_updateItem"];
+        trace?: never;
+    };
+    "/v1/kitchen-console/menu/items/{id}/appeal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send one appeal message against an admin flag on a menu item. Same staff access as the other menu routes. */
+        post: operations["KitchenConsoleController_appealItemFlag"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/v1/kitchen-console/menu/items/{id}/image": {
@@ -1613,6 +1784,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/orders/{id}/confirm-received": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Confirm a delivered order arrived. If the customer never answers, it is confirmed automatically after the confirmation window. */
+        post: operations["OrdersController_confirmReceived"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/orders/{id}/report-not-received": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Report that a delivered order never arrived. Opens a support ticket and holds the rider's pay until the team has looked into it. */
+        post: operations["OrdersController_reportNotReceived"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/orders/{id}/cancel": {
         parameters: {
             query?: never;
@@ -1698,6 +1903,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/riders/me/request-review": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Send a rejected rider back for verification (REJECTED → PENDING) once the required documents and guarantor details are all on file. */
+        post: operations["RidersController_requestReview"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/riders/me/guarantor": {
         parameters: {
             query?: never;
@@ -1743,6 +1965,23 @@ export interface paths {
         put?: never;
         /** Look up the account name for a bank + account number without saving it, so the rider can confirm it before saving. */
         post: operations["RidersController_resolvePayoutAccount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/riders/orders/open": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Orders waiting for a rider right now (paid, not yet taken), in the same shape as a 'trip:offer'. Lets a rider pick up orders that were offered before they came online or that they missed. */
+        get: operations["RidersController_listOpenOrders"];
+        put?: never;
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
@@ -1800,6 +2039,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/riders/me/trips": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The rider's recent trips (last 50, newest first), whatever their status: in progress, delivered or cancelled. */
+        get: operations["RidersController_listTrips"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/riders/me/trips/today": {
         parameters: {
             query?: never;
@@ -1809,6 +2065,23 @@ export interface paths {
         };
         /** Today's completed deliveries. */
         get: operations["RidersController_listTodayTrips"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/riders/orders/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** An order this rider has accepted, with its current status. Used to catch up when a live status event was missed. */
+        get: operations["RidersController_getAssignedOrder"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1913,7 +2186,10 @@ export interface components {
         };
         DeviceResponseDto: {
             id: string;
-            userId: string;
+            /** @description The customer or rider who owns it; null for a kitchen app install. */
+            userId: string | null;
+            /** @description The kitchen staff member who owns it; null for a customer or rider. */
+            kitchenStaffId: string | null;
             expoPushToken: string;
             platform: string;
             /** Format: date-time */
@@ -2031,9 +2307,16 @@ export interface components {
             feeNaira: number;
             ratingAvg: number;
             ratingsCount: number;
+            servesFood: boolean;
+            servesGrocery: boolean;
+            maxItemsPerOrder: number | null;
+            minOrderNaira: number | null;
             /** @enum {string} */
             status: "ACTIVE" | "SUSPENDED" | "PENDING";
             rejectionNote: string | null;
+            appealNote: string | null;
+            /** Format: date-time */
+            appealedAt: string | null;
             /** Format: date-time */
             reviewedAt: string | null;
             payoutBankCode: string | null;
@@ -2092,6 +2375,22 @@ export interface components {
             adminRole: "SUPER_ADMIN" | "MODERATOR";
             name: string;
             email: string;
+        };
+        CreateStoreDto: {
+            name: string;
+            area: string;
+            ownerName: string;
+            /** Format: email */
+            ownerEmail: string;
+            ownerPhone: string;
+            maxItemsPerOrder?: number;
+            minOrderNaira?: number;
+        };
+        CreateStoreResponseDto: {
+            kitchen: components["schemas"]["KitchenResponseDto"];
+            ownerEmail: string;
+            /** @description Shown exactly once; only its bcrypt hash is stored. */
+            temporaryPassword: string;
         };
         AdminKitchenStatsDto: {
             menuItemCount: number;
@@ -2152,9 +2451,16 @@ export interface components {
             feeNaira: number;
             ratingAvg: number;
             ratingsCount: number;
+            servesFood: boolean;
+            servesGrocery: boolean;
+            maxItemsPerOrder: number | null;
+            minOrderNaira: number | null;
             /** @enum {string} */
             status: "ACTIVE" | "SUSPENDED" | "PENDING";
             rejectionNote: string | null;
+            appealNote: string | null;
+            /** Format: date-time */
+            appealedAt: string | null;
             /** Format: date-time */
             reviewedAt: string | null;
             payoutBankCode: string | null;
@@ -2175,7 +2481,54 @@ export interface components {
         UpdateKitchenStatusDto: {
             /** @enum {string} */
             status: "ACTIVE" | "SUSPENDED";
+            /** @description Required (non-blank) when suspending; the service enforces that. */
             note?: string;
+        };
+        FlagItemDto: {
+            note: string;
+        };
+        MenuItemTagDto: {
+            label: string;
+            tone: string;
+        };
+        MenuItemResponseDto: {
+            /**
+             * Format: date-time
+             * @description Set while an admin flag hides the item; null otherwise.
+             */
+            flaggedAt: string | null;
+            flagNote: string | null;
+            flagAppealNote: string | null;
+            /** Format: date-time */
+            flagAppealedAt: string | null;
+            id: string;
+            kitchenId: string;
+            sectionId: string;
+            slug: string;
+            name: string;
+            description: string | null;
+            priceNaira: number;
+            imageUrl: string | null;
+            unit: string | null;
+            isSoldOut: boolean;
+            tags: components["schemas"]["MenuItemTagDto"][] | null;
+            sortOrder: number;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        FlaggedItemResponseDto: {
+            /** Format: date-time */
+            flaggedAt: string;
+            flagNote: string | null;
+            flagAppealNote: string | null;
+            /** Format: date-time */
+            flagAppealedAt: string | null;
+            itemId: string;
+            itemName: string;
+            kitchenId: string;
+            kitchenName: string;
         };
         AdminRiderListUserDto: {
             name: string | null;
@@ -2427,6 +2780,18 @@ export interface components {
             paidAt: string | null;
             /** @enum {string|null} */
             cancelReason: "CUSTOMER" | "KITCHENS_DECLINED" | "PAYMENT_EXPIRED" | "KITCHEN_TIMEOUT" | null;
+            /**
+             * @description After delivery: AWAITING_CONFIRMATION until the customer confirms (CONFIRMED), reports it never arrived (DISPUTED), or receiptDueAt passes (AUTO_CONFIRMED). Null before delivery and on orders delivered before this existed.
+             * @enum {string|null}
+             */
+            receiptStatus: "AWAITING_CONFIRMATION" | "CONFIRMED" | "AUTO_CONFIRMED" | "DISPUTED" | null;
+            /**
+             * Format: date-time
+             * @description When silence starts counting as "received".
+             */
+            receiptDueAt: string | null;
+            /** Format: date-time */
+            receiptResolvedAt: string | null;
             payoutId: string | null;
             /** Format: date-time */
             createdAt: string;
@@ -2469,6 +2834,8 @@ export interface components {
             nameSnapshot: string;
             qty: number;
             unitPriceNaira: number;
+            /** @description True when the kitchen couldn't supply this line; it isn't charged. */
+            unavailable: boolean;
         };
         AdminOrderKitchenDetailDto: {
             id: string;
@@ -2553,6 +2920,18 @@ export interface components {
             paidAt: string | null;
             /** @enum {string|null} */
             cancelReason: "CUSTOMER" | "KITCHENS_DECLINED" | "PAYMENT_EXPIRED" | "KITCHEN_TIMEOUT" | null;
+            /**
+             * @description After delivery: AWAITING_CONFIRMATION until the customer confirms (CONFIRMED), reports it never arrived (DISPUTED), or receiptDueAt passes (AUTO_CONFIRMED). Null before delivery and on orders delivered before this existed.
+             * @enum {string|null}
+             */
+            receiptStatus: "AWAITING_CONFIRMATION" | "CONFIRMED" | "AUTO_CONFIRMED" | "DISPUTED" | null;
+            /**
+             * Format: date-time
+             * @description When silence starts counting as "received".
+             */
+            receiptDueAt: string | null;
+            /** Format: date-time */
+            receiptResolvedAt: string | null;
             payoutId: string | null;
             /** Format: date-time */
             createdAt: string;
@@ -2604,6 +2983,8 @@ export interface components {
             grossNaira: number;
             /** @description What POST /admin/kitchens/:id/payout would transfer now — gross minus commission. */
             netNaira: number;
+            /** @description Set when the kitchen's commission rate isn't configured (e.g. GROCERY_COMMISSION_RATE unset): netNaira is 0 and the payout call returns 503 until fixed. */
+            rateError: string | null;
             /** @description false means the payout call would fail with 400 until the kitchen adds one. */
             hasPayoutAccount: boolean;
             /** Format: date-time */
@@ -2678,6 +3059,18 @@ export interface components {
             paidAt: string | null;
             /** @enum {string|null} */
             cancelReason: "CUSTOMER" | "KITCHENS_DECLINED" | "PAYMENT_EXPIRED" | "KITCHEN_TIMEOUT" | null;
+            /**
+             * @description After delivery: AWAITING_CONFIRMATION until the customer confirms (CONFIRMED), reports it never arrived (DISPUTED), or receiptDueAt passes (AUTO_CONFIRMED). Null before delivery and on orders delivered before this existed.
+             * @enum {string|null}
+             */
+            receiptStatus: "AWAITING_CONFIRMATION" | "CONFIRMED" | "AUTO_CONFIRMED" | "DISPUTED" | null;
+            /**
+             * Format: date-time
+             * @description When silence starts counting as "received".
+             */
+            receiptDueAt: string | null;
+            /** Format: date-time */
+            receiptResolvedAt: string | null;
             payoutId: string | null;
             /** Format: date-time */
             createdAt: string;
@@ -3279,31 +3672,12 @@ export interface components {
         FollowKitchenDto: {
             notifyWhenOpen?: boolean;
         };
-        MenuItemTagDto: {
-            label: string;
-            tone: string;
-        };
-        MenuItemResponseDto: {
-            id: string;
-            kitchenId: string;
-            sectionId: string;
-            slug: string;
-            name: string;
-            description: string | null;
-            priceNaira: number;
-            imageUrl: string | null;
-            isSoldOut: boolean;
-            tags: components["schemas"]["MenuItemTagDto"][] | null;
-            sortOrder: number;
-            /** Format: date-time */
-            createdAt: string;
-            /** Format: date-time */
-            updatedAt: string;
-        };
         MenuSectionWithItemsResponseDto: {
             items: components["schemas"]["MenuItemResponseDto"][];
             id: string;
             kitchenId: string;
+            /** @enum {string} */
+            type: "FOOD" | "GROCERY";
             label: string;
             note: string | null;
             sortOrder: number;
@@ -3324,9 +3698,16 @@ export interface components {
             feeNaira: number;
             ratingAvg: number;
             ratingsCount: number;
+            servesFood: boolean;
+            servesGrocery: boolean;
+            maxItemsPerOrder: number | null;
+            minOrderNaira: number | null;
             /** @enum {string} */
             status: "ACTIVE" | "SUSPENDED" | "PENDING";
             rejectionNote: string | null;
+            appealNote: string | null;
+            /** Format: date-time */
+            appealedAt: string | null;
             /** Format: date-time */
             reviewedAt: string | null;
             payoutBankCode: string | null;
@@ -3346,6 +3727,9 @@ export interface components {
         ReverseGeocodeResponseDto: {
             address: string;
         };
+        AppealDto: {
+            message: string;
+        };
         UpdateKitchenProfileDto: {
             name?: string;
             cuisine?: string;
@@ -3359,6 +3743,8 @@ export interface components {
             noticeText?: string;
             feeNaira?: number;
             isOpen?: boolean;
+            servesFood?: boolean;
+            servesGrocery?: boolean;
         };
         SubmitPayoutAccountDto: {
             bankCode: string;
@@ -3405,6 +3791,9 @@ export interface components {
             kitchenOrdersPaidOut: components["schemas"]["KitchenPayoutOrderLineDto"][];
         };
         KitchenEarningsSummaryResponseDto: {
+            /** @description The GROCERY rate, or null while GROCERY_COMMISSION_RATE is unset. */
+            groceryCommissionRate: number | null;
+            /** @description The FOOD rate. */
             commissionRate: number;
             salesNaira: number;
             commissionNaira: number;
@@ -3437,10 +3826,17 @@ export interface components {
             label: string;
             note?: string;
             sortOrder?: number;
+            /**
+             * @description Required when the kitchen serves both sides; forced to the single side otherwise. Immutable after creation.
+             * @enum {string}
+             */
+            type?: "FOOD" | "GROCERY";
         };
         MenuSectionResponseDto: {
             id: string;
             kitchenId: string;
+            /** @enum {string} */
+            type: "FOOD" | "GROCERY";
             label: string;
             note: string | null;
             sortOrder: number;
@@ -3461,6 +3857,7 @@ export interface components {
                 label: string;
                 tone: string;
             }[];
+            unit?: string;
             sortOrder?: number;
         };
         UpdateMenuItemDto: {
@@ -3474,6 +3871,7 @@ export interface components {
                 label: string;
                 tone: string;
             }[];
+            unit?: string;
             sortOrder?: number;
             isSoldOut?: boolean;
         };
@@ -3506,6 +3904,11 @@ export interface components {
             address: components["schemas"]["KitchenOrderParentAddressDto"];
         };
         KitchenOrderWithDetailsResponseDto: {
+            /**
+             * @description The order's side (FOOD or GROCERY), set from the cart when placed.
+             * @enum {string}
+             */
+            type: "FOOD" | "GROCERY";
             items: components["schemas"]["OrderItemResponseDto"][];
             order: components["schemas"]["KitchenOrderParentSummaryDto"];
             id: string;
@@ -3516,6 +3919,11 @@ export interface components {
             subtotalNaira: number;
             deliveryFeeNaira: number;
             payoutId: string | null;
+            /**
+             * Format: date-time
+             * @description When the kitchen marked its part READY; null until then (and for older orders that were already past READY).
+             */
+            readyAt: string | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -3524,8 +3932,15 @@ export interface components {
         UpdateKitchenOrderStatusDto: {
             /** @enum {string} */
             status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "CANCELLED";
+            /** @description OrderItem ids the kitchen can't supply. Only valid when accepting a GROCERY order. */
+            unavailableItemIds?: string[];
         };
         KitchenOrderResponseDto: {
+            /**
+             * @description The order's side (FOOD or GROCERY), set from the cart when placed.
+             * @enum {string}
+             */
+            type: "FOOD" | "GROCERY";
             id: string;
             orderId: string;
             kitchenId: string;
@@ -3534,6 +3949,11 @@ export interface components {
             subtotalNaira: number;
             deliveryFeeNaira: number;
             payoutId: string | null;
+            /**
+             * Format: date-time
+             * @description When the kitchen marked its part READY; null until then (and for older orders that were already past READY).
+             */
+            readyAt: string | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -3620,6 +4040,11 @@ export interface components {
             updatedAt: string;
         };
         OrderDetailKitchenOrderDto: {
+            /**
+             * @description The order's side (FOOD or GROCERY), set from the cart when placed.
+             * @enum {string}
+             */
+            type: "FOOD" | "GROCERY";
             id: string;
             orderId: string;
             kitchenId: string;
@@ -3628,6 +4053,11 @@ export interface components {
             subtotalNaira: number;
             deliveryFeeNaira: number;
             payoutId: string | null;
+            /**
+             * Format: date-time
+             * @description When the kitchen marked its part READY; null until then (and for older orders that were already past READY).
+             */
+            readyAt: string | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -3686,6 +4116,18 @@ export interface components {
             paidAt: string | null;
             /** @enum {string|null} */
             cancelReason: "CUSTOMER" | "KITCHENS_DECLINED" | "PAYMENT_EXPIRED" | "KITCHEN_TIMEOUT" | null;
+            /**
+             * @description After delivery: AWAITING_CONFIRMATION until the customer confirms (CONFIRMED), reports it never arrived (DISPUTED), or receiptDueAt passes (AUTO_CONFIRMED). Null before delivery and on orders delivered before this existed.
+             * @enum {string|null}
+             */
+            receiptStatus: "AWAITING_CONFIRMATION" | "CONFIRMED" | "AUTO_CONFIRMED" | "DISPUTED" | null;
+            /**
+             * Format: date-time
+             * @description When silence starts counting as "received".
+             */
+            receiptDueAt: string | null;
+            /** Format: date-time */
+            receiptResolvedAt: string | null;
             payoutId: string | null;
             /** Format: date-time */
             createdAt: string;
@@ -3699,6 +4141,10 @@ export interface components {
         ValidatePromoDto: {
             code: string;
             subtotalNaira: number;
+        };
+        ReportNotReceivedDto: {
+            /** @description What happened, in the customer's words. Optional. */
+            note?: string;
         };
         OnboardRiderDto: {
             vehicleType?: string;
@@ -3780,6 +4226,23 @@ export interface components {
             cashHeldNaira: number;
             nextPayoutDaysAway: number;
         };
+        RiderTripResponseDto: {
+            /** @description The order's status: in progress (ACCEPTED…DELIVERING), DELIVERED, CANCELLED, … */
+            status: string;
+            /** Format: date-time */
+            placedAt: string;
+            id: string;
+            code: string;
+            kitchenName: string;
+            kitchenAreaLabel: string | null;
+            customerAddressLabel: string;
+            customerAreaLabel: string;
+            deliveryFeeNaira: number;
+            cashCollectedNaira: number;
+            durationMin: number | null;
+            /** Format: date-time */
+            deliveredAt: string | null;
+        };
         RiderTodayTripResponseDto: {
             id: string;
             code: string;
@@ -3798,6 +4261,11 @@ export interface components {
             name: string | null;
         };
         AcceptedOrderKitchenOrderDto: {
+            /**
+             * @description The order's side (FOOD or GROCERY), set from the cart when placed.
+             * @enum {string}
+             */
+            type: "FOOD" | "GROCERY";
             id: string;
             orderId: string;
             kitchenId: string;
@@ -3806,6 +4274,11 @@ export interface components {
             subtotalNaira: number;
             deliveryFeeNaira: number;
             payoutId: string | null;
+            /**
+             * Format: date-time
+             * @description When the kitchen marked its part READY; null until then (and for older orders that were already past READY).
+             */
+            readyAt: string | null;
             /** Format: date-time */
             createdAt: string;
             /** Format: date-time */
@@ -3861,6 +4334,18 @@ export interface components {
             paidAt: string | null;
             /** @enum {string|null} */
             cancelReason: "CUSTOMER" | "KITCHENS_DECLINED" | "PAYMENT_EXPIRED" | "KITCHEN_TIMEOUT" | null;
+            /**
+             * @description After delivery: AWAITING_CONFIRMATION until the customer confirms (CONFIRMED), reports it never arrived (DISPUTED), or receiptDueAt passes (AUTO_CONFIRMED). Null before delivery and on orders delivered before this existed.
+             * @enum {string|null}
+             */
+            receiptStatus: "AWAITING_CONFIRMATION" | "CONFIRMED" | "AUTO_CONFIRMED" | "DISPUTED" | null;
+            /**
+             * Format: date-time
+             * @description When silence starts counting as "received".
+             */
+            receiptDueAt: string | null;
+            /** Format: date-time */
+            receiptResolvedAt: string | null;
             payoutId: string | null;
             /** Format: date-time */
             createdAt: string;
@@ -4792,10 +5277,63 @@ export interface operations {
             };
         };
     };
+    AdminController_createStore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateStoreDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreateStoreResponseDto"];
+                };
+            };
+            /** @description Validation failed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid admin access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requires SUPER_ADMIN. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owner email already in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     AdminController_listKitchens: {
         parameters: {
             query?: {
                 status?: "ACTIVE" | "SUSPENDED" | "PENDING";
+                /** @description FOOD or GROCERY: kitchens that serve that side. Omit to list every vendor. */
+                type?: "FOOD" | "GROCERY";
                 /** @description Matches part of the kitchen name, slug, or area. */
                 q?: string;
             };
@@ -4889,6 +5427,125 @@ export interface operations {
             };
             /** @description Kitchen not found. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminController_flagItem: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["FlagItemDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MenuItemResponseDto"];
+                };
+            };
+            /** @description Missing or invalid admin access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Menu item not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description This item is already flagged. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminController_clearItemFlag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MenuItemResponseDto"];
+                };
+            };
+            /** @description Missing or invalid admin access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Menu item not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description This item is not flagged. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminController_listFlaggedItems: {
+        parameters: {
+            query?: {
+                /** @description Only items of this kitchen. */
+                kitchenId?: string;
+                /** @description true: only items whose owner has sent an appeal. */
+                hasAppeal?: boolean;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FlaggedItemResponseDto"][];
+                };
+            };
+            /** @description Missing or invalid admin access token. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5225,6 +5882,60 @@ export interface operations {
             };
             /** @description Missing or invalid admin access token. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminController_releaseRiderPay: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Order id. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefundOrderDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderResponseDto"];
+                };
+            };
+            /** @description Missing or invalid admin access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description SUPER_ADMIN only. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Order not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The delivery is not currently reported as not received. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6279,7 +6990,10 @@ export interface operations {
     };
     KitchensController_list: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Defaults to FOOD. */
+                type?: "FOOD" | "GROCERY";
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -6361,7 +7075,10 @@ export interface operations {
     };
     KitchensController_getBySlug: {
         parameters: {
-            query?: never;
+            query?: {
+                /** @description Defaults to FOOD. */
+                type?: "FOOD" | "GROCERY";
+            };
             header?: never;
             path: {
                 slug: string;
@@ -6378,7 +7095,7 @@ export interface operations {
                     "application/json": components["schemas"]["KitchenWithMenuResponseDto"];
                 };
             };
-            /** @description Kitchen not found (or not ACTIVE). */
+            /** @description Kitchen not found, not ACTIVE, or does not serve the requested side. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -6410,6 +7127,67 @@ export interface operations {
                 };
             };
             /** @description Kitchen or menu item not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KitchenConsoleController_registerDevice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterDeviceDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid kitchen access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KitchenConsoleController_unregisterDevice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                expoPushToken: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid kitchen access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Device doesn't exist or belongs to another staff member. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -6546,6 +7324,126 @@ export interface operations {
             };
             /** @description Missing or invalid kitchen access token. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KitchenConsoleController_requestReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KitchenResponseDto"];
+                };
+            };
+            /** @description Missing or invalid kitchen access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Always: suspended (use appeal), already in review, or already approved. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KitchenConsoleController_appeal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AppealDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KitchenResponseDto"];
+                };
+            };
+            /** @description Missing or invalid kitchen access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The kitchen is not suspended, or already appealed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KitchenConsoleController_resolvePayoutAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitPayoutAccountDto"];
+            };
+        };
+        responses: {
+            /** @description `{ accountNumber, accountName }` as confirmed by the bank. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid kitchen access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -7068,6 +7966,52 @@ export interface operations {
             };
         };
     };
+    KitchenConsoleController_appealItemFlag: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AppealDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MenuItemResponseDto"];
+                };
+            };
+            /** @description Missing or invalid kitchen access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Item doesn't exist or belongs to another kitchen. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The item is not flagged, or already appealed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     KitchenConsoleController_uploadItemImage: {
         parameters: {
             query?: never;
@@ -7543,7 +8487,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description OUTSIDE_DELIVERY_AREA — the address is outside the delivery zone. */
+            /** @description OUTSIDE_DELIVERY_AREA — the address is outside the delivery zone. CART_UNAVAILABLE — items/kitchens unavailable. KITCHEN_TOO_FAR — a kitchen in the cart is more than 15 km from the delivery address (details lists kitchen names). MIXED_CART — food and grocery in one cart. */
             422: {
                 headers: {
                     [name: string]: unknown;
@@ -7620,6 +8564,94 @@ export interface operations {
             };
             /** @description Order doesn't exist or belongs to another customer. */
             404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrdersController_confirmReceived: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderWithDetailsResponseDto"];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Order doesn't exist or isn't the caller's. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not delivered yet, or the delivery was already confirmed or reported. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    OrdersController_reportNotReceived: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ReportNotReceivedDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["OrderWithDetailsResponseDto"];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Order doesn't exist or isn't the caller's. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not delivered yet, or the delivery was already confirmed or reported. */
+            409: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -7832,6 +8864,53 @@ export interface operations {
             };
         };
     };
+    RidersController_requestReview: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RiderResponseDto"];
+                };
+            };
+            /** @description Something required is still missing; the message says what. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is not a rider. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The rider is not rejected (already under review or verified). */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     RidersController_submitGuarantor: {
         parameters: {
             query?: never;
@@ -7920,6 +8999,37 @@ export interface operations {
         };
         responses: {
             /** @description `{ accountNumber, accountName }` as confirmed by the bank. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is not a rider. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RidersController_listOpenOrders: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
             200: {
                 headers: {
                     [name: string]: unknown;
@@ -8045,6 +9155,39 @@ export interface operations {
             };
         };
     };
+    RidersController_listTrips: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RiderTripResponseDto"][];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is not a rider. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     RidersController_listTodayTrips: {
         parameters: {
             query?: never;
@@ -8071,6 +9214,49 @@ export interface operations {
             };
             /** @description Caller is not a rider. */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    RidersController_getAssignedOrder: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Order id. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AcceptedOrderResponseDto"];
+                };
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is not a rider. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Order not found, or it isn't assigned to this rider. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };

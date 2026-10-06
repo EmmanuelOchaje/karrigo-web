@@ -1106,6 +1106,55 @@
         ]
       }
     },
+    "/v1/admin/stores": {
+      "post": {
+        "operationId": "AdminController_createStore",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateStoreResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed."
+          },
+          "401": {
+            "description": "Missing or invalid admin access token."
+          },
+          "403": {
+            "description": "Requires SUPER_ADMIN."
+          },
+          "409": {
+            "description": "Owner email already in use."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a store (ACTIVE, no approval step) with an OWNER login. It starts grocery-only (the owner can switch food on in the app); admins do not set its products. The temporary password is returned once and never stored in plain text. The owner must sign in with exactly the returned `ownerEmail` (case-sensitive, as stored). SUPER_ADMIN only. Writes an AuditLog row.",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
     "/v1/admin/kitchens": {
       "get": {
         "operationId": "AdminController_listKitchens",
@@ -1120,6 +1169,19 @@
                 "ACTIVE",
                 "SUSPENDED",
                 "PENDING"
+              ]
+            }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "FOOD or GROCERY: kitchens that serve that side. Omit to list every vendor.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "FOOD",
+                "GROCERY"
               ]
             }
           },
@@ -1252,6 +1314,156 @@
           }
         ],
         "summary": "Approve (→ ACTIVE) or suspend/reject (→ SUSPENDED) a kitchen. Writes an AuditLog row.",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/v1/admin/menu-items/{id}/flag": {
+      "post": {
+        "operationId": "AdminController_flagItem",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/FlagItemDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuItemResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid admin access token."
+          },
+          "404": {
+            "description": "Menu item not found."
+          },
+          "409": {
+            "description": "This item is already flagged."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Flag a menu item: hidden from customers and not orderable until cleared. Requires a `note` (1-500) the owner sees. Any admin role (moderation, same policy as banning a kitchen). Writes an AuditLog row.",
+        "tags": [
+          "Admin"
+        ]
+      },
+      "delete": {
+        "operationId": "AdminController_clearItemFlag",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuItemResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid admin access token."
+          },
+          "404": {
+            "description": "Menu item not found."
+          },
+          "409": {
+            "description": "This item is not flagged."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Clear a menu item flag (and any appeal). Any admin role (moderation, same policy as banning a kitchen). Writes an AuditLog row.",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/v1/admin/flagged-items": {
+      "get": {
+        "operationId": "AdminController_listFlaggedItems",
+        "parameters": [
+          {
+            "name": "kitchenId",
+            "required": false,
+            "in": "query",
+            "description": "Only items of this kitchen.",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "hasAppeal",
+            "required": false,
+            "in": "query",
+            "description": "true: only items whose owner has sent an appeal.",
+            "schema": {
+              "type": "boolean"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/FlaggedItemResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid admin access token."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Flagged menu items, newest flag first. `kitchenId` narrows to one kitchen; `hasAppeal=true` shows only appealed ones. Any admin role.",
         "tags": [
           "Admin"
         ]
@@ -1849,6 +2061,65 @@
           }
         ],
         "summary": "Every kitchen and rider the payout endpoints would pay right now, with the exact amounts — same rows and math as the real payout run.",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/v1/admin/orders/{id}/release-rider-pay": {
+      "post": {
+        "operationId": "AdminController_releaseRiderPay",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Order id.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefundOrderDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid admin access token."
+          },
+          "403": {
+            "description": "SUPER_ADMIN only."
+          },
+          "404": {
+            "description": "Order not found."
+          },
+          "409": {
+            "description": "The delivery is not currently reported as not received."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Resolve a disputed delivery in the rider's favour: DISPUTED → CONFIRMED, which releases the rider's held pay. A delivery that really didn't arrive needs no call here (it stays held) plus a refund. Writes an AuditLog row.",
         "tags": [
           "Admin"
         ]
@@ -3343,7 +3614,21 @@
     "/v1/kitchens": {
       "get": {
         "operationId": "KitchensController_list",
-        "parameters": [],
+        "parameters": [
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Defaults to FOOD.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "FOOD",
+                "GROCERY"
+              ]
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -3458,6 +3743,19 @@
             "schema": {
               "type": "string"
             }
+          },
+          {
+            "name": "type",
+            "required": false,
+            "in": "query",
+            "description": "Defaults to FOOD.",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "FOOD",
+                "GROCERY"
+              ]
+            }
           }
         ],
         "responses": {
@@ -3472,10 +3770,10 @@
             }
           },
           "404": {
-            "description": "Kitchen not found (or not ACTIVE)."
+            "description": "Kitchen not found, not ACTIVE, or does not serve the requested side."
           }
         },
-        "summary": "A kitchen's public page — profile plus its full menu.",
+        "summary": "A kitchen's public page for one side (?type=, default FOOD) — profile plus that side's menu; flagged items omitted.",
         "tags": [
           "Kitchens (public catalog)"
         ]
@@ -3522,6 +3820,74 @@
         "summary": "A single dish.",
         "tags": [
           "Kitchens (public catalog)"
+        ]
+      }
+    },
+    "/v1/kitchen-console/devices": {
+      "post": {
+        "operationId": "KitchenConsoleController_registerDevice",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterDeviceDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "401": {
+            "description": "Missing or invalid kitchen access token."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Register this kitchen app install for push notifications (new orders, payments, cancellations). Upserts on the Expo push token.",
+        "tags": [
+          "Kitchen Console"
+        ]
+      }
+    },
+    "/v1/kitchen-console/devices/{expoPushToken}": {
+      "delete": {
+        "operationId": "KitchenConsoleController_unregisterDevice",
+        "parameters": [
+          {
+            "name": "expoPushToken",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "Missing or invalid kitchen access token."
+          },
+          "404": {
+            "description": "Device doesn't exist or belongs to another staff member."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Unregister a push token (on sign-out).",
+        "tags": [
+          "Kitchen Console"
         ]
       }
     },
@@ -3687,6 +4053,124 @@
           }
         ],
         "summary": "Reverse-geocode coordinates to one formatted address (LocationIQ).",
+        "tags": [
+          "Kitchen Console"
+        ]
+      }
+    },
+    "/v1/kitchen-console/kitchen/request-review": {
+      "post": {
+        "operationId": "KitchenConsoleController_requestReview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid kitchen access token."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          },
+          "409": {
+            "description": "Always: suspended (use appeal), already in review, or already approved."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Deprecated: always responds 409. Suspended kitchens must use POST /kitchen-console/kitchen/appeal; PENDING/ACTIVE kitchens have nothing to review. OWNER only.",
+        "tags": [
+          "Kitchen Console"
+        ]
+      }
+    },
+    "/v1/kitchen-console/kitchen/appeal": {
+      "post": {
+        "operationId": "KitchenConsoleController_appeal",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppealDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid kitchen access token."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          },
+          "409": {
+            "description": "The kitchen is not suspended, or already appealed."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Appeal a ban with a message (once per ban). OWNER only.",
+        "tags": [
+          "Kitchen Console"
+        ]
+      }
+    },
+    "/v1/kitchen-console/kitchen/payout-account/resolve": {
+      "post": {
+        "operationId": "KitchenConsoleController_resolvePayoutAccount",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitPayoutAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "`{ accountNumber, accountName }` as confirmed by the bank."
+          },
+          "401": {
+            "description": "Missing or invalid kitchen access token."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Look up the account name for a bank + account number without saving it, so the owner can confirm it first. OWNER only.",
         "tags": [
           "Kitchen Console"
         ]
@@ -4275,6 +4759,61 @@
         ]
       }
     },
+    "/v1/kitchen-console/menu/items/{id}/appeal": {
+      "post": {
+        "operationId": "KitchenConsoleController_appealItemFlag",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppealDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/MenuItemResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid kitchen access token."
+          },
+          "404": {
+            "description": "Item doesn't exist or belongs to another kitchen."
+          },
+          "409": {
+            "description": "The item is not flagged, or already appealed."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send one appeal message against an admin flag on a menu item. Same staff access as the other menu routes.",
+        "tags": [
+          "Kitchen Console"
+        ]
+      }
+    },
     "/v1/kitchen-console/menu/items/{id}/image": {
       "post": {
         "operationId": "KitchenConsoleController_uploadItemImage",
@@ -4854,7 +5393,7 @@
             "description": "Address not found."
           },
           "422": {
-            "description": "OUTSIDE_DELIVERY_AREA — the address is outside the delivery zone."
+            "description": "OUTSIDE_DELIVERY_AREA — the address is outside the delivery zone. CART_UNAVAILABLE — items/kitchens unavailable. KITCHEN_TOO_FAR — a kitchen in the cart is more than 15 km from the delivery address (details lists kitchen names). MIXED_CART — food and grocery in one cart."
           }
         },
         "security": [
@@ -4987,6 +5526,106 @@
           }
         ],
         "summary": "One order, in full detail.",
+        "tags": [
+          "Orders (consumer)"
+        ]
+      }
+    },
+    "/v1/orders/{id}/confirm-received": {
+      "post": {
+        "operationId": "OrdersController_confirmReceived",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderWithDetailsResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token."
+          },
+          "404": {
+            "description": "Order doesn't exist or isn't the caller's."
+          },
+          "409": {
+            "description": "Not delivered yet, or the delivery was already confirmed or reported."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Confirm a delivered order arrived. If the customer never answers, it is confirmed automatically after the confirmation window.",
+        "tags": [
+          "Orders (consumer)"
+        ]
+      }
+    },
+    "/v1/orders/{id}/report-not-received": {
+      "post": {
+        "operationId": "OrdersController_reportNotReceived",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ReportNotReceivedDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/OrderWithDetailsResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token."
+          },
+          "404": {
+            "description": "Order doesn't exist or isn't the caller's."
+          },
+          "409": {
+            "description": "Not delivered yet, or the delivery was already confirmed or reported."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Report that a delivered order never arrived. Opens a support ticket and holds the rider's pay until the team has looked into it.",
         "tags": [
           "Orders (consumer)"
         ]
@@ -5223,6 +5862,45 @@
         ]
       }
     },
+    "/v1/riders/me/request-review": {
+      "post": {
+        "operationId": "RidersController_requestReview",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RiderResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Something required is still missing; the message says what."
+          },
+          "401": {
+            "description": "Missing or invalid access token."
+          },
+          "403": {
+            "description": "Caller is not a rider."
+          },
+          "409": {
+            "description": "The rider is not rejected (already under review or verified)."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Send a rejected rider back for verification (REJECTED → PENDING) once the required documents and guarantor details are all on file.",
+        "tags": [
+          "Riders"
+        ]
+      }
+    },
     "/v1/riders/me/guarantor": {
       "patch": {
         "operationId": "RidersController_submitGuarantor",
@@ -5345,6 +6023,32 @@
         ]
       }
     },
+    "/v1/riders/orders/open": {
+      "get": {
+        "operationId": "RidersController_listOpenOrders",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": ""
+          },
+          "401": {
+            "description": "Missing or invalid access token."
+          },
+          "403": {
+            "description": "Caller is not a rider."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Orders waiting for a rider right now (paid, not yet taken), in the same shape as a 'trip:offer'. Lets a rider pick up orders that were offered before they came online or that they missed.",
+        "tags": [
+          "Riders"
+        ]
+      }
+    },
     "/v1/riders/me/payout-account": {
       "patch": {
         "operationId": "RidersController_submitPayoutAccount",
@@ -5457,6 +6161,42 @@
         ]
       }
     },
+    "/v1/riders/me/trips": {
+      "get": {
+        "operationId": "RidersController_listTrips",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/RiderTripResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token."
+          },
+          "403": {
+            "description": "Caller is not a rider."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The rider's recent trips (last 50, newest first), whatever their status: in progress, delivered or cancelled.",
+        "tags": [
+          "Riders"
+        ]
+      }
+    },
     "/v1/riders/me/trips/today": {
       "get": {
         "operationId": "RidersController_listTodayTrips",
@@ -5488,6 +6228,52 @@
           }
         ],
         "summary": "Today's completed deliveries.",
+        "tags": [
+          "Riders"
+        ]
+      }
+    },
+    "/v1/riders/orders/{id}": {
+      "get": {
+        "operationId": "RidersController_getAssignedOrder",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Order id.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AcceptedOrderResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid access token."
+          },
+          "403": {
+            "description": "Caller is not a rider."
+          },
+          "404": {
+            "description": "Order not found, or it isn't assigned to this rider."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "An order this rider has accepted, with its current status. Used to catch up when a live status event was missed.",
         "tags": [
           "Riders"
         ]
@@ -5760,11 +6546,11 @@
             "type": "string"
           },
           "platform": {
-            "type": "string",
             "enum": [
               "ios",
               "android"
-            ]
+            ],
+            "type": "string"
           }
         },
         "required": [
@@ -5779,7 +6565,14 @@
             "type": "string"
           },
           "userId": {
-            "type": "string"
+            "type": "string",
+            "nullable": true,
+            "description": "The customer or rider who owns it; null for a kitchen app install."
+          },
+          "kitchenStaffId": {
+            "type": "string",
+            "nullable": true,
+            "description": "The kitchen staff member who owns it; null for a customer or rider."
           },
           "expoPushToken": {
             "type": "string"
@@ -5803,6 +6596,7 @@
         "required": [
           "id",
           "userId",
+          "kitchenStaffId",
           "expoPushToken",
           "platform",
           "lastSeenAt",
@@ -6218,6 +7012,20 @@
           "ratingsCount": {
             "type": "number"
           },
+          "servesFood": {
+            "type": "boolean"
+          },
+          "servesGrocery": {
+            "type": "boolean"
+          },
+          "maxItemsPerOrder": {
+            "type": "number",
+            "nullable": true
+          },
+          "minOrderNaira": {
+            "type": "number",
+            "nullable": true
+          },
           "status": {
             "enum": [
               "ACTIVE",
@@ -6227,6 +7035,15 @@
             "type": "string"
           },
           "rejectionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "appealNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "appealedAt": {
+            "format": "date-time",
             "type": "string",
             "nullable": true
           },
@@ -6272,8 +7089,14 @@
           "feeNaira",
           "ratingAvg",
           "ratingsCount",
+          "servesFood",
+          "servesGrocery",
+          "maxItemsPerOrder",
+          "minOrderNaira",
           "status",
           "rejectionNote",
+          "appealNote",
+          "appealedAt",
           "reviewedAt",
           "payoutBankCode",
           "payoutAccountNumber",
@@ -6461,6 +7284,64 @@
           "adminRole",
           "name",
           "email"
+        ]
+      },
+      "CreateStoreDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "ownerName": {
+            "type": "string"
+          },
+          "ownerEmail": {
+            "type": "string",
+            "format": "email"
+          },
+          "ownerPhone": {
+            "type": "string",
+            "pattern": "^\\+234\\d{10}$"
+          },
+          "maxItemsPerOrder": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "minOrderNaira": {
+            "type": "number",
+            "minimum": 0
+          }
+        },
+        "required": [
+          "name",
+          "area",
+          "ownerName",
+          "ownerEmail",
+          "ownerPhone"
+        ]
+      },
+      "CreateStoreResponseDto": {
+        "type": "object",
+        "properties": {
+          "kitchen": {
+            "$ref": "#/components/schemas/KitchenResponseDto"
+          },
+          "ownerEmail": {
+            "type": "string"
+          },
+          "temporaryPassword": {
+            "type": "string",
+            "description": "Shown exactly once; only its bcrypt hash is stored."
+          }
+        },
+        "required": [
+          "kitchen",
+          "ownerEmail",
+          "temporaryPassword"
         ]
       },
       "AdminKitchenStatsDto": {
@@ -6693,6 +7574,20 @@
           "ratingsCount": {
             "type": "number"
           },
+          "servesFood": {
+            "type": "boolean"
+          },
+          "servesGrocery": {
+            "type": "boolean"
+          },
+          "maxItemsPerOrder": {
+            "type": "number",
+            "nullable": true
+          },
+          "minOrderNaira": {
+            "type": "number",
+            "nullable": true
+          },
           "status": {
             "enum": [
               "ACTIVE",
@@ -6702,6 +7597,15 @@
             "type": "string"
           },
           "rejectionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "appealNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "appealedAt": {
+            "format": "date-time",
             "type": "string",
             "nullable": true
           },
@@ -6771,8 +7675,14 @@
           "feeNaira",
           "ratingAvg",
           "ratingsCount",
+          "servesFood",
+          "servesGrocery",
+          "maxItemsPerOrder",
+          "minOrderNaira",
           "status",
           "rejectionNote",
+          "appealNote",
+          "appealedAt",
           "reviewedAt",
           "payoutBankCode",
           "payoutAccountNumber",
@@ -6797,11 +7707,179 @@
           },
           "note": {
             "type": "string",
+            "description": "Required (non-blank) when suspending; the service enforces that.",
             "maxLength": 500
           }
         },
         "required": [
           "status"
+        ]
+      },
+      "FlagItemDto": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "note"
+        ]
+      },
+      "MenuItemTagDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "tone": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "label",
+          "tone"
+        ]
+      },
+      "MenuItemResponseDto": {
+        "type": "object",
+        "properties": {
+          "flaggedAt": {
+            "type": "string",
+            "nullable": true,
+            "description": "Set while an admin flag hides the item; null otherwise.",
+            "format": "date-time"
+          },
+          "flagNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "flagAppealNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "flagAppealedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "id": {
+            "type": "string"
+          },
+          "kitchenId": {
+            "type": "string"
+          },
+          "sectionId": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "description": {
+            "type": "string",
+            "nullable": true
+          },
+          "priceNaira": {
+            "type": "number"
+          },
+          "imageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "unit": {
+            "type": "string",
+            "nullable": true
+          },
+          "isSoldOut": {
+            "type": "boolean"
+          },
+          "tags": {
+            "nullable": true,
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/MenuItemTagDto"
+            }
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "flaggedAt",
+          "flagNote",
+          "flagAppealNote",
+          "flagAppealedAt",
+          "id",
+          "kitchenId",
+          "sectionId",
+          "slug",
+          "name",
+          "description",
+          "priceNaira",
+          "imageUrl",
+          "unit",
+          "isSoldOut",
+          "tags",
+          "sortOrder",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "FlaggedItemResponseDto": {
+        "type": "object",
+        "properties": {
+          "flaggedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "flagNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "flagAppealNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "flagAppealedAt": {
+            "type": "string",
+            "nullable": true,
+            "format": "date-time"
+          },
+          "itemId": {
+            "type": "string"
+          },
+          "itemName": {
+            "type": "string"
+          },
+          "kitchenId": {
+            "type": "string"
+          },
+          "kitchenName": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "flaggedAt",
+          "flagNote",
+          "flagAppealNote",
+          "flagAppealedAt",
+          "itemId",
+          "itemName",
+          "kitchenId",
+          "kitchenName"
         ]
       },
       "AdminRiderListUserDto": {
@@ -7765,6 +8843,28 @@
               "KITCHEN_TIMEOUT"
             ]
           },
+          "receiptStatus": {
+            "type": "string",
+            "nullable": true,
+            "description": "After delivery: AWAITING_CONFIRMATION until the customer confirms (CONFIRMED), reports it never arrived (DISPUTED), or receiptDueAt passes (AUTO_CONFIRMED). Null before delivery and on orders delivered before this existed.",
+            "enum": [
+              "AWAITING_CONFIRMATION",
+              "CONFIRMED",
+              "AUTO_CONFIRMED",
+              "DISPUTED"
+            ]
+          },
+          "receiptDueAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When silence starts counting as \"received\"."
+          },
+          "receiptResolvedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
           "payoutId": {
             "type": "string",
             "nullable": true
@@ -7805,6 +8905,9 @@
           "paymentDueAt",
           "paidAt",
           "cancelReason",
+          "receiptStatus",
+          "receiptDueAt",
+          "receiptResolvedAt",
           "payoutId",
           "createdAt",
           "updatedAt"
@@ -7949,6 +9052,10 @@
           },
           "unitPriceNaira": {
             "type": "number"
+          },
+          "unavailable": {
+            "type": "boolean",
+            "description": "True when the kitchen couldn't supply this line; it isn't charged."
           }
         },
         "required": [
@@ -7957,7 +9064,8 @@
           "menuItemId",
           "nameSnapshot",
           "qty",
-          "unitPriceNaira"
+          "unitPriceNaira",
+          "unavailable"
         ]
       },
       "AdminOrderKitchenDetailDto": {
@@ -8232,6 +9340,28 @@
               "KITCHEN_TIMEOUT"
             ]
           },
+          "receiptStatus": {
+            "type": "string",
+            "nullable": true,
+            "description": "After delivery: AWAITING_CONFIRMATION until the customer confirms (CONFIRMED), reports it never arrived (DISPUTED), or receiptDueAt passes (AUTO_CONFIRMED). Null before delivery and on orders delivered before this existed.",
+            "enum": [
+              "AWAITING_CONFIRMATION",
+              "CONFIRMED",
+              "AUTO_CONFIRMED",
+              "DISPUTED"
+            ]
+          },
+          "receiptDueAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When silence starts counting as \"received\"."
+          },
+          "receiptResolvedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
           "payoutId": {
             "type": "string",
             "nullable": true
@@ -8277,6 +9407,9 @@
           "paymentDueAt",
           "paidAt",
           "cancelReason",
+          "receiptStatus",
+          "receiptDueAt",
+          "receiptResolvedAt",
           "payoutId",
           "createdAt",
           "updatedAt"
@@ -8463,6 +9596,11 @@
             "type": "number",
             "description": "What POST /admin/kitchens/:id/payout would transfer now — gross minus commission."
           },
+          "rateError": {
+            "type": "string",
+            "nullable": true,
+            "description": "Set when the kitchen's commission rate isn't configured (e.g. GROCERY_COMMISSION_RATE unset): netNaira is 0 and the payout call returns 503 until fixed."
+          },
           "hasPayoutAccount": {
             "type": "boolean",
             "description": "false means the payout call would fail with 400 until the kitchen adds one."
@@ -8481,6 +9619,7 @@
           "orderCount",
           "grossNaira",
           "netNaira",
+          "rateError",
           "hasPayoutAccount",
           "oldestUnpaidAt"
         ]
@@ -8689,6 +9828,28 @@
             ],
             "type": "string"
           },
+          "receiptStatus": {
+            "nullable": true,
+            "description": "After delivery: AWAITING_CONFIRMATION until the customer confirms (CONFIRMED), reports it never arrived (DISPUTED), or receiptDueAt passes (AUTO_CONFIRMED). Null before delivery and on orders delivered before this existed.",
+            "enum": [
+              "AWAITING_CONFIRMATION",
+              "CONFIRMED",
+              "AUTO_CONFIRMED",
+              "DISPUTED"
+            ],
+            "type": "string"
+          },
+          "receiptDueAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When silence starts counting as \"received\"."
+          },
+          "receiptResolvedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
           "payoutId": {
             "type": "string",
             "nullable": true
@@ -8725,6 +9886,9 @@
           "paymentDueAt",
           "paidAt",
           "cancelReason",
+          "receiptStatus",
+          "receiptDueAt",
+          "receiptResolvedAt",
           "payoutId",
           "createdAt",
           "updatedAt"
@@ -11022,88 +12186,6 @@
           }
         }
       },
-      "MenuItemTagDto": {
-        "type": "object",
-        "properties": {
-          "label": {
-            "type": "string"
-          },
-          "tone": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "label",
-          "tone"
-        ]
-      },
-      "MenuItemResponseDto": {
-        "type": "object",
-        "properties": {
-          "id": {
-            "type": "string"
-          },
-          "kitchenId": {
-            "type": "string"
-          },
-          "sectionId": {
-            "type": "string"
-          },
-          "slug": {
-            "type": "string"
-          },
-          "name": {
-            "type": "string"
-          },
-          "description": {
-            "type": "string",
-            "nullable": true
-          },
-          "priceNaira": {
-            "type": "number"
-          },
-          "imageUrl": {
-            "type": "string",
-            "nullable": true
-          },
-          "isSoldOut": {
-            "type": "boolean"
-          },
-          "tags": {
-            "nullable": true,
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/MenuItemTagDto"
-            }
-          },
-          "sortOrder": {
-            "type": "number"
-          },
-          "createdAt": {
-            "format": "date-time",
-            "type": "string"
-          },
-          "updatedAt": {
-            "format": "date-time",
-            "type": "string"
-          }
-        },
-        "required": [
-          "id",
-          "kitchenId",
-          "sectionId",
-          "slug",
-          "name",
-          "description",
-          "priceNaira",
-          "imageUrl",
-          "isSoldOut",
-          "tags",
-          "sortOrder",
-          "createdAt",
-          "updatedAt"
-        ]
-      },
       "MenuSectionWithItemsResponseDto": {
         "type": "object",
         "properties": {
@@ -11118,6 +12200,13 @@
           },
           "kitchenId": {
             "type": "string"
+          },
+          "type": {
+            "type": "string",
+            "enum": [
+              "FOOD",
+              "GROCERY"
+            ]
           },
           "label": {
             "type": "string"
@@ -11134,6 +12223,7 @@
           "items",
           "id",
           "kitchenId",
+          "type",
           "label",
           "note",
           "sortOrder"
@@ -11195,6 +12285,20 @@
           "ratingsCount": {
             "type": "number"
           },
+          "servesFood": {
+            "type": "boolean"
+          },
+          "servesGrocery": {
+            "type": "boolean"
+          },
+          "maxItemsPerOrder": {
+            "type": "number",
+            "nullable": true
+          },
+          "minOrderNaira": {
+            "type": "number",
+            "nullable": true
+          },
           "status": {
             "enum": [
               "ACTIVE",
@@ -11204,6 +12308,15 @@
             "type": "string"
           },
           "rejectionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "appealNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "appealedAt": {
+            "format": "date-time",
             "type": "string",
             "nullable": true
           },
@@ -11255,8 +12368,14 @@
           "feeNaira",
           "ratingAvg",
           "ratingsCount",
+          "servesFood",
+          "servesGrocery",
+          "maxItemsPerOrder",
+          "minOrderNaira",
           "status",
           "rejectionNote",
+          "appealNote",
+          "appealedAt",
           "reviewedAt",
           "payoutBankCode",
           "payoutAccountNumber",
@@ -11296,6 +12415,19 @@
           "address"
         ]
       },
+      "AppealDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
       "UpdateKitchenProfileDto": {
         "type": "object",
         "properties": {
@@ -11332,6 +12464,12 @@
             "minimum": 0
           },
           "isOpen": {
+            "type": "boolean"
+          },
+          "servesFood": {
+            "type": "boolean"
+          },
+          "servesGrocery": {
             "type": "boolean"
           }
         }
@@ -11512,8 +12650,14 @@
       "KitchenEarningsSummaryResponseDto": {
         "type": "object",
         "properties": {
+          "groceryCommissionRate": {
+            "type": "number",
+            "nullable": true,
+            "description": "The GROCERY rate, or null while GROCERY_COMMISSION_RATE is unset."
+          },
           "commissionRate": {
-            "type": "number"
+            "type": "number",
+            "description": "The FOOD rate."
           },
           "salesNaira": {
             "type": "number"
@@ -11532,6 +12676,7 @@
           }
         },
         "required": [
+          "groceryCommissionRate",
           "commissionRate",
           "salesNaira",
           "commissionNaira",
@@ -11635,6 +12780,14 @@
           },
           "sortOrder": {
             "type": "number"
+          },
+          "type": {
+            "type": "string",
+            "description": "Required when the kitchen serves both sides; forced to the single side otherwise. Immutable after creation.",
+            "enum": [
+              "FOOD",
+              "GROCERY"
+            ]
           }
         },
         "required": [
@@ -11648,6 +12801,13 @@
             "type": "string"
           },
           "kitchenId": {
+            "type": "string"
+          },
+          "type": {
+            "enum": [
+              "FOOD",
+              "GROCERY"
+            ],
             "type": "string"
           },
           "label": {
@@ -11664,6 +12824,7 @@
         "required": [
           "id",
           "kitchenId",
+          "type",
           "label",
           "note",
           "sortOrder"
@@ -11721,6 +12882,10 @@
               ]
             }
           },
+          "unit": {
+            "type": "string",
+            "maxLength": 40
+          },
           "sortOrder": {
             "type": "number"
           }
@@ -11768,6 +12933,10 @@
                 "tone"
               ]
             }
+          },
+          "unit": {
+            "type": "string",
+            "maxLength": 40
           },
           "sortOrder": {
             "type": "number"
@@ -11859,6 +13028,14 @@
       "KitchenOrderWithDetailsResponseDto": {
         "type": "object",
         "properties": {
+          "type": {
+            "description": "The order's side (FOOD or GROCERY), set from the cart when placed.",
+            "enum": [
+              "FOOD",
+              "GROCERY"
+            ],
+            "type": "string"
+          },
           "items": {
             "type": "array",
             "items": {
@@ -11898,6 +13075,12 @@
             "type": "string",
             "nullable": true
           },
+          "readyAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When the kitchen marked its part READY; null until then (and for older orders that were already past READY)."
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -11908,6 +13091,7 @@
           }
         },
         "required": [
+          "type",
           "items",
           "order",
           "id",
@@ -11917,6 +13101,7 @@
           "subtotalNaira",
           "deliveryFeeNaira",
           "payoutId",
+          "readyAt",
           "createdAt",
           "updatedAt"
         ]
@@ -11934,6 +13119,14 @@
               "PICKED_UP",
               "CANCELLED"
             ]
+          },
+          "unavailableItemIds": {
+            "description": "OrderItem ids the kitchen can't supply. Only valid when accepting a GROCERY order.",
+            "uniqueItems": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         },
         "required": [
@@ -11943,6 +13136,14 @@
       "KitchenOrderResponseDto": {
         "type": "object",
         "properties": {
+          "type": {
+            "description": "The order's side (FOOD or GROCERY), set from the cart when placed.",
+            "enum": [
+              "FOOD",
+              "GROCERY"
+            ],
+            "type": "string"
+          },
           "id": {
             "type": "string"
           },
@@ -11973,6 +13174,12 @@
             "type": "string",
             "nullable": true
           },
+          "readyAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When the kitchen marked its part READY; null until then (and for older orders that were already past READY)."
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -11983,6 +13190,7 @@
           }
         },
         "required": [
+          "type",
           "id",
           "orderId",
           "kitchenId",
@@ -11990,6 +13198,7 @@
           "subtotalNaira",
           "deliveryFeeNaira",
           "payoutId",
+          "readyAt",
           "createdAt",
           "updatedAt"
         ]
@@ -12275,6 +13484,14 @@
       "OrderDetailKitchenOrderDto": {
         "type": "object",
         "properties": {
+          "type": {
+            "description": "The order's side (FOOD or GROCERY), set from the cart when placed.",
+            "enum": [
+              "FOOD",
+              "GROCERY"
+            ],
+            "type": "string"
+          },
           "id": {
             "type": "string"
           },
@@ -12305,6 +13522,12 @@
             "type": "string",
             "nullable": true
           },
+          "readyAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When the kitchen marked its part READY; null until then (and for older orders that were already past READY)."
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -12324,6 +13547,7 @@
           }
         },
         "required": [
+          "type",
           "id",
           "orderId",
           "kitchenId",
@@ -12331,6 +13555,7 @@
           "subtotalNaira",
           "deliveryFeeNaira",
           "payoutId",
+          "readyAt",
           "createdAt",
           "updatedAt",
           "kitchen",
@@ -12480,6 +13705,28 @@
             ],
             "type": "string"
           },
+          "receiptStatus": {
+            "nullable": true,
+            "description": "After delivery: AWAITING_CONFIRMATION until the customer confirms (CONFIRMED), reports it never arrived (DISPUTED), or receiptDueAt passes (AUTO_CONFIRMED). Null before delivery and on orders delivered before this existed.",
+            "enum": [
+              "AWAITING_CONFIRMATION",
+              "CONFIRMED",
+              "AUTO_CONFIRMED",
+              "DISPUTED"
+            ],
+            "type": "string"
+          },
+          "receiptDueAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When silence starts counting as \"received\"."
+          },
+          "receiptResolvedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
           "payoutId": {
             "type": "string",
             "nullable": true
@@ -12540,6 +13787,9 @@
           "paymentDueAt",
           "paidAt",
           "cancelReason",
+          "receiptStatus",
+          "receiptDueAt",
+          "receiptResolvedAt",
           "payoutId",
           "createdAt",
           "updatedAt",
@@ -12564,6 +13814,16 @@
           "code",
           "subtotalNaira"
         ]
+      },
+      "ReportNotReceivedDto": {
+        "type": "object",
+        "properties": {
+          "note": {
+            "type": "string",
+            "description": "What happened, in the customer's words. Optional.",
+            "maxLength": 500
+          }
+        }
       },
       "OnboardRiderDto": {
         "type": "object",
@@ -12887,6 +14147,67 @@
           "nextPayoutDaysAway"
         ]
       },
+      "RiderTripResponseDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "The order's status: in progress (ACCEPTED…DELIVERING), DELIVERED, CANCELLED, …"
+          },
+          "placedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "id": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "kitchenName": {
+            "type": "string"
+          },
+          "kitchenAreaLabel": {
+            "type": "string",
+            "nullable": true
+          },
+          "customerAddressLabel": {
+            "type": "string"
+          },
+          "customerAreaLabel": {
+            "type": "string"
+          },
+          "deliveryFeeNaira": {
+            "type": "number"
+          },
+          "cashCollectedNaira": {
+            "type": "number"
+          },
+          "durationMin": {
+            "type": "number",
+            "nullable": true
+          },
+          "deliveredAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          }
+        },
+        "required": [
+          "status",
+          "placedAt",
+          "id",
+          "code",
+          "kitchenName",
+          "kitchenAreaLabel",
+          "customerAddressLabel",
+          "customerAreaLabel",
+          "deliveryFeeNaira",
+          "cashCollectedNaira",
+          "durationMin",
+          "deliveredAt"
+        ]
+      },
       "RiderTodayTripResponseDto": {
         "type": "object",
         "properties": {
@@ -12957,6 +14278,14 @@
       "AcceptedOrderKitchenOrderDto": {
         "type": "object",
         "properties": {
+          "type": {
+            "description": "The order's side (FOOD or GROCERY), set from the cart when placed.",
+            "enum": [
+              "FOOD",
+              "GROCERY"
+            ],
+            "type": "string"
+          },
           "id": {
             "type": "string"
           },
@@ -12987,6 +14316,12 @@
             "type": "string",
             "nullable": true
           },
+          "readyAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When the kitchen marked its part READY; null until then (and for older orders that were already past READY)."
+          },
           "createdAt": {
             "format": "date-time",
             "type": "string"
@@ -13006,6 +14341,7 @@
           }
         },
         "required": [
+          "type",
           "id",
           "orderId",
           "kitchenId",
@@ -13013,6 +14349,7 @@
           "subtotalNaira",
           "deliveryFeeNaira",
           "payoutId",
+          "readyAt",
           "createdAt",
           "updatedAt",
           "kitchen",
@@ -13147,6 +14484,28 @@
             ],
             "type": "string"
           },
+          "receiptStatus": {
+            "nullable": true,
+            "description": "After delivery: AWAITING_CONFIRMATION until the customer confirms (CONFIRMED), reports it never arrived (DISPUTED), or receiptDueAt passes (AUTO_CONFIRMED). Null before delivery and on orders delivered before this existed.",
+            "enum": [
+              "AWAITING_CONFIRMATION",
+              "CONFIRMED",
+              "AUTO_CONFIRMED",
+              "DISPUTED"
+            ],
+            "type": "string"
+          },
+          "receiptDueAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true,
+            "description": "When silence starts counting as \"received\"."
+          },
+          "receiptResolvedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
           "payoutId": {
             "type": "string",
             "nullable": true
@@ -13201,6 +14560,9 @@
           "paymentDueAt",
           "paidAt",
           "cancelReason",
+          "receiptStatus",
+          "receiptDueAt",
+          "receiptResolvedAt",
           "payoutId",
           "createdAt",
           "updatedAt",
