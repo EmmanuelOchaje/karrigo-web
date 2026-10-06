@@ -214,12 +214,17 @@ export default function HomePage() {
           </Screen>
 
           <div className="bg-cream text-on-accent rounded-panel-md p-xxl md:p-pad-card flex flex-col">
-            {/* No store photo yet — see the StoreCard placeholder note. */}
             <div
               data-theme="light"
-              className="bg-bg text-text-tertiary text-site-label rounded-slot flex h-[200px] items-center justify-center overflow-hidden md:h-[248px]"
+              className="bg-bg rounded-slot relative h-[200px] overflow-hidden md:h-[248px]"
             >
-              Inside a Makurdi store
+              <Image
+                src="/images/v5-store.jpg"
+                alt="A storefront icon"
+                fill
+                sizes="(max-width: 640px) 100vw, 33vw"
+                className="object-contain"
+              />
             </div>
             <h2 className="text-card-title-small md:text-card-title mt-xxl">
               Sell your groceries on Karrigo
