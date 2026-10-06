@@ -54,10 +54,8 @@ export default function HomePage() {
 
           <div className="gap-xxl relative grid items-center px-xl pt-xxl md:px-pad-hero-x md:pt-pad-hero xl:grid-cols-2">
             <div className="min-w-0">
-              <h1 className="text-hero-small md:text-hero text-cream rise text-balance">
-                Food, groceries,
-                <br />
-                <span className="text-accent-text">at your doorstep.</span>
+              <h1 className="text-hero-small md:text-hero xl:text-section text-cream rise text-balance">
+                Food, groceries, <span className="text-accent-text">at your doorstep.</span>
               </h1>
 
               <p className="text-lede-small md:text-lede text-cream/66 rise rise-1 mt-xl max-w-[34ch] text-pretty">
