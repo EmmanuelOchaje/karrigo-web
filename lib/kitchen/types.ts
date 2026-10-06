@@ -11,13 +11,22 @@ export type Dish = {
   description: string;
   priceKobo: number;
   imageUrl: string | null;
+  /** "kg", "pack" — how a grocery product is sold. Empty for most dishes. */
+  unit: string;
   soldOut: boolean;
+  /** Hidden from customers by Karrigo. The owner can appeal once per flag. */
+  flag: { at: string; note: string; appealNote: string | null; appealedAt: string | null } | null;
 };
+
+/** Which side of the kitchen a section — and every product in it — belongs
+ *  to. Fixed when the section is created. */
+export type Side = "FOOD" | "GROCERY";
 
 export type MenuSection = {
   id: string;
   label: string;
   note: string;
+  type: Side;
   dishes: Dish[];
 };
 
@@ -30,6 +39,8 @@ export type Kitchen = {
   notice: string;
   cuisine: string;
   feeKobo: number;
+  servesFood: boolean;
+  servesGrocery: boolean;
   sections: MenuSection[];
 };
 
@@ -58,7 +69,11 @@ export type KitchenOrder = {
   placedAt: string;
   area: string;
   subtotalKobo: number;
-  items: { id: string; name: string; qty: number; unitPriceKobo: number }[];
+  /** Taken from the sections of its items. Only grocery orders can be
+   *  accepted with lines the kitchen can't supply. */
+  type: Side;
+  /** `unavailable` lines are kept, struck through, and not charged. */
+  items: { id: string; name: string; qty: number; unitPriceKobo: number; unavailable: boolean }[];
   /** The parent order, for telling "accepted, unpaid" from "accepted, paid". */
   order: {
     status: ParentOrderStatus;
@@ -73,6 +88,8 @@ export type DayHours = { day: number; closed: boolean; open: string; close: stri
 export type Earnings = {
   /** Karrigo's share, as a fraction: 0.15 is 15%. */
   commissionRate: number;
+  /** Grocery orders' rate; null until Karrigo has set one. */
+  groceryCommissionRate: number | null;
   salesKobo: number;
   commissionKobo: number;
   nextPayoutKobo: number;

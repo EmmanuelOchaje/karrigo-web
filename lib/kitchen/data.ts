@@ -40,12 +40,15 @@ export const getKitchen = cache(async (): Promise<Kitchen | null> => {
       notice: k.noticeText ?? "",
       cuisine: k.cuisine ?? "",
       feeKobo: nairaToKobo(k.feeNaira ?? 0),
+      servesFood: k.servesFood,
+      servesGrocery: k.servesGrocery,
       sections: [...k.sections]
         .sort((a, b) => a.sortOrder - b.sortOrder)
         .map((s) => ({
           id: s.id,
           label: s.label,
           note: s.note ?? "",
+          type: s.type,
           dishes: [...s.items]
             .sort((a, b) => a.sortOrder - b.sortOrder)
             .map((i) => ({
@@ -55,7 +58,16 @@ export const getKitchen = cache(async (): Promise<Kitchen | null> => {
               description: i.description ?? "",
               priceKobo: nairaToKobo(i.priceNaira),
               imageUrl: i.imageUrl ?? null,
+              unit: i.unit ?? "",
               soldOut: i.isSoldOut,
+              flag: i.flaggedAt
+                ? {
+                    at: i.flaggedAt,
+                    note: i.flagNote ?? "",
+                    appealNote: i.flagAppealNote,
+                    appealedAt: i.flagAppealedAt,
+                  }
+                : null,
             })),
         })),
     };
@@ -98,11 +110,13 @@ export const listOrders = cache(async (): Promise<KitchenOrder[]> => {
     placedAt: o.order.placedAt,
     area: o.order.address?.area ?? "",
     subtotalKobo: nairaToKobo(o.subtotalNaira),
+    type: o.type,
     items: o.items.map((i) => ({
       id: i.id,
       name: i.nameSnapshot,
       qty: i.qty,
       unitPriceKobo: nairaToKobo(i.unitPriceNaira),
+      unavailable: i.unavailable,
     })),
     order: {
       status: o.order.status,
@@ -140,6 +154,7 @@ export async function getEarnings(): Promise<Earnings> {
   });
   return {
     commissionRate: e.commissionRate,
+    groceryCommissionRate: e.groceryCommissionRate,
     salesKobo: nairaToKobo(e.salesNaira),
     commissionKobo: nairaToKobo(e.commissionNaira),
     nextPayoutKobo: nairaToKobo(e.nextPayoutNaira),
