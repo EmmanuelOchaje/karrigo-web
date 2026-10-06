@@ -242,6 +242,24 @@ export async function removeDish(id: string): Promise<Done> {
   }
 }
 
+/** A suspended kitchen's owner gets one appeal per ban. The kitchen stays
+ *  suspended until ops lifts it; there is no going back to the queue. */
+export async function appealKitchen(message: string): Promise<Done> {
+  const text = message.trim();
+  if (!text) return { ok: false, error: "Tell us what has changed." };
+  if (text.length > 500) return { ok: false, error: "Keep it under 500 characters." };
+  try {
+    await api("/kitchen-console/kitchen/appeal", { method: "POST", scope: "kitchen", body: { message: text } });
+    revalidatePath(KITCHEN_PAGE);
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 403) {
+      return { ok: false, error: "Only the kitchen's owner can send an appeal. Ask them to log in." };
+    }
+    return failure(error);
+  }
+}
+
 /* ----------------------------------------------------------------- rider */
 
 /**
@@ -324,6 +342,25 @@ export async function saveGuarantor(input: { name: string; phone: string; addres
     revalidatePath(RIDER_PAGE);
     return { ok: true };
   } catch (error) {
+    return failure(error);
+  }
+}
+
+/**
+ * Send a rejected application back to ops without uploading anything — for
+ * when the fix was the guarantor, or nothing needed a new photo. karrigo-be
+ * refuses it unless all three documents and the guarantor are on file.
+ */
+export async function requestRiderReview(): Promise<Done> {
+  try {
+    await api("/riders/me/request-review", { method: "POST", scope: "customer" });
+    revalidatePath(RIDER_PAGE);
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 409) {
+      revalidatePath(RIDER_PAGE);
+      return { ok: false, error: "Your application is already with our team." };
+    }
     return failure(error);
   }
 }

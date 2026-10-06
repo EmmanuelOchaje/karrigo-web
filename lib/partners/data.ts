@@ -15,6 +15,8 @@ export async function getKitchenApplication(): Promise<KitchenApplication | null
       name: k.name,
       status: k.status,
       note: k.rejectionNote ?? null,
+      appealNote: k.appealNote ?? null,
+      appealedAt: k.appealedAt ?? null,
       area: k.area ?? null,
       landmarkNote: k.landmarkNote ?? null,
       hasLocation: k.lat != null && k.lng != null,

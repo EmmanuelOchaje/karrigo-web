@@ -51,7 +51,15 @@ function delta(now: number, before: number | undefined): { delta: string | null;
 const AUDIT_VERB: Record<string, string> = {};
 
 function describe(entry: Schemas["AuditLogEntryDto"]): string {
-  const who = entry.actorAdmin && "name" in entry.actorAdmin ? String(entry.actorAdmin.name) : "An admin";
+  // Not every entry is an admin's: a rider resubmitting for review is
+  // recorded with the rider as the actor.
+  const who = entry.actorAdmin
+    ? entry.actorAdmin.name
+    : entry.actorKitchenStaff
+      ? entry.actorKitchenStaff.name
+      : entry.actorUser
+        ? (entry.actorUser.name ?? entry.actorUser.phone)
+        : "System";
   const action = (AUDIT_VERB[entry.action] ?? entry.action.replace(/[._]/g, " ").toLowerCase());
   return `${who} · ${action} · ${entry.entity.toLowerCase()}`;
 }

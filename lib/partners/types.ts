@@ -8,6 +8,9 @@ export type KitchenApplication = {
   status: "PENDING" | "ACTIVE" | "SUSPENDED";
   /** Why ops sent it back. Shown to the kitchen, word for word. */
   note: string | null;
+  /** The owner's one appeal against a suspension, and when it was sent. */
+  appealNote: string | null;
+  appealedAt: string | null;
   area: string | null;
   landmarkNote: string | null;
   hasLocation: boolean;

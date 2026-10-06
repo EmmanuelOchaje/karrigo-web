@@ -3,6 +3,7 @@
 import { useState, useTransition } from "react";
 
 import {
+  requestRiderReview,
   saveGuarantor,
   saveRiderBank,
   saveVehicle,
@@ -52,13 +53,16 @@ export function RiderApply({
           text="Open the Karrigo Partner app, go online, and trip offers will start coming in."
         />
       ) : rider?.status === "REJECTED" ? (
-        <StatusBanner
-          tone="stopped"
-          title="Karrigo needs a few changes"
-          text="See what to fix below, then send it again. Adding a new photo puts you back in the queue, and you can't go online until it's approved."
-          note={rider.note}
-          noteLabel="What to fix"
-        />
+        <>
+          <StatusBanner
+            tone="stopped"
+            title="Karrigo needs a few changes"
+            text="See what to fix below, then send it again. Adding a new photo puts you back in the queue, and you can't go online until it's approved."
+            note={rider.note}
+            noteLabel="What to fix"
+          />
+          <Resubmit ready={docsDone && !!rider.guarantor} />
+        </>
       ) : left > 0 ? (
         <StatusBanner
           tone="todo"
@@ -233,5 +237,34 @@ function GuarantorForm({ guarantor }: { guarantor: RiderApplication["guarantor"]
       <FormError>{error}</FormError>
       <SubmitButton busy={busy} idle="Save guarantor" working="Saving…" />
     </form>
+  );
+}
+
+/** Fixed it without a new photo — say, the guarantor — and want ops to look
+ *  again. The backend checks the set is complete; this only spares a refusal. */
+function Resubmit({ ready }: { ready: boolean }) {
+  const [error, setError] = useState("");
+  const [busy, startTransition] = useTransition();
+
+  return (
+    <div className="gap-sm flex flex-col">
+      <button
+        type="button"
+        disabled={!ready || busy}
+        onClick={() =>
+          startTransition(async () => {
+            const result = await requestRiderReview();
+            setError(result.ok ? "" : result.error);
+          })
+        }
+        className="bg-text text-bg rounded-pill text-site-button self-start px-xl py-md disabled:opacity-50"
+      >
+        {busy ? "Sending…" : "Resubmit for review"}
+      </button>
+      {!ready && (
+        <p className="text-site-label text-text-secondary">Add your licence, ID, vehicle papers and guarantor first.</p>
+      )}
+      <FormError>{error}</FormError>
+    </div>
   );
 }

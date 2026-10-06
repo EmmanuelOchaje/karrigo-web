@@ -30,14 +30,16 @@ function actor(e: Schemas["AuditLogEntryDto"]): string {
 function detail(meta: unknown): string {
   if (!meta || typeof meta !== "object") return "";
   const m = meta as Record<string, unknown>;
+  const move = typeof m.from === "string" && typeof m.to === "string" ? `${m.from} → ${m.to}` : "";
   const parts = ["status", "note", "amountNaira", "adminRole", "isHidden"]
     .filter((k) => m[k] !== undefined && m[k] !== null && m[k] !== "")
     .map((k) => (k === "amountNaira" ? `₦${Number(m[k]).toLocaleString("en-NG")}` : k === "isHidden" ? (m[k] ? "hidden" : "shown") : String(m[k])));
-  return parts.join(" · ");
+  return [move, ...parts].filter(Boolean).join(" · ");
 }
 
-/** Every action anyone on the ops team has taken, with who and when. Read
- *  only — the record is the point. */
+/** Every recorded action, with who and when — mostly the ops team, but also
+ *  kitchens and riders (a rider resubmitting for review, say). Read only —
+ *  the record is the point. */
 export default async function AuditPage({ searchParams }: { searchParams: Promise<Search> }) {
   await requireAdmin();
   const s = await searchParams;

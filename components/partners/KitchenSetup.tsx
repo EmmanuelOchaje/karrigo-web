@@ -2,10 +2,11 @@
 
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import { useState, useTransition } from "react";
+import { useEffect, useState, useTransition } from "react";
 
 import {
   addDish,
+  appealKitchen,
   kitchenLogOut,
   removeDish,
   saveKitchenBank,
@@ -33,6 +34,14 @@ export function KitchenSetup({ kitchen, banks }: { kitchen: KitchenApplication; 
   const steps = [kitchen.hasLocation, !!kitchen.bankAccountName, !!kitchen.imageUrl, kitchen.dishes.length > 0];
   const left = steps.filter((done) => !done).length;
 
+  // A kitchen under review clears by itself the moment ops approves it.
+  const pending = kitchen.status === "PENDING";
+  useEffect(() => {
+    if (!pending) return;
+    const id = setInterval(() => router.refresh(), 30_000);
+    return () => clearInterval(id);
+  }, [pending, router]);
+
   return (
     <div className="gap-lg flex flex-col">
       {kitchen.status === "ACTIVE" ? (
@@ -47,12 +56,15 @@ export function KitchenSetup({ kitchen, banks }: { kitchen: KitchenApplication; 
           </ButtonLink>
         </>
       ) : kitchen.status === "SUSPENDED" ? (
-        <StatusBanner
-          tone="stopped"
-          title={`${kitchen.name} isn't live`}
-          text="We couldn't approve it as it stands. Fix what's below and we'll look again."
-          note={kitchen.note}
-        />
+        <>
+          <StatusBanner
+            tone="stopped"
+            title={`${kitchen.name} isn't live`}
+            text="Karrigo has suspended this kitchen, so customers can't see it. If you think that's wrong, or you've fixed the problem, send us one appeal."
+            note={kitchen.note}
+          />
+          <Appeal sent={kitchen.appealNote} sentAt={kitchen.appealedAt} />
+        </>
       ) : left > 0 ? (
         <StatusBanner
           tone="todo"
@@ -319,5 +331,56 @@ function Dishes({ dishes, canAdd }: { dishes: KitchenApplication["dishes"]; canA
         <p className="text-site-label text-text-secondary">Set your kitchen&rsquo;s location in step 1 first — then you can add dishes.</p>
       )}
     </div>
+  );
+}
+
+/** One appeal per suspension. Once sent it is shown back, read-only, until
+ *  ops lifts the ban (which clears it) or bans again (which allows another). */
+function Appeal({ sent, sentAt }: { sent: string | null; sentAt: string | null }) {
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [busy, startTransition] = useTransition();
+
+  if (sentAt) {
+    return (
+      <div className="bg-bg rounded-panel-sm p-xl">
+        <p className="text-site-title">Appeal sent · awaiting a decision</p>
+        <p className="text-site-label text-text-secondary mt-xs">
+          Sent {new Date(sentAt).toLocaleDateString("en-GB", { day: "numeric", month: "short", timeZone: "Africa/Lagos" })}.
+          Karrigo&rsquo;s team will lift the suspension if they agree.
+        </p>
+        {sent && <p className="bg-surface-raised rounded-field text-site-label mt-md px-lg py-md font-semibold">“{sent}”</p>}
+      </div>
+    );
+  }
+
+  return (
+    <form
+      className="bg-bg rounded-panel-sm p-xl gap-md flex flex-col"
+      onSubmit={(e) => {
+        e.preventDefault();
+        startTransition(async () => {
+          const result = await appealKitchen(message);
+          setError(result.ok ? "" : result.error);
+        });
+      }}
+    >
+      <label className={fieldLabel}>
+        Appeal this decision
+        <textarea
+          value={message}
+          onChange={(e) => { setMessage(e.target.value); setError(""); }}
+          rows={4}
+          maxLength={500}
+          placeholder="What has changed, or why you think this is a mistake"
+          className={cn(field, "resize-y")}
+        />
+      </label>
+      <p className="text-site-chip text-text-secondary font-medium">
+        You can send one appeal for this suspension · {500 - message.trim().length} characters left
+      </p>
+      <FormError>{error}</FormError>
+      <SubmitButton busy={busy} idle="Send appeal" working="Sending…" />
+    </form>
   );
 }
