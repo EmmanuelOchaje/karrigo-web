@@ -54,7 +54,7 @@ export default function HomePage() {
 
           <div className="gap-xxl relative grid items-center px-xl pt-xxl md:px-pad-hero-x md:pt-pad-hero xl:grid-cols-2">
             <div className="min-w-0">
-              <h1 className="text-hero-small md:text-hero xl:text-section text-cream rise text-balance">
+              <h1 className="text-hero-small md:text-hero xl:text-[70px] xl:leading-[68px] xl:tracking-[-0.045em] text-cream rise text-balance">
                 Food, groceries, <span className="text-accent-text">at your doorstep.</span>
               </h1>
 
