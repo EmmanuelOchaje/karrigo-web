@@ -32,7 +32,6 @@ export function Checkout({ customer }: { customer: Customer | null }) {
   const hydrated = useHydrated();
   const { cart, landmark, address, area } = useOrderState();
   const [note, setNote] = useState("");
-  const [email, setEmail] = useState("");
   const [error, setError] = useState("");
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [promo, setPromo] = useState("");
@@ -108,7 +107,6 @@ export function Checkout({ customer }: { customer: Customer | null }) {
   }
 
   const { kitchen } = priced;
-  const needsEmail = !customer?.email;
   const creditKobo = Math.min(customer?.creditKobo ?? 0, Math.max(0, priced.totalKobo - (discount?.kobo ?? 0)));
   const totalKobo = Math.max(0, priced.totalKobo - (discount?.kobo ?? 0) - creditKobo);
 
@@ -157,7 +155,11 @@ export function Checkout({ customer }: { customer: Customer | null }) {
         address: parsed.data.address,
         area: parsed.data.area,
         note: parsed.data.note,
-        email,
+        // Paystack requires an email to send a receipt to. Most customers
+        // never see a field for this — it's only asked for once, and we
+        // don't collect it anywhere else yet, so a receipts@ placeholder,
+        // unique per account, stands in until email collection is designed.
+        email: customer.email ?? `${customer.id}@receipts.karrigo.app`,
         promoCode: discount?.code,
         coords: coords ?? undefined,
       });
@@ -243,19 +245,6 @@ export function Checkout({ customer }: { customer: Customer | null }) {
             <p className="text-site-body text-text-secondary mt-sm">
               You&rsquo;ll pay securely on Paystack once the kitchen accepts — card, bank transfer or USSD, whichever you prefer.
             </p>
-            {needsEmail && customer && (
-              <label className={cn(fieldLabel, "mt-lg")}>
-                Email for your Paystack receipt
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => { setEmail(e.target.value); setError(""); }}
-                  placeholder="you@example.com"
-                  autoComplete="email"
-                  className={field}
-                />
-              </label>
-            )}
           </section>
         </div>
 
