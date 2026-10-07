@@ -242,6 +242,8 @@ export function Pager({
   href,
   previous = "← Newer",
   next = "Older →",
+  sizes,
+  sizeHref,
 }: {
   page: number;
   pageSize: number;
@@ -250,17 +252,41 @@ export function Pager({
   /** Labels for lists that aren't newest-first. */
   previous?: string;
   next?: string;
+  /** Row counts to offer, with a link for each. Leave out for a fixed size. */
+  sizes?: number[];
+  sizeHref?: (size: number) => string;
 }) {
   const last = Math.max(1, Math.ceil(total / pageSize));
-  if (last <= 1) return null;
+  // The size choice stays visible even on a single page, otherwise picking
+  // "100" on a short list would leave no way back to a smaller page.
+  const choosable = sizes && sizeHref && total > Math.min(...sizes);
+  if (last <= 1 && !choosable) return null;
   const link = "border-text/16 text-text flex h-8 items-center rounded-pill border px-3.5 text-[12.5px] font-semibold";
   return (
-    <nav className="flex items-center justify-between gap-3 px-lg py-3.5" aria-label="Pages">
+    <nav className="flex flex-wrap items-center justify-between gap-3 px-lg py-3.5" aria-label="Pages">
       {page > 1 ? <Link href={href(page - 1)} className={link}>{previous}</Link> : <span />}
       <span className="text-text/55 text-[12px]">
         Page {page} of {last} · {total} in all
       </span>
       {page < last ? <Link href={href(page + 1)} className={link}>{next}</Link> : <span />}
+      {choosable && (
+        <div className="flex basis-full items-center justify-center gap-1.5" role="group" aria-label="Rows per page">
+          <span className="text-text/55 mr-1 text-[12px]">Rows</span>
+          {sizes.map((size) => (
+            <Link
+              key={size}
+              href={sizeHref(size)}
+              aria-current={size === pageSize ? "true" : undefined}
+              className={cn(
+                "flex h-8 min-w-8 items-center justify-center rounded-pill px-2.5 text-[12.5px] font-semibold",
+                size === pageSize ? "bg-accent text-on-accent" : "bg-text/7 text-text",
+              )}
+            >
+              {size}
+            </Link>
+          ))}
+        </div>
+      )}
     </nav>
   );
 }

@@ -5,18 +5,31 @@ import { api } from "@/lib/api/client";
 import type { AdminArea } from "@/lib/api/extra";
 import { requireAdmin } from "@/lib/admin/session";
 
-const PAGE_SIZE = 10;
+const SIZES = [10, 25, 50, 100];
+const DEFAULT_SIZE = 10;
 
 /** The neighbourhoods customers and kitchens pick their address from. The
- *  backend returns them all at once, so they are paged here. */
-export default async function AreasPage({ searchParams }: { searchParams: Promise<{ page?: string }> }) {
+ *  backend returns them all at once, so they are paged here, with a choice of rows per page. */
+export default async function AreasPage({ searchParams }: { searchParams: Promise<{ page?: string; size?: string }> }) {
   await requireAdmin();
   const areas = await api<AdminArea[]>("/admin/areas", { scope: "admin" });
   const live = areas.filter((a) => a.isActive).length;
 
-  const last = Math.max(1, Math.ceil(areas.length / PAGE_SIZE));
-  const page = Math.min(last, Math.max(1, Number((await searchParams).page) || 1));
-  const shown = areas.slice((page - 1) * PAGE_SIZE, page * PAGE_SIZE);
+  const query = await searchParams;
+  const requested = Number(query.size);
+  const pageSize = SIZES.includes(requested) ? requested : DEFAULT_SIZE;
+  const last = Math.max(1, Math.ceil(areas.length / pageSize));
+  const page = Math.min(last, Math.max(1, Number(query.page) || 1));
+  const shown = areas.slice((page - 1) * pageSize, page * pageSize);
+
+  // Keeps a chosen size when moving between pages.
+  const href = (p: number, size = pageSize) => {
+    const params = new URLSearchParams();
+    if (p > 1) params.set("page", String(p));
+    if (size !== DEFAULT_SIZE) params.set("size", String(size));
+    const q = params.toString();
+    return `/areas${q ? `?${q}` : ""}`;
+  };
 
   return (
     <OpsPage>
@@ -29,11 +42,14 @@ export default async function AreasPage({ searchParams }: { searchParams: Promis
         footer={
           <Pager
             page={page}
-            pageSize={PAGE_SIZE}
+            pageSize={pageSize}
             total={areas.length}
             previous="← Previous"
             next="Next →"
-            href={(p) => (p > 1 ? `/areas?page=${p}` : "/areas")}
+            href={(p) => href(p)}
+            sizes={SIZES}
+            // A different size starts again from the first page.
+            sizeHref={(size) => href(1, size)}
           />
         }
       />
