@@ -4,7 +4,7 @@ import { useState } from "react";
 import { cn } from "@/lib/cn";
 
 const notes = {
-  food: "No street address? A landmark works — our riders know Makurdi.",
+  food: "No street address? A landmark works — our riders know the area.",
   groceries:
     "Supermarkets and provision shops near you. Minimum order shown per store.",
 } as const;

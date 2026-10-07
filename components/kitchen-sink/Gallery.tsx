@@ -181,7 +181,7 @@ export function Gallery({ mode }: { mode: "light" | "dark" }) {
 
       <Section title="Type scale">
         <div className="gap-sm flex flex-col">
-          <p className="text-display">Makurdi eats. We deliver.</p>
+          <p className="text-display">Food, groceries, delivered.</p>
           <p className="text-h1">Enter your code</p>
           <p className="text-h2">Terkimbi&apos;s Kitchen</p>
           <p className="text-h3">Catfish pepper soup</p>

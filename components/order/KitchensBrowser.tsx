@@ -48,7 +48,7 @@ export function KitchensBrowser({ kitchens, firstName }: { kitchens: ShopKitchen
       <div className="gap-lg flex flex-wrap items-end justify-between">
         <div>
           <Eyebrow className="rise">{firstName ? `Hi ${firstName} · open right now` : "Open right now"}</Eyebrow>
-          <h1 className="text-section-small md:text-section rise rise-1 mt-md">Kitchens in Makurdi</h1>
+          <h1 className="text-section-small md:text-section rise rise-1 mt-md">Kitchens near you</h1>
         </div>
 
         <label className="bg-bg rounded-pill gap-sm flex min-w-[240px] flex-[0_1_380px] items-center py-xs pr-xs pl-lg">
@@ -96,7 +96,7 @@ export function KitchensBrowser({ kitchens, firstName }: { kitchens: ShopKitchen
         {shown.length === 0 ? (
           <p className="bg-bg rounded-panel-sm text-site-body text-text-secondary p-xxl text-center font-semibold">
             {kitchens.length === 0
-              ? "No kitchens are taking orders yet. Check back soon — we're opening new ones in Makurdi every week."
+              ? "No kitchens are taking orders yet. Check back soon — we're opening new ones in your area every week."
               : q
                 ? `No kitchen matches “${query.trim()}”.`
                 : `No ${cuisine.toLowerCase()} kitchens right now.`}

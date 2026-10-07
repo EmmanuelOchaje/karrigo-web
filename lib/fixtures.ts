@@ -297,7 +297,7 @@ export const steps = [
 export const benefitCards = [
   {
     title: "Landmarks, not addresses",
-    body: "“Behind BSU main gate” is a real address here. Tell us the school gate, the church, the filling station — our riders know Makurdi, so you never drag a pin on a map.",
+    body: "“Behind BSU main gate” is a real address here. Tell us the school gate, the church, the filling station — our riders know the area, so you never drag a pin on a map.",
     href: "/areas",
     image: "/images/location.jpg",
     imageAlt: "A location pin",
@@ -311,7 +311,7 @@ export const benefitCards = [
   },
   {
     title: "Pay how you actually pay",
-    body: "Card, bank transfer, or cash to the rider at your door. Nothing to install and no account needed, and if an order goes wrong you reach a person in Makurdi.",
+    body: "Card, bank transfer, or cash to the rider at your door. Nothing to install and no account needed, and if an order goes wrong you reach a real person.",
     href: "/help#payment",
     image: "/images/payment.jpg",
     imageAlt: "Paying on a phone with a card",

@@ -171,8 +171,8 @@ export default function HomePage() {
               Earn on your own hours
             </h2>
             <p className="text-site-body text-on-accent/72 mt-md text-pretty">
-              If you know Makurdi roads, you already have the hard part. Paid
-              per trip, every Friday, and you keep 100% of your tips.
+              If you know your area&rsquo;s roads, you already have the hard
+              part. Paid per trip, every Friday, and you keep 100% of your tips.
             </p>
             <div className="mt-auto pt-xxl">
               <ButtonLink href="/partners/rider" variant="dark" size="site">
@@ -229,7 +229,7 @@ export default function HomePage() {
             </h2>
             <div className="text-site-body text-on-accent/74 mt-md flex flex-col gap-sm">
               <span>
-                New customers across Makurdi, without opening another branch.
+                New customers nearby, without opening another branch.
               </span>
               <span>We list your products for you from your price list.</span>
               <span>
@@ -254,7 +254,7 @@ export default function HomePage() {
               Things people ask us
             </h2>
             <p className="text-site-body text-text-secondary mt-lg max-w-[32ch]">
-              Anything else, call us — you reach a person in Makurdi, not a
+              Anything else, call us — you reach a real person, not a
               form.
             </p>
             <Link

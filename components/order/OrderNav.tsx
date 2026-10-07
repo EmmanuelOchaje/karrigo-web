@@ -57,7 +57,7 @@ export function OrderNav({
         >
           <span className="bg-accent size-[8px] shrink-0 rounded-full" />
           <span className="truncate">
-            {where ? `Deliver to ${where}` : "Makurdi · Set address at checkout"}
+            {where ? `Deliver to ${where}` : "Set address at checkout"}
           </span>
         </Link>
 

@@ -10,13 +10,13 @@ const ways = [
   {
     href: "/partners/kitchen",
     title: "Cook with Karrigo",
-    text: "List your kitchen, set your own prices and get orders from across Makurdi. Karrigo keeps 15% of what you sell.",
+    text: "List your kitchen, set your own prices and get orders from your area. Karrigo keeps 15% of what you sell.",
     action: "List my kitchen",
   },
   {
     href: "/partners/store",
     title: "Sell your groceries on Karrigo",
-    text: "New customers across Makurdi, without opening another branch. Karrigo keeps 10% of what you sell.",
+    text: "New customers nearby, without opening another branch. Karrigo keeps 10% of what you sell.",
     action: "Register my store",
   },
   {
@@ -32,7 +32,7 @@ export default function PartnersPage() {
     <div className="mx-auto max-w-[1000px]">
       <Eyebrow className="rise">Partner with us</Eyebrow>
       <h1 className="text-section-small md:text-section rise rise-1 mt-md mb-xxl text-balance">
-        Earn with Karrigo in Makurdi
+        Earn with Karrigo
       </h1>
       <div className="gap-xl grid md:grid-cols-2">
         {ways.map((way) => (

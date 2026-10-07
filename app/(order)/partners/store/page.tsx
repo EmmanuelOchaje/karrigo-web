@@ -18,7 +18,7 @@ export default function StorePartnerPage() {
         Register your store
       </h1>
       <div className="text-site-body text-text-secondary rise rise-2 flex flex-col gap-md mb-xxl max-w-[52ch]">
-        <p>New customers across Makurdi, without opening another branch.</p>
+        <p>New customers nearby, without opening another branch.</p>
         <p>We list your products for you from your price list.</p>
         <p>
           Orders come to a simple app. Your staff pick, pack and hand over to

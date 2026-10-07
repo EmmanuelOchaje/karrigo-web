@@ -40,7 +40,7 @@ export function SiteFooter() {
             <div>
               <Logo mode="dark" />
               <p className="text-site-answer text-cream/55 mt-lg max-w-[32ch]">
-                Food and groceries from around Makurdi.
+                Food and groceries from kitchens and stores near you.
               </p>
             </div>
 

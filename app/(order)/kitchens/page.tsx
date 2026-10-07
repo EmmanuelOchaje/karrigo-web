@@ -3,7 +3,7 @@ import { KitchensBrowser } from "@/components/order/KitchensBrowser";
 import { listKitchens } from "@/lib/shop/catalog";
 import { getCustomer } from "@/lib/shop/session";
 
-export const metadata: Metadata = { title: "Kitchens in Makurdi · Karrigo" };
+export const metadata: Metadata = { title: "Kitchens near you · Karrigo" };
 
 export default async function KitchensPage() {
   const [kitchens, customer] = await Promise.all([listKitchens(), getCustomer()]);

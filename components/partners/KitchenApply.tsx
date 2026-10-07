@@ -128,7 +128,7 @@ export function KitchenLogin() {
           <h1 className="text-panel-small md:text-panel text-cream text-balance">
             Open up.
             <br />
-            <span className="text-accent-text">Makurdi&rsquo;s hungry.</span>
+            <span className="text-accent-text">We&rsquo;re hungry for you.</span>
           </h1>
           <p className="text-panel-body text-cream/66 mt-lg max-w-[30ch]">
             Take orders, change today&rsquo;s prices and mark a dish sold out — all from your phone.

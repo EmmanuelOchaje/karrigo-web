@@ -11,9 +11,9 @@ const plusJakartaSans = Plus_Jakarta_Sans({
 });
 
 export const metadata: Metadata = {
-  title: "Karrigo — Makurdi eats. We deliver.",
+  title: "Karrigo — Food, groceries, delivered.",
   description:
-    "Order from kitchens around Makurdi. Pay by card, transfer or cash, and follow your rider to your gate.",
+    "Order from kitchens and stores near you. Pay by card, transfer or cash, and follow your rider to your gate.",
 };
 
 export const viewport: Viewport = {

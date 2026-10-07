@@ -3,7 +3,7 @@ import { StoreCard } from "@/components/site/StoreCard";
 import { Eyebrow } from "@/components/site/Eyebrow";
 import { stores } from "@/lib/fixtures";
 
-export const metadata: Metadata = { title: "Stores in Makurdi · Karrigo" };
+export const metadata: Metadata = { title: "Stores near you · Karrigo" };
 
 /**
  * Preview only — the grocery ordering flow (cart, review, checkout) isn't
@@ -16,7 +16,7 @@ export default function StoresPage() {
     <div className="mx-auto max-w-[1240px]">
       <Eyebrow className="rise">Open right now</Eyebrow>
       <h1 className="text-section-small md:text-section rise rise-1 mt-md mb-md text-balance">
-        Stores in Makurdi
+        Stores near you
       </h1>
       <p className="text-site-body text-text-secondary rise rise-2 mb-xxl max-w-[52ch]">
         Groceries ordering is coming soon. Here&rsquo;s a preview of the

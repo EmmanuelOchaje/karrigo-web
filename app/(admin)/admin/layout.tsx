@@ -7,7 +7,7 @@ import "./admin.css";
 
 export const metadata: Metadata = {
   title: "Karrigo Operations",
-  description: "Internal. Live orders, kitchens, riders and money for Makurdi.",
+  description: "Internal. Live orders, kitchens, riders and money across Karrigo.",
   robots: { index: false, follow: false },
 };
 
