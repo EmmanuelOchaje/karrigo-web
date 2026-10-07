@@ -240,22 +240,27 @@ export function Pager({
   pageSize,
   total,
   href,
+  previous = "← Newer",
+  next = "Older →",
 }: {
   page: number;
   pageSize: number;
   total: number;
   href: (page: number) => string;
+  /** Labels for lists that aren't newest-first. */
+  previous?: string;
+  next?: string;
 }) {
   const last = Math.max(1, Math.ceil(total / pageSize));
   if (last <= 1) return null;
   const link = "border-text/16 text-text flex h-8 items-center rounded-pill border px-3.5 text-[12.5px] font-semibold";
   return (
     <nav className="flex items-center justify-between gap-3 px-lg py-3.5" aria-label="Pages">
-      {page > 1 ? <Link href={href(page - 1)} className={link}>← Newer</Link> : <span />}
+      {page > 1 ? <Link href={href(page - 1)} className={link}>{previous}</Link> : <span />}
       <span className="text-text/55 text-[12px]">
         Page {page} of {last} · {total} in all
       </span>
-      {page < last ? <Link href={href(page + 1)} className={link}>Older →</Link> : <span />}
+      {page < last ? <Link href={href(page + 1)} className={link}>{next}</Link> : <span />}
     </nav>
   );
 }
