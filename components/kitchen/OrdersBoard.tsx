@@ -51,8 +51,13 @@ function useFreshOrders() {
     events: ["order:new", "order:paid", "order:cancelled"],
     onChange: () => router.refresh(),
   });
+  // The backstop for a dropped socket. Slower than it was, and silent while
+  // the tab is hidden: the socket and the focus refresh above catch up the
+  // moment someone looks, and every refresh is several calls to the backend.
   useEffect(() => {
-    const id = setInterval(() => router.refresh(), 10_000);
+    const id = setInterval(() => {
+      if (document.visibilityState === "visible") router.refresh();
+    }, 30_000);
     return () => clearInterval(id);
   }, [router]);
 }

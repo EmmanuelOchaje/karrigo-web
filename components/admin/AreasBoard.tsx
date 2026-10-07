@@ -11,7 +11,7 @@ import { say } from "@/lib/admin/store";
 const input =
   "border-text/16 bg-ops-surface text-text placeholder:text-text/45 h-10 min-w-0 rounded-xl border px-3 text-[13px] outline-none";
 
-export function AreasBoard({ areas }: { areas: AdminArea[] }) {
+export function AreasBoard({ areas, footer }: { areas: AdminArea[]; footer?: React.ReactNode }) {
   const [name, setName] = useState("");
   const [busy, startTransition] = useTransition();
 
@@ -52,6 +52,7 @@ export function AreasBoard({ areas }: { areas: AdminArea[] }) {
       ) : (
         areas.map((area) => <AreaRow key={area.id} area={area} />)
       )}
+      {footer}
     </section>
   );
 }

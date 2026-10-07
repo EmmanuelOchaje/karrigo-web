@@ -1,9 +1,11 @@
 import "server-only";
 
+import { cookies } from "next/headers";
 import { cache } from "react";
 import { redirect } from "next/navigation";
 
 import { ApiError, api, type Schemas } from "@/lib/api/client";
+import { SCOPES } from "@/lib/api/scopes";
 import { LOGIN_PATH, opsRoute } from "./nav";
 import type { AdminUser } from "./types";
 
@@ -25,6 +27,10 @@ function initialsOf(name: string): string {
 
 /** One lookup per request, however many components ask. */
 export const getAdmin = cache(async (): Promise<AdminUser | null> => {
+  // Nobody signed in (the login page asks too): nothing to look up, and
+  // asking would only be a 401.
+  if (!(await cookies()).get(SCOPES.admin.access)?.value) return null;
+
   try {
     const me = await api<Schemas["AuthenticatedAdminResponseDto"]>("/admin-auth/me", {
       scope: "admin",

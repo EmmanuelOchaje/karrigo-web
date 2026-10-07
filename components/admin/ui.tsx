@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/cn";
+import { PageSizeSelect } from "./PageSizeSelect";
 
 /**
  * The small pieces every ops screen is built from. Ops is a dense, plain
@@ -240,22 +241,40 @@ export function Pager({
   pageSize,
   total,
   href,
+  previous = "← Newer",
+  next = "Older →",
+  sizes,
+  sizeHref,
 }: {
   page: number;
   pageSize: number;
   total: number;
   href: (page: number) => string;
+  /** Labels for lists that aren't newest-first. */
+  previous?: string;
+  next?: string;
+  /** Row counts to offer, with a link for each. Leave out for a fixed size. */
+  sizes?: number[];
+  sizeHref?: (size: number) => string;
 }) {
   const last = Math.max(1, Math.ceil(total / pageSize));
-  if (last <= 1) return null;
+  // The size choice stays visible even on a single page, otherwise picking
+  // "100" on a short list would leave no way back to a smaller page.
+  const choosable = sizes && sizeHref && total > Math.min(...sizes);
+  if (last <= 1 && !choosable) return null;
   const link = "border-text/16 text-text flex h-8 items-center rounded-pill border px-3.5 text-[12.5px] font-semibold";
   return (
-    <nav className="flex items-center justify-between gap-3 px-lg py-3.5" aria-label="Pages">
-      {page > 1 ? <Link href={href(page - 1)} className={link}>← Newer</Link> : <span />}
+    <nav className="flex flex-wrap items-center justify-between gap-3 px-lg py-3.5" aria-label="Pages">
+      {page > 1 ? <Link href={href(page - 1)} className={link}>{previous}</Link> : <span />}
       <span className="text-text/55 text-[12px]">
         Page {page} of {last} · {total} in all
       </span>
-      {page < last ? <Link href={href(page + 1)} className={link}>Older →</Link> : <span />}
+      {page < last ? <Link href={href(page + 1)} className={link}>{next}</Link> : <span />}
+      {choosable && (
+        <div className="flex basis-full justify-center">
+          <PageSizeSelect current={pageSize} options={sizes.map((size) => ({ size, href: sizeHref(size) }))} />
+        </div>
+      )}
     </nav>
   );
 }
