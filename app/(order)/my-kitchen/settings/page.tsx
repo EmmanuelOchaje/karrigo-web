@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 
-import { HoursForm, ProfileForm } from "@/components/kitchen/Settings";
+import { HoursForm, ProfileForm, SidesForm } from "@/components/kitchen/Settings";
 import { APPLICATION, getHours, requireOwner } from "@/lib/kitchen/data";
 
 export const metadata: Metadata = { title: "Hours & details · Your kitchen · Karrigo" };
@@ -12,6 +12,7 @@ export default async function KitchenSettingsPage() {
 
   return (
     <div className="gap-lg flex flex-col">
+      <SidesForm servesFood={kitchen.servesFood} servesGrocery={kitchen.servesGrocery} />
       <HoursForm days={hours.days} everSaved={hours.saved} />
       <ProfileForm name={kitchen.name} cuisine={kitchen.cuisine} feeKobo={kitchen.feeKobo} />
       <p className="text-site-label text-text-secondary">

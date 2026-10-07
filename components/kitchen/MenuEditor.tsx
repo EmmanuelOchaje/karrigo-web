@@ -6,6 +6,7 @@ import { useOptimistic, useState, useTransition } from "react";
 import {
   addDish,
   addSection,
+  appealFlag,
   removeDish,
   removeSection,
   saveDish,
@@ -26,8 +27,19 @@ const quiet = "text-accent-text text-site-label font-bold disabled:opacity-50";
  * every dish for the moment the egusi finishes. Editing happens in place —
  * a kitchen changing a price mid-service should not have to leave the list.
  */
-export function MenuEditor({ kitchenName, sections }: { kitchenName: string; sections: MenuSection[] }) {
-  const options = sections.map((s) => ({ id: s.id, label: s.label }));
+export function MenuEditor({
+  kitchenName,
+  sections,
+  servesFood,
+  servesGrocery,
+}: {
+  kitchenName: string;
+  sections: MenuSection[];
+  servesFood: boolean;
+  servesGrocery: boolean;
+}) {
+  const options = sections.map((s) => ({ id: s.id, label: s.label, type: s.type }));
+  const both = servesFood && servesGrocery;
 
   return (
     <div className="gap-lg flex flex-col">
@@ -35,21 +47,27 @@ export function MenuEditor({ kitchenName, sections }: { kitchenName: string; sec
         <div className={panel}>
           <p className="text-site-title">{kitchenName} has no menu yet</p>
           <p className="text-site-body text-text-secondary mt-xs">
-            Start with a section — Swallow, Rice, Drinks — then add the dishes that go in it.
+            {servesGrocery && !servesFood
+              ? "Start with a section — Rice & grains, Drinks, Toiletries — then add the products that go in it."
+              : "Start with a section — Swallow, Rice, Drinks — then add the dishes that go in it."}
           </p>
         </div>
       )}
 
       {sections.map((s) => (
-        <Section key={s.id} section={s} options={options} />
+        <Section key={s.id} section={s} options={options} showSide={both} />
       ))}
 
-      <NewSection first={sections.length === 0} />
+      <NewSection first={sections.length === 0} servesFood={servesFood} servesGrocery={servesGrocery} />
     </div>
   );
 }
 
-function Section({ section, options }: { section: MenuSection; options: { id: string; label: string }[] }) {
+function Section({ section, options, showSide }: { section: MenuSection; options: { id: string; label: string; type: MenuSection["type"] }[]; showSide: boolean }) {
+  const grocery = section.type === "GROCERY";
+  const noun = grocery ? "product" : "dish";
+  // A dish can only move to a section on its own side.
+  const sameSide = options.filter((o) => o.type === section.type);
   const [renaming, setRenaming] = useState(false);
   const [adding, setAdding] = useState(section.dishes.length === 0);
   const [error, setError] = useState("");
@@ -60,6 +78,9 @@ function Section({ section, options }: { section: MenuSection; options: { id: st
       <div className="gap-md flex flex-wrap items-baseline justify-between">
         <div className="min-w-0">
           <h2 className="text-h1 font-extrabold">{section.label}</h2>
+          {showSide && (
+            <p className="text-site-chip text-text-secondary mt-xs font-semibold">{grocery ? "Groceries" : "Food"}</p>
+          )}
           {section.note && <p className="text-site-label text-text-secondary mt-xs">{section.note}</p>}
         </div>
         <div className="gap-lg flex shrink-0">
@@ -98,7 +119,7 @@ function Section({ section, options }: { section: MenuSection; options: { id: st
       {section.dishes.length > 0 && (
         <ul className="mt-md">
           {section.dishes.map((d) => (
-            <DishRow key={d.id} dish={d} options={options} />
+            <DishRow key={d.id} dish={d} options={sameSide} grocery={grocery} />
           ))}
         </ul>
       )}
@@ -107,9 +128,10 @@ function Section({ section, options }: { section: MenuSection; options: { id: st
         <div className="bg-surface-raised/50 rounded-field mt-lg p-lg">
           <DishForm
             sectionId={section.id}
-            options={options}
-            idle="Add dish"
+            options={sameSide}
+            idle={`Add ${noun}`}
             working="Adding…"
+            grocery={grocery}
             save={addDish}
             // Stay open: a kitchen setting up its menu adds dishes in a run.
             done={() => {}}
@@ -123,14 +145,15 @@ function Section({ section, options }: { section: MenuSection; options: { id: st
         </div>
       ) : (
         <button type="button" onClick={() => setAdding(true)} className={cn(quiet, "mt-lg")}>
-          + Add a dish to {section.label}
+          + Add a {noun} to {section.label}
         </button>
       )}
     </section>
   );
 }
 
-function DishRow({ dish, options }: { dish: Dish; options: { id: string; label: string }[] }) {
+function DishRow({ dish, options, grocery }: { dish: Dish; options: { id: string; label: string }[]; grocery: boolean }) {
+  const noun = grocery ? "product" : "dish";
   const [editing, setEditing] = useState(false);
   const [confirming, setConfirming] = useState(false);
   const [soldOut, setOptimistic] = useOptimistic(dish.soldOut);
@@ -146,10 +169,16 @@ function DishRow({ dish, options }: { dish: Dish; options: { id: string; label: 
         <div className="min-w-0 flex-1">
           <p className={cn("text-site-question truncate", soldOut && "text-text-secondary line-through")}>{dish.name}</p>
           <p className="text-site-label text-text-secondary">
+            {dish.unit && `${dish.unit} · `}
             {formatKobo(dish.priceKobo)}
             {soldOut && <span className="text-danger-text font-semibold"> · Sold out</span>}
           </p>
-          <button type="button" onClick={() => { setEditing((v) => !v); setConfirming(false); }} className={cn(quiet, "mt-xs")}>
+          {dish.flag && (
+            <p className="bg-danger-bg text-danger-text rounded-field text-site-chip mt-xs inline-block px-md py-xs font-bold">
+              {dish.flag.appealedAt ? "Hidden by Karrigo · appeal sent" : "Hidden by Karrigo"}
+            </p>
+          )}
+          <button type="button" onClick={() => { setEditing((v) => !v); setConfirming(false); }} className={cn(quiet, "mt-xs block")}>
             {editing ? "Close" : "Edit"}
           </button>
         </div>
@@ -172,14 +201,17 @@ function DishRow({ dish, options }: { dish: Dish; options: { id: string; label: 
       </div>
       <FormError>{error}</FormError>
 
+      {dish.flag && <FlagNotice dish={dish} />}
+
       {editing && (
         <div className="bg-surface-raised/50 rounded-field gap-lg mt-md flex flex-col p-lg">
           <DishForm
             dish={dish}
             sectionId={dish.sectionId}
             options={options}
-            idle="Save dish"
+            idle={`Save ${noun}`}
             working="Saving…"
+            grocery={grocery}
             save={(input) => saveDish(dish.id, input)}
             done={() => setEditing(false)}
           />
@@ -192,7 +224,7 @@ function DishRow({ dish, options }: { dish: Dish; options: { id: string; label: 
           />
           {confirming ? (
             <div className="gap-md flex flex-wrap items-center">
-              <span className="text-danger-text text-site-label font-bold">Remove {dish.name} from your menu?</span>
+              <span className="text-danger-text text-site-label font-bold">Remove {dish.name} from your {grocery ? "store" : "menu"}?</span>
               <button
                 type="button"
                 disabled={busy}
@@ -215,7 +247,7 @@ function DishRow({ dish, options }: { dish: Dish; options: { id: string; label: 
             </div>
           ) : (
             <button type="button" onClick={() => setConfirming(true)} className="text-text-secondary hover:text-danger-text text-site-label self-start font-semibold">
-              Remove this dish
+              Remove this {noun}
             </button>
           )}
         </div>
@@ -233,19 +265,22 @@ function DishForm({
   save,
   done,
   clearOnSave = false,
+  grocery = false,
 }: {
+  grocery?: boolean;
   dish?: Dish;
   sectionId: string;
   options: { id: string; label: string }[];
   idle: string;
   working: string;
-  save: (input: { sectionId: string; name: string; description: string; priceNaira: number }) => Promise<Result>;
+  save: (input: { sectionId: string; name: string; description: string; priceNaira: number; unit: string }) => Promise<Result>;
   done: () => void;
   clearOnSave?: boolean;
 }) {
   const [name, setName] = useState(dish?.name ?? "");
   const [price, setPrice] = useState(dish ? String(Math.round(dish.priceKobo / 100)) : "");
   const [description, setDescription] = useState(dish?.description ?? "");
+  const [unit, setUnit] = useState(dish?.unit ?? "");
   const [section, setSection] = useState(sectionId);
   const [error, setError] = useState("");
   const [busy, startTransition] = useTransition();
@@ -256,13 +291,14 @@ function DishForm({
       onSubmit={(e) => {
         e.preventDefault();
         startTransition(async () => {
-          const result = await save({ sectionId: section, name, description, priceNaira: Number(price) });
+          const result = await save({ sectionId: section, name, description, priceNaira: Number(price), unit: grocery ? unit : "" });
           if (!result.ok) return setError(result.error);
           setError("");
           if (clearOnSave) {
             setName("");
             setPrice("");
             setDescription("");
+            setUnit("");
           }
           done();
         });
@@ -270,17 +306,23 @@ function DishForm({
     >
       <div className="gap-md grid sm:grid-cols-[2fr_1fr]">
         <label className={fieldLabel}>
-          Dish
-          <input value={name} onChange={(e) => { setName(e.target.value); setError(""); }} placeholder="Pounded yam & egusi" className={field} />
+          {grocery ? "Product" : "Dish"}
+          <input value={name} onChange={(e) => { setName(e.target.value); setError(""); }} placeholder={grocery ? "Peak milk, tin" : "Pounded yam & egusi"} className={field} />
         </label>
         <label className={fieldLabel}>
           Price, ₦
           <input value={price} onChange={(e) => { setPrice(e.target.value.replace(/\D/g, "")); setError(""); }} inputMode="numeric" placeholder="2800" className={field} />
         </label>
       </div>
+      {grocery && (
+        <label className={fieldLabel}>
+          Sold as (optional)
+          <input value={unit} onChange={(e) => { setUnit(e.target.value); setError(""); }} placeholder="1 kg, pack of 6" className={field} />
+        </label>
+      )}
       <label className={fieldLabel}>
-        What comes with it (optional)
-        <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder="With assorted meat" className={field} />
+        {grocery ? "Details (optional)" : "What comes with it (optional)"}
+        <input value={description} onChange={(e) => setDescription(e.target.value)} placeholder={grocery ? "400g tin" : "With assorted meat"} className={field} />
       </label>
       {dish && options.length > 1 && (
         <label className={fieldLabel}>
@@ -351,8 +393,58 @@ function SectionForm({
   );
 }
 
-function NewSection({ first }: { first: boolean }) {
+/** Why Karrigo hid a product, and the one appeal the owner gets against it. */
+function FlagNotice({ dish }: { dish: Dish }) {
+  const flag = dish.flag!;
+  const [message, setMessage] = useState("");
+  const [error, setError] = useState("");
+  const [busy, startTransition] = useTransition();
+
+  return (
+    <div className="bg-danger-bg rounded-field mt-md p-lg">
+      <p className="text-danger-text text-site-label font-bold">
+        Customers can&rsquo;t see {dish.name} because Karrigo flagged it.
+      </p>
+      {flag.note && <p className="text-site-label mt-xs">{flag.note}</p>}
+      {flag.appealedAt ? (
+        <p className="text-site-label text-text-secondary mt-md">
+          You appealed{flag.appealNote ? `: “${flag.appealNote}”` : "."} Karrigo will look at it and get back to you.
+        </p>
+      ) : (
+        <form
+          className="gap-sm mt-md flex flex-col"
+          onSubmit={(e) => {
+            e.preventDefault();
+            startTransition(async () => {
+              const result = await appealFlag(dish.id, message);
+              if (!result.ok) return setError(result.error);
+              setError("");
+            });
+          }}
+        >
+          <label className={fieldLabel}>
+            Appeal this flag (once)
+            <textarea
+              value={message}
+              onChange={(e) => { setMessage(e.target.value); setError(""); }}
+              rows={2}
+              maxLength={500}
+              placeholder="Say what's wrong with the flag, or what you've changed"
+              className={cn(field, "resize-y")}
+            />
+          </label>
+          <FormError>{error}</FormError>
+          <SubmitButton busy={busy} idle="Send appeal" working="Sending…" />
+        </form>
+      )}
+    </div>
+  );
+}
+
+function NewSection({ first, servesFood, servesGrocery }: { first: boolean; servesFood: boolean; servesGrocery: boolean }) {
   const [open, setOpen] = useState(first);
+  const both = servesFood && servesGrocery;
+  const [type, setType] = useState<"FOOD" | "GROCERY" | "">(both ? "" : servesGrocery ? "GROCERY" : "FOOD");
 
   if (!open) {
     return (
@@ -364,7 +456,38 @@ function NewSection({ first }: { first: boolean }) {
   return (
     <section className={panel}>
       <h2 className="text-h1 font-extrabold">{first ? "Your first section" : "New section"}</h2>
-      <SectionForm idle="Add section" save={addSection} done={() => setOpen(false)} />
+      {both && (
+        <div className="mt-md" role="radiogroup" aria-label="Which side is this section for?">
+          <p className="text-label font-bold">This section is for</p>
+          <div className="gap-sm mt-sm flex flex-wrap">
+            {(["FOOD", "GROCERY"] as const).map((side) => (
+              <button
+                key={side}
+                type="button"
+                role="radio"
+                aria-checked={type === side}
+                onClick={() => setType(side)}
+                className={cn(
+                  "rounded-pill text-nav-link px-lg py-sm font-bold transition-colors duration-(--duration-fast)",
+                  type === side ? "bg-text text-bg" : "bg-surface-raised text-text",
+                )}
+              >
+                {side === "FOOD" ? "Food" : "Groceries"}
+              </button>
+            ))}
+          </div>
+          <p className="text-site-chip text-text-secondary mt-xs">It can&rsquo;t be changed once the section is made.</p>
+        </div>
+      )}
+      <SectionForm
+        idle="Add section"
+        save={(input) =>
+          both && !type
+            ? Promise.resolve({ ok: false as const, error: "Choose whether this section is for food or groceries." })
+            : addSection({ ...input, ...(type ? { type } : {}) })
+        }
+        done={() => setOpen(false)}
+      />
     </section>
   );
 }

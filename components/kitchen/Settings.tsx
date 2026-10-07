@@ -2,7 +2,7 @@
 
 import { useState, useTransition } from "react";
 
-import { saveHours, saveProfile } from "@/app/(order)/my-kitchen/actions";
+import { saveHours, saveProfile, saveSides } from "@/app/(order)/my-kitchen/actions";
 import { FormError, SubmitButton, field, fieldLabel } from "@/components/partners/parts";
 import { cn } from "@/lib/cn";
 import type { DayHours } from "@/lib/kitchen/types";
@@ -140,6 +140,55 @@ export function ProfileForm({ name: savedName, cuisine: savedCuisine, feeKobo }:
       <FormError>{error}</FormError>
       <Saved>{done}</Saved>
       <SubmitButton busy={busy} idle="Save details" working="Saving…" />
+    </form>
+  );
+}
+
+/** Whether the kitchen takes food orders, grocery orders, or both. Never both off. */
+export function SidesForm({ servesFood: savedFood, servesGrocery: savedGrocery }: { servesFood: boolean; servesGrocery: boolean }) {
+  const [food, setFood] = useState(savedFood);
+  const [grocery, setGrocery] = useState(savedGrocery);
+  const [error, setError] = useState("");
+  const [done, setDone] = useState("");
+  const [busy, startTransition] = useTransition();
+
+  function change(side: "food" | "grocery", on: boolean) {
+    setError("");
+    setDone("");
+    if (side === "food") setFood(on);
+    else setGrocery(on);
+  }
+
+  return (
+    <form
+      className={cn(panel, "gap-md flex flex-col")}
+      onSubmit={(e) => {
+        e.preventDefault();
+        startTransition(async () => {
+          const result = await saveSides({ servesFood: food, servesGrocery: grocery });
+          if (!result.ok) return setError(result.error);
+          setError("");
+          setDone("Saved.");
+        });
+      }}
+    >
+      <div>
+        <h2 className="text-h1 font-extrabold">What you sell</h2>
+        <p className="text-site-label text-text-secondary mt-xs">
+          Take food orders, grocery orders, or both. Switching one off hides that side from customers; your menu is kept.
+        </p>
+      </div>
+      <div className="gap-md flex items-center">
+        <Switch checked={food} label="Take food orders" onChange={(on) => change("food", on)} />
+        <span className="text-site-question">Food</span>
+      </div>
+      <div className="gap-md flex items-center">
+        <Switch checked={grocery} label="Take grocery orders" onChange={(on) => change("grocery", on)} />
+        <span className="text-site-question">Groceries</span>
+      </div>
+      <FormError>{error}</FormError>
+      <Saved>{done}</Saved>
+      <SubmitButton busy={busy} idle="Save" working="Saving…" />
     </form>
   );
 }

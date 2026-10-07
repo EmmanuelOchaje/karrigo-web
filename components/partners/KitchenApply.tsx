@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import { useState, useTransition } from "react";
 
 import { applyKitchen, kitchenLogIn } from "@/app/(order)/partners/actions";
-import { AREAS } from "@/lib/order/schema";
 import { Screen } from "@/components/ui/Screen";
 import { cn } from "@/lib/cn";
 import { FormError, SubmitButton, field, fieldLabel } from "./parts";
@@ -16,7 +15,7 @@ import { FormError, SubmitButton, field, fieldLabel } from "./parts";
  * kitchen is called. Everything slower — location, bank, photo, menu — comes
  * after, on a page they can leave and come back to.
  */
-export function KitchenApply() {
+export function KitchenApply({ areas }: { areas: string[] }) {
   const router = useRouter();
   const [form, setForm] = useState({
     kitchenName: "",
@@ -65,7 +64,7 @@ export function KitchenApply() {
           Area
           <select value={form.area} onChange={set("area")} className={cn(field, "appearance-none")}>
             <option value="">Pick your area</option>
-            {AREAS.map((a) => (
+            {areas.map((a) => (
               <option key={a} value={a}>
                 {a}
               </option>

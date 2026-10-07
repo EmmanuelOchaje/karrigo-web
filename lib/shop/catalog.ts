@@ -2,15 +2,15 @@ import "server-only";
 
 import { api, ApiError, type Schemas } from "@/lib/api/client";
 import { nairaToKobo } from "@/lib/money";
-import type { PricedCart, ShopKitchen, ShopMenu } from "./types";
+import type { PricedCart, ShopKitchen, ShopMenu, Side } from "./types";
 
-function kitchen(k: Schemas["KitchenResponseDto"]): ShopKitchen {
+function kitchen(k: Schemas["KitchenResponseDto"], side: Side = "FOOD"): ShopKitchen {
   return {
     id: k.id,
     slug: k.slug,
     name: k.name,
     emoji: k.emoji ?? null,
-    cuisine: k.cuisine ?? "Home cooking",
+    cuisine: k.cuisine ?? (side === "GROCERY" ? "Groceries" : "Home cooking"),
     area: k.area ?? "Makurdi",
     landmarkNote: k.landmarkNote ?? null,
     imageUrl: k.heroImageUrl ?? null,
@@ -19,22 +19,27 @@ function kitchen(k: Schemas["KitchenResponseDto"]): ShopKitchen {
     feeKobo: nairaToKobo(k.feeNaira),
     rating: k.ratingAvg,
     ratingsCount: k.ratingsCount,
+    minOrderKobo: k.minOrderNaira != null ? nairaToKobo(k.minOrderNaira) : null,
+    maxItems: k.maxItemsPerOrder ?? null,
   };
 }
 
 /** Every request is live: a kitchen changes a price or sells out and the next
  *  page load shows it (CLAUDE.md rule 5). Nothing here is cached. */
-export async function listKitchens(): Promise<ShopKitchen[]> {
-  const rows = await api<Schemas["KitchenResponseDto"][]>("/kitchens");
+export async function listKitchens(side: Side = "FOOD"): Promise<ShopKitchen[]> {
+  const rows = await api<Schemas["KitchenResponseDto"][]>("/kitchens", { query: { type: side } });
   // Open kitchens first; closed ones stay visible below, never hidden.
-  return rows.map(kitchen).sort((a, b) => Number(b.open) - Number(a.open) || a.name.localeCompare(b.name));
+  return rows.map((k) => kitchen(k, side)).sort((a, b) => Number(b.open) - Number(a.open) || a.name.localeCompare(b.name));
 }
 
-export async function getKitchenMenu(slug: string): Promise<ShopMenu | null> {
+export async function getKitchenMenu(slug: string, side: Side = "FOOD"): Promise<ShopMenu | null> {
   try {
-    const k = await api<Schemas["KitchenWithMenuResponseDto"]>(`/kitchens/${encodeURIComponent(slug)}`);
+    const k = await api<Schemas["KitchenWithMenuResponseDto"]>(`/kitchens/${encodeURIComponent(slug)}`, {
+      query: { type: side },
+    });
     return {
-      ...kitchen(k),
+      ...kitchen(k, side),
+      side,
       sections: [...k.sections]
         .sort((a, b) => a.sortOrder - b.sortOrder)
         .map((s) => ({
@@ -51,6 +56,7 @@ export async function getKitchenMenu(slug: string): Promise<ShopMenu | null> {
               soldOut: i.isSoldOut,
               imageUrl: i.imageUrl ?? null,
               tags: (i.tags ?? []).map((t) => t.label),
+              unit: i.unit ?? "",
             })),
         })),
     };
@@ -65,8 +71,9 @@ export async function getKitchenMenu(slug: string): Promise<ShopMenu | null> {
 export async function priceLines(
   slug: string,
   lines: Record<string, number>,
+  side: Side = "FOOD",
 ): Promise<PricedCart | null> {
-  const menu = await getKitchenMenu(slug);
+  const menu = await getKitchenMenu(slug, side);
   if (!menu) return null;
 
   const dishes = new Map(menu.sections.flatMap((s) => s.dishes).map((d) => [d.id, d]));
@@ -83,9 +90,11 @@ export async function priceLines(
   }
 
   const subtotalKobo = priced.reduce((sum, l) => sum + l.lineKobo, 0);
-  const { sections, ...summary } = menu;
+  const { sections, side: _side, ...summary } = menu;
   void sections;
+  void _side;
   return {
+    side,
     kitchen: summary,
     lines: priced,
     unavailable,

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { Checkout } from "@/components/order/Checkout";
+import { listAreaNames } from "@/lib/shop/areas";
 import { getCustomer } from "@/lib/shop/session";
 
 export const metadata: Metadata = { title: "Checkout · Karrigo" };
 
 export default async function CheckoutPage() {
-  return <Checkout customer={await getCustomer()} />;
+  const [customer, areas] = await Promise.all([getCustomer(), listAreaNames()]);
+  return <Checkout customer={customer} areas={areas} />;
 }

@@ -6,13 +6,15 @@ import { Screen } from "@/components/ui/Screen";
 import { ButtonLink } from "@/components/ui/Button";
 import { formatKobo } from "@/lib/money";
 import { addDish, cartCount, removeDish, useOrderState } from "@/lib/order/store";
+import { basketIssue } from "@/lib/shop/limits";
 import type { ShopMenu } from "@/lib/shop/types";
 import { cn } from "@/lib/cn";
 import { QtyStepper } from "./QtyStepper";
 
 export function KitchenMenu({ menu }: { menu: ShopMenu }) {
   const { cart } = useOrderState();
-  const inThisKitchen = cart?.kitchenSlug === menu.slug;
+  const grocery = menu.side === "GROCERY";
+  const inThisKitchen = cart?.kitchenSlug === menu.slug && cart.side === menu.side;
   const closed = !menu.open;
 
   // The menu on this page is fresh from the server, so the sidebar is priced
@@ -25,6 +27,14 @@ export function KitchenMenu({ menu }: { menu: ShopMenu }) {
       })
     : [];
   const subtotalKobo = lines.reduce((sum, l) => sum + l.lineKobo, 0);
+  const issue = basketIssue({
+    side: menu.side,
+    name: menu.name,
+    count: lines.reduce((n, l) => n + l.qty, 0),
+    subtotalKobo,
+    maxItems: menu.maxItems,
+    minOrderKobo: menu.minOrderKobo,
+  });
   const gone = inThisKitchen
     ? Object.keys(cart?.lines ?? {}).filter((id) => !dishes.get(id) || dishes.get(id)!.soldOut)
     : [];
@@ -33,10 +43,10 @@ export function KitchenMenu({ menu }: { menu: ShopMenu }) {
     <div className="gap-xl mx-auto flex max-w-[1240px] flex-wrap items-start">
       <div className="gap-lg flex min-w-0 flex-[2_1_520px] flex-col">
         <Link
-          href="/kitchens"
+          href={grocery ? "/stores" : "/kitchens"}
           className="bg-bg hover:bg-surface-raised rounded-pill text-site-label self-start px-lg py-sm font-bold transition-colors duration-(--duration-fast)"
         >
-          ← All kitchens
+          {grocery ? "← All stores" : "← All kitchens"}
         </Link>
 
         <Screen mode="dark" className="rounded-panel-md grid overflow-hidden sm:grid-cols-2">
@@ -55,6 +65,12 @@ export function KitchenMenu({ menu }: { menu: ShopMenu }) {
               <span className="bg-accent/16 text-accent-text rounded-pill px-md py-xs">
                 {menu.feeKobo === 0 ? "Free delivery" : `${formatKobo(menu.feeKobo)} delivery`}
               </span>
+              {grocery && menu.minOrderKobo ? (
+                <span className="bg-text/10 rounded-pill px-md py-xs">Min. {formatKobo(menu.minOrderKobo)}</span>
+              ) : null}
+              {grocery && menu.maxItems ? (
+                <span className="bg-text/10 rounded-pill px-md py-xs">Up to {menu.maxItems} items</span>
+              ) : null}
             </div>
           </div>
           <div className="bg-surface-raised relative grid min-h-[220px] place-items-center">
@@ -69,7 +85,7 @@ export function KitchenMenu({ menu }: { menu: ShopMenu }) {
               />
             ) : (
               <span aria-hidden className="text-[88px]">
-                {menu.emoji ?? "🍲"}
+                {menu.emoji ?? (grocery ? "🛒" : "🍲")}
               </span>
             )}
           </div>
@@ -88,7 +104,7 @@ export function KitchenMenu({ menu }: { menu: ShopMenu }) {
 
         {menu.sections.every((s) => s.dishes.length === 0) ? (
           <p className="bg-bg rounded-panel-sm text-site-body text-text-secondary p-xxl text-center font-semibold">
-            {menu.name} hasn&rsquo;t put any dishes on the menu yet.
+            {menu.name} hasn&rsquo;t put any {grocery ? "products" : "dishes"} on yet.
           </p>
         ) : (
           menu.sections
@@ -111,6 +127,7 @@ export function KitchenMenu({ menu }: { menu: ShopMenu }) {
                       )}
                       <div className={cn("min-w-0 flex-1", dish.soldOut && "opacity-50")}>
                         <div className="text-site-question">{dish.name}</div>
+                        {dish.unit && <div className="text-site-label text-text-secondary mt-xs">{dish.unit}</div>}
                         {dish.description && (
                           <div className="text-site-label text-text-secondary mt-xs">{dish.description}</div>
                         )}
@@ -124,7 +141,7 @@ export function KitchenMenu({ menu }: { menu: ShopMenu }) {
                       ) : closed ? null : qty === 0 ? (
                         <button
                           type="button"
-                          onClick={() => addDish(menu, dish.id)}
+                          onClick={() => addDish({ slug: menu.slug, name: menu.name, side: menu.side }, dish.id)}
                           className="bg-accent text-on-accent rounded-pill text-nav-link shrink-0 px-xl py-md font-bold transition-transform duration-(--duration-fast) hover:-translate-y-0.5 active:scale-95"
                         >
                           Add
@@ -133,7 +150,7 @@ export function KitchenMenu({ menu }: { menu: ShopMenu }) {
                         <QtyStepper
                           qty={qty}
                           name={dish.name}
-                          onAdd={() => addDish(menu, dish.id)}
+                          onAdd={() => addDish({ slug: menu.slug, name: menu.name, side: menu.side }, dish.id)}
                           onRemove={() => removeDish(dish.id)}
                         />
                       )}
@@ -151,8 +168,9 @@ export function KitchenMenu({ menu }: { menu: ShopMenu }) {
         {cart && !inThisKitchen ? (
           <>
             <p className="bg-danger-bg text-danger-text rounded-field text-site-label mt-md px-md py-sm font-semibold">
-              Your cart has {cartCount(cart)} item{cartCount(cart) === 1 ? "" : "s"} from {cart.kitchenName}. Adding
-              here starts a new cart.
+              Your cart has {cartCount(cart)} item{cartCount(cart) === 1 ? "" : "s"} from {cart.kitchenName}
+              {cart.side !== menu.side ? ` (${cart.side === "GROCERY" ? "groceries" : "food"})` : ""}. Adding here starts
+              a new cart.
             </p>
             <ButtonLink href="/checkout" variant="muted" size="site" full className="mt-lg">
               Go to {cart.kitchenName}&rsquo;s cart
@@ -160,7 +178,7 @@ export function KitchenMenu({ menu }: { menu: ShopMenu }) {
           </>
         ) : lines.length === 0 ? (
           <p className="text-site-label text-text-secondary mt-md">
-            {closed ? `${menu.name} isn't taking orders right now.` : "Nothing yet. Tap Add on a dish to start."}
+            {closed ? `${menu.name} isn't taking orders right now.` : grocery ? "Nothing yet. Tap Add on a product to start." : "Nothing yet. Tap Add on a dish to start."}
           </p>
         ) : (
           <>
@@ -182,6 +200,13 @@ export function KitchenMenu({ menu }: { menu: ShopMenu }) {
               <span>Subtotal</span>
               <span>{formatKobo(subtotalKobo)}</span>
             </div>
+            {issue && (
+              <p className="bg-danger-bg text-danger-text rounded-field text-site-label mt-md px-md py-sm font-semibold">
+                {issue.kind === "BELOW_MINIMUM"
+                  ? `Add ${formatKobo(issue.shortfallKobo)} more to reach ${menu.name}'s ${formatKobo(menu.minOrderKobo ?? 0)} minimum.`
+                  : issue.message}
+              </p>
+            )}
             <ButtonLink href="/checkout" variant="dark" size="site" full className="mt-lg">
               Go to checkout
             </ButtonLink>

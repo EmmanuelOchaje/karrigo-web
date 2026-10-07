@@ -3,16 +3,25 @@ import Link from "next/link";
 
 import { cn } from "@/lib/cn";
 import { formatKobo } from "@/lib/money";
-import type { ShopKitchen } from "@/lib/shop/types";
+import { placeHref } from "@/lib/shop/paths";
+import type { ShopKitchen, Side } from "@/lib/shop/types";
 
 /** A kitchen in the grid. A closed kitchen stays visible, dimmed and labelled,
  *  because "where did Terkimbi's go?" is worse than "closed until 11". */
-export function ShopKitchenCard({ kitchen, priority = false }: { kitchen: ShopKitchen; priority?: boolean }) {
+export function ShopKitchenCard({
+  kitchen,
+  side = "FOOD",
+  priority = false,
+}: {
+  kitchen: ShopKitchen;
+  side?: Side;
+  priority?: boolean;
+}) {
   const shut = !kitchen.open;
 
   return (
     <Link
-      href={`/k/${kitchen.slug}`}
+      href={placeHref(kitchen.slug, side)}
       className={cn(
         "bg-bg rounded-panel-sm p-sm group block transition-[transform,box-shadow] duration-(--duration-normal)",
         shut ? "opacity-55" : "hover:-translate-y-1.5 hover:shadow-card",
@@ -33,7 +42,7 @@ export function ShopKitchenCard({ kitchen, priority = false }: { kitchen: ShopKi
           />
         ) : (
           <span aria-hidden className="text-[64px]">
-            {kitchen.emoji ?? "🍲"}
+            {kitchen.emoji ?? (side === "GROCERY" ? "🛒" : "🍲")}
           </span>
         )}
         {shut ? (
@@ -60,6 +69,7 @@ export function ShopKitchenCard({ kitchen, priority = false }: { kitchen: ShopKi
               </span>
             )}
             {kitchen.feeKobo > 0 && <span>{formatKobo(kitchen.feeKobo)} delivery</span>}
+            {side === "GROCERY" && kitchen.minOrderKobo ? <span>Min. {formatKobo(kitchen.minOrderKobo)}</span> : null}
           </div>
         )}
       </div>

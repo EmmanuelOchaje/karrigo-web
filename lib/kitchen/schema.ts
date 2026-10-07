@@ -16,12 +16,26 @@ export const dishSchema = z.object({
   name: z.string().trim().min(2, { message: "Give the dish a name." }).max(80, { message: "Keep the name under 80 characters." }),
   description: z.string().trim().max(200, { message: "Keep the description under 200 characters." }),
   priceNaira,
+  /** How a grocery product is sold, e.g. "1 kg" or "pack of 6". */
+  unit: z.string().trim().max(30, { message: "Keep the unit under 30 characters." }),
 });
 
 export const sectionSchema = z.object({
   label: z.string().trim().min(2, { message: "Give the section a name, like Swallow or Drinks." }).max(40, { message: "Keep the section name under 40 characters." }),
   note: z.string().trim().max(120, { message: "Keep the note under 120 characters." }),
+  /** Which side the section belongs to. Needed when the kitchen serves both. */
+  type: z.enum(["FOOD", "GROCERY"]).optional(),
 });
+
+export const appealSchema = z
+  .string()
+  .trim()
+  .min(1, { message: "Say why this should be put back." })
+  .max(500, { message: "Keep the message under 500 characters." });
+
+export const sidesSchema = z
+  .object({ servesFood: z.boolean(), servesGrocery: z.boolean() })
+  .refine((s) => s.servesFood || s.servesGrocery, { message: "Keep at least one of food or groceries switched on." });
 
 export const profileSchema = z.object({
   name: z.string().trim().min(2, { message: "Your kitchen needs a name." }).max(60, { message: "Keep the name under 60 characters." }),

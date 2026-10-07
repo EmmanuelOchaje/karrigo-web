@@ -12,6 +12,8 @@ export type ShopDish = {
   soldOut: boolean;
   imageUrl: string | null;
   tags: string[];
+  /** How a grocery product is sold, "1 kg" or "pack of 6". Empty for food. */
+  unit: string;
 };
 
 export type ShopSection = {
@@ -36,9 +38,15 @@ export type ShopKitchen = {
   feeKobo: number;
   rating: number;
   ratingsCount: number;
+  /** A store's own rules, from the backend. Only applied to grocery orders. */
+  minOrderKobo: number | null;
+  maxItems: number | null;
 };
 
-export type ShopMenu = ShopKitchen & { sections: ShopSection[] };
+/** The two things a customer can order. A place serving both has a page for each. */
+export type Side = "FOOD" | "GROCERY";
+
+export type ShopMenu = ShopKitchen & { side: Side; sections: ShopSection[] };
 
 export type Customer = {
   id: string;
@@ -59,6 +67,7 @@ export type PricedLine = {
 };
 
 export type PricedCart = {
+  side: Side;
   kitchen: ShopKitchen;
   lines: PricedLine[];
   /** Names of dishes that sold out or left the menu since they were added. */

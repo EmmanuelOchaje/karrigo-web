@@ -28,6 +28,12 @@ const NEXT: Partial<Record<OrderStatus, { to: OrderStatus; label: string; workin
   READY: { to: "PICKED_UP", label: "Handed to rider", working: "Handing over…" },
 };
 
+/** The same steps for a grocery store, which packs rather than cooks. */
+const NEXT_GROCERY: typeof NEXT = {
+  ...NEXT,
+  ACCEPTED: { to: "PREPARING", label: "Start packing", working: "Starting…" },
+};
+
 const GROUPS: { title: string; statuses: OrderStatus[]; hint: string }[] = [
   { title: "New", statuses: ["PLACED"], hint: "Accept these first — the customer is waiting to hear from you." },
   { title: "In the kitchen", statuses: ["ACCEPTED", "PREPARING"], hint: "" },
@@ -122,8 +128,16 @@ function OrderCard({ order }: { order: KitchenOrder }) {
   const [confirming, setConfirming] = useState(false);
   const [moving, setMoving] = useState<OrderStatus | null>(null);
   const [busy, startTransition] = useTransition();
-  const next = NEXT[order.status];
+  const grocery = order.type === "GROCERY";
+  const next = (grocery ? NEXT_GROCERY : NEXT)[order.status];
   const isNew = order.status === "PLACED";
+  // A store can accept a grocery order without the lines it can't supply.
+  // Ticked here, sent with the accept, and never charged.
+  const [unavailable, setUnavailable] = useState<string[]>([]);
+  const choosing = grocery && isNew;
+  const supplied = order.items.filter((i) => !i.unavailable && !(choosing && unavailable.includes(i.id)));
+  const declineAll = choosing && supplied.length === 0;
+  const total = supplied.reduce((sum, i) => sum + i.unitPriceKobo * i.qty, 0);
   // The kitchen's own row is ACCEPTED whether or not the customer has paid —
   // the parent order is what tells the two apart (SYNC_WEB_CUSTOMER_AND_KITCHEN.md §1).
   const awaitingPayment = order.status === "ACCEPTED" && !order.order.paidAt;
@@ -132,7 +146,7 @@ function OrderCard({ order }: { order: KitchenOrder }) {
     setError("");
     setMoving(to);
     startTransition(async () => {
-      const result = await setOrderStatus(order.id, to);
+      const result = await setOrderStatus(order.id, to, to === "ACCEPTED" ? unavailable : []);
       if (!result.ok) setError(result.error);
       setConfirming(false);
       setMoving(null);
@@ -150,19 +164,41 @@ function OrderCard({ order }: { order: KitchenOrder }) {
       </header>
 
       <ul className="grow">
-        {order.items.map((i) => (
-          <li key={i.id} className="text-site-body gap-md flex justify-between py-xs">
-            <span className="min-w-0">
-              <span className="font-extrabold">{i.qty} ×</span> {i.name}
-            </span>
-            <span className="text-text-secondary shrink-0">{formatKobo(i.unitPriceKobo * i.qty)}</span>
-          </li>
-        ))}
+        {order.items.map((i) => {
+          const out = i.unavailable || (choosing && unavailable.includes(i.id));
+          return (
+            <li key={i.id} className="py-xs">
+              <div className="text-site-body gap-md flex justify-between">
+                <span className={cn("min-w-0", out && "text-text-secondary line-through")}>
+                  <span className="font-extrabold">{i.qty} ×</span> {i.name}
+                </span>
+                <span className={cn("text-text-secondary shrink-0", out && "line-through")}>
+                  {formatKobo(i.unitPriceKobo * i.qty)}
+                </span>
+              </div>
+              {i.unavailable && !choosing && (
+                <p className="text-site-chip text-text-secondary">Not supplied — not charged</p>
+              )}
+              {choosing && (
+                <label className="text-site-label gap-sm mt-xs flex items-center font-semibold">
+                  <input
+                    type="checkbox"
+                    checked={unavailable.includes(i.id)}
+                    onChange={(e) =>
+                      setUnavailable((ids) => (e.target.checked ? [...ids, i.id] : ids.filter((x) => x !== i.id)))
+                    }
+                  />
+                  Can&rsquo;t supply
+                </label>
+              )}
+            </li>
+          );
+        })}
       </ul>
 
       <p className="border-surface-raised text-site-body flex justify-between border-t pt-md font-bold">
-        <span>Food total</span>
-        <span>{formatKobo(order.subtotalKobo)}</span>
+        <span>{grocery ? "Total" : "Food total"}</span>
+        <span>{formatKobo(choosing ? total : order.subtotalKobo)}</span>
       </p>
 
       {awaitingPayment && (
@@ -180,7 +216,7 @@ function OrderCard({ order }: { order: KitchenOrder }) {
       {confirming ? (
         <div className="bg-danger-bg rounded-field p-lg">
           <p className="text-danger-text text-site-label font-bold">
-            Cancel {order.code}? The customer won&rsquo;t get this food, and it can&rsquo;t be undone.
+            Cancel {order.code}? The customer won&rsquo;t get {grocery ? "these items" : "this food"}, and it can&rsquo;t be undone.
           </p>
           <div className="gap-sm mt-md flex flex-wrap">
             <button
@@ -208,13 +244,19 @@ function OrderCard({ order }: { order: KitchenOrder }) {
               type="button"
               disabled={busy || awaitingPayment}
               title={awaitingPayment ? "Waiting for the customer to pay" : undefined}
-              onClick={() => move(next.to)}
+              onClick={() => (declineAll ? setConfirming(true) : move(next.to))}
               className={cn(
                 "rounded-pill text-site-button grow px-xl py-md transition-transform duration-(--duration-fast) active:scale-95 disabled:opacity-50",
                 isNew ? "bg-accent text-on-accent" : "bg-text text-bg",
               )}
             >
-              {awaitingPayment ? "Waiting for payment" : moving === next.to ? next.working : next.label}
+              {awaitingPayment
+                ? "Waiting for payment"
+                : declineAll
+                  ? "Decline order"
+                  : moving === next.to
+                    ? next.working
+                    : next.label}
             </button>
           )}
           {order.status !== "READY" && (
@@ -224,7 +266,7 @@ function OrderCard({ order }: { order: KitchenOrder }) {
               onClick={() => setConfirming(true)}
               className="text-text-secondary hover:text-danger-text rounded-pill text-site-label px-lg py-md font-semibold disabled:opacity-50"
             >
-              {isNew ? "Can't take it" : "Cancel order"}
+              {isNew ? (grocery ? "Can't supply it" : "Can't take it") : "Cancel order"}
             </button>
           )}
         </div>

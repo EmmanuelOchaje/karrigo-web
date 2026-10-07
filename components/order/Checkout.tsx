@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { formatKobo } from "@/lib/money";
-import { AREAS, deliverySchema, firstIssue } from "@/lib/order/schema";
+import { deliverySchema, firstIssue } from "@/lib/order/schema";
 import {
   addDish,
   clearCart,
@@ -17,17 +17,18 @@ import {
   useOrderState,
 } from "@/lib/order/store";
 import { addressAt, placeOrder, priceCartAction, validatePromo } from "@/app/(order)/actions";
-import { DELIVERY_RADIUS_KM, insideDeliveryArea } from "@/lib/order/address";
 import { AddressSearch } from "./AddressSearch";
 import type { Customer, PricedCart } from "@/lib/shop/types";
 import { cn } from "@/lib/cn";
 import { QtyStepper } from "./QtyStepper";
+import { basketIssue } from "@/lib/shop/limits";
+import { placeHref } from "@/lib/shop/paths";
 
 const field =
   "border-field-border focus:border-field-border-active rounded-field text-site-body bg-bg border-[1.5px] px-lg py-md font-medium outline-none transition-colors duration-(--duration-fast)";
 const fieldLabel = "text-label flex flex-col gap-sm font-bold";
 
-export function Checkout({ customer }: { customer: Customer | null }) {
+export function Checkout({ customer, areas }: { customer: Customer | null; areas: string[] }) {
   const router = useRouter();
   const hydrated = useHydrated();
   const { cart, landmark, address, area } = useOrderState();
@@ -46,12 +47,12 @@ export function Checkout({ customer }: { customer: Customer | null }) {
   const [pricingError, setPricingError] = useState("");
   const latest = useRef(0);
 
-  const cartKey = cart ? `${cart.kitchenSlug}:${JSON.stringify(cart.lines)}` : "";
+  const cartKey = cart ? `${cart.kitchenSlug}:${cart.side}:${JSON.stringify(cart.lines)}` : "";
   const checking = hydrated && Boolean(cart) && pricedFor !== cartKey;
   useEffect(() => {
     if (!hydrated || !cart) return;
     const ticket = ++latest.current;
-    priceCartAction(cart.kitchenSlug, cart.lines).then((result) => {
+    priceCartAction(cart.kitchenSlug, cart.lines, cart.side).then((result) => {
       if (ticket !== latest.current) return;
       setPricedFor(cartKey);
       if (!result.ok) return setPricingError(result.error);
@@ -93,11 +94,13 @@ export function Checkout({ customer }: { customer: Customer | null }) {
           ) : (
             <>
               <p className="text-site-title">
-                {priced === null && cart ? "That kitchen isn't taking orders" : "Your cart is empty"}
+                {priced === null && cart ? "That place isn't taking orders" : "Your cart is empty"}
               </p>
-              <p className="text-site-body text-text-secondary mt-sm mb-xl">Pick a kitchen and add a few dishes.</p>
-              <ButtonLink href="/kitchens" variant="accent" size="site">
-                Browse kitchens
+              <p className="text-site-body text-text-secondary mt-sm mb-xl">
+                {cart?.side === "GROCERY" ? "Pick a store and add a few products." : "Pick a kitchen and add a few dishes."}
+              </p>
+              <ButtonLink href={cart?.side === "GROCERY" ? "/stores" : "/kitchens"} variant="accent" size="site">
+                {cart?.side === "GROCERY" ? "Browse stores" : "Browse kitchens"}
               </ButtonLink>
             </>
           )}
@@ -107,6 +110,15 @@ export function Checkout({ customer }: { customer: Customer | null }) {
   }
 
   const { kitchen } = priced;
+  const side = priced.side;
+  const issue = basketIssue({
+    side,
+    name: kitchen.name,
+    count: priced.count,
+    subtotalKobo: priced.subtotalKobo,
+    maxItems: kitchen.maxItems,
+    minOrderKobo: kitchen.minOrderKobo,
+  });
   const creditKobo = Math.min(customer?.creditKobo ?? 0, Math.max(0, priced.totalKobo - (discount?.kobo ?? 0)));
   const totalKobo = Math.max(0, priced.totalKobo - (discount?.kobo ?? 0) - creditKobo);
 
@@ -150,6 +162,7 @@ export function Checkout({ customer }: { customer: Customer | null }) {
     startTransition(async () => {
       const result = await placeOrder({
         kitchenSlug: kitchen.slug,
+        side,
         lines: cart!.lines,
         landmark: parsed.data.landmark,
         address: parsed.data.address,
@@ -195,7 +208,7 @@ export function Checkout({ customer }: { customer: Customer | null }) {
                 className={cn(field, "appearance-none")}
               >
                 <option value="">Pick your area</option>
-                {AREAS.map((a) => (
+                {[...new Set([...areas, ...(area ? [area] : [])])].map((a) => (
                   <option key={a} value={a}>{a}</option>
                 ))}
               </select>
@@ -214,20 +227,14 @@ export function Checkout({ customer }: { customer: Customer | null }) {
                 className={field}
               />
             </label>
-            {coords && !insideDeliveryArea(coords) && (
-              <p className="bg-danger-bg text-danger-text rounded-field text-site-label px-md py-sm font-semibold">
-                That spot is more than {DELIVERY_RADIUS_KM} km from the centre of Makurdi, outside where Karrigo
-                delivers today.
-              </p>
-            )}
             <label className={fieldLabel}>
-              Note for kitchen or rider
+              Note for the {side === "GROCERY" ? "store" : "kitchen"} or rider
               <textarea
                 value={note}
                 onChange={(e) => setNote(e.target.value)}
                 rows={2}
                 maxLength={200}
-                placeholder="Less pepper, call when you reach the junction"
+                placeholder={side === "GROCERY" ? "Call when you reach the junction" : "Less pepper, call when you reach the junction"}
                 className={cn(field, "resize-y")}
               />
             </label>
@@ -251,7 +258,7 @@ export function Checkout({ customer }: { customer: Customer | null }) {
         <aside className="bg-bg rounded-panel-sm p-xl sticky top-[96px] min-w-0 flex-[1_1_320px]">
           <div className="gap-sm flex items-baseline justify-between">
             <h2 className="text-h1 font-extrabold">{kitchen.name}</h2>
-            <Link href={`/k/${kitchen.slug}`} className="text-accent-text text-site-label font-bold whitespace-nowrap">
+            <Link href={placeHref(kitchen.slug, side)} className="text-accent-text text-site-label font-bold whitespace-nowrap">
               Add more
             </Link>
           </div>
@@ -263,7 +270,7 @@ export function Checkout({ customer }: { customer: Customer | null }) {
           )}
           {priced.unavailable.length > 0 && (
             <p className="bg-danger-bg text-danger-text rounded-field text-site-label mt-md px-md py-sm font-semibold">
-              {kitchen.name} has run out of {priced.unavailable.join(", ")}. We took it out of your order.
+              {kitchen.name} has run out of {priced.unavailable.join(", ")}. We took it out of your {side === "GROCERY" ? "basket" : "order"}.
             </p>
           )}
 
@@ -278,7 +285,7 @@ export function Checkout({ customer }: { customer: Customer | null }) {
                   tone="light"
                   qty={line.qty}
                   name={line.name}
-                  onAdd={() => addDish(kitchen, line.dishId)}
+                  onAdd={() => addDish({ slug: kitchen.slug, name: kitchen.name, side }, line.dishId)}
                   onRemove={() => removeDish(line.dishId)}
                 />
               </div>
@@ -326,6 +333,12 @@ export function Checkout({ customer }: { customer: Customer | null }) {
             </div>
           </dl>
 
+          {issue && (
+            <p role="alert" className="bg-danger-bg text-danger-text rounded-field text-site-label mt-md px-md py-sm font-semibold">
+              {issue.message}
+            </p>
+          )}
+
           {error && (
             <p role="alert" className="text-danger-text text-site-label shake mt-md font-semibold">
               {error}
@@ -339,10 +352,12 @@ export function Checkout({ customer }: { customer: Customer | null }) {
             size="site"
             full
             className="mt-lg"
-            disabled={busy || checking || !kitchen.open}
+            disabled={busy || checking || !kitchen.open || issue !== null}
           >
             {busy
               ? "Placing your order…"
+              : issue?.kind === "BELOW_MINIMUM"
+                ? `Add ${formatKobo(issue.shortfallKobo)} more to check out`
               : customer
                 ? `Place order · ${formatKobo(totalKobo)}`
                 : "Log in to place order"}
