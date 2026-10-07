@@ -5,7 +5,7 @@ import { api } from "@/lib/api/client";
 import type { AdminArea } from "@/lib/api/extra";
 import { requireAdmin } from "@/lib/admin/session";
 
-const PAGE_SIZE = 20;
+const PAGE_SIZE = 10;
 
 /** The neighbourhoods customers and kitchens pick their address from. The
  *  backend returns them all at once, so they are paged here. */
