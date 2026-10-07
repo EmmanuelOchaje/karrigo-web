@@ -1,4 +1,4 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from "next"
 
 const nextConfig: NextConfig = {
   experimental: {
@@ -10,6 +10,6 @@ const nextConfig: NextConfig = {
     // backend; clients never talk to it directly.
     remotePatterns: [{ protocol: "https", hostname: "storage.googleapis.com" }],
   },
-};
+}
 
-export default nextConfig;
+export default nextConfig
