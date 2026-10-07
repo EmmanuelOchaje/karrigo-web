@@ -1,17 +1,33 @@
 import Link from "next/link";
+import Image from "next/image";
 import type { Store } from "@/lib/fixtures";
+import { cn } from "@/lib/cn";
 import { formatKobo } from "@/lib/money";
 
-export function StoreCard({ store }: { store: Store }) {
+export function StoreCard({
+  store,
+  priority = false,
+}: {
+  store: Store;
+  priority?: boolean;
+}) {
   return (
     <Link
       href="/stores"
       className="bg-bg rounded-panel-sm p-sm group block transition-[transform,box-shadow] duration-(--duration-normal) hover:-translate-y-1.5 hover:shadow-card"
     >
-      {/* No store photos yet — real photos needed before launch, per the
-          design handoff. A placeholder keeps the grid's rhythm intact. */}
-      <div className="bg-surface-raised text-text-tertiary text-site-label relative flex aspect-[4/3] items-center justify-center overflow-hidden rounded-panel-xs text-center">
-        {store.category}
+      <div className="bg-surface-raised relative aspect-[4/3] overflow-hidden rounded-panel-xs">
+        <Image
+          src={store.image}
+          alt={`${store.category} at ${store.name}`}
+          fill
+          sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 350px"
+          priority={priority}
+          className={cn(
+            "object-cover transition-transform duration-(--duration-slow)",
+            "group-hover:scale-[1.03]",
+          )}
+        />
       </div>
 
       <div className="px-sm pt-lg pb-sm">

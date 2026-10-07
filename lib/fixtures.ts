@@ -34,7 +34,7 @@ export type Kitchen = {
 
 export type Store = {
   slug: string;
-  /** No store photos yet — real photos are needed before launch. */
+  image: string;
   name: string;
   category: string;
   area: string;
@@ -202,6 +202,7 @@ export function fromPriceKobo(kitchen: Kitchen): number {
 export const stores: Store[] = [
   {
     slug: "makurdi-mega-store",
+    image: "/images/fikri-rasyid-ezeC8-clZSs-unsplash.jpg",
     name: "Makurdi Mega Store",
     category: "Supermarket",
     area: "Wurukum",
@@ -211,6 +212,7 @@ export const stores: Store[] = [
   },
   {
     slug: "wurukum-provisions",
+    image: "/images/jack-lee-IH65r4HEQWQ-unsplash.jpg",
     name: "Wurukum Provisions",
     category: "Provisions",
     area: "Wurukum",
@@ -220,6 +222,7 @@ export const stores: Store[] = [
   },
   {
     slug: "high-level-mini-mart",
+    image: "/images/sincerely-media-8LevB8kRhQc-unsplash.jpg",
     name: "High Level Mini Mart",
     category: "Provisions",
     area: "High Level",
@@ -229,6 +232,7 @@ export const stores: Store[] = [
   },
   {
     slug: "modern-market-fresh",
+    image: "/images/alex-hudson-m3I92SgM3Mk-unsplash.jpg",
     name: "Modern Market Fresh",
     category: "Fresh produce",
     area: "Modern Market",
