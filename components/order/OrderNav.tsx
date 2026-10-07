@@ -6,6 +6,7 @@ import { useEffect, useState, useTransition } from "react";
 import { Logo } from "@/components/site/Logo";
 import { Screen } from "@/components/ui/Screen";
 import { logOut } from "@/app/(order)/actions";
+import { kitchenLogOut } from "@/app/(order)/partners/actions";
 import { cartCount, say, useOrderState } from "@/lib/order/store";
 import { cn } from "@/lib/cn";
 
@@ -93,15 +94,28 @@ export function OrderNav({
             >
               {user.name.split(" ")[0] || "Account"} · Log out
             </button>
+          ) : kitchen ? (
+            // Signed in as a kitchen only: the customer "Log in" would read as
+            // if they weren't signed in at all. Ordering still asks for a
+            // customer login at checkout.
+            <button
+              type="button"
+              onClick={() =>
+                startTransition(async () => {
+                  await kitchenLogOut();
+                  say("Logged out");
+                  router.push("/kitchens");
+                  router.refresh();
+                })
+              }
+              className="text-text/75 hover:bg-text/10 hover:text-text rounded-pill text-nav-link hidden px-lg py-sm transition-colors duration-(--duration-fast) sm:block"
+            >
+              Kitchen · Log out
+            </button>
           ) : (
             <Link
               href="/login"
-              className={cn(
-                "text-text/75 hover:bg-text/10 hover:text-text rounded-pill text-nav-link px-lg py-sm transition-colors duration-(--duration-fast)",
-                // On a phone the pill has room for one of these, and kitchen
-                // staff came here for the kitchen.
-                kitchen && "hidden md:block",
-              )}
+              className="text-text/75 hover:bg-text/10 hover:text-text rounded-pill text-nav-link px-lg py-sm transition-colors duration-(--duration-fast)"
             >
               Log in
             </Link>
