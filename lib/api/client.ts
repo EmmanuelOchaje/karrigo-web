@@ -40,7 +40,7 @@ type Options = {
 
 /** Gateway answers that mean "not right now", worth one more try for a read. */
 const RETRYABLE = new Set([502, 503, 504]);
-const RETRY_DELAY_MS = 500;
+const RETRY_DELAY_MS = 400;
 const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
 
 function messageOf(body: unknown, status: number): string {
@@ -81,22 +81,22 @@ export async function api<T>(path: string, options: Options = {}): Promise<T> {
     ...(scope || revalidate === undefined ? { cache: "no-store" as const } : { next: { revalidate } }),
   };
 
-  // A read can be asked again without harm, so one dropped connection or
+  // A read can be asked again without harm, so a dropped connection or
   // gateway hiccup (a tunnel, a deploy restarting) is absorbed instead of
   // breaking the page. Writes are never repeated: they might have landed.
-  const attempts = method === "GET" ? 2 : 1;
+  const attempts = method === "GET" ? 3 : 1;
   let response: Response | undefined;
   for (let attempt = 1; attempt <= attempts; attempt++) {
     try {
       response = await fetch(url, init);
       if (attempt < attempts && RETRYABLE.has(response.status)) {
-        await pause(RETRY_DELAY_MS);
+        await pause(RETRY_DELAY_MS * attempt);
         continue;
       }
       break;
     } catch {
       if (attempt < attempts) {
-        await pause(RETRY_DELAY_MS);
+        await pause(RETRY_DELAY_MS * attempt);
         continue;
       }
       throw new ApiError(
