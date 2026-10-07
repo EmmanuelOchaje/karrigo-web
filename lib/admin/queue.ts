@@ -33,6 +33,8 @@ export type QueueItem = {
   createdAt: string;
   /** Why they were rejected or suspended. They see this. */
   note: string | null;
+  /** A suspended kitchen's one appeal to ops, if it has sent one. */
+  appeal: { note: string; at: string } | null;
   fields: { key: string; value: string }[];
   checks: QueueCheck[];
   /** Owed to them, before anything is netted off. */
@@ -92,11 +94,23 @@ export function kitchenItem(
     when: whenLabel(kitchen.createdAt),
     createdAt: kitchen.createdAt,
     note: kitchen.rejectionNote ?? null,
+    appeal: kitchen.appealedAt
+      ? { note: kitchen.appealNote ?? "", at: whenLabel(String(kitchen.appealedAt)) }
+      : null,
     fields: [
       { key: "Area", value: area },
       { key: "Cuisine", value: cuisine },
       { key: "Signed up", value: whenLabel(kitchen.createdAt) },
       { key: "Delivery fee", value: formatKobo(nairaToKobo(kitchen.feeNaira)) },
+      {
+        key: "Sells",
+        value:
+          kitchen.servesFood && kitchen.servesGrocery
+            ? "Food and groceries"
+            : kitchen.servesGrocery
+              ? "Groceries"
+              : "Food",
+      },
     ],
     checks: [
       { label: "Location pinned on the map", ok: kitchen.lat != null && kitchen.lng != null },
@@ -123,6 +137,7 @@ export function riderItem(
     when: whenLabel(rider.documentsSubmittedAt ?? rider.createdAt),
     createdAt: rider.documentsSubmittedAt ?? rider.createdAt,
     note: rider.rejectionNote ?? null,
+    appeal: null,
     fields: [
       { key: "Phone", value: rider.user.phone },
       { key: "Vehicle", value: vehicle },
@@ -158,7 +173,7 @@ export function balanceFields(
   if (!item.unpaidKobo) return [];
   if (kind === "kitchens") {
     return [
-      { key: "Unpaid sales (after 15%)", value: formatKobo(item.unpaidKobo) },
+      { key: "Unpaid sales (after commission)", value: formatKobo(item.unpaidKobo) },
     ];
   }
   return [

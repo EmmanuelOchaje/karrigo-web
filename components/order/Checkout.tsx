@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useRef, useState, useTransition } from "react";
 import { Button, ButtonLink } from "@/components/ui/Button";
 import { formatKobo } from "@/lib/money";
-import { AREAS, deliverySchema, firstIssue } from "@/lib/order/schema";
+import { deliverySchema, firstIssue } from "@/lib/order/schema";
 import {
   addDish,
   clearCart,
@@ -26,7 +26,7 @@ const field =
   "border-field-border focus:border-field-border-active rounded-field text-site-body bg-bg border-[1.5px] px-lg py-md font-medium outline-none transition-colors duration-(--duration-fast)";
 const fieldLabel = "text-label flex flex-col gap-sm font-bold";
 
-export function Checkout({ customer }: { customer: Customer | null }) {
+export function Checkout({ customer, areas }: { customer: Customer | null; areas: string[] }) {
   const router = useRouter();
   const hydrated = useHydrated();
   const { cart, landmark, address, area } = useOrderState();
@@ -194,7 +194,7 @@ export function Checkout({ customer }: { customer: Customer | null }) {
                 className={cn(field, "appearance-none")}
               >
                 <option value="">Pick your area</option>
-                {AREAS.map((a) => (
+                {[...new Set([...areas, ...(area ? [area] : [])])].map((a) => (
                   <option key={a} value={a}>{a}</option>
                 ))}
               </select>

@@ -15,7 +15,6 @@ import {
   uploadKitchenPhoto,
   type Place,
 } from "@/app/(order)/partners/actions";
-import { AREAS } from "@/lib/order/schema";
 import { formatKobo } from "@/lib/money";
 import type { Bank, KitchenApplication } from "@/lib/partners/types";
 import { ButtonLink } from "@/components/ui/Button";
@@ -27,7 +26,7 @@ import { BankForm, FormError, PhotoUpload, StatusBanner, Step, SubmitButton, fie
  * approving, each one a step that can be done in any order and come back to.
  * The banner at the top always says where the application stands.
  */
-export function KitchenSetup({ kitchen, banks }: { kitchen: KitchenApplication; banks: Bank[] }) {
+export function KitchenSetup({ kitchen, banks, areas }: { kitchen: KitchenApplication; banks: Bank[]; areas: string[] }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
 
@@ -86,7 +85,7 @@ export function KitchenSetup({ kitchen, banks }: { kitchen: KitchenApplication; 
         summary={[kitchen.area, kitchen.landmarkNote].filter(Boolean).join(" · ")}
         hint="Riders collect from here, and it decides which customers are close enough to order."
       >
-        <LocationForm area={kitchen.area ?? ""} landmark={kitchen.landmarkNote ?? ""} />
+        <LocationForm area={kitchen.area ?? ""} landmark={kitchen.landmarkNote ?? ""} areas={areas} />
       </Step>
 
       <Step
@@ -144,7 +143,7 @@ export function KitchenSetup({ kitchen, banks }: { kitchen: KitchenApplication; 
   );
 }
 
-function LocationForm({ area: savedArea, landmark: savedLandmark }: { area: string; landmark: string }) {
+function LocationForm({ area: savedArea, landmark: savedLandmark, areas }: { area: string; landmark: string; areas: string[] }) {
   const [query, setQuery] = useState("");
   const [places, setPlaces] = useState<Place[] | null>(null);
   const [picked, setPicked] = useState<Place | null>(null);
@@ -241,7 +240,7 @@ function LocationForm({ area: savedArea, landmark: savedLandmark }: { area: stri
         Area
         <select value={area} onChange={(e) => setArea(e.target.value)} className={cn(field, "appearance-none")}>
           <option value="">Pick your area</option>
-          {[...new Set([...AREAS, ...(savedArea ? [savedArea] : [])])].map((a) => (
+          {[...new Set([...areas, ...(savedArea ? [savedArea] : [])])].map((a) => (
             <option key={a} value={a}>
               {a}
             </option>

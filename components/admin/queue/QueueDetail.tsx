@@ -15,6 +15,7 @@ import {
 import type { AdminRole } from "@/lib/admin/types";
 import { Eyebrow, StatusChip, type Tone } from "@/components/admin/ui";
 import { kitchenDetail, riderDocumentUrl } from "@/app/(admin)/admin/queue-actions";
+import { KitchenProducts } from "./KitchenProducts";
 
 type Decision = "approve" | "reject" | "suspend" | "payout";
 
@@ -138,7 +139,7 @@ export function QueueDetail({
                 : "The rider sees this note in the app and can re-upload.",
               button: "Reject",
               tone: "bad" as const,
-              requiresNote: !isKitchen,
+              requiresNote: true,
               run: () => onDecide(item, isKitchen ? "SUSPENDED" : "REJECTED", note.trim()),
             };
       case "suspend":
@@ -237,6 +238,13 @@ export function QueueDetail({
         </StatusChip>
       </header>
 
+      {item.appeal && (
+        <div className="bg-warning-bg border-text/8 border-b px-[22px] py-3 text-[12.5px]/[1.5]">
+          <p className="font-semibold">Appeal from the owner · {item.appeal.at}</p>
+          {item.appeal.note && <p className="text-text/85 mt-1">{item.appeal.note}</p>}
+        </div>
+      )}
+
       {item.note && (
         <p className="bg-danger-bg text-text/85 border-text/8 border-b px-[22px] py-3 text-[12.5px]/[1.5]">
           {item.note}
@@ -290,6 +298,8 @@ export function QueueDetail({
           </li>
         ))}
       </ul>
+
+      {isKitchen && item.status !== "PENDING" && <KitchenProducts kitchenId={item.id} />}
 
       {confirm ? (
         <div className="flex flex-col gap-2.5 px-[22px] py-lg">
