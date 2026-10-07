@@ -9,7 +9,8 @@ import { cleanAddressLabel } from "@/lib/order/address";
 import { e164 } from "@/lib/phone";
 import { priceLines } from "@/lib/shop/catalog";
 import { getCustomer } from "@/lib/shop/session";
-import type { Customer, PricedCart } from "@/lib/shop/types";
+import { basketIssue } from "@/lib/shop/limits";
+import type { Customer, PricedCart, Side } from "@/lib/shop/types";
 
 /**
  * Every customer mutation, as a Server Action. The backend does the real
@@ -125,9 +126,10 @@ export async function verifyAndSetPassword(input: {
 export async function priceCartAction(
   slug: string,
   lines: Record<string, number>,
+  side: Side = "FOOD",
 ): Promise<Done<{ cart: PricedCart | null }>> {
   try {
-    return { ok: true, cart: await priceLines(slug, lines) };
+    return { ok: true, cart: await priceLines(slug, lines, side) };
   } catch (error) {
     return failure(error, "We couldn't check the menu just now. Try again.");
   }
@@ -195,6 +197,8 @@ export type PayChoice = "card" | "transfer" | "online";
 
 export type PlaceInput = {
   kitchenSlug: string;
+  /** Which side of the place the cart is from. Food when omitted. */
+  side?: Side;
   lines: Record<string, number>;
   landmark: string;
   address: string;
@@ -247,8 +251,8 @@ export async function placeOrder(
 
   try {
     // Re-check the cart against the live menu before anything is created.
-    const cart = await priceLines(input.kitchenSlug, input.lines);
-    if (!cart) return { ok: false, error: "That kitchen isn't taking orders right now." };
+    const cart = await priceLines(input.kitchenSlug, input.lines, input.side ?? "FOOD");
+    if (!cart) return { ok: false, error: "That place isn't taking orders right now." };
     if (!cart.kitchen.open) {
       return { ok: false, error: `${cart.kitchen.name} is closed right now${cart.kitchen.notice ? `: ${cart.kitchen.notice}` : "."}` };
     }
@@ -259,6 +263,16 @@ export async function placeOrder(
       };
     }
     if (!cart.lines.length) return { ok: false, error: "Your cart is empty." };
+
+    const issue = basketIssue({
+      side: cart.side,
+      name: cart.kitchen.name,
+      count: cart.count,
+      subtotalKobo: cart.subtotalKobo,
+      maxItems: cart.kitchen.maxItems,
+      minOrderKobo: cart.kitchen.minOrderKobo,
+    });
+    if (issue) return { ok: false, error: issue.message };
 
     // Every order pays through Paystack, which needs an email for the
     // receipt. Save it once so it is not asked again.
@@ -443,6 +457,8 @@ export type TrackedOrder = {
   status: Schemas["OrderWithDetailsResponseDto"]["status"];
   kitchen: string;
   kitchenSlug: string;
+  /** Groceries are packed, not cooked, and come from a store. */
+  side: Side;
   to: string;
   items: { name: string; qty: number; lineKobo: number }[];
   subtotalKobo: number;
@@ -491,6 +507,7 @@ export async function fetchOrder(id: string): Promise<Done<{ order: TrackedOrder
         status: o.status,
         kitchen: o.kitchenOrders.map((k) => k.kitchen.name).join(" + "),
         kitchenSlug: kitchen?.slug ?? "",
+        side: o.kitchenOrders[0]?.type === "GROCERY" ? "GROCERY" : "FOOD",
         to: [o.address.line1, o.address.area].filter(Boolean).join(", "),
         items: o.kitchenOrders.flatMap((k) =>
           k.items.map((i) => ({

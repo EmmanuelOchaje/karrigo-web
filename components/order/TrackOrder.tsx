@@ -22,15 +22,24 @@ const stages = [
   { label: "Delivered", status: "Enjoy your meal", covers: ["DELIVERED"] },
 ] satisfies { label: string; status: string; covers: Status[] }[];
 
+/** The same journey for a grocery order: the store packs, nobody cooks. */
+const groceryStages = [
+  { ...stages[0], status: "Waiting for the store to accept" },
+  { ...stages[1], status: "The store has your order" },
+  { ...stages[2], label: "Packing", status: "Your groceries are being packed" },
+  stages[3],
+  { ...stages[4], status: "Enjoy" },
+] satisfies { label: string; status: string; covers: Status[] }[];
+
 const payLabel = { card: "Paid by card", transfer: "Paid by bank transfer", online: "Paid online" };
 
 /** The customer was never charged in any of these (SYNC_WEB_CUSTOMER_AND_KITCHEN.md §2.1). */
-const cancelReasonLabel: Record<NonNullable<TrackedOrder["cancelReason"]>, string> = {
+const cancelReasonLabel = (place: string): Record<NonNullable<TrackedOrder["cancelReason"]>, string> => ({
   CUSTOMER: "You cancelled this order.",
-  KITCHENS_DECLINED: "The kitchen couldn't take your order this time. You weren't charged.",
+  KITCHENS_DECLINED: `The ${place} couldn't take your order this time. You weren't charged.`,
   PAYMENT_EXPIRED: "Payment wasn't completed in time, so the order was released. You weren't charged.",
-  KITCHEN_TIMEOUT: "The kitchen didn't respond in time. You weren't charged.",
-};
+  KITCHEN_TIMEOUT: `The ${place} didn't respond in time. You weren't charged.`,
+});
 
 /** How often to ask, in ms. Fast while things are moving, off when it ends. */
 const POLL_MS = 8000;
@@ -122,7 +131,11 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
   }
 
   const cancelled = order.status === "CANCELLED" || order.status === "REFUNDED";
-  const stage = Math.max(0, stages.findIndex((s) => (s.covers as Status[]).includes(order.status)));
+  const grocery = order.side === "GROCERY";
+  const steps = grocery ? groceryStages : stages;
+  const place = grocery ? "store" : "kitchen";
+  const browseHref = grocery ? "/stores" : "/kitchens";
+  const stage = Math.max(0, steps.findIndex((s) => (s.covers as Status[]).includes(order.status)));
   const delivered = order.status === "DELIVERED";
   // Before the kitchen accepts, cancelling is immediate. After, it is a
   // request the kitchen has to confirm — until a rider has the food.
@@ -154,13 +167,13 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
                 : awaitingPayment
                   ? "Confirming your payment…"
                   : mustPay
-                    ? `${order.kitchen} accepted. Pay to start cooking`
-                    : stages[stage].label}
+                    ? `${order.kitchen} accepted. Pay to start ${grocery ? "packing" : "cooking"}`
+                    : steps[stage].label}
           </h1>
           <p className="text-panel-body text-cream/65 mt-md">
             {cancelled
               ? order.cancelReason
-                ? cancelReasonLabel[order.cancelReason]
+                ? cancelReasonLabel(place)[order.cancelReason]
                 : order.payment === "paid" || order.payment === "refunded"
                   ? "If you paid online, the money goes back to you."
                   : "You weren't charged."
@@ -168,14 +181,14 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
                 ? "Paystack is telling us your payment went through. This page updates by itself."
                 : mustPay
                   ? <>
-                      Pay {formatKobo(order.amountDueKobo)} now and {order.kitchen} gets cooking · to {order.to}
+                      Pay {formatKobo(order.amountDueKobo)} now and {order.kitchen} gets {grocery ? "packing" : "cooking"} · to {order.to}
                       {order.paymentDueAt && (
                         <> · <Countdown to={order.paymentDueAt} /></>
                       )}
                     </>
                   : waitingForKitchen
                     ? `Waiting for ${order.kitchen} to accept. You pay only once they do · to ${order.to}`
-                    : `${stages[stage].status} · to ${order.to}`}
+                    : `${steps[stage].status} · to ${order.to}`}
           </p>
 
           {!cancelled && (
@@ -195,7 +208,7 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
               </div>
 
               <ol className="mt-xxl gap-lg flex flex-col">
-                {stages.map((s, i) => (
+                {steps.map((s, i) => (
                   <li
                     key={s.label}
                     className={cn(
@@ -279,7 +292,7 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
             ) : null}
 
             {over ? (
-              <Button type="button" variant="accent" size="site" onClick={() => router.push("/kitchens")}>
+              <Button type="button" variant="accent" size="site" onClick={() => router.push(browseHref)}>
                 Order something else
               </Button>
             ) : (
@@ -390,8 +403,8 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
                     : "Refunded"}
           </div>
         </dl>
-        <ButtonLink href="/kitchens" variant="muted" size="site" full className="mt-lg">
-          Back to kitchens
+        <ButtonLink href={browseHref} variant="muted" size="site" full className="mt-lg">
+          {grocery ? "Back to stores" : "Back to kitchens"}
         </ButtonLink>
       </aside>
     </div>

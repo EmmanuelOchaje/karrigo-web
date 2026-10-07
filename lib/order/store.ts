@@ -14,7 +14,7 @@ import { useSyncExternalStore } from "react";
 
 type State = {
   /** One kitchen per order: the cart belongs to exactly one kitchen. */
-  cart: { kitchenSlug: string; kitchenName: string; lines: Record<string, number> } | null;
+  cart: { kitchenSlug: string; kitchenName: string; side: "FOOD" | "GROCERY"; lines: Record<string, number> } | null;
   landmark: string;
   address: string;
   area: string;
@@ -35,6 +35,8 @@ function load() {
   try {
     const saved = JSON.parse(localStorage.getItem(KEY) ?? "{}") as Partial<State>;
     state = { ...empty, ...saved, toast: "" };
+    // A cart saved before groceries existed has no side: it was food.
+    if (state.cart && !state.cart.side) state = { ...state, cart: { ...state.cart, side: "FOOD" } };
   } catch {
     // Private windows and blocked storage: start empty, the flow still works.
   }
@@ -80,12 +82,15 @@ export function say(toast: string) {
   toastTimer = setTimeout(() => set({ toast: "" }), 2600);
 }
 
-export function addDish(kitchen: { slug: string; name: string }, dishId: string) {
+export function addDish(kitchen: { slug: string; name: string; side?: "FOOD" | "GROCERY" }, dishId: string) {
   load();
+  const side = kitchen.side ?? "FOOD";
   const current = state.cart;
-  if (current && current.kitchenSlug !== kitchen.slug) {
+  // One place, one side per order: food and groceries are never in one cart,
+  // and a place serving both has a separate cart for each.
+  if (current && (current.kitchenSlug !== kitchen.slug || current.side !== side)) {
     say(`New cart started at ${kitchen.name}`);
-    set({ cart: { kitchenSlug: kitchen.slug, kitchenName: kitchen.name, lines: { [dishId]: 1 } } });
+    set({ cart: { kitchenSlug: kitchen.slug, kitchenName: kitchen.name, side, lines: { [dishId]: 1 } } });
     return;
   }
   const lines = current?.lines ?? {};
@@ -93,6 +98,7 @@ export function addDish(kitchen: { slug: string; name: string }, dishId: string)
     cart: {
       kitchenSlug: kitchen.slug,
       kitchenName: kitchen.name,
+      side,
       lines: { ...lines, [dishId]: (lines[dishId] ?? 0) + 1 },
     },
   });
