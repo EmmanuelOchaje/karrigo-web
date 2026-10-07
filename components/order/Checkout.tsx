@@ -17,7 +17,6 @@ import {
   useOrderState,
 } from "@/lib/order/store";
 import { addressAt, placeOrder, priceCartAction, validatePromo } from "@/app/(order)/actions";
-import { DELIVERY_RADIUS_KM, insideDeliveryArea } from "@/lib/order/address";
 import { AddressSearch } from "./AddressSearch";
 import type { Customer, PricedCart } from "@/lib/shop/types";
 import { cn } from "@/lib/cn";
@@ -214,12 +213,6 @@ export function Checkout({ customer }: { customer: Customer | null }) {
                 className={field}
               />
             </label>
-            {coords && !insideDeliveryArea(coords) && (
-              <p className="bg-danger-bg text-danger-text rounded-field text-site-label px-md py-sm font-semibold">
-                That spot is more than {DELIVERY_RADIUS_KM} km from the centre of Makurdi, outside where Karrigo
-                delivers today.
-              </p>
-            )}
             <label className={fieldLabel}>
               Note for kitchen or rider
               <textarea

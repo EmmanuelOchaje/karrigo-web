@@ -207,13 +207,37 @@ export type PlaceInput = {
 };
 
 /**
- * The centre of Makurdi, used when someone has not shared their location.
- * An address here is free text plus an area — never a dropped pin — so the
- * rider finds the gate from the landmark, and the coordinates only tell the
- * backend the order is inside the delivery zone.
- * TODO: replace with per-area centres once ops has surveyed them.
+ * Last resort for the coordinates of a delivery address: the centre of
+ * Makurdi, used only when the customer shared no location, picked no
+ * suggestion, and the address could not be found by search either. An address
+ * is free text plus an area — never a dropped pin — so the rider finds the
+ * gate from the landmark; the coordinates feed distance and delivery fee.
  */
 const MAKURDI = { lat: 7.7337, lng: 8.5214 };
+
+/** Where an address is, best answer first: what the customer shared or
+ *  picked, else the first place the backend finds for what they typed, else
+ *  the fallback above. */
+async function locate(
+  given: { lat: number; lng: number } | undefined,
+  text: string[],
+): Promise<{ lat: number; lng: number }> {
+  if (given) return given;
+  for (const query of text) {
+    const q = query.trim();
+    if (q.length < 3) continue;
+    try {
+      const found = await api<Schemas["GeocodeResultResponseDto"][]>("/addresses/search", {
+        scope: "customer",
+        query: { query: q },
+      });
+      if (found[0]) return { lat: found[0].lat, lng: found[0].lng };
+    } catch {
+      // Search being down must not stop an order; try the next, then fall back.
+    }
+  }
+  return MAKURDI;
+}
 
 export async function placeOrder(
   input: PlaceInput,
@@ -252,7 +276,10 @@ export async function placeOrder(
       line1: street || where,
       area: input.area,
       instructions: [where && street ? `Landmark: ${where}` : "", input.note.trim()].filter(Boolean).join(". ") || undefined,
-      ...(input.coords ?? MAKURDI),
+      ...(await locate(input.coords, [
+        [street, input.area].filter(Boolean).join(", "),
+        [where, input.area].filter(Boolean).join(", "),
+      ])),
     });
 
     const order = await api<Schemas["OrderWithDetailsResponseDto"]>("/orders", {
@@ -275,15 +302,18 @@ export async function placeOrder(
     return { ok: true, orderId: order.id };
   } catch (error) {
     if (error instanceof ApiError && error.status === 422) {
-      return {
-        ok: false,
-        error: "That address is outside the area Karrigo delivers to yet. Try a landmark closer to the town centre.",
-      };
+      // The backend's 422s (outside the delivery area, below the store's
+      // minimum, too many items, mixed cart, kitchen too far) each carry a
+      // sentence written for the customer. Show it, not a guess.
+      return { ok: false, error: error.message };
     }
     return failure(error);
   }
 }
 
+/** A delivery address for this order. The same place is reused rather than
+ *  saved again, so checking out repeatedly doesn't pile up near-identical
+ *  addresses; if only the rider's note changed, the saved one is updated. */
 async function saveAddress(a: {
   line1: string;
   area: string;
@@ -292,20 +322,32 @@ async function saveAddress(a: {
   lng: number;
 }): Promise<string> {
   const existing = await api<Schemas["AddressResponseDto"][]>("/addresses", { scope: "customer" });
+  const norm = (text: string) => text.trim().toLowerCase().replace(/\s+/g, " ");
   const same = existing.find(
     (e) =>
-      e.line1 === a.line1 &&
-      e.area === a.area &&
-      (e.instructions ?? "") === (a.instructions ?? "") &&
-      Math.abs(e.lat - a.lat) < 0.0005 &&
-      Math.abs(e.lng - a.lng) < 0.0005,
+      norm(e.line1) === norm(a.line1) &&
+      norm(e.area) === norm(a.area) &&
+      // About a kilometre: the same landmark found by search or by GPS.
+      Math.abs(e.lat - a.lat) < 0.01 &&
+      Math.abs(e.lng - a.lng) < 0.01,
   );
-  if (same) return same.id;
+  if (same) {
+    if ((same.instructions ?? "") !== (a.instructions ?? "")) {
+      await api(`/addresses/${encodeURIComponent(same.id)}`, {
+        method: "PATCH",
+        scope: "customer",
+        body: { instructions: a.instructions ?? "" },
+      }).catch(() => {
+        // The order can still go to the saved address; only its note stays as it was.
+      });
+    }
+    return same.id;
+  }
 
   const created = await api<Schemas["AddressResponseDto"]>("/addresses", {
     method: "POST",
     scope: "customer",
-    body: { label: "Delivery", city: "Makurdi", state: "Benue", isDefault: existing.length === 0, ...a },
+    body: { label: "Delivery", isDefault: existing.length === 0, ...a },
   });
   return created.id;
 }

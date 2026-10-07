@@ -35,6 +35,9 @@ const cancelReasonLabel: Record<NonNullable<TrackedOrder["cancelReason"]>, strin
 /** How often to ask, in ms. Fast while things are moving, off when it ends. */
 const POLL_MS = 8000;
 
+/** How long to wait for Paystack's word after returning, before offering to pay again. */
+const CONFIRM_WAIT_MS = 45_000;
+
 function isOver(status: Status) {
   return status === "DELIVERED" || status === "CANCELLED" || status === "REFUNDED";
 }
@@ -57,7 +60,11 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
   // customer hasn't paid yet — that's exactly AWAITING_PAYMENT.
   const waitingForKitchen = !!order && order.status === "PLACED";
   const canPay = !!order && order.status === "AWAITING_PAYMENT";
-  const awaitingPayment = canPay && backFromPaystack;
+  // Coming back from Paystack does not mean the payment happened: it also
+  // returns after a cancelled or failed attempt. Give the confirmation a
+  // little while, then show Pay again rather than waiting forever.
+  const [gaveUp, setGaveUp] = useState(false);
+  const awaitingPayment = canPay && backFromPaystack && !gaveUp;
   const mustPay = canPay && !awaitingPayment;
 
   useEffect(() => {
@@ -66,6 +73,12 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
     // with Paystack directly, which backs up a webhook that can run late.
     verifyPayment(id);
   }, [id, backFromPaystack]);
+
+  useEffect(() => {
+    if (!canPay || !backFromPaystack) return;
+    const timer = setTimeout(() => setGaveUp(true), CONFIRM_WAIT_MS);
+    return () => clearTimeout(timer);
+  }, [canPay, backFromPaystack]);
 
   const live = !!id && (!over || awaitingPayment);
   async function reload() {

@@ -49,6 +49,11 @@ function hostname(request: NextRequest): string {
 
 type Tokens = { accessToken: string; refreshToken: string };
 
+/** What a refresh attempt came to. `rejected` means the backend said the
+ *  token is dead (sign out); `unavailable` means we could not find out (a
+ *  network error or a 5xx), which must never sign anyone out. */
+type Refreshed = { tokens: Tokens } | "rejected" | "unavailable";
+
 /**
  * Refresh tokens rotate, and reusing an old one revokes the whole chain (a
  * deliberate tripwire in karrigo-be). A page load fires several requests at
@@ -56,9 +61,9 @@ type Tokens = { accessToken: string; refreshToken: string };
  * would sign the user out. One refresh per token; late arrivals reuse its
  * answer for a few seconds.
  */
-const inFlight = new Map<string, Promise<Tokens | null>>();
+const inFlight = new Map<string, Promise<Refreshed>>();
 
-function refreshOnce(scope: Scope, refreshToken: string): Promise<Tokens | null> {
+function refreshOnce(scope: Scope, refreshToken: string): Promise<Refreshed> {
   const existing = inFlight.get(refreshToken);
   if (existing) return existing;
 
@@ -70,14 +75,22 @@ function refreshOnce(scope: Scope, refreshToken: string): Promise<Tokens | null>
         body: JSON.stringify({ refreshToken }),
         cache: "no-store",
       });
-      if (!response.ok) return null;
-      return (await response.json()) as Tokens;
+      // Only a 4xx is the backend refusing the token. A 5xx or a dropped
+      // connection says nothing about the session, so it is left alone.
+      if (response.status >= 400 && response.status < 500) return "rejected";
+      if (!response.ok) return "unavailable";
+      return { tokens: (await response.json()) as Tokens };
     } catch {
-      return null;
+      return "unavailable";
     }
   })();
 
   inFlight.set(refreshToken, attempt);
+  // Late arrivals reuse a good answer for a few seconds (the token has been
+  // spent); a transient failure is forgotten at once so the next request retries.
+  attempt.then((result) => {
+    if (result === "unavailable") inFlight.delete(refreshToken);
+  });
   setTimeout(() => inFlight.delete(refreshToken), 15_000);
   return attempt;
 }
@@ -97,16 +110,21 @@ async function rotateSessions(request: NextRequest) {
     const access = request.cookies.get(names.access)?.value;
     if (access && jwtExpiry(access) - now > 30) continue;
 
-    const tokens = await refreshOnce(scope, refreshToken);
-    if (tokens) {
-      changes.push(
-        { name: names.access, value: tokens.accessToken },
-        { name: names.refresh, value: tokens.refreshToken },
-      );
-    } else {
+    const result = await refreshOnce(scope, refreshToken);
+    if (result === "unavailable") {
+      // Could not reach the backend: keep the cookies so the next request can
+      // try again, rather than signing everyone out over a blip.
+      continue;
+    }
+    if (result === "rejected") {
       // Revoked or expired for good: sign out rather than loop on a dead token.
       changes.push({ name: names.access, value: null }, { name: names.refresh, value: null });
+      continue;
     }
+    changes.push(
+      { name: names.access, value: result.tokens.accessToken },
+      { name: names.refresh, value: result.tokens.refreshToken },
+    );
   }
   return changes;
 }
