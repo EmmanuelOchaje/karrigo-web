@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { cn } from "@/lib/cn";
+import { PageSizeSelect } from "./PageSizeSelect";
 
 /**
  * The small pieces every ops screen is built from. Ops is a dense, plain
@@ -270,21 +271,8 @@ export function Pager({
       </span>
       {page < last ? <Link href={href(page + 1)} className={link}>{next}</Link> : <span />}
       {choosable && (
-        <div className="flex basis-full items-center justify-center gap-1.5" role="group" aria-label="Rows per page">
-          <span className="text-text/55 mr-1 text-[12px]">Rows</span>
-          {sizes.map((size) => (
-            <Link
-              key={size}
-              href={sizeHref(size)}
-              aria-current={size === pageSize ? "true" : undefined}
-              className={cn(
-                "flex h-8 min-w-8 items-center justify-center rounded-pill px-2.5 text-[12.5px] font-semibold",
-                size === pageSize ? "bg-accent text-on-accent" : "bg-text/7 text-text",
-              )}
-            >
-              {size}
-            </Link>
-          ))}
+        <div className="flex basis-full justify-center">
+          <PageSizeSelect current={pageSize} options={sizes.map((size) => ({ size, href: sizeHref(size) }))} />
         </div>
       )}
     </nav>
