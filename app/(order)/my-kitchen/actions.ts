@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { ApiError, api } from "@/lib/api/client";
 import { APPLICATION, CONSOLE } from "@/lib/kitchen/data";
 import {
+  appealSchema,
   dishSchema,
   hoursSchema,
   noticeSchema,
@@ -12,6 +13,7 @@ import {
   passwordSchema,
   profileSchema,
   sectionSchema,
+  sidesSchema,
   ticketSchema,
 } from "@/lib/kitchen/schema";
 import type { DayHours, OrderStatus } from "@/lib/kitchen/types";
@@ -109,14 +111,18 @@ export async function saveHours(input: DayHours[]): Promise<Done> {
 
 /* ------------------------------------------------------------------ menu */
 
-export async function addSection(input: { label: string; note: string }): Promise<Done> {
+export async function addSection(input: { label: string; note: string; type?: "FOOD" | "GROCERY" }): Promise<Done> {
   const parsed = sectionSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
   try {
     await api("/kitchen-console/menu/sections", {
       method: "POST",
       scope: "kitchen",
-      body: { label: parsed.data.label, ...(parsed.data.note ? { note: parsed.data.note } : {}) },
+      body: {
+        label: parsed.data.label,
+        ...(parsed.data.note ? { note: parsed.data.note } : {}),
+        ...(parsed.data.type ? { type: parsed.data.type } : {}),
+      },
     });
     changed();
     return { ok: true };
@@ -129,7 +135,9 @@ export async function saveSection(id: string, input: { label: string; note: stri
   const parsed = sectionSchema.safeParse(input);
   if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
   try {
-    await api(section(id), { method: "PATCH", scope: "kitchen", body: parsed.data });
+    // A section's side is fixed when it is created, so it is never sent here.
+    const { label, note } = parsed.data;
+    await api(section(id), { method: "PATCH", scope: "kitchen", body: { label, note } });
     changed();
     return { ok: true };
   } catch (error) {
@@ -147,17 +155,17 @@ export async function removeSection(id: string): Promise<Done> {
   }
 }
 
-type DishInput = { sectionId: string; name: string; description: string; priceNaira: number };
+type DishInput = { sectionId: string; name: string; description: string; priceNaira: number; unit: string };
 
 export async function addDish(input: DishInput): Promise<Done> {
   const dish = dishSchema.safeParse(input);
   if (!dish.success) return { ok: false, error: firstIssue(dish.error) };
-  const { description, ...rest } = dish.data;
+  const { description, unit, ...rest } = dish.data;
   try {
     await api("/kitchen-console/menu/items", {
       method: "POST",
       scope: "kitchen",
-      body: { ...rest, ...(description ? { description } : {}) },
+      body: { ...rest, ...(description ? { description } : {}), ...(unit ? { unit } : {}) },
     });
     changed();
     return { ok: true };
@@ -216,16 +224,46 @@ export async function uploadDishPhoto(form: FormData): Promise<Done> {
   }
 }
 
+/** One appeal per admin flag, against a product Karrigo has hidden. */
+export async function appealFlag(itemId: string, message: string): Promise<Done> {
+  const text = appealSchema.safeParse(message);
+  if (!text.success) return { ok: false, error: firstIssue(text.error) };
+  try {
+    await api(`${item(itemId)}/appeal`, { method: "POST", scope: "kitchen", body: { message: text.data } });
+    changed();
+    return { ok: true };
+  } catch (error) {
+    return failure(error, { 409: "This product has no flag to appeal, or you've already appealed it." });
+  }
+}
+
+/** Whether the kitchen takes food orders, grocery orders, or both. */
+export async function saveSides(input: { servesFood: boolean; servesGrocery: boolean }): Promise<Done> {
+  const sides = sidesSchema.safeParse(input);
+  if (!sides.success) return { ok: false, error: firstIssue(sides.error) };
+  try {
+    await api("/kitchen-console/kitchen", { method: "PATCH", scope: "kitchen", body: sides.data });
+    changed();
+    return { ok: true };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
 /* ---------------------------------------------------------------- orders */
 
-export async function setOrderStatus(id: string, input: OrderStatus): Promise<Done> {
+export async function setOrderStatus(id: string, input: OrderStatus, unavailableItemIds: string[] = []): Promise<Done> {
   const status = orderStatusSchema.safeParse(input);
   if (!status.success) return { ok: false, error: "That isn't a step an order can take." };
   try {
     await api(`/kitchen-console/orders/${encodeURIComponent(id)}/status`, {
       method: "PATCH",
       scope: "kitchen",
-      body: { status: status.data },
+      body: {
+        status: status.data,
+        // Only a grocery order being accepted can leave lines out.
+        ...(status.data === "ACCEPTED" && unavailableItemIds.length ? { unavailableItemIds } : {}),
+      },
     });
     changed();
     return { ok: true };
