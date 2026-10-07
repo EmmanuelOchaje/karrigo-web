@@ -43,13 +43,13 @@ export function Sidebar({
   const currentIndex = OPS_NAV.findIndex((s) => isCurrent(s.href, pathname));
 
   return (
-        /* Scrolls inside itself. On a laptop the nav, the theme toggle, the shift
-       card and the account card together are taller than the viewport, and
-       without this the sidebar spills past the bottom of the ops ground —
-       cutting off the account card and leaving a strip of the page's own
-       background under everything. */
-    <aside className="border-text/7 sticky top-0 flex h-screen flex-col overflow-y-auto overscroll-contain border-r px-3.5 py-[22px]">
-      <div className="flex items-center justify-between gap-2 px-2 pb-[26px]">
+    /* Only the list of sections scrolls. On a laptop the nav, the theme toggle,
+       the shift card and the account card together are taller than the
+       viewport; the header and footer stay put and the nav takes the
+       remaining height, so the account card is never cut off and Sign out
+       is always in reach. */
+    <aside className="border-text/7 sticky top-0 flex h-screen flex-col overflow-hidden border-r px-3.5 py-[22px]">
+      <div className="flex shrink-0 items-center justify-between gap-2 px-2 pb-[26px]">
         <Wordmark />
         {onDismiss && (
           <button
@@ -70,60 +70,64 @@ export function Sidebar({
         )}
       </div>
 
-      <nav className="relative flex flex-col gap-0.5">
-        {currentIndex >= 0 && (
-          <span
-            aria-hidden
-            className={cn(
-              "bg-accent pointer-events-none absolute inset-x-0 top-0 h-10 rounded-pill",
-              "shadow-[0_8px_18px_-10px_rgba(198,244,50,.6)]",
-              "transition-transform duration-[450ms] ease-[cubic-bezier(.2,.8,.2,1)]",
-            )}
-            style={{ transform: `translateY(${currentIndex * ROW_PITCH}px)` }}
-          />
-        )}
-        {OPS_NAV.map((section) => (
-          <NavRow
-            key={section.href}
-            section={section}
-            current={isCurrent(section.href, pathname)}
-            badge={section.badge ? counts[section.badge] : 0}
-            onDismiss={onDismiss}
-          />
-        ))}
-      </nav>
-
-      <div className="mt-auto mb-2">
-        <ThemeToggle theme={theme} />
+      <div className="-mx-1 min-h-0 flex-1 overflow-y-auto overscroll-contain px-1">
+        <nav className="relative flex flex-col gap-0.5">
+          {currentIndex >= 0 && (
+            <span
+              aria-hidden
+              className={cn(
+                "bg-accent pointer-events-none absolute inset-x-0 top-0 h-10 rounded-pill",
+                "shadow-[0_8px_18px_-10px_rgba(198,244,50,.6)]",
+                "transition-transform duration-[450ms] ease-[cubic-bezier(.2,.8,.2,1)]",
+              )}
+              style={{ transform: `translateY(${currentIndex * ROW_PITCH}px)` }}
+            />
+          )}
+          {OPS_NAV.map((section) => (
+            <NavRow
+              key={section.href}
+              section={section}
+              current={isCurrent(section.href, pathname)}
+              badge={section.badge ? counts[section.badge] : 0}
+              onDismiss={onDismiss}
+            />
+          ))}
+        </nav>
       </div>
 
-      <ShiftCard nowMinutes={nowMinutes} onDuty={admin.name} />
+      <div className="shrink-0">
+        <div className="mt-2 mb-2">
+          <ThemeToggle theme={theme} />
+        </div>
 
-      <div className="border-text/8 mt-2 flex flex-wrap items-center gap-2.5 rounded-[15px] border px-3.5 py-3">
-        <span className="bg-accent-warm text-on-accent grid size-[34px] flex-none place-items-center rounded-full text-[13px] font-extrabold">
-          {admin.initials}
-        </span>
-        <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
-          <span className="text-text truncate text-[13px] font-semibold">
-            {admin.name}
+        <ShiftCard nowMinutes={nowMinutes} onDuty={admin.name} />
+
+        <div className="border-text/8 mt-2 flex flex-wrap items-center gap-2.5 rounded-[15px] border px-3.5 py-3">
+          <span className="bg-accent-warm text-on-accent grid size-[34px] flex-none place-items-center rounded-full text-[13px] font-extrabold">
+            {admin.initials}
           </span>
-          <span
-            className={cn(
-              "text-[10.5px] font-semibold tracking-[0.08em] whitespace-nowrap uppercase",
-              admin.role === "SUPER_ADMIN" ? "text-accent-text" : "text-text/62",
-            )}
-          >
-            {admin.role === "SUPER_ADMIN" ? "Super admin" : "Moderator"}
+          <span className="flex min-w-0 flex-1 flex-col gap-[3px]">
+            <span className="text-text truncate text-[13px] font-semibold">
+              {admin.name}
+            </span>
+            <span
+              className={cn(
+                "text-[10.5px] font-semibold tracking-[0.08em] whitespace-nowrap uppercase",
+                admin.role === "SUPER_ADMIN" ? "text-accent-text" : "text-text/62",
+              )}
+            >
+              {admin.role === "SUPER_ADMIN" ? "Super admin" : "Moderator"}
+            </span>
           </span>
-        </span>
-        <form action={signOut} className="w-full">
-          <button
-            type="submit"
-            className="border-text/10 text-text/62 h-[34px] w-full rounded-pill border text-[12px] font-semibold"
-          >
-            Sign out
-          </button>
-        </form>
+          <form action={signOut} className="w-full">
+            <button
+              type="submit"
+              className="border-text/10 text-text/62 h-[34px] w-full rounded-pill border text-[12px] font-semibold"
+            >
+              Sign out
+            </button>
+          </form>
+        </div>
       </div>
     </aside>
   );
