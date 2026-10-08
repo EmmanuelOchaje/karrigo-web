@@ -41,3 +41,26 @@ export type FlaggedItem = {
  * and `areaId` (and no longer takes `area`); its response is unchanged.
  */
 export type KitchenOtpRequested = { resendCooldownSeconds: number };
+
+/** What a kitchen still has to do before it can open. */
+export type KitchenMissing = "LOCATION" | "RIDER_FEE";
+
+/**
+ * Added to GET /kitchen-console/kitchen. `feeNaira` stays on the response as
+ * a read-only legacy field; the writable one is `riderBaseFeeNaira`. All
+ * optional so an older server still parses. Replace once the spec is
+ * regenerated.
+ */
+export type KitchenReadiness = {
+  riderBaseFeeNaira?: number | null;
+  missing?: KitchenMissing[];
+  verificationPhotoCount?: number;
+};
+
+/** One kitchen verification photo. `url` is signed and expires, so it is
+ *  fetched on each page load and never stored. */
+export type VerificationPhoto = { id: string; url: string };
+
+/** GET /admin/kitchens/:id now also carries the photos. Replace once the
+ *  spec is regenerated. */
+export type AdminKitchenPhotos = { verificationPhotos?: VerificationPhoto[] };

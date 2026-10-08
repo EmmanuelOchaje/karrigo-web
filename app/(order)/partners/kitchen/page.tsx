@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Eyebrow } from "@/components/site/Eyebrow";
 import { KitchenApply } from "@/components/partners/KitchenApply";
 import { KitchenSetup } from "@/components/partners/KitchenSetup";
+import { listVerificationPhotos } from "@/lib/kitchen/data";
 import { getKitchenApplication, listBanks } from "@/lib/partners/data";
 import { listAreaNames, listAreas } from "@/lib/shop/areas";
 
@@ -13,6 +14,9 @@ export const metadata: Metadata = { title: "Cook with Karrigo" };
 export default async function KitchenPartnerPage() {
   const [kitchen, areas, areaNames] = await Promise.all([getKitchenApplication(), listAreas(), listAreaNames()]);
 
+  // Signed URLs expire, so the photos are read on every load.
+  const photos = kitchen?.isOwner ? await listVerificationPhotos() : [];
+
   return (
     <div className="mx-auto max-w-[760px]">
       <Eyebrow className="rise">Cook with Karrigo</Eyebrow>
@@ -20,7 +24,7 @@ export default async function KitchenPartnerPage() {
         {kitchen ? kitchen.name : "List your kitchen"}
       </h1>
       {kitchen ? (
-        <KitchenSetup kitchen={kitchen} banks={await listBanks()} areas={areaNames} />
+        <KitchenSetup kitchen={kitchen} banks={await listBanks()} areas={areaNames} photos={photos} />
       ) : (
         <>
           <p className="text-site-body text-text-secondary mb-xl max-w-[52ch]">

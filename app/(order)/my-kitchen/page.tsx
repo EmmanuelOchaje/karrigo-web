@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { Door, Notice } from "@/components/kitchen/Door";
 import { panel } from "@/components/kitchen/parts";
+import { SetupChecklist } from "@/components/kitchen/SetupChecklist";
 import { APPLICATION, listOrders, requireKitchen } from "@/lib/kitchen/data";
 
 export const metadata: Metadata = { title: "Your kitchen · Karrigo" };
@@ -16,6 +17,18 @@ export default async function KitchenTodayPage() {
   const dishes = kitchen.sections.flatMap((s) => s.dishes);
   const soldOut = dishes.filter((d) => d.soldOut);
 
+  // What stops the kitchen opening. Only the owner can fix either.
+  const todo = owner
+    ? [
+        ...(kitchen.missing.includes("LOCATION")
+          ? [{ label: "Set your kitchen's location", href: `${APPLICATION}#location` }]
+          : []),
+        ...(kitchen.missing.includes("RIDER_FEE")
+          ? [{ label: "Set the rider base delivery fee", href: "/my-kitchen/settings#rider-fee" }]
+          : []),
+      ]
+    : [];
+
   const tiles = [
     { label: "New orders", value: count("PLACED"), href: "/my-kitchen/orders" },
     { label: "Cooking", value: count("ACCEPTED", "PREPARING"), href: "/my-kitchen/orders" },
@@ -25,6 +38,8 @@ export default async function KitchenTodayPage() {
 
   return (
     <div className="gap-lg flex flex-col">
+      <SetupChecklist items={todo} />
+
       <Door name={kitchen.name} isOpen={kitchen.isOpen} canSwitch={owner} />
 
       {dishes.length === 0 && (

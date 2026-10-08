@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import { cache } from "react";
 
 import { ApiError, api, type Schemas } from "@/lib/api/client";
+import type { KitchenReadiness, VerificationPhoto } from "@/lib/api/extra";
 import { SCOPES } from "@/lib/api/scopes";
 import { nairaToKobo } from "@/lib/money";
 import type { DayHours, Earnings, Kitchen, KitchenOrder, Payout, StaffProfile, Ticket } from "./types";
@@ -28,7 +29,7 @@ export const getKitchen = cache(async (): Promise<Kitchen | null> => {
 
   try {
     const [k, me] = await Promise.all([
-      api<Schemas["KitchenWithMenuResponseDto"]>("/kitchen-console/kitchen", { scope: "kitchen" }),
+      api<Schemas["KitchenWithMenuResponseDto"] & KitchenReadiness>("/kitchen-console/kitchen", { scope: "kitchen" }),
       api<Schemas["AuthenticatedKitchenStaffResponseDto"]>("/kitchen-auth/me", { scope: "kitchen" }),
     ]);
     return {
@@ -39,7 +40,10 @@ export const getKitchen = cache(async (): Promise<Kitchen | null> => {
       isOpen: k.isOpen,
       notice: k.noticeText ?? "",
       cuisine: k.cuisine ?? "",
-      feeKobo: nairaToKobo(k.feeNaira ?? 0),
+      // An older server has none of these three: treat that as "nothing set".
+      riderBaseFeeKobo: k.riderBaseFeeNaira == null ? null : nairaToKobo(k.riderBaseFeeNaira),
+      missing: k.missing ?? [],
+      verificationPhotoCount: k.verificationPhotoCount ?? 0,
       servesFood: k.servesFood,
       servesGrocery: k.servesGrocery,
       sections: [...k.sections]
@@ -95,6 +99,17 @@ export async function requireOwner(): Promise<Kitchen> {
   const kitchen = await requireKitchen();
   if (kitchen.role !== "OWNER") redirect(CONSOLE);
   return kitchen;
+}
+
+/** The kitchen's verification photos, oldest first. The URLs are signed and
+ *  expire, so this is read on every page load and never cached. */
+export async function listVerificationPhotos(): Promise<VerificationPhoto[]> {
+  try {
+    return await api<VerificationPhoto[]>("/kitchen-console/kitchen/photos", { scope: "kitchen" });
+  } catch (error) {
+    if (signedOut(error)) return [];
+    throw error;
+  }
 }
 
 /** Every order the kitchen has, oldest first — the order to cook them in.

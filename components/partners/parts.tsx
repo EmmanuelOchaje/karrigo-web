@@ -184,6 +184,9 @@ export function PhotoUpload({
   fields,
   camera = false,
   upload,
+  idleText = "Not added yet",
+  buttonLabel,
+  disabled = false,
 }: {
   label: string;
   done: boolean;
@@ -192,6 +195,11 @@ export function PhotoUpload({
   fields?: Record<string, string>;
   camera?: boolean;
   upload: (form: FormData) => Promise<Result>;
+  /** What the status line says before anything is added. */
+  idleText?: string;
+  /** Overrides the button text, for a control that adds rather than replaces. */
+  buttonLabel?: string;
+  disabled?: boolean;
 }) {
   const input = useRef<HTMLInputElement>(null);
   const [error, setError] = useState("");
@@ -202,7 +210,7 @@ export function PhotoUpload({
       <div className="min-w-0">
         <div className="text-site-question">{label}</div>
         <div className={cn("text-site-label mt-xs", error ? "text-danger-text font-semibold" : "text-text-secondary")}>
-          {error || (busy ? "Uploading…" : done ? `✓ ${doneLabel}` : "Not added yet")}
+          {error || (busy ? "Uploading…" : done ? `✓ ${doneLabel}` : idleText)}
         </div>
       </div>
       <input
@@ -228,14 +236,14 @@ export function PhotoUpload({
       />
       <button
         type="button"
-        disabled={busy}
+        disabled={busy || disabled}
         onClick={() => input.current?.click()}
         className={cn(
           "rounded-pill text-nav-link shrink-0 px-xl py-md font-bold disabled:opacity-50",
           done ? "bg-surface-raised text-text" : "bg-accent text-on-accent",
         )}
       >
-        {done ? "Replace" : camera ? "Take photo" : "Choose photo"}
+        {buttonLabel ?? (done ? "Replace" : camera ? "Take photo" : "Choose photo")}
       </button>
     </div>
   );

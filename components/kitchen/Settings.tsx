@@ -2,10 +2,10 @@
 
 import { useState, useTransition } from "react";
 
-import { saveHours, saveProfile, saveSides } from "@/app/(order)/my-kitchen/actions";
+import { saveHours, saveProfile, saveRiderFee, saveSides } from "@/app/(order)/my-kitchen/actions";
 import { FormError, SubmitButton, field, fieldLabel } from "@/components/partners/parts";
 import { cn } from "@/lib/cn";
-import type { DayHours } from "@/lib/kitchen/types";
+import { DEFAULT_RIDER_BASE_FEE_NAIRA, type DayHours } from "@/lib/kitchen/types";
 import { Saved, Switch, panel } from "./parts";
 
 const DAY_NAMES = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
@@ -97,10 +97,49 @@ export function HoursForm({ days: saved, everSaved }: { days: DayHours[]; everSa
   );
 }
 
-export function ProfileForm({ name: savedName, cuisine: savedCuisine, feeKobo }: { name: string; cuisine: string; feeKobo: number }) {
+const RIDER_FEE_HELP = "Riders are paid at least this much per trip. Longer trips pay more by distance.";
+
+/** The rider fee as a field's text: what is saved, or the usual 1500. */
+const feeText = (kobo: number | null) => String(kobo == null ? DEFAULT_RIDER_BASE_FEE_NAIRA : Math.round(kobo / 100));
+
+/** The rider base fee on its own, for the setup page. The same field is part
+ *  of the details form once the kitchen is live. */
+export function RiderFeeForm({ riderBaseFeeKobo }: { riderBaseFeeKobo: number | null }) {
+  const [fee, setFee] = useState(feeText(riderBaseFeeKobo));
+  const [error, setError] = useState("");
+  const [done, setDone] = useState("");
+  const [busy, startTransition] = useTransition();
+
+  return (
+    <form
+      className="gap-md flex flex-col"
+      onSubmit={(e) => {
+        e.preventDefault();
+        if (fee === "") return setError("Enter the rider base fee, like 1500.");
+        startTransition(async () => {
+          const result = await saveRiderFee(Number(fee));
+          if (!result.ok) return setError(result.error);
+          setError("");
+          setDone("Saved.");
+        });
+      }}
+    >
+      <label className={fieldLabel}>
+        Rider base delivery fee, ₦
+        <input value={fee} onChange={(e) => { setFee(e.target.value.replace(/\D/g, "")); setError(""); setDone(""); }} inputMode="numeric" placeholder="1500" className={field} />
+      </label>
+      <p className="text-site-label text-text-secondary">{RIDER_FEE_HELP}</p>
+      <FormError>{error}</FormError>
+      <Saved>{done}</Saved>
+      <SubmitButton busy={busy} idle="Save fee" working="Saving…" />
+    </form>
+  );
+}
+
+export function ProfileForm({ name: savedName, cuisine: savedCuisine, riderBaseFeeKobo }: { name: string; cuisine: string; riderBaseFeeKobo: number | null }) {
   const [name, setName] = useState(savedName);
   const [cuisine, setCuisine] = useState(savedCuisine);
-  const [fee, setFee] = useState(String(Math.round(feeKobo / 100)));
+  const [fee, setFee] = useState(feeText(riderBaseFeeKobo));
   const [error, setError] = useState("");
   const [done, setDone] = useState("");
   const [busy, startTransition] = useTransition();
@@ -115,9 +154,9 @@ export function ProfileForm({ name: savedName, cuisine: savedCuisine, feeKobo }:
       className={cn(panel, "gap-md flex flex-col")}
       onSubmit={(e) => {
         e.preventDefault();
-        if (fee === "") return setError("Enter a delivery fee, or 0.");
+        if (fee === "") return setError("Enter the rider base fee, like 1500.");
         startTransition(async () => {
-          const result = await saveProfile({ name, cuisine, feeNaira: Number(fee) });
+          const result = await saveProfile({ name, cuisine, riderBaseFeeNaira: Number(fee) });
           if (!result.ok) return setError(result.error);
           setError("");
           setDone("Details saved.");
@@ -133,10 +172,11 @@ export function ProfileForm({ name: savedName, cuisine: savedCuisine, feeKobo }:
         What you cook
         <input value={cuisine} onChange={(e) => { setCuisine(e.target.value); touch(); }} placeholder="Swallow, soups & grills" className={field} />
       </label>
-      <label className={fieldLabel}>
-        Delivery fee, ₦
-        <input value={fee} onChange={(e) => { setFee(e.target.value.replace(/\D/g, "")); touch(); }} inputMode="numeric" placeholder="500" className={field} />
+      <label id="rider-fee" className={fieldLabel}>
+        Rider base delivery fee, ₦
+        <input value={fee} onChange={(e) => { setFee(e.target.value.replace(/\D/g, "")); touch(); }} inputMode="numeric" placeholder="1500" className={field} />
       </label>
+      <p className="text-site-label text-text-secondary -mt-sm">{RIDER_FEE_HELP}</p>
       <FormError>{error}</FormError>
       <Saved>{done}</Saved>
       <SubmitButton busy={busy} idle="Save details" working="Saving…" />

@@ -15,6 +15,11 @@ import {
   uploadKitchenPhoto,
   type Place,
 } from "@/app/(order)/partners/actions";
+import { RiderFeeForm } from "@/components/kitchen/Settings";
+import { SetupChecklist } from "@/components/kitchen/SetupChecklist";
+import { VerificationPhotos } from "@/components/kitchen/VerificationPhotos";
+import type { VerificationPhoto } from "@/lib/api/extra";
+import { VERIFICATION_PHOTOS_REQUIRED } from "@/lib/kitchen/types";
 import { formatKobo } from "@/lib/money";
 import type { Bank, KitchenApplication } from "@/lib/partners/types";
 import { ButtonLink } from "@/components/ui/Button";
@@ -26,12 +31,33 @@ import { BankForm, FormError, PhotoUpload, StatusBanner, Step, SubmitButton, fie
  * approving, each one a step that can be done in any order and come back to.
  * The banner at the top always says where the application stands.
  */
-export function KitchenSetup({ kitchen, banks, areas }: { kitchen: KitchenApplication; banks: Bank[]; areas: string[] }) {
+export function KitchenSetup({
+  kitchen,
+  banks,
+  areas,
+  photos,
+}: {
+  kitchen: KitchenApplication;
+  banks: Bank[];
+  areas: string[];
+  photos: VerificationPhoto[];
+}) {
   const router = useRouter();
   const [, startTransition] = useTransition();
 
-  const steps = [kitchen.hasLocation, !!kitchen.bankAccountName, !!kitchen.imageUrl, kitchen.dishes.length > 0];
+  // The owner's own list is exact; staff only get the count.
+  const photoCount = kitchen.isOwner ? photos.length : kitchen.verificationPhotoCount;
+  const photosDone = photoCount >= VERIFICATION_PHOTOS_REQUIRED;
+  const feeDone = kitchen.riderBaseFeeKobo != null;
+
+  const steps = [kitchen.hasLocation, !!kitchen.bankAccountName, !!kitchen.imageUrl, feeDone, photosDone, kitchen.dishes.length > 0];
   const left = steps.filter((done) => !done).length;
+
+  const todo = [
+    ...(kitchen.hasLocation ? [] : [{ label: "Set your kitchen's location", href: "#location" }]),
+    ...(feeDone ? [] : [{ label: "Set the rider base delivery fee", href: "#rider-fee" }]),
+    ...(photosDone ? [] : [{ label: `Kitchen photos: ${photoCount} of ${VERIFICATION_PHOTOS_REQUIRED}`, href: "#photos" }]),
+  ];
 
   // A kitchen under review clears by itself the moment ops approves it.
   const pending = kitchen.status === "PENDING";
@@ -78,6 +104,9 @@ export function KitchenSetup({ kitchen, banks, areas }: { kitchen: KitchenApplic
         />
       )}
 
+      {kitchen.status === "PENDING" && <SetupChecklist items={todo} />}
+
+      <div id="location" className="scroll-mt-xl">
       <Step
         number={1}
         title="Where is your kitchen?"
@@ -87,6 +116,7 @@ export function KitchenSetup({ kitchen, banks, areas }: { kitchen: KitchenApplic
       >
         <LocationForm area={kitchen.area ?? ""} landmark={kitchen.landmarkNote ?? ""} areas={areas} />
       </Step>
+      </div>
 
       <Step
         number={2}
@@ -113,8 +143,38 @@ export function KitchenSetup({ kitchen, banks, areas }: { kitchen: KitchenApplic
         <PhotoUpload label="Kitchen photo" done={!!kitchen.imageUrl} doneLabel="Photo added" upload={uploadKitchenPhoto} />
       </Step>
 
+      <div id="rider-fee" className="scroll-mt-xl">
+        <Step
+          number={4}
+          title="What do riders get paid?"
+          done={feeDone}
+          summary={feeDone ? `Riders get at least ${formatKobo(kitchen.riderBaseFeeKobo ?? 0)} per trip` : undefined}
+          hint="Riders are paid at least this much per trip. Longer trips pay more by distance."
+        >
+          <RiderFeeForm riderBaseFeeKobo={kitchen.riderBaseFeeKobo} />
+        </Step>
+      </div>
+
+      <div id="photos" className="scroll-mt-xl">
+        <Step
+          number={5}
+          title="Kitchen photos"
+          done={photosDone}
+          summary={`${photoCount} of ${VERIFICATION_PHOTOS_REQUIRED} photos added`}
+          hint="Our team looks at these before approving your kitchen."
+        >
+          {kitchen.isOwner ? (
+            <VerificationPhotos photos={photos} canEdit />
+          ) : (
+            <p className="text-site-label text-text-secondary">
+              {photoCount} of {VERIFICATION_PHOTOS_REQUIRED} added. Only the kitchen&rsquo;s owner can add or remove photos.
+            </p>
+          )}
+        </Step>
+      </div>
+
       <Step
-        number={4}
+        number={6}
         title="What's on the menu?"
         done={kitchen.dishes.length > 0}
         summary={`${kitchen.dishes.length} dish${kitchen.dishes.length === 1 ? "" : "es"} — ${kitchen.dishes
