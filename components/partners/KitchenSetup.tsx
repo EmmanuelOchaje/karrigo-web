@@ -36,17 +36,20 @@ export function KitchenSetup({
   banks,
   areas,
   photos,
+  photosFailed = false,
 }: {
   kitchen: KitchenApplication;
   banks: Bank[];
   areas: string[];
   photos: VerificationPhoto[];
+  /** The owner's photo list could not be read; fall back to the count. */
+  photosFailed?: boolean;
 }) {
   const router = useRouter();
   const [, startTransition] = useTransition();
 
-  // The owner's own list is exact; staff only get the count.
-  const photoCount = kitchen.isOwner ? photos.length : kitchen.verificationPhotoCount;
+  // The owner's own list is exact; staff (or a failed list read) get the count.
+  const photoCount = kitchen.isOwner && !photosFailed ? photos.length : kitchen.verificationPhotoCount;
   const photosDone = photoCount >= VERIFICATION_PHOTOS_REQUIRED;
   const feeDone = kitchen.riderBaseFeeKobo != null;
 
@@ -164,7 +167,7 @@ export function KitchenSetup({
           hint="Our team looks at these before approving your kitchen."
         >
           {kitchen.isOwner ? (
-            <VerificationPhotos photos={photos} canEdit />
+            <VerificationPhotos photos={photos} failed={photosFailed} canEdit />
           ) : (
             <p className="text-site-label text-text-secondary">
               {photoCount} of {VERIFICATION_PHOTOS_REQUIRED} added. Only the kitchen&rsquo;s owner can add or remove photos.

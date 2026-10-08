@@ -3,6 +3,7 @@ import "server-only";
 import { cache } from "react";
 
 import { api, type Schemas } from "@/lib/api/client";
+import type { KitchenRiderBaseFee } from "@/lib/api/extra";
 import { nairaToKobo } from "@/lib/money";
 import { formatKobo } from "@/lib/money";
 import { ageLabel, durationLabel } from "./format";
@@ -29,7 +30,7 @@ export type OverviewView = {
   }[];
   pipeline: { stage: OrderStage; label: string; count: number; oldestMinutes: number; slow: boolean }[];
   openOrders: number;
-  kitchens: { id: string; name: string; area: string; open: boolean; rating: string; feeKobo: number }[];
+  kitchens: { id: string; name: string; area: string; open: boolean; rating: string; riderBaseFeeKobo: number | null }[];
   activity: { time: string; text: string }[];
 };
 
@@ -90,7 +91,7 @@ export async function loadOverview(): Promise<OverviewView> {
   const [summary, orderPage, kitchens, audit] = await Promise.all([
     getSummary(),
     api<Schemas["AdminOrderPageDto"]>("/admin/orders", { scope: "admin", query: { pageSize: 100 } }),
-    api<Schemas["KitchenResponseDto"][]>("/admin/kitchens", { scope: "admin", query: { status: "ACTIVE" } }),
+    api<(Schemas["KitchenResponseDto"] & KitchenRiderBaseFee)[]>("/admin/kitchens", { scope: "admin", query: { status: "ACTIVE" } }),
     api<Schemas["AuditLogPageDto"]>("/admin/audit-log", { scope: "admin", query: { pageSize: 8 } }),
   ]);
 
@@ -213,7 +214,8 @@ export async function loadOverview(): Promise<OverviewView> {
         area: k.area ?? "—",
         open: k.isOpen,
         rating: k.ratingsCount ? `${k.ratingAvg.toFixed(1)} (${k.ratingsCount})` : "New",
-        feeKobo: nairaToKobo(k.feeNaira),
+        // Not the legacy feeNaira (0 for new kitchens); null = not set yet.
+        riderBaseFeeKobo: k.riderBaseFeeNaira != null ? nairaToKobo(k.riderBaseFeeNaira) : null,
       }))
       .sort((a, b) => Number(b.open) - Number(a.open) || a.name.localeCompare(b.name)),
     activity: audit.items.map((e) => ({ time: ageLabel(e.createdAt), text: describe(e) })),

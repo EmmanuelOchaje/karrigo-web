@@ -13,11 +13,28 @@ import { VERIFICATION_PHOTOS_REQUIRED } from "@/lib/kitchen/types";
  * The URLs are signed and short-lived: the page that renders this reads them
  * fresh on every load.
  */
-export function VerificationPhotos({ photos, canEdit }: { photos: VerificationPhoto[]; canEdit: boolean }) {
+export function VerificationPhotos({
+  photos,
+  canEdit,
+  failed = false,
+}: {
+  photos: VerificationPhoto[];
+  canEdit: boolean;
+  /** The list could not be read: say so here rather than show "0 of 6". */
+  failed?: boolean;
+}) {
   const [confirming, setConfirming] = useState<string | null>(null);
   const [error, setError] = useState("");
   const [busy, startTransition] = useTransition();
   const full = photos.length >= VERIFICATION_PHOTOS_REQUIRED;
+
+  if (failed) {
+    return (
+      <p role="alert" className="text-danger-text text-site-label font-semibold">
+        Couldn&rsquo;t load your photos — reload to try again.
+      </p>
+    );
+  }
 
   return (
     <div className="gap-md flex flex-col">

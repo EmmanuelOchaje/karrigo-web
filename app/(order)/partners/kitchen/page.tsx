@@ -15,7 +15,7 @@ export default async function KitchenPartnerPage() {
   const [kitchen, areas, areaNames] = await Promise.all([getKitchenApplication(), listAreas(), listAreaNames()]);
 
   // Signed URLs expire, so the photos are read on every load.
-  const photos = kitchen?.isOwner ? await listVerificationPhotos() : [];
+  const photos = kitchen?.isOwner ? await listVerificationPhotos() : { photos: [], failed: false };
 
   return (
     <div className="mx-auto max-w-[760px]">
@@ -24,7 +24,7 @@ export default async function KitchenPartnerPage() {
         {kitchen ? kitchen.name : "List your kitchen"}
       </h1>
       {kitchen ? (
-        <KitchenSetup kitchen={kitchen} banks={await listBanks()} areas={areaNames} photos={photos} />
+        <KitchenSetup kitchen={kitchen} banks={await listBanks()} areas={areaNames} photos={photos.photos} photosFailed={photos.failed} />
       ) : (
         <>
           <p className="text-site-body text-text-secondary mb-xl max-w-[52ch]">

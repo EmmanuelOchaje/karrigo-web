@@ -57,6 +57,15 @@ export type KitchenReadiness = {
   verificationPhotoCount?: number;
 };
 
+/**
+ * Every kitchen payload (public GET /kitchens and /kitchens/:slug, admin
+ * GET /admin/kitchens and /admin/kitchens/:id) returns the whole Kitchen row,
+ * so it carries the rider base fee. Optional so an older server still parses.
+ * Never use the legacy `feeNaira` for display or pricing: it is 0 for new
+ * kitchens. Replace once the spec is regenerated.
+ */
+export type KitchenRiderBaseFee = { riderBaseFeeNaira?: number | null };
+
 /** One kitchen verification photo. `url` is signed and expires, so it is
  *  fetched on each page load and never stored. */
 export type VerificationPhoto = { id: string; url: string };

@@ -35,7 +35,10 @@ export type ShopKitchen = {
   open: boolean;
   /** The kitchen's own words, e.g. "Closed for Sallah". */
   notice: string | null;
-  feeKobo: number;
+  /** The least delivery can cost from here: the kitchen's rider base fee
+   *  (₦1,500 if it has not set one). The real fee also grows with distance
+   *  and is fixed when the order is placed, so always show this as "from". */
+  deliveryFromKobo: number;
   rating: number;
   ratingsCount: number;
   /** A store's own rules, from the backend. Only applied to grocery orders. */
@@ -74,6 +77,8 @@ export type PricedCart = {
   unavailable: string[];
   count: number;
   subtotalKobo: number;
-  feeKobo: number;
-  totalKobo: number;
+  /** Same "from" figure as the kitchen's: an estimate, not the charge. */
+  deliveryFromKobo: number;
+  /** subtotal + deliveryFromKobo — the least the order can come to. */
+  estimatedTotalKobo: number;
 };

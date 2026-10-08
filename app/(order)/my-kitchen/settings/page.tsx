@@ -19,7 +19,7 @@ export default async function KitchenSettingsPage() {
       <ProfileForm name={kitchen.name} cuisine={kitchen.cuisine} riderBaseFeeKobo={kitchen.riderBaseFeeKobo} />
       <section className={panel}>
         <h2 className="text-h1 font-extrabold mb-md">Kitchen photos</h2>
-        <VerificationPhotos photos={photos} canEdit />
+        <VerificationPhotos photos={photos.photos} failed={photos.failed} canEdit />
       </section>
       <p className="text-site-label text-text-secondary">
         Your location, payout account and cover photo are on your{" "}

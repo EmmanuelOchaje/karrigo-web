@@ -103,12 +103,17 @@ export async function requireOwner(): Promise<Kitchen> {
 
 /** The kitchen's verification photos, oldest first. The URLs are signed and
  *  expire, so this is read on every page load and never cached. */
-export async function listVerificationPhotos(): Promise<VerificationPhoto[]> {
+/** `failed` is true when the list could not be read (a 5xx, the network):
+ *  the photos section says so instead of the whole page crashing. Signed out
+ *  is not a failure — there is simply nothing to show. */
+export async function listVerificationPhotos(): Promise<{ photos: VerificationPhoto[]; failed: boolean }> {
   try {
-    return await api<VerificationPhoto[]>("/kitchen-console/kitchen/photos", { scope: "kitchen" });
+    const photos = await api<VerificationPhoto[]>("/kitchen-console/kitchen/photos", { scope: "kitchen" });
+    return { photos, failed: false };
   } catch (error) {
-    if (signedOut(error)) return [];
-    throw error;
+    if (signedOut(error)) return { photos: [], failed: false };
+    console.error("Couldn't load kitchen verification photos", error);
+    return { photos: [], failed: true };
   }
 }
 

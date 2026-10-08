@@ -63,7 +63,7 @@ export function KitchenMenu({ menu }: { menu: ShopMenu }) {
                 </span>
               )}
               <span className="bg-accent/16 text-accent-text rounded-pill px-md py-xs">
-                {menu.feeKobo === 0 ? "Free delivery" : `${formatKobo(menu.feeKobo)} delivery`}
+                Delivery from {formatKobo(menu.deliveryFromKobo)}
               </span>
               {grocery && menu.minOrderKobo ? (
                 <span className="bg-text/10 rounded-pill px-md py-xs">Min. {formatKobo(menu.minOrderKobo)}</span>

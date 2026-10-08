@@ -5,6 +5,7 @@
  * one set of rules about what can be done from which state.
  */
 
+import type { KitchenRiderBaseFee } from "@/lib/api/extra";
 import type { Schemas } from "@/lib/api/types";
 import { formatKobo, nairaToKobo } from "@/lib/money";
 import { whenLabel } from "./format";
@@ -80,7 +81,7 @@ export const QUEUE_STATUS_LABEL: Record<QueueStatus, string> = {
 };
 
 export function kitchenItem(
-  kitchen: Schemas["KitchenResponseDto"],
+  kitchen: Schemas["KitchenResponseDto"] & KitchenRiderBaseFee,
   due?: Schemas["KitchenPayoutDueDto"],
 ): QueueItem {
   const netKobo = due ? nairaToKobo(due.netNaira) : 0;
@@ -101,7 +102,12 @@ export function kitchenItem(
       { key: "Area", value: area },
       { key: "Cuisine", value: cuisine },
       { key: "Signed up", value: whenLabel(kitchen.createdAt) },
-      { key: "Delivery fee", value: formatKobo(nairaToKobo(kitchen.feeNaira)) },
+      // Never the legacy feeNaira (0 for new kitchens). Delivery = max(this,
+      // distance x per-km), so this is the floor a customer pays.
+      {
+        key: "Rider base fee",
+        value: kitchen.riderBaseFeeNaira != null ? formatKobo(nairaToKobo(kitchen.riderBaseFeeNaira)) : "Not set",
+      },
       {
         key: "Sells",
         value:
