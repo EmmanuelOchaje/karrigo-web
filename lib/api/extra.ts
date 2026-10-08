@@ -32,3 +32,12 @@ export type FlaggedItem = {
   flagAppealNote: string | null;
   flagAppealedAt: string | null;
 };
+
+/**
+ * POST /kitchen-auth/otp/request — body `{ phone }`. Replace with
+ * `Schemas[...]` once the spec is regenerated.
+ *
+ * POST /kitchen-auth/register now also requires `phone`, `otpCode` (6 digits)
+ * and `areaId` (and no longer takes `area`); its response is unchanged.
+ */
+export type KitchenOtpRequested = { resendCooldownSeconds: number };

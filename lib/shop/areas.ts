@@ -5,17 +5,25 @@ import type { AreaPublic } from "@/lib/api/extra";
 import { AREAS } from "@/lib/order/schema";
 
 /**
- * The neighbourhoods an address can be in, as ops keeps them. If the list
- * can't be loaded, or ops hasn't added any yet, the built-in Makurdi list
- * keeps checkout and sign-up working rather than leaving the field empty.
+ * The neighbourhoods ops keeps, with the ids the backend wants. There is no
+ * built-in fallback with ids, so a failed load is an empty list and callers
+ * that need ids must say so rather than guess.
  */
-export async function listAreaNames(): Promise<string[]> {
+export async function listAreas(): Promise<{ id: string; name: string }[]> {
   try {
     const areas = await api<AreaPublic[]>("/areas", { revalidate: 300 });
-    const names = areas.map((a) => a.name).filter(Boolean);
-    if (names.length > 0) return names;
+    return areas.filter((a) => a.id && a.name).map((a) => ({ id: a.id, name: a.name }));
   } catch {
-    // Fall through to the built-in list.
+    return [];
   }
-  return [...AREAS];
+}
+
+/**
+ * The names an address can be in. If the list can't be loaded, or ops hasn't
+ * added any yet, the built-in Makurdi list keeps checkout and sign-up working
+ * rather than leaving the field empty.
+ */
+export async function listAreaNames(): Promise<string[]> {
+  const names = (await listAreas()).map((a) => a.name);
+  return names.length > 0 ? names : [...AREAS];
 }

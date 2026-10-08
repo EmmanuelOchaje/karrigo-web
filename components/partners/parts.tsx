@@ -150,11 +150,21 @@ export function BankForm({
   );
 }
 
-export function SubmitButton({ busy, idle, working }: { busy: boolean; idle: string; working: string }) {
+export function SubmitButton({
+  busy,
+  idle,
+  working,
+  disabled = false,
+}: {
+  busy: boolean;
+  idle: string;
+  working: string;
+  disabled?: boolean;
+}) {
   return (
     <button
       type="submit"
-      disabled={busy}
+      disabled={busy || disabled}
       className="bg-text text-bg rounded-pill text-site-button self-start px-xl py-md font-bold transition-transform duration-(--duration-fast) active:scale-95 disabled:opacity-50"
     >
       {busy ? working : idle}
