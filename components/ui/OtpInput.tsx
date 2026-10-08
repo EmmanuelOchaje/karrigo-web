@@ -8,11 +8,14 @@ export function OtpInput({
   name = "code",
   error,
   onComplete,
+  onChange,
 }: {
   length?: number;
   name?: string;
   error?: boolean;
   onComplete?: (code: string) => void;
+  /** Every edit, with the code so far — for a form that must notice a digit being deleted. */
+  onChange?: (code: string) => void;
 }) {
   const [digits, setDigits] = useState<string[]>(() => Array(length).fill(""));
   const inputs = useRef<(HTMLInputElement | null)[]>([]);
@@ -20,6 +23,7 @@ export function OtpInput({
   const commit = (next: string[]) => {
     setDigits(next);
     const code = next.join("");
+    onChange?.(code);
     if (code.length === length) onComplete?.(code);
   };
 

@@ -1,6 +1,7 @@
 import "server-only";
 
 import { ApiError, api, type Schemas } from "@/lib/api/client";
+import type { KitchenReadiness } from "@/lib/api/extra";
 import { nairaToKobo } from "@/lib/money";
 import type { Bank, KitchenApplication, RiderApplication } from "./types";
 
@@ -10,7 +11,10 @@ const last4 = (n: string | null | undefined) => (n ? n.slice(-4) : null);
  *  as a kitchen. */
 export async function getKitchenApplication(): Promise<KitchenApplication | null> {
   try {
-    const k = await api<Schemas["KitchenWithMenuResponseDto"]>("/kitchen-console/kitchen", { scope: "kitchen" });
+    const [k, me] = await Promise.all([
+      api<Schemas["KitchenWithMenuResponseDto"] & KitchenReadiness>("/kitchen-console/kitchen", { scope: "kitchen" }),
+      api<Schemas["AuthenticatedKitchenStaffResponseDto"]>("/kitchen-auth/me", { scope: "kitchen" }),
+    ]);
     return {
       name: k.name,
       status: k.status,
@@ -23,6 +27,10 @@ export async function getKitchenApplication(): Promise<KitchenApplication | null
       bankAccountName: k.payoutAccountName ?? null,
       bankAccountLast4: last4(k.payoutAccountNumber),
       imageUrl: k.heroImageUrl ?? null,
+      isOwner: me.staffRole === "OWNER",
+      // An older server has neither field: nothing set, no photos.
+      riderBaseFeeKobo: k.riderBaseFeeNaira == null ? null : nairaToKobo(k.riderBaseFeeNaira),
+      verificationPhotoCount: k.verificationPhotoCount ?? 0,
       dishes: k.sections.flatMap((s) =>
         s.items.map((i) => ({ id: i.id, name: i.name, priceKobo: nairaToKobo(i.priceNaira) })),
       ),

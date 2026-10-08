@@ -49,10 +49,6 @@ export function ShopKitchenCard({
           <span className="bg-danger text-bg absolute top-sm left-sm rounded-pill px-md py-xs text-eyebrow normal-case">
             {kitchen.notice ?? "Closed right now"}
           </span>
-        ) : kitchen.feeKobo === 0 ? (
-          <span className="bg-accent text-on-accent absolute top-sm left-sm rounded-pill px-md py-xs text-eyebrow normal-case">
-            Free delivery
-          </span>
         ) : null}
       </div>
 
@@ -68,7 +64,7 @@ export function ShopKitchenCard({
                 ★ {kitchen.rating.toFixed(1)} ({kitchen.ratingsCount})
               </span>
             )}
-            {kitchen.feeKobo > 0 && <span>{formatKobo(kitchen.feeKobo)} delivery</span>}
+            <span>Delivery from {formatKobo(kitchen.deliveryFromKobo)}</span>
             {side === "GROCERY" && kitchen.minOrderKobo ? <span>Min. {formatKobo(kitchen.minOrderKobo)}</span> : null}
           </div>
         )}

@@ -5,6 +5,7 @@ import { revalidatePath } from "next/cache";
 import { ApiError, api, type Schemas } from "@/lib/api/client";
 import { clearTokens, readRefreshToken, storeTokens } from "@/lib/api/session";
 import type { DocumentKind } from "@/lib/partners/types";
+import type { KitchenOtpRequested } from "@/lib/api/extra";
 import { e164 } from "@/lib/phone";
 
 /**
@@ -14,7 +15,7 @@ import { e164 } from "@/lib/phone";
  * this layer turns its answers into sentences an applicant can act on.
  */
 
-type Failure = { ok: false; error: string };
+type Failure = { ok: false; error: string; /** Seconds until a rate-limited request may be repeated. */ retryAfter?: number };
 type Done<T = object> = ({ ok: true } & T) | Failure;
 
 function failure(error: unknown): Failure {
@@ -46,34 +47,88 @@ function photoFrom(form: FormData): File | Failure {
 
 /* --------------------------------------------------------------- kitchen */
 
+/** Step one of applying: text a code to the number the kitchen will use. */
+export async function requestKitchenOtp(phone: string): Promise<Done<{ resendCooldownSeconds: number }>> {
+  try {
+    const result = await api<KitchenOtpRequested>("/kitchen-auth/otp/request", {
+      method: "POST",
+      body: { phone: e164(phone) },
+    });
+    return { ok: true, resendCooldownSeconds: result.resendCooldownSeconds };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 409) {
+      return { ok: false, error: "That number already has a kitchen account. Log in instead." };
+    }
+    if (error instanceof ApiError && error.status === 429) {
+      const retryAfter = typeof error.body.retryAfterSeconds === "number" ? error.body.retryAfterSeconds : undefined;
+      return {
+        ok: false,
+        error: retryAfter
+          ? `Too many codes requested. Try again in ${waitText(retryAfter)}.`
+          : error.message,
+        retryAfter,
+      };
+    }
+    return failure(error);
+  }
+}
+
+function waitText(seconds: number): string {
+  if (seconds < 90) return `${seconds} seconds`;
+  if (seconds < 5400) return `${Math.ceil(seconds / 60)} minutes`;
+  return `${Math.ceil(seconds / 3600)} hours`;
+}
+
 export async function applyKitchen(input: {
   name: string;
   email: string;
   password: string;
   phone: string;
+  otpCode: string;
   kitchenName: string;
   cuisine: string;
-  area: string;
+  areaId: string;
 }): Promise<Done> {
   try {
-    const phone = e164(input.phone);
     const result = await api<Schemas["RegisterKitchenResponseDto"]>("/kitchen-auth/register", {
       method: "POST",
       body: {
         name: input.name.trim(),
         email: input.email.trim().toLowerCase(),
         password: input.password,
+        phone: e164(input.phone),
+        otpCode: input.otpCode,
         kitchenName: input.kitchenName.trim(),
-        ...(phone ? { phone } : {}),
+        areaId: input.areaId,
         ...(input.cuisine.trim() ? { cuisine: input.cuisine.trim() } : {}),
-        ...(input.area ? { area: input.area } : {}),
       },
     });
     await storeTokens("kitchen", result);
     return { ok: true };
   } catch (error) {
-    if (error instanceof ApiError && error.status === 409) {
-      return { ok: false, error: "That email already has a kitchen account. Log in instead." };
+    if (error instanceof ApiError) {
+      if (error.status === 401) {
+        const left = error.body.attemptsRemaining;
+        return {
+          ok: false,
+          error:
+            typeof left === "number"
+              ? `That code isn't right. ${left} ${left === 1 ? "try" : "tries"} left.`
+              : "That code isn't right.",
+        };
+      }
+      if (error.status === 400 && /expired/i.test(error.message)) {
+        return { ok: false, error: "That code expired. Request a new one." };
+      }
+      if (error.status === 409) {
+        return {
+          ok: false,
+          error: error.message || "That email or phone already has a kitchen account. Log in instead.",
+        };
+      }
+      if (error.status === 422 && error.body.code === "AREA_NOT_FOUND") {
+        return { ok: false, error: "That area isn't available any more. Reload the page and pick again." };
+      }
     }
     return failure(error);
   }

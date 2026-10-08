@@ -38,7 +38,12 @@ export type Kitchen = {
   isOpen: boolean;
   notice: string;
   cuisine: string;
-  feeKobo: number;
+  /** What riders are paid at least per trip; null until the owner sets it. */
+  riderBaseFeeKobo: number | null;
+  /** What is still needed before the kitchen may open. */
+  missing: ("LOCATION" | "RIDER_FEE")[];
+  /** How many of the 6 verification photos are uploaded. */
+  verificationPhotoCount: number;
   servesFood: boolean;
   servesGrocery: boolean;
   sections: MenuSection[];
@@ -113,3 +118,14 @@ export type Ticket = {
 };
 
 export type StaffProfile = { name: string; email: string; phone: string };
+
+/** Exactly this many kitchen photos are needed before ops can approve. */
+export const VERIFICATION_PHOTOS_REQUIRED = 6;
+
+/** The rider base fee a kitchen starts from, in naira. */
+export const DEFAULT_RIDER_BASE_FEE_NAIRA = 1500;
+
+/** Why Approve is unavailable, said the same in the admin panel and in the
+ *  server's refusal. */
+export const photosNeededText = (have: number, required = VERIFICATION_PHOTOS_REQUIRED) =>
+  `Needs ${required} kitchen photos — has ${have}`;

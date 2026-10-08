@@ -37,14 +37,21 @@ export const sidesSchema = z
   .object({ servesFood: z.boolean(), servesGrocery: z.boolean() })
   .refine((s) => s.servesFood || s.servesGrocery, { message: "Keep at least one of food or groceries switched on." });
 
+/** The least a rider is paid per trip, typed in whole naira: 500 to 20,000
+ *  in steps of 50. Longer trips pay more by distance on top of this. */
+export const riderBaseFeeNaira = z
+  .number({ message: "Enter the rider base fee, like 1500." })
+  .int({ message: "Use a whole naira amount." })
+  .min(500, { message: "The rider base fee can't be below ₦500." })
+  .max(20_000, { message: "The rider base fee can't be above ₦20,000." })
+  .refine((n) => n % 50 === 0, { message: "Use a multiple of ₦50, like 1500 or 1550." });
+
+export const riderFeeSchema = z.object({ riderBaseFeeNaira });
+
 export const profileSchema = z.object({
   name: z.string().trim().min(2, { message: "Your kitchen needs a name." }).max(60, { message: "Keep the name under 60 characters." }),
   cuisine: z.string().trim().max(60, { message: "Keep this under 60 characters." }),
-  feeNaira: z
-    .number({ message: "Enter a delivery fee, or 0." })
-    .int({ message: "Use a whole naira amount." })
-    .min(0, { message: "The delivery fee can't be below 0." })
-    .max(20_000, { message: "That delivery fee looks too high. Check it." }),
+  riderBaseFeeNaira,
 });
 
 export const noticeSchema = z.string().trim().max(140, { message: "Keep the notice under 140 characters." });

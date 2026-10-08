@@ -19,6 +19,12 @@ export type KitchenApplication = {
   bankAccountName: string | null;
   bankAccountLast4: string | null;
   imageUrl: string | null;
+  /** Whether the signed-in staff member owns the kitchen; only owners can
+   *  add or remove the verification photos. */
+  isOwner: boolean;
+  /** Null until the owner has set it. */
+  riderBaseFeeKobo: number | null;
+  verificationPhotoCount: number;
   dishes: { id: string; name: string; priceKobo: number }[];
 };
 

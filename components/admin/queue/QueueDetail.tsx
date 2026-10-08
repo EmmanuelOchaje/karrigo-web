@@ -14,6 +14,8 @@ import {
 } from "@/lib/admin/queue";
 import type { AdminRole } from "@/lib/admin/types";
 import { Eyebrow, StatusChip, type Tone } from "@/components/admin/ui";
+import type { VerificationPhoto } from "@/lib/api/extra";
+import { VERIFICATION_PHOTOS_REQUIRED, photosNeededText } from "@/lib/kitchen/types";
 import { kitchenDetail, riderDocumentUrl } from "@/app/(admin)/admin/queue-actions";
 import { KitchenProducts } from "./KitchenProducts";
 
@@ -65,6 +67,7 @@ export function QueueDetail({
     id: string;
     fields: { key: string; value: string }[];
     menuItems: number;
+    photos: VerificationPhoto[];
   } | null>(null);
 
   useEffect(() => {
@@ -72,7 +75,7 @@ export function QueueDetail({
     let cancelled = false;
     kitchenDetail(item.id).then((result) => {
       if (!cancelled && result.ok) {
-        setMore({ id: item.id, fields: result.fields, menuItems: result.menuItems });
+        setMore({ id: item.id, fields: result.fields, menuItems: result.menuItems, photos: result.photos });
       }
     });
     return () => {
@@ -210,9 +213,18 @@ export function QueueDetail({
     ...item.fields,
     ...balanceFields(kind, item),
   ];
+  const photos = extra?.photos ?? null;
+  // Only known once the detail has loaded; the server refuses regardless.
+  const approveBlocked =
+    isKitchen && photos !== null && photos.length < VERIFICATION_PHOTOS_REQUIRED
+      ? photosNeededText(photos.length)
+      : null;
   const checks = extra
     ? [
         ...item.checks,
+        ...(isKitchen && photos
+          ? [{ label: `${photos.length} of ${VERIFICATION_PHOTOS_REQUIRED} kitchen photos`, ok: photos.length >= VERIFICATION_PHOTOS_REQUIRED }]
+          : []),
         {
           label: extra.menuItems ? `${extra.menuItems} dishes on the menu` : "No dishes yet",
           ok: extra.menuItems > 0,
@@ -299,6 +311,31 @@ export function QueueDetail({
         ))}
       </ul>
 
+      {isKitchen && photos && photos.length > 0 && (
+        <div className="border-text/8 border-b px-[22px] py-lg">
+          <Eyebrow className="text-[10.5px]">
+            Kitchen photos · {photos.length} of {VERIFICATION_PHOTOS_REQUIRED}
+          </Eyebrow>
+          <ul className="mt-2.5 grid grid-cols-3 gap-2">
+            {photos.map((photo, index) => (
+              <li key={photo.id}>
+                <button
+                  type="button"
+                  aria-label={`Open kitchen photo ${index + 1}`}
+                  onClick={() =>
+                    setViewing({ title: `Kitchen photo ${index + 1} · ${item.title}`, url: photo.url, error: null })
+                  }
+                  className="bg-text/6 block aspect-[4/3] w-full overflow-hidden rounded-xl"
+                >
+                  {/* eslint-disable-next-line @next/next/no-img-element -- a short-lived signed URL; next/image would proxy and cache it. */}
+                  <img src={photo.url} alt={`Kitchen photo ${index + 1}`} className="size-full object-cover" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
       {isKitchen && item.status !== "PENDING" && <KitchenProducts kitchenId={item.id} />}
 
       {confirm ? (
@@ -363,6 +400,7 @@ export function QueueDetail({
               <button
                 key={action.label}
                 type="button"
+                disabled={action.decision === "approve" && !!approveBlocked}
                 onClick={() => {
                   setPending(action.decision);
                   setNote("");
@@ -374,11 +412,17 @@ export function QueueDetail({
                     : action.tone === "dark"
                       ? "bg-text text-ops-surface"
                       : "border-danger/30 text-danger border",
+                  "disabled:opacity-40",
                 )}
               >
                 {action.label}
               </button>
             ))}
+            {approveBlocked && actions.some((a) => a.decision === "approve") && (
+              <p role="status" className="text-warning w-full text-[12.5px] font-semibold">
+                {approveBlocked}
+              </p>
+            )}
           </div>
         )
       )}

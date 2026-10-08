@@ -3,6 +3,7 @@
 import { revalidatePath } from "next/cache";
 
 import { ApiError, api } from "@/lib/api/client";
+import type { KitchenMissing } from "@/lib/api/extra";
 import { APPLICATION, CONSOLE } from "@/lib/kitchen/data";
 import {
   appealSchema,
@@ -12,6 +13,7 @@ import {
   orderStatusSchema,
   passwordSchema,
   profileSchema,
+  riderFeeSchema,
   sectionSchema,
   sidesSchema,
   ticketSchema,
@@ -47,6 +49,22 @@ function changed() {
 
 const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const PHOTO_MAX_BYTES = 2.5 * 1024 * 1024;
+/** Verification photos are checked by people, so the backend allows more. */
+const VERIFICATION_PHOTO_MAX_BYTES = 8 * 1024 * 1024;
+
+const MISSING_TEXT: Record<KitchenMissing, string> = {
+  LOCATION: "your kitchen's location",
+  RIDER_FEE: "the rider base delivery fee",
+};
+
+/** "your location and the rider fee" from the backend's list of what's missing. */
+function missingText(details: unknown): string {
+  const parts = (Array.isArray(details) ? details : [])
+    .map((d) => MISSING_TEXT[d as KitchenMissing])
+    .filter((t): t is string => !!t);
+  if (parts.length === 0) return "your kitchen's setup";
+  return parts.length === 1 ? parts[0] : `${parts.slice(0, -1).join(", ")} and ${parts[parts.length - 1]}`;
+}
 
 const item = (id: string) => `/kitchen-console/menu/items/${encodeURIComponent(id)}`;
 const section = (id: string) => `/kitchen-console/menu/sections/${encodeURIComponent(id)}`;
@@ -59,6 +77,12 @@ export async function setOpen(isOpen: boolean): Promise<Done> {
     changed();
     return { ok: true };
   } catch (error) {
+    // Opening is refused until the kitchen has a location and a rider fee.
+    // Say which is missing; the setup page is where to fix it.
+    if (error instanceof ApiError && error.status === 422 && error.body.code === "KITCHEN_NOT_READY") {
+      changed();
+      return { ok: false, error: `You can't open yet. Set ${missingText(error.body.details)} first.` };
+    }
     return failure(error);
   }
 }
@@ -75,11 +99,25 @@ export async function saveNotice(input: string): Promise<Done> {
   }
 }
 
-export async function saveProfile(input: { name: string; cuisine: string; feeNaira: number }): Promise<Done> {
+export async function saveProfile(input: { name: string; cuisine: string; riderBaseFeeNaira: number }): Promise<Done> {
   const profile = profileSchema.safeParse(input);
   if (!profile.success) return { ok: false, error: firstIssue(profile.error) };
   try {
     await api("/kitchen-console/kitchen", { method: "PATCH", scope: "kitchen", body: profile.data });
+    changed();
+    return { ok: true };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+/** Just the rider base fee, for the setup page where the other details are
+ *  not on screen. */
+export async function saveRiderFee(riderBaseFeeNaira: number): Promise<Done> {
+  const parsed = riderFeeSchema.safeParse({ riderBaseFeeNaira });
+  if (!parsed.success) return { ok: false, error: firstIssue(parsed.error) };
+  try {
+    await api("/kitchen-console/kitchen", { method: "PATCH", scope: "kitchen", body: parsed.data });
     changed();
     return { ok: true };
   } catch (error) {
@@ -221,6 +259,39 @@ export async function uploadDishPhoto(form: FormData): Promise<Done> {
     return { ok: true };
   } catch (error) {
     return failure(error);
+  }
+}
+
+/* ------------------------------------------------- verification photos */
+
+/** One of the 6 photos ops checks before approving. Owner only; the backend
+ *  enforces the type, size and the limit of 6, and this says so kindly. */
+export async function uploadVerificationPhoto(form: FormData): Promise<Done> {
+  const file = form.get("file");
+  if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Choose a photo first." };
+  if (!PHOTO_TYPES.includes(file.type)) return { ok: false, error: "Use a JPG, PNG or WebP photo." };
+  if (file.size > VERIFICATION_PHOTO_MAX_BYTES) return { ok: false, error: "That photo is too large (8 MB at most). Try a smaller one." };
+  try {
+    const body = new FormData();
+    body.set("file", file, file.name || "kitchen.jpg");
+    await api("/kitchen-console/kitchen/photos", { method: "POST", scope: "kitchen", body });
+    changed();
+    return { ok: true };
+  } catch (error) {
+    // The page showing fewer than 6 was out of date; refresh it too.
+    if (error instanceof ApiError && error.status === 409) changed();
+    return failure(error, { 409: "You already have 6 photos." });
+  }
+}
+
+export async function deleteVerificationPhoto(id: string): Promise<Done> {
+  try {
+    await api(`/kitchen-console/kitchen/photos/${encodeURIComponent(id)}`, { method: "DELETE", scope: "kitchen" });
+    changed();
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) changed();
+    return failure(error, { 404: "That photo is already gone. The list has been updated." });
   }
 }
 

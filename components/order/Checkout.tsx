@@ -119,8 +119,11 @@ export function Checkout({ customer, areas }: { customer: Customer | null; areas
     maxItems: kitchen.maxItems,
     minOrderKobo: kitchen.minOrderKobo,
   });
-  const creditKobo = Math.min(customer?.creditKobo ?? 0, Math.max(0, priced.totalKobo - (discount?.kobo ?? 0)));
-  const totalKobo = Math.max(0, priced.totalKobo - (discount?.kobo ?? 0) - creditKobo);
+  // An estimate: delivery is priced by distance when the order is placed, so
+  // the total here uses the kitchen's "from" delivery fee and says so. The
+  // exact amount is on the order's page before anyone pays.
+  const creditKobo = Math.min(customer?.creditKobo ?? 0, Math.max(0, priced.estimatedTotalKobo - (discount?.kobo ?? 0)));
+  const totalKobo = Math.max(0, priced.estimatedTotalKobo - (discount?.kobo ?? 0) - creditKobo);
 
   function useMyLocation() {
     if (!("geolocation" in navigator)) return say("This browser can't share its location. The landmark is enough.");
@@ -313,7 +316,7 @@ export function Checkout({ customer, areas }: { customer: Customer | null; areas
             </div>
             <div className="flex justify-between">
               <dt>Delivery</dt>
-              <dd>{priced.feeKobo ? formatKobo(priced.feeKobo) : "Free"}</dd>
+              <dd>from {formatKobo(priced.deliveryFromKobo)}</dd>
             </div>
             {discount && (
               <div className="text-accent-text flex justify-between">
@@ -328,10 +331,13 @@ export function Checkout({ customer, areas }: { customer: Customer | null; areas
               </div>
             )}
             <div className="text-h1 text-text mt-xs flex justify-between font-extrabold">
-              <dt>Total</dt>
-              <dd>{formatKobo(totalKobo)}</dd>
+              <dt>Estimated total</dt>
+              <dd>from {formatKobo(totalKobo)}</dd>
             </div>
           </dl>
+          <p className="text-site-label text-text-secondary mt-sm">
+            Delivery depends on how far you are from {kitchen.name}. You&rsquo;ll see the exact fee on your order before you pay.
+          </p>
 
           {issue && (
             <p role="alert" className="bg-danger-bg text-danger-text rounded-field text-site-label mt-md px-md py-sm font-semibold">
@@ -359,7 +365,7 @@ export function Checkout({ customer, areas }: { customer: Customer | null; areas
               : issue?.kind === "BELOW_MINIMUM"
                 ? `Add ${formatKobo(issue.shortfallKobo)} more to check out`
               : customer
-                ? `Place order · ${formatKobo(totalKobo)}`
+                ? `Place order · from ${formatKobo(totalKobo)}`
                 : "Log in to place order"}
           </Button>
         </aside>

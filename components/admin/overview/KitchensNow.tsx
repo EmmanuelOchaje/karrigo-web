@@ -52,7 +52,7 @@ export function KitchensNow({ kitchens }: { kitchens: OverviewView["kitchens"] }
               <span>
                 <StatusChip tone={k.open ? "success" : "muted"}>{k.open ? "Open" : "Closed"}</StatusChip>
               </span>
-              <span className="text-text/62 text-right font-light" title={`Delivery ${formatKobo(k.feeKobo)}`}>
+              <span className="text-text/62 text-right font-light" title={k.riderBaseFeeKobo != null ? `Rider base fee ${formatKobo(k.riderBaseFeeKobo)}` : "Rider base fee not set"}>
                 {k.rating}
               </span>
             </div>
