@@ -1,3 +1,10 @@
+<p align="center">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="public/brand/karrigo-logo-dark.png">
+    <img src="public/brand/karrigo-logo.png" alt="Karrigo" width="240">
+  </picture>
+</p>
+
 # Karrigo — build package
 
 Everything needed to build Karrigo, a food delivery service for Makurdi, Benue
