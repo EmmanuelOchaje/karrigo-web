@@ -10,6 +10,16 @@ export const metadata: Metadata = {
   description: "How to reach the Karrigo team.",
 };
 
+const COMPLAINT_DETAILS = [
+  "Your order code, from your confirmation or your orders page",
+  "The phone number you ordered with",
+  "What went wrong, and when",
+  "The kitchen, store or rider involved, if you know",
+] as const;
+
+const COMPLAINT_TEMPLATE =
+  "Hello Karrigo, I want to make a complaint.\n\nOrder code: \nPhone number: \nWhat happened: ";
+
 const ROUTES = [
   { title: "Cook with Karrigo", body: "List your kitchen and start taking orders.", href: "/partners/kitchen" },
   { title: "Sell your groceries", body: "Register your store.", href: "/partners/store" },
@@ -60,6 +70,51 @@ export default function ContactPage() {
           </p>
         )}
         <p className="text-site-label text-text-secondary mt-lg">Karrigo · Makurdi, Benue State, Nigeria</p>
+      </section>
+
+      <section id="support" className="bg-bg rounded-panel-sm p-xl md:p-pad-card mt-xxl scroll-mt-xxl">
+        <h2 className="text-site-title">Support and complaints</h2>
+        <p className="text-site-answer text-text-secondary mt-md max-w-[56ch]">
+          Late, wrong, missing or cold? A rider, kitchen or store that let you down? Tell us. Every
+          complaint is read by a person on our team, and we will tell you what we found and what we are
+          doing about it.
+        </p>
+
+        <h3 className="text-site-label mt-lg font-bold">Send us these, so we can act fast</h3>
+        <ul className="text-site-answer text-text-secondary mt-sm gap-xs flex max-w-[56ch] list-disc flex-col pl-xl">
+          {COMPLAINT_DETAILS.map((detail) => (
+            <li key={detail}>{detail}</li>
+          ))}
+        </ul>
+
+        {whatsapp ? (
+          <ButtonLink
+            href={whatsappLink(whatsapp, COMPLAINT_TEMPLATE)}
+            variant="dark"
+            size="site"
+            className="mt-lg"
+          >
+            Lay a complaint on WhatsApp
+          </ButtonLink>
+        ) : email ? (
+          <ButtonLink
+            href={`mailto:${email}?subject=${encodeURIComponent("Complaint")}&body=${encodeURIComponent(COMPLAINT_TEMPLATE)}`}
+            variant="dark"
+            size="site"
+            className="mt-lg"
+          >
+            Email your complaint
+          </ButtonLink>
+        ) : (
+          <p className="text-site-answer text-text-secondary mt-lg max-w-[52ch]">
+            Our complaint line opens here shortly. Until then, keep the order code handy.
+          </p>
+        )}
+
+        <p className="text-site-label text-text-secondary mt-lg max-w-[56ch]">
+          Paid by card or transfer and the order never came? Say so in your complaint and we will
+          check the payment. Cash orders are settled with the rider on delivery.
+        </p>
       </section>
 
       <h2 className="text-site-title mt-section-sm mb-lg md:mt-section">Want to work with us?</h2>
