@@ -23,9 +23,9 @@ const columns = [
   {
     heading: "Company",
     links: [
-      { href: "/help#contact", label: "Contact" },
-      { href: "/help#terms", label: "Terms" },
-      { href: "/help#privacy", label: "Privacy" },
+      { href: "/contact", label: "Contact" },
+      { href: "/terms", label: "Terms" },
+      { href: "/privacy", label: "Privacy" },
       { href: "/credits", label: "Photo credits" },
     ],
   },

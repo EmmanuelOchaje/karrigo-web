@@ -35,7 +35,7 @@ export default function StorePartnerPage() {
       </p>
       <ButtonLink
         // TODO: swap in the real business WhatsApp/contact once decided.
-        href="/help#contact"
+        href="/contact"
         variant="dark"
         size="site"
         className="rise rise-3"
