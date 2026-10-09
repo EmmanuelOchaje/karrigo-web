@@ -11,6 +11,7 @@ import { KitchenRail } from "@/components/site/KitchenRail";
 import { HeroPhones } from "@/components/site/HeroPhones";
 import { StepsGrid } from "@/components/site/StepsGrid";
 import { FaqList } from "@/components/site/FaqList";
+import { ScrollReveal } from "@/components/site/ScrollReveal";
 import { UsersPanel } from "@/components/site/UsersPanel";
 import { AreasPanel } from "@/components/site/AreasPanel";
 import { AppPreviewPhone } from "@/components/site/AppPreviewPhone";
@@ -28,6 +29,7 @@ export default function HomePage() {
     // behind it is the app's white, not the site's.
     <div className="bg-surface grow">
       <SiteNav mode="dark" />
+      <ScrollReveal />
 
       {/* Hero — an inset dark panel, not an edge-to-edge screen, so it reads
           as a card sitting on the page rather than framing it. */}
@@ -118,14 +120,14 @@ export default function HomePage() {
         </div>
 
         <div className="text-site-title rise rise-1 mb-lg">Kitchens open now</div>
-        <div className="gap-xl rise rise-2 grid sm:grid-cols-2 lg:grid-cols-4">
+        <div data-aos="rise" className="gap-xl grid sm:grid-cols-2 lg:grid-cols-4">
           {shownKitchens.map((kitchen) => (
             <KitchenCard key={kitchen.slug} kitchen={kitchen} />
           ))}
         </div>
 
         <div className="text-site-title rise rise-2 mt-xxl mb-lg">Stores open now</div>
-        <div className="gap-xl rise rise-3 grid sm:grid-cols-2 lg:grid-cols-4">
+        <div data-aos="rise" className="gap-xl grid sm:grid-cols-2 lg:grid-cols-4">
           {shownStores.map((store) => (
             <StoreCard key={store.slug} store={store} />
           ))}
@@ -133,7 +135,7 @@ export default function HomePage() {
       </section>
 
       {/* Four steps — one card reads as current at a time, on a loop. */}
-      <section className="px-screen-x mx-auto w-full max-w-[1240px] pt-section-sm md:pt-section">
+      <section data-aos="rise" className="px-screen-x mx-auto w-full max-w-[1240px] pt-section-sm md:pt-section">
         <h2 className="text-section-small md:text-section mb-xxl max-w-[16ch] text-balance">
           Four steps, no app needed
         </h2>
@@ -141,18 +143,19 @@ export default function HomePage() {
       </section>
 
       {/* Growth — users and downloads, counting up from zero. */}
-      <section className="px-screen-x pt-section-sm md:pt-section">
+      <section data-aos="rise" className="px-screen-x pt-section-sm md:pt-section">
         <UsersPanel />
       </section>
 
       {/* Coverage — the question people arrive with, answered in one number. */}
-      <section className="px-screen-x pt-section-sm md:pt-section">
+      <section data-aos="rise" className="px-screen-x pt-section-sm md:pt-section">
         <AreasPanel />
       </section>
 
       {/* Riders and restaurants — two offer cards, side by side, so neither
           audience reads as an afterthought to the other. */}
       <section
+        data-aos="rise"
         id="riders"
         className="px-screen-x mx-auto w-full max-w-[1240px] pt-section-sm md:pt-section"
       >
@@ -253,7 +256,7 @@ export default function HomePage() {
       </section>
 
       {/* FAQ — heading beside the list, not above it. */}
-      <section className="px-screen-x mx-auto max-w-[1240px] pt-section-sm md:pt-section">
+      <section data-aos="rise" className="px-screen-x mx-auto max-w-[1240px] pt-section-sm md:pt-section">
         <div className="gap-xxl grid items-start md:grid-cols-2 md:gap-gap-wide">
           <div>
             <h2 className="text-section-small md:text-section text-balance">
@@ -276,7 +279,7 @@ export default function HomePage() {
       </section>
 
       {/* App CTA — copy beside a phone showing the feed and a live order. */}
-      <section className="px-screen-x pt-section-sm md:pt-section">
+      <section data-aos="rise" className="px-screen-x pt-section-sm md:pt-section">
         <Screen
           mode="dark"
           className="rounded-panel-lg gap-xxl md:gap-gap-wide p-xxl md:p-pad-panel mx-auto grid max-w-[1240px] items-center md:grid-cols-2"
@@ -299,7 +302,7 @@ export default function HomePage() {
       </section>
 
       {/* Closing CTA — the last word, in the fill colour, before the footer. */}
-      <section className="px-screen-x pt-section-sm pb-xxl md:pt-section md:pb-pad-page-end">
+      <section data-aos="rise" className="px-screen-x pt-section-sm pb-xxl md:pt-section md:pb-pad-page-end">
         <div className="rounded-panel-lg bg-accent text-on-accent relative mx-auto max-w-[1240px] overflow-hidden p-xxl text-center md:p-[68px]">
           <div
             aria-hidden

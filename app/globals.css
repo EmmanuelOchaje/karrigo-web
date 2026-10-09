@@ -42,6 +42,23 @@ body {
   animation: rise var(--duration-slow) var(--default-transition-timing-function) both;
 }
 
+/* Scroll reveal for the landing page. AOS (see ScrollReveal) toggles
+   `aos-animate` as an element enters the viewport; this is the look it gets.
+   The hidden state only applies once the script has switched `data-reveal` on,
+   so no-JS visitors and reduced-motion users never meet an invisible section. */
+html[data-reveal] [data-aos="rise"] {
+  opacity: 0;
+  transform: translateY(var(--rise));
+  transition:
+    opacity var(--duration-slow) var(--default-transition-timing-function),
+    transform var(--duration-slow) var(--default-transition-timing-function);
+}
+
+html[data-reveal] [data-aos="rise"].aos-animate {
+  opacity: 1;
+  transform: none;
+}
+
 /* Stagger steps. `style` attributes would hardcode timings; these read the token. */
 @utility rise-1 {
   animation-delay: calc(var(--stagger) * 1);
