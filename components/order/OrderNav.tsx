@@ -27,7 +27,7 @@ export function OrderNav({
   const router = useRouter();
   const { cart, landmark, address, area } = useOrderState();
   const [scrolled, setScrolled] = useState(false);
-  const [, startTransition] = useTransition();
+  const [loggingOut, startTransition] = useTransition();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 8);
@@ -90,9 +90,11 @@ export function OrderNav({
                   router.refresh();
                 })
               }
-              className="text-text/75 hover:bg-text/10 hover:text-text rounded-pill text-nav-link hidden px-lg py-sm transition-colors duration-(--duration-fast) sm:block"
+              disabled={loggingOut}
+              aria-busy={loggingOut}
+              className="text-text/75 hover:bg-text/10 hover:text-text rounded-pill text-nav-link hidden px-lg py-sm transition-colors duration-(--duration-fast) disabled:opacity-50 sm:block"
             >
-              {user.name.split(" ")[0] || "Account"} · Log out
+              {loggingOut ? "Logging out…" : `${user.name.split(" ")[0] || "Account"} · Log out`}
             </button>
           ) : kitchen ? (
             // Signed in as a kitchen only: the customer "Log in" would read as
@@ -108,9 +110,11 @@ export function OrderNav({
                   router.refresh();
                 })
               }
-              className="text-text/75 hover:bg-text/10 hover:text-text rounded-pill text-nav-link hidden px-lg py-sm transition-colors duration-(--duration-fast) sm:block"
+              disabled={loggingOut}
+              aria-busy={loggingOut}
+              className="text-text/75 hover:bg-text/10 hover:text-text rounded-pill text-nav-link hidden px-lg py-sm transition-colors duration-(--duration-fast) disabled:opacity-50 sm:block"
             >
-              Kitchen · Log out
+              {loggingOut ? "Logging out…" : "Kitchen · Log out"}
             </button>
           ) : (
             <Link
