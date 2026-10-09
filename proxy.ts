@@ -31,6 +31,16 @@ const ADMIN_PREFIX = "/admin";
  *  any unknown URL. */
 const NOWHERE = "/__no_such_route";
 
+/** The host emailed app links point at (go.karrigo.app). Never serves the
+ *  site: every path is a link, rewritten under /go. In development,
+ *  http://go.localhost:3000 works with no hosts-file entry. */
+function linkHosts(): string[] {
+  const configured = process.env.LINK_HOST?.trim();
+  return [configured, "go.localhost"].filter(
+    (h): h is string => !!h && h.length > 0,
+  );
+}
+
 /** In production set ADMIN_HOST to the ops domain. In development,
  *  http://admin.localhost:3000 resolves to 127.0.0.1 in every modern browser
  *  with no hosts-file entry, so both surfaces run off one `next dev`. */
@@ -130,6 +140,9 @@ async function rotateSessions(request: NextRequest) {
 }
 
 export async function proxy(request: NextRequest) {
+  // Links carry no session, so skip the cookie rotation entirely.
+  if (linkHosts().includes(hostname(request))) return linkRoute(request);
+
   const changes = await rotateSessions(request);
   const response = route(request, changes);
 
@@ -147,6 +160,16 @@ export async function proxy(request: NextRequest) {
     }
   }
   return response;
+}
+
+/** go.karrigo.app/<app>/... serves /go/<app>/... . The verification files
+ *  Apple and Google fetch stay at /.well-known, and /go itself is rewritten,
+ *  never exposed, so a link never shows the prefix. */
+function linkRoute(request: NextRequest): NextResponse {
+  const { pathname, search } = request.nextUrl;
+  if (pathname.startsWith("/.well-known/")) return NextResponse.next();
+  const target = pathname === "/" ? "/go" : `/go${pathname}`;
+  return NextResponse.rewrite(new URL(`${target}${search}`, request.url));
 }
 
 function route(
