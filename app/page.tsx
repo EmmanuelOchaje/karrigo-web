@@ -11,6 +11,7 @@ import { KitchenRail } from "@/components/site/KitchenRail";
 import { HeroPhones } from "@/components/site/HeroPhones";
 import { StepsGrid } from "@/components/site/StepsGrid";
 import { FaqList } from "@/components/site/FaqList";
+import { UsersPanel } from "@/components/site/UsersPanel";
 import { AreasPanel } from "@/components/site/AreasPanel";
 import { AppPreviewPhone } from "@/components/site/AppPreviewPhone";
 import { Eyebrow } from "@/components/site/Eyebrow";
@@ -137,6 +138,11 @@ export default function HomePage() {
           Four steps, no app needed
         </h2>
         <StepsGrid />
+      </section>
+
+      {/* Growth — users and downloads, counting up from zero. */}
+      <section className="px-screen-x pt-section-sm md:pt-section">
+        <UsersPanel />
       </section>
 
       {/* Coverage — the question people arrive with, answered in one number. */}

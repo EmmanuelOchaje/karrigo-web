@@ -262,6 +262,15 @@ export const areasLive = [
   { name: "Kanshio", tone: "accent", tilt: 2.5 },
 ] as const;
 
+/** Homepage growth counters. DUMMY numbers until the backend exposes public
+ *  totals: users = `total` from GET /v1/admin/users, downloads come from the
+ *  Play Console / App Store Connect (the API only knows push-registered
+ *  devices). Replace with a cached server fetch, never client-side. */
+export const growthStats = [
+  { key: "users", label: "People ordering on Karrigo", value: 12480, gain: "+318 this week" },
+  { key: "downloads", label: "App downloads", value: 9260, gain: "+204 this week" },
+] as const;
+
 export const areasComingNext = [
   "Gyado Villa",
   "Achusa",
