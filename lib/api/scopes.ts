@@ -31,7 +31,7 @@ export const SCOPES: Record<
 };
 
 export const API_URL = (
-  process.env.KARRIGO_API_URL ?? "https://karrigo-be-production.up.railway.app/v1"
+  process.env.KARRIGO_API_URL ?? "https://rx.karrigo.app/v1"
 ).replace(/\/$/, "");
 
 /** The refresh token outlives the access token by days; this is only a
