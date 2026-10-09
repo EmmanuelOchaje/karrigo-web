@@ -4,7 +4,6 @@ import { useState } from "react";
 
 import { cn } from "@/lib/cn";
 import { formatKobo } from "@/lib/money";
-import { durationLabel } from "@/lib/admin/format";
 import {
   ORDER_FILTERS,
   ORDER_FILTER_LABEL,
@@ -19,6 +18,7 @@ import type { AdminRole } from "@/lib/admin/types";
 import { CountTab, EmptyState, StatusChip, type Tone } from "@/components/admin/ui";
 
 import { OrderDetail } from "./OrderDetail";
+import { useLiveElapsed } from "./useLiveElapsed";
 
 /**
  * The board. A list on the left, one order open on the right — the shape ops
@@ -157,6 +157,7 @@ function OrderRow({
 }) {
   const stage = stageTone(order);
   const unassigned = isUnassigned(order);
+  const { label, late } = useLiveElapsed(order);
 
   return (
     <button
@@ -175,7 +176,7 @@ function OrderRow({
         aria-hidden
         className={cn(
           "h-full self-stretch",
-          order.late ? "bg-danger" : unassigned ? "bg-warning" : "bg-transparent",
+          late ? "bg-danger" : unassigned ? "bg-warning" : "bg-transparent",
         )}
       />
       <span className="flex flex-col gap-[3px]">
@@ -192,10 +193,10 @@ function OrderRow({
       </span>
       <span className="flex flex-wrap gap-[5px]">
         <StatusChip tone={stage.tone}>{stage.label}</StatusChip>
-        {order.late && <StatusChip tone="danger">Late</StatusChip>}
+        {late && <StatusChip tone="danger">Late</StatusChip>}
       </span>
-      <span className={cn("text-right font-semibold whitespace-nowrap", order.late ? "text-danger" : "text-text")}>
-        {durationLabel(order.elapsedMinutes)}
+      <span className={cn("text-right font-semibold whitespace-nowrap", late ? "text-danger" : "text-text")}>
+        {label}
       </span>
       <span className="flex flex-col gap-[3px] text-right">
         <span className="font-bold">{formatKobo(order.totalKobo)}</span>

@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/cn";
-import { SHIFT, formatClock } from "@/lib/admin/shift";
+import { SHIFT, formatClock, lagosMinutesNow } from "@/lib/admin/shift";
 import { isCurrent, OPS_NAV, type OpsSection } from "@/lib/admin/nav";
 import { say } from "@/lib/admin/store";
 import type { AdminUser } from "@/lib/admin/types";
 import type { OpsTheme } from "@/lib/admin/theme";
 
 import { ThemeToggle } from "./ThemeToggle";
+import { useNow } from "./useNow";
 import { Wordmark } from "./Wordmark";
 
 /** Matches the row height (40px) plus the gap (2px), so the pill lands on
@@ -200,7 +201,10 @@ function NavRow({
 
 /** How much of the shift is left. The bar is the clock a dispatcher actually
  *  watches — everything else on the screen is about right now. */
-function ShiftCard({ onDuty, nowMinutes }: { onDuty: string; nowMinutes: number }) {
+function ShiftCard({ onDuty, nowMinutes: renderedMinutes }: { onDuty: string; nowMinutes: number }) {
+  // The server's reading until mounted, then the Lagos clock every tick.
+  const now = useNow();
+  const nowMinutes = now ? lagosMinutesNow(new Date(now)) : renderedMinutes;
   const elapsed = nowMinutes - SHIFT.startMinutes;
   const length = SHIFT.endMinutes - SHIFT.startMinutes;
   const remaining = Math.max(0, length - elapsed);
