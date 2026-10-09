@@ -89,6 +89,20 @@
   --card-shadow: none;
 }
 
+/* The dark panels (Screen mode="dark") when the page itself is dark. See
+   FOREST in theme.ts. Only the roles that differ from the dark palette. */
+:root[data-theme="dark"] [data-panel="dark"] {
+  --bg: #1B2A0F;
+  --surface: #283918;
+  --surface-raised: #344922;
+  --border: #3E542B;
+  --border-strong: #4E6539;
+  --field-border: #5B6C4B;
+  --field-border-active: #92A97E;
+  --text-secondary: #B2BFA6;
+  --text-tertiary: #93A187;
+}
+
 @theme inline {
   --font-sans: var(--font-plus-jakarta-sans), system-ui, sans-serif;
 

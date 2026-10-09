@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, useTransition } from "react";
 import { Logo } from "@/components/site/Logo";
+import { SiteThemeToggle } from "@/components/site/SiteThemeToggle";
 import { Screen } from "@/components/ui/Screen";
 import { logOut } from "@/app/(order)/actions";
 import { kitchenLogOut } from "@/app/(order)/partners/actions";
@@ -63,6 +64,7 @@ export function OrderNav({
         </Link>
 
         <div className="gap-xs ml-auto flex shrink-0 items-center">
+          <SiteThemeToggle />
           {kitchen && (
             <Link
               href={kitchen.href}

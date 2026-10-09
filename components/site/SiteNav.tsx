@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Logo } from "./Logo";
 import { ButtonLink } from "@/components/ui/Button";
 import { Screen } from "@/components/ui/Screen";
+import { SiteThemeToggle } from "./SiteThemeToggle";
 
 const links = [
   { href: "/kitchens", label: "Kitchens" },
@@ -37,7 +38,8 @@ export function SiteNav({ mode = "light" }: { mode?: "light" | "dark" }) {
           ))}
         </div>
 
-        <div className="ml-auto flex items-center md:ml-0">
+        <div className="gap-xs ml-auto flex items-center md:ml-0">
+          <SiteThemeToggle />
           <ButtonLink
             href="/signup"
             variant="accent"

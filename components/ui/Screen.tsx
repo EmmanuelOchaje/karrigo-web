@@ -29,6 +29,9 @@ export function Screen({
   return (
     <div
       data-theme={resolved}
+      // Lets the dark panels take their forest-green shade when the page
+      // itself is in dark mode (see FOREST in theme.ts).
+      data-panel={resolved === "dark" ? "dark" : undefined}
       className={cn("bg-bg text-text", className)}
     >
       {children}

@@ -1,6 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { SITE_THEME_SCRIPT } from "@/lib/site-theme";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   variable: "--font-plus-jakarta-sans",
@@ -25,8 +26,13 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     <html
       lang="en"
       data-theme="light"
+      // The inline script below may switch this to "dark" before React hydrates.
+      suppressHydrationWarning
       className={`${plusJakartaSans.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: SITE_THEME_SCRIPT }} />
+      </head>
       <body className="font-sans min-h-full flex flex-col">{children}</body>
     </html>
   );

@@ -1,6 +1,7 @@
 import Link from "next/link";
 
 import { Logo } from "@/components/site/Logo";
+import { SiteThemeToggle } from "@/components/site/SiteThemeToggle";
 
 /**
  * Signing in to a partner account. Deliberately without the ordering
@@ -12,12 +13,15 @@ export default function PartnerAuthLayout({ children }: LayoutProps<"/">) {
     <div className="bg-surface grow">
       <header className="px-screen-x gap-md mx-auto flex max-w-[1240px] items-center justify-between py-lg">
         <Logo />
-        <Link
-          href="/kitchens"
-          className="text-text-secondary hover:text-text text-nav-link font-bold transition-colors duration-(--duration-fast)"
-        >
-          Order food instead →
-        </Link>
+        <div className="gap-md flex items-center">
+          <SiteThemeToggle />
+          <Link
+            href="/kitchens"
+            className="text-text-secondary hover:text-text text-nav-link font-bold transition-colors duration-(--duration-fast)"
+          >
+            Order food instead →
+          </Link>
+        </div>
       </header>
       <main className="px-screen-x pt-lg pb-section-sm">{children}</main>
     </div>
