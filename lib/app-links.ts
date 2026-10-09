@@ -7,6 +7,13 @@
 
 export type LinkApp = "partner" | "eats";
 
+/**
+ * The customer site. The "continue on the web" buttons must point here with a
+ * full URL: this page is served on the link host, where a relative path such
+ * as /track is rewritten to /go/track and 404s.
+ */
+export const SITE_URL = (process.env.SITE_URL?.trim() || "https://karrigo.app").replace(/\/+$/, "");
+
 export type LinkTarget = {
   app: LinkApp;
   /** What the person was trying to do, in their words. */
@@ -86,7 +93,7 @@ export function resolveLink(segments: string[]): LinkTarget | null {
         app,
         title: "Your order",
         body: "Follow your order in the Karrigo app, or track it on the web.",
-        web: { href: `/track?order=${encodeURIComponent(rest[1])}`, label: "Track on the web" },
+        web: { href: `${SITE_URL}/track?order=${encodeURIComponent(rest[1])}`, label: "Track on the web" },
       };
     }
     if (path === "help") {
@@ -100,7 +107,7 @@ export function resolveLink(segments: string[]): LinkTarget | null {
       app,
       title: "Open Karrigo",
       body: "Order from kitchens and stores near you in the Karrigo app.",
-      web: { href: "/", label: "Continue on the web" },
+      web: { href: SITE_URL, label: "Continue on the web" },
     };
   }
 
