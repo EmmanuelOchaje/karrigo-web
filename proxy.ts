@@ -11,12 +11,12 @@ import {
 /**
  * Two domains, one deployment.
  *
- *   karrigo.app          the customer site and ordering flow
- *   admin.karrigo.app    the ops panel
+ *   karrigo.app             the customer site and ordering flow
+ *   platform.karrigo.app    the ops panel
  *
  * The ops panel lives at `app/(admin)/admin/*` in this codebase, but ops never
  * sees `/admin` in the address bar: on the admin host every path is rewritten
- * under that prefix, so `admin.karrigo.app/orders` serves `/admin/orders`.
+ * under that prefix, so `platform.karrigo.app/orders` serves `/admin/orders`.
  *
  * The reverse is closed off. On the public host anything under `/admin`
  * behaves as if the route does not exist — not a redirect, which would

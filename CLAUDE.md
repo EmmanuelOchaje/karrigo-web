@@ -106,12 +106,12 @@ If the HTML and `theme.ts` ever disagree, **`theme.ts` wins**.
 The ops panel lives at `app/(admin)/admin/*` and is served on its own host:
 
 ```
-karrigo.app          the marketing site and ordering flow
-admin.karrigo.app    the ops panel   (ADMIN_HOST in the environment)
+karrigo.app             the marketing site and ordering flow
+platform.karrigo.app    the ops panel   (ADMIN_HOST in the environment)
 ```
 
 `proxy.ts` rewrites every path on the admin host under the `/admin` prefix, so
-ops sees `admin.karrigo.app/orders`, never `/admin/orders`. On the public host
+ops sees `platform.karrigo.app/orders`, never `/admin/orders`. On the public host
 anything under `/admin` 404s as though the route did not exist.
 
 Two rules follow from this, and both have already bitten:
