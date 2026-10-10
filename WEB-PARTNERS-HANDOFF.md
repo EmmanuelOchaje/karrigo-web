@@ -127,7 +127,7 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 - [x] Task 8  Ops: review stores (third review queue with setup checks, signed photo viewer, approve/suspend actions, and no premature money controls)
 - [x] Task 9  Public tracking by link (no-login read-only route, 25-second polling until terminal state, calm expiry screen, and share button on signed-in tracking)
 - [x] Task 10 Homepage totals (`getPublicStats()` caches real totals for an hour and fails closed; this branch has no totals panel, so no new design was invented)
-- [ ] Task 11 Addresses by area
+- [x] Task 11 Addresses by area (removed the invented Makurdi fallback; real coordinates travel as a pair, otherwise the selected `areaId` lets the backend use its centre)
 - [ ] Task 12 Run against the real backend
 
 Notes / surprises:
