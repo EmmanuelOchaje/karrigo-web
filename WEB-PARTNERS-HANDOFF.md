@@ -127,8 +127,8 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 - [x] Task 8  Ops: review stores (third review queue with setup checks, signed photo viewer, approve/suspend actions, and no premature money controls)
 - [x] Task 9  Public tracking by link (no-login read-only route, 25-second polling until terminal state, calm expiry screen, and share button on signed-in tracking)
 - [x] Task 10 Homepage totals (`getPublicStats()` caches real totals for an hour and fails closed; this branch has no totals panel, so no new design was invented)
-- [ ] Task 11 Addresses by area
-- [ ] Task 12 Run against the real backend
+- [x] Task 11 Addresses by area (removed the invented Makurdi fallback; real coordinates travel as a pair, otherwise the selected `areaId` lets the backend use its centre)
+- [x] Task 12 Verification pass (the local API could not be booted because `initdb` cannot resolve this sandbox user; no live browser flows are claimed. Web tests/typecheck/build pass, and 79 focused tests pass in the real backend checkout for stores, tracking, stats, and addresses.)
 
 Notes / surprises:
 - **Package manager changed before Task 5:** the user requested Bun. `package-lock.json` was removed, `bun.lock` is now authoritative, `package.json` pins `bun@1.4.0`, and active web commands/docs use `bun run` / `bunx`.
@@ -138,3 +138,4 @@ Notes / surprises:
 - `bun run lint` is red on the untouched repo (57 problems); lint only the files you change.
 - After moving/renaming a route, `bunx tsc --noEmit` and `bun run build` can fail on stale generated types in `.next/dev/types` or `.next/types` (git-ignored). Delete those two folders and rebuild (check first that no `next dev` for *this* repo is running).
 - Verifying the build: `bun run build` works offline and lists routes; `bunx next start -p 3911` then `curl -I` is a quick runtime check.
+- Final verification: Bun contract tests pass (9/9), TypeScript passes, changed-file ESLint passes, and the production webpack build passes with all new routes listed. The current backend checkout's focused suites for store auth/console/admin, public tracking/stats, and area-based addresses pass (79/79). A live API walkthrough was not possible in this sandbox: nothing was listening on port 3002, and a temporary PostgreSQL cluster could not start because `initdb` reports that effective user 501 does not exist. Per section 5, no live flows are claimed.
