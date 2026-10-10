@@ -118,7 +118,7 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 ## 7. Progress log (update as you go)
 
 - [x] Task 1  Ops panel shapes (`lib/admin/staff.ts` has `staffLabel` and `staffWorkplace`)
-- [ ] Task 2  Partner identity helper
+- [x] Task 2  Partner identity helper (`getPartner`, `getStoreApplication`; shims `PartnerMe`, `StoreConsoleRow` in `lib/api/extra.ts` until Task 7)
 - [ ] Task 3  `/partners/stores` route + links
 - [ ] Task 4  Shared sign-in + store sign-up
 - [ ] Task 5  Add the other side + pages
@@ -131,4 +131,5 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 - [ ] Task 12 Run against the real backend
 
 Notes / surprises:
-- (none yet)
+- Task 2 also changed `lib/kitchen/data.ts`: `getKitchen()` now treats 409 `NO_KITCHEN` as "no kitchen" (it used to throw), and `requireKitchen()` sends a signed-in store-only owner to `/partners/kitchen` (to register a kitchen) instead of the login form. `getPartner()` is `cache()`d so `/kitchen-auth/me` is read once per request.
+- `npm run lint` is red on the untouched repo (57 problems); lint only the files you change.

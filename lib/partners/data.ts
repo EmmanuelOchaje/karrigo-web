@@ -1,14 +1,43 @@
 import "server-only";
 
+import { cache } from "react";
+
 import { ApiError, api, type Schemas } from "@/lib/api/client";
-import type { KitchenReadiness } from "@/lib/api/extra";
+import type { KitchenReadiness, PartnerMe, StoreConsoleRow } from "@/lib/api/extra";
 import { nairaToKobo } from "@/lib/money";
-import type { Bank, KitchenApplication, RiderApplication } from "./types";
+import type { Bank, KitchenApplication, Partner, RiderApplication, StoreApplication } from "./types";
 
 const last4 = (n: string | null | undefined) => (n ? n.slice(-4) : null);
 
+const signedOut = (error: unknown) => error instanceof ApiError && (error.status === 401 || error.status === 403);
+
+/** The backend answers 409 with a code when the business has no such side
+ *  yet: that is "nothing to show here", not a failure. */
+const missingSide = (error: unknown, code: "NO_KITCHEN" | "NO_STORE") =>
+  error instanceof ApiError && error.status === 409 && error.body.code === code;
+
+/**
+ * The signed-in partner: one login for a business that may have a kitchen, a
+ * store, or both. Null when nobody is signed in as a partner. One lookup per
+ * request, shared by every caller.
+ */
+export const getPartner = cache(async (): Promise<Partner | null> => {
+  try {
+    const me = await api<PartnerMe>("/kitchen-auth/me", { scope: "kitchen" });
+    return {
+      businessId: me.businessId,
+      kitchenId: me.kitchenId,
+      storeId: me.storeId,
+      isOwner: me.staffRole === "OWNER",
+    };
+  } catch (error) {
+    if (signedOut(error)) return null;
+    throw error;
+  }
+});
+
 /** The signed-in kitchen's own application, or null when nobody is signed in
- *  as a kitchen. */
+ *  as a partner or the business has no kitchen yet. */
 export async function getKitchenApplication(): Promise<KitchenApplication | null> {
   try {
     const [k, me] = await Promise.all([
@@ -36,7 +65,38 @@ export async function getKitchenApplication(): Promise<KitchenApplication | null
       ),
     };
   } catch (error) {
-    if (error instanceof ApiError && (error.status === 401 || error.status === 403)) return null;
+    if (signedOut(error) || missingSide(error, "NO_KITCHEN")) return null;
+    throw error;
+  }
+}
+
+/** The signed-in store's own application, or null when nobody is signed in as
+ *  a partner or the business has no store yet. */
+export async function getStoreApplication(): Promise<StoreApplication | null> {
+  try {
+    const [s, partner] = await Promise.all([
+      api<StoreConsoleRow>("/store-console/store", { scope: "kitchen" }),
+      getPartner(),
+    ]);
+    return {
+      name: s.name,
+      status: s.status,
+      note: s.rejectionNote ?? null,
+      appealNote: s.appealNote ?? null,
+      appealedAt: s.appealedAt ?? null,
+      area: s.area ?? null,
+      landmarkNote: s.landmarkNote ?? null,
+      hasLocation: s.lat != null && s.lng != null,
+      bankAccountName: s.payoutAccountName ?? null,
+      bankAccountLast4: last4(s.payoutAccountNumber),
+      imageUrl: s.heroImageUrl ?? null,
+      isOwner: partner?.isOwner ?? false,
+      riderBaseFeeKobo: s.riderBaseFeeNaira == null ? null : nairaToKobo(s.riderBaseFeeNaira),
+      verificationPhotoCount: s.verificationPhotoCount ?? 0,
+      missing: s.missing ?? [],
+    };
+  } catch (error) {
+    if (signedOut(error) || missingSide(error, "NO_STORE")) return null;
     throw error;
   }
 }

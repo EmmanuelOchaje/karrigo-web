@@ -28,6 +28,38 @@ export type KitchenApplication = {
   dishes: { id: string; name: string; priceKobo: number }[];
 };
 
+/** A store's application, as its owner sees it. Same idea as the kitchen's,
+ *  without a menu: a store has no catalogue yet. The bank account is the
+ *  business's, so it is set once and shows on both sides. */
+export type StoreApplication = {
+  name: string;
+  status: "PENDING" | "ACTIVE" | "SUSPENDED";
+  note: string | null;
+  appealNote: string | null;
+  appealedAt: string | null;
+  area: string | null;
+  landmarkNote: string | null;
+  hasLocation: boolean;
+  bankAccountName: string | null;
+  bankAccountLast4: string | null;
+  imageUrl: string | null;
+  isOwner: boolean;
+  riderBaseFeeKobo: number | null;
+  verificationPhotoCount: number;
+  /** What the store still needs before it can open, from the backend. */
+  missing: ("LOCATION" | "RIDER_FEE")[];
+};
+
+/** Who is signed in as a partner, and which sides of the business exist. One
+ *  login covers both: `kitchenId` / `storeId` are null for a side the owner
+ *  has not registered yet. */
+export type Partner = {
+  businessId: string;
+  kitchenId: string | null;
+  storeId: string | null;
+  isOwner: boolean;
+};
+
 export type RiderApplication = {
   status: "PENDING" | "APPROVED" | "REJECTED";
   note: string | null;

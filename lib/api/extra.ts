@@ -73,3 +73,49 @@ export type VerificationPhoto = { id: string; url: string };
 /** GET /admin/kitchens/:id now also carries the photos. Replace once the
  *  spec is regenerated. */
 export type AdminKitchenPhotos = { verificationPhotos?: VerificationPhoto[] };
+
+/**
+ * GET /kitchen-auth/me (and /store-auth/me) now returns the partner's whole
+ * scope: one shared login for a business that has a kitchen, a store, or both.
+ * `kitchenId` / `storeId` are null when the business has not registered that
+ * side yet. Replace with `Schemas[...]` once the spec is regenerated.
+ */
+export type PartnerMe = {
+  kitchenStaffId: string;
+  businessId: string;
+  kitchenId: string | null;
+  storeId: string | null;
+  staffRole: "OWNER" | "STAFF";
+};
+
+/**
+ * GET /store-console/store: the store row plus what it still needs before it
+ * can open. The payout fields are the business's (shared with its kitchen).
+ * Replace with `Schemas[...]` once the spec is regenerated.
+ */
+export type StoreConsoleRow = {
+  id: string;
+  slug: string;
+  name: string;
+  area: string | null;
+  lat: number | null;
+  lng: number | null;
+  landmarkNote: string | null;
+  heroImageUrl: string | null;
+  isOpen: boolean;
+  noticeText: string | null;
+  riderBaseFeeNaira: number | null;
+  minOrderNaira: number | null;
+  maxItemsPerOrder: number | null;
+  status: "PENDING" | "ACTIVE" | "SUSPENDED";
+  rejectionNote: string | null;
+  appealNote: string | null;
+  appealedAt: string | null;
+  reviewedAt: string | null;
+  payoutBankCode: string | null;
+  payoutAccountNumber: string | null;
+  payoutAccountName: string | null;
+  missing: ("LOCATION" | "RIDER_FEE")[];
+  verificationPhotoCount: number;
+};
+
