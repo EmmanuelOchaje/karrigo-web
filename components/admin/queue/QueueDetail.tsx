@@ -14,7 +14,6 @@ import {
 } from "@/lib/admin/queue";
 import type { AdminRole } from "@/lib/admin/types";
 import { Eyebrow, StatusChip, type Tone } from "@/components/admin/ui";
-import type { Schemas } from "@/lib/api/types";
 import { VERIFICATION_PHOTOS_REQUIRED, photosNeededText } from "@/lib/kitchen/types";
 import { kitchenDetail, riderDocumentUrl, storePhotos } from "@/app/(admin)/admin/queue-actions";
 import { KitchenProducts } from "./KitchenProducts";

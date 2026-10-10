@@ -454,6 +454,7 @@ export async function verifyPayment(orderId: string): Promise<Done> {
 export type TrackedOrder = {
   id: string;
   code: string;
+  trackingToken: string | null;
   status: Schemas["OrderWithDetailsResponseDto"]["status"];
   kitchen: string;
   kitchenSlug: string;
@@ -504,6 +505,7 @@ export async function fetchOrder(id: string): Promise<Done<{ order: TrackedOrder
       order: {
         id: o.id,
         code: o.code,
+        trackingToken: o.trackingToken,
         status: o.status,
         kitchen: o.kitchenOrders.map((k) => k.kitchen.name).join(" + "),
         kitchenSlug: kitchen?.slug ?? "",
