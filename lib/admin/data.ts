@@ -3,7 +3,7 @@ import "server-only";
 import { api, type Schemas } from "@/lib/api/client";
 import type { Ticket } from "./types";
 import { ageLabel } from "./format";
-import { kitchenItem, riderItem, type QueueItem, type QueueKind } from "./queue";
+import { kitchenItem, riderItem, storeItem, type QueueItem, type QueueKind } from "./queue";
 import { staffWorkplace } from "./staff";
 
 /**
@@ -12,6 +12,20 @@ import { staffWorkplace } from "./staff";
  * so the figure on screen is the figure that will be sent.
  */
 export async function loadQueue(kind: QueueKind): Promise<QueueItem[]> {
+  if (kind === "stores") {
+    const stores = await api<Schemas["StoreResponseDto"][]>("/admin/stores", { scope: "admin" });
+    const details = await Promise.all(
+      stores.map((store) =>
+        api<Schemas["AdminStoreDetailDto"]>(`/admin/stores/${encodeURIComponent(store.id)}`, {
+          scope: "admin",
+        }),
+      ),
+    );
+    return stores
+      .map((store, index) => storeItem(store, details[index]))
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  }
+
   const [due, items] = await Promise.all([
     api<Schemas["PayoutsDueResponseDto"]>("/admin/payouts/due", { scope: "admin" }),
     kind === "kitchens"

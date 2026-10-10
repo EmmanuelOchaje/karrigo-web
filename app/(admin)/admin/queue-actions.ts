@@ -72,6 +72,41 @@ export async function setRiderVerification(
   }
 }
 
+export async function setStoreStatus(
+  id: string,
+  status: "ACTIVE" | "SUSPENDED",
+  note: string,
+): Promise<ActionResult> {
+  try {
+    await requireAdmin();
+    if (status === "SUSPENDED" && !note.trim()) {
+      return { ok: false, error: "Add a reason — the store owner sees it." };
+    }
+    const store = await api<Schemas["StoreResponseDto"]>(
+      `/admin/stores/${encodeURIComponent(id)}/status`,
+      {
+        method: "PATCH",
+        scope: "admin",
+        body: { status, ...(note.trim() ? { note: note.trim() } : {}) },
+      },
+    );
+    refresh();
+    return {
+      ok: true,
+      message: status === "ACTIVE" ? `${store.name} is live` : `${store.name} suspended`,
+    };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 422 && error.body.code === "VERIFICATION_PHOTOS_REQUIRED") {
+      const details = (error.body.details ?? {}) as { required?: number; have?: number };
+      return {
+        ok: false,
+        error: photosNeededText(details.have ?? 0, details.required ?? VERIFICATION_PHOTOS_REQUIRED),
+      };
+    }
+    return fail(error);
+  }
+}
+
 /** Moves real money. Super admin only, checked here and not by the button. */
 export async function payOut(kind: "kitchens" | "riders", id: string): Promise<ActionResult> {
   try {
@@ -137,6 +172,23 @@ export async function kitchenDetail(id: string): Promise<
           ]
         : [],
     };
+  } catch (error) {
+    const result = fail(error);
+    return { ok: false, error: result.ok ? "" : result.error };
+  }
+}
+
+export async function storePhotos(id: string): Promise<
+  | { ok: true; photos: Schemas["AdminStorePhotoDto"][] }
+  | { ok: false; error: string }
+> {
+  try {
+    await requireAdmin();
+    const store = await api<Schemas["AdminStoreDetailDto"]>(
+      `/admin/stores/${encodeURIComponent(id)}`,
+      { scope: "admin" },
+    );
+    return { ok: true, photos: store.verificationPhotos };
   } catch (error) {
     const result = fail(error);
     return { ok: false, error: result.ok ? "" : result.error };

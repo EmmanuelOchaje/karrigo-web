@@ -16,7 +16,7 @@ import type { AdminRole } from "@/lib/admin/types";
 import { Eyebrow, StatusChip, type Tone } from "@/components/admin/ui";
 import type { Schemas } from "@/lib/api/types";
 import { VERIFICATION_PHOTOS_REQUIRED, photosNeededText } from "@/lib/kitchen/types";
-import { kitchenDetail, riderDocumentUrl } from "@/app/(admin)/admin/queue-actions";
+import { kitchenDetail, riderDocumentUrl, storePhotos } from "@/app/(admin)/admin/queue-actions";
 import { KitchenProducts } from "./KitchenProducts";
 
 type Decision = "approve" | "reject" | "suspend" | "payout";
@@ -51,7 +51,7 @@ export function QueueDetail({
   item: QueueItem;
   role: AdminRole;
   onDecide: (item: QueueItem, status: QueueStatus, note: string) => void;
-  onPayout: () => void;
+  onPayout?: () => void;
   busy: boolean;
 }) {
   const [pending, setPending] = useState<Decision | null>(null);
@@ -67,17 +67,25 @@ export function QueueDetail({
     id: string;
     fields: { key: string; value: string }[];
     menuItems: number;
-    photos: Schemas["AdminKitchenVerificationPhotoDto"][];
+    photos: { id: string; url: string }[];
   } | null>(null);
 
   useEffect(() => {
-    if (kind !== "kitchens") return;
+    if (kind === "riders") return;
     let cancelled = false;
-    kitchenDetail(item.id).then((result) => {
-      if (!cancelled && result.ok) {
-        setMore({ id: item.id, fields: result.fields, menuItems: result.menuItems, photos: result.photos });
-      }
-    });
+    if (kind === "kitchens") {
+      kitchenDetail(item.id).then((result) => {
+        if (!cancelled && result.ok) {
+          setMore({ id: item.id, fields: result.fields, menuItems: result.menuItems, photos: result.photos });
+        }
+      });
+    } else {
+      storePhotos(item.id).then((result) => {
+        if (!cancelled && result.ok) {
+          setMore({ id: item.id, fields: [], menuItems: 0, photos: result.photos });
+        }
+      });
+    }
     return () => {
       cancelled = true;
     };
@@ -95,7 +103,9 @@ export function QueueDetail({
   }
 
   const isKitchen = kind === "kitchens";
-  const noun = isKitchen ? "kitchen" : "rider";
+  const isStore = kind === "stores";
+  const isPartner = isKitchen || isStore;
+  const noun = isKitchen ? "kitchen" : isStore ? "store" : "rider";
   const net = payoutKobo(item);
 
   function reset() {
@@ -115,15 +125,17 @@ export function QueueDetail({
               : `Approve ${item.title}?`,
           text: isKitchen
             ? `Customers in ${item.fields[0].value} can order from them straight away.`
+            : isStore
+              ? "The store setup is approved. Products and ordering remain unavailable until that catalogue launches."
             : item.guarantor
               ? "They can go online and receive trip offers."
               : "They can go online and receive trip offers. No guarantor's form is on file yet.",
           button:
-            isKitchen && item.status === "SUSPENDED" ? "Reactivate" : "Approve",
+            isPartner && item.status === "SUSPENDED" ? "Reactivate" : "Approve",
           tone: "go" as const,
           requiresNote: false,
           run: () =>
-            onDecide(item, isKitchen ? "ACTIVE" : "APPROVED", note.trim()),
+            onDecide(item, isPartner ? "ACTIVE" : "APPROVED", note.trim()),
         };
       case "reject":
         return item.status === "APPROVED"
@@ -137,13 +149,13 @@ export function QueueDetail({
             }
           : {
               title: `Reject ${item.title}?`,
-              text: isKitchen
-                ? "The kitchen is marked suspended. Add a note so they know what to fix."
+              text: isPartner
+                ? `The ${noun} is marked suspended. Add a note so they know what to fix.`
                 : "The rider sees this note in the app and can re-upload.",
               button: "Reject",
               tone: "bad" as const,
               requiresNote: true,
-              run: () => onDecide(item, isKitchen ? "SUSPENDED" : "REJECTED", note.trim()),
+              run: () => onDecide(item, isPartner ? "SUSPENDED" : "REJECTED", note.trim()),
             };
       case "suspend":
         return {
@@ -166,7 +178,7 @@ export function QueueDetail({
           tone: "dark" as const,
           requiresNote: false,
           run: () => {
-            onPayout();
+            onPayout?.();
             reset();
           },
         };
@@ -177,12 +189,12 @@ export function QueueDetail({
     [];
   if (item.status === "PENDING") {
     actions.push({
-      label: isKitchen ? "Approve and go live" : "Approve rider",
+      label: isPartner ? "Approve and go live" : "Approve rider",
       decision: "approve",
       tone: "go",
     });
     actions.push({
-      label: isKitchen ? "Reject" : "Reject with note",
+      label: isPartner ? "Reject" : "Reject with note",
       decision: "reject",
       tone: "bad",
     });
@@ -190,21 +202,21 @@ export function QueueDetail({
   if (item.status === "ACTIVE" || item.status === "APPROVED") {
     // Only a super admin moves money. The server action checks this too —
     // hiding the button is the courtesy, not the control.
-    if (net > 0 && item.payable && role === "SUPER_ADMIN") {
+    if (!isStore && net > 0 && item.payable && role === "SUPER_ADMIN") {
       actions.push({
         label: `Pay out ${formatKobo(net)}`,
         decision: "payout",
         tone: "dark",
       });
     }
-    if (isKitchen) {
-      actions.push({ label: "Suspend kitchen", decision: "suspend", tone: "bad" });
+    if (isPartner) {
+      actions.push({ label: `Suspend ${noun}`, decision: "suspend", tone: "bad" });
     } else if (item.status === "APPROVED") {
       actions.push({ label: "Request document changes", decision: "reject", tone: "bad" });
     }
   }
   if (item.status === "SUSPENDED") {
-    actions.push({ label: "Reactivate kitchen", decision: "approve", tone: "go" });
+    actions.push({ label: `Reactivate ${noun}`, decision: "approve", tone: "go" });
   }
 
   const extra = more?.id === item.id ? more : null;
@@ -216,7 +228,7 @@ export function QueueDetail({
   const photos = extra?.photos ?? null;
   // Only known once the detail has loaded; the server refuses regardless.
   const approveBlocked =
-    isKitchen && photos !== null && photos.length < VERIFICATION_PHOTOS_REQUIRED
+    isPartner && photos !== null && photos.length < VERIFICATION_PHOTOS_REQUIRED
       ? photosNeededText(photos.length)
       : null;
   const checks = extra
@@ -225,10 +237,10 @@ export function QueueDetail({
         ...(isKitchen && photos
           ? [{ label: `${photos.length} of ${VERIFICATION_PHOTOS_REQUIRED} kitchen photos`, ok: photos.length >= VERIFICATION_PHOTOS_REQUIRED }]
           : []),
-        {
+        ...(isKitchen ? [{
           label: extra.menuItems ? `${extra.menuItems} dishes on the menu` : "No dishes yet",
           ok: extra.menuItems > 0,
-        },
+        }] : []),
       ]
     : item.checks;
   const blocked = !!confirm?.requiresNote && !note.trim();
@@ -311,24 +323,24 @@ export function QueueDetail({
         ))}
       </ul>
 
-      {isKitchen && photos && photos.length > 0 && (
+      {isPartner && photos && photos.length > 0 && (
         <div className="border-text/8 border-b px-[22px] py-lg">
           <Eyebrow className="text-[10.5px]">
-            Kitchen photos · {photos.length} of {VERIFICATION_PHOTOS_REQUIRED}
+            {isKitchen ? "Kitchen" : "Store"} photos · {photos.length} of {VERIFICATION_PHOTOS_REQUIRED}
           </Eyebrow>
           <ul className="mt-2.5 grid grid-cols-3 gap-2">
             {photos.map((photo, index) => (
               <li key={photo.id}>
                 <button
                   type="button"
-                  aria-label={`Open kitchen photo ${index + 1}`}
+                  aria-label={`Open ${noun} photo ${index + 1}`}
                   onClick={() =>
-                    setViewing({ title: `Kitchen photo ${index + 1} · ${item.title}`, url: photo.url, error: null })
+                    setViewing({ title: `${isKitchen ? "Kitchen" : "Store"} photo ${index + 1} · ${item.title}`, url: photo.url, error: null })
                   }
                   className="bg-text/6 block aspect-[4/3] w-full overflow-hidden rounded-xl"
                 >
                   {/* eslint-disable-next-line @next/next/no-img-element -- a short-lived signed URL; next/image would proxy and cache it. */}
-                  <img src={photo.url} alt={`Kitchen photo ${index + 1}`} className="size-full object-cover" />
+                  <img src={photo.url} alt={`${isKitchen ? "Kitchen" : "Store"} photo ${index + 1}`} className="size-full object-cover" />
                 </button>
               </li>
             ))}

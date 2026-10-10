@@ -10,7 +10,7 @@ import { formatKobo, nairaToKobo } from "@/lib/money";
 import { whenLabel } from "./format";
 import type { KitchenStatus, RiderStatus } from "./types";
 
-export type QueueKind = "kitchens" | "riders";
+export type QueueKind = "kitchens" | "riders" | "stores";
 export type QueueStatus = KitchenStatus | RiderStatus;
 
 export type QueueCheck = {
@@ -68,6 +68,11 @@ export const QUEUE_TABS: Record<QueueKind, { status: QueueStatus; label: string 
       { status: "PENDING", label: "Waiting for review" },
       { status: "APPROVED", label: "Approved" },
       { status: "REJECTED", label: "Rejected" },
+    ],
+    stores: [
+      { status: "PENDING", label: "Waiting for approval" },
+      { status: "ACTIVE", label: "Live" },
+      { status: "SUSPENDED", label: "Suspended" },
     ],
   };
 
@@ -170,12 +175,60 @@ export function riderItem(
   };
 }
 
+export function storeItem(
+  store: Schemas["StoreResponseDto"],
+  detail: Schemas["AdminStoreDetailDto"],
+): QueueItem {
+  const area = store.area ?? "—";
+  const owners = detail.staff.filter((member) => member.staffRole === "OWNER");
+  const ownerNames = (owners.length ? owners : detail.staff).map((member) => member.name).join(", ") || "—";
+  const payout = store.payoutAccountName
+    ? `${store.payoutAccountName} · •••• ${store.payoutAccountNumber?.slice(-4) ?? "—"}`
+    : "Not set";
+
+  return {
+    id: store.id,
+    title: store.name,
+    sub: `${area} · ${detail.business.name}`,
+    status: store.status,
+    when: whenLabel(store.createdAt),
+    createdAt: store.createdAt,
+    note: store.rejectionNote,
+    appeal: store.appealedAt
+      ? { note: store.appealNote ?? "", at: whenLabel(store.appealedAt) }
+      : null,
+    fields: [
+      { key: "Area", value: area },
+      { key: "Owner", value: ownerNames },
+      { key: "Payout account", value: payout },
+      {
+        key: "Same-business kitchen",
+        value: detail.kitchen ? `${detail.kitchen.name} · ${detail.kitchen.status}` : "None",
+      },
+      { key: "Signed up", value: whenLabel(store.createdAt) },
+    ],
+    checks: [
+      { label: "Location pinned on the map", ok: store.lat != null && store.lng != null },
+      { label: "Rider fee set", ok: store.riderBaseFeeNaira != null },
+      { label: "Payout bank account confirmed", ok: !!store.payoutAccountName },
+      {
+        label: `${detail.verificationPhotos.length} of 6 store photos`,
+        ok: detail.verificationPhotos.length >= 6,
+      },
+    ],
+    unpaidKobo: 0,
+    netKobo: 0,
+    cashHeldKobo: 0,
+    payable: false,
+  };
+}
+
 /** The money line added to the detail panel once there is a balance. */
 export function balanceFields(
   kind: QueueKind,
   item: QueueItem,
 ): { key: string; value: string }[] {
-  if (!item.unpaidKobo) return [];
+  if (kind === "stores" || !item.unpaidKobo) return [];
   if (kind === "kitchens") {
     return [
       { key: "Unpaid sales (after commission)", value: formatKobo(item.unpaidKobo) },
