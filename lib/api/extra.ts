@@ -1,6 +1,6 @@
 /**
  * Shapes for karrigo-be endpoints that are newer than the pinned
- * `api/openapi.json`. Once the spec is regenerated (`npm run api:types`)
+ * `api/openapi.json`. Once the spec is regenerated (`bun run api:types`)
  * against a backend that has them, replace these with `Schemas[...]`.
  */
 
@@ -118,4 +118,3 @@ export type StoreConsoleRow = {
   missing: ("LOCATION" | "RIDER_FEE")[];
   verificationPhotoCount: number;
 };
-

@@ -12,7 +12,7 @@ Written 2026-10-10 so work can continue in another tool (Codex) if the first ses
 | Original plan (same tasks, more detail on 1 to 7) | `/Users/mac/Desktop/kha1ide/projects/work-projects/karrigo/docs/superpowers/plans/2026-10-10-web-partners-business.md` |
 | Other backend requests/answers | `/Users/mac/Desktop/kha1ide/projects/work-projects/karrigo/BACKEND-REQUESTS.md` |
 
-Package manager here is **npm** (`package-lock.json`). Verify with `npx tsc --noEmit`, `npx eslint <the files you changed>`, `npm run build`. There is no test runner. **`npm run lint` already fails on the untouched repo (57 problems, 11 errors, in files like `theme.ts` and generated code), so lint only your changed files and make sure you add no new problems.**
+Package manager here is **Bun** (`bun.lock`). Verify with `bunx tsc --noEmit`, `bunx eslint <the files you changed>`, `bun run build`. There is no test runner. **`bun run lint` already fails on the untouched repo (57 problems, 11 errors, in files like `theme.ts` and generated code), so lint only your changed files and make sure you add no new problems.**
 
 **Read `CLAUDE.md` in this repo first**, especially: use `theme.ts` tokens (never hardcode colours/sizes), lime is a fill never text on light, role checks are server-side, money is kobo in the web (the API sends naira, convert with `nairaToKobo`/`koboToNaira` in `@/lib/money`), Server Components by default, Zod for input, no `any`, plain warm specific copy, every list has loading/empty/error states. **This is a newer Next.js than you know: read `node_modules/next/dist/docs/` before using any Next API** (redirects, route handlers, caching, `PageProps` typing).
 
@@ -38,7 +38,7 @@ A partner is now one **business**: one shared login (owner + staff) and one payo
 - Partner pages: `app/(order)/partners/{page,kitchen/page,store/page,rider/page}.tsx`; sign-in `app/(partner-auth)/partners/kitchen/login/page.tsx`. `app/(order)/partners/store/page.tsx` is only a holding page ("message us").
 - Partner server actions: `app/(order)/partners/actions.ts` (`applyKitchen`, `kitchenLogIn`, `saveKitchenLocation`, `saveKitchenBank`, `uploadKitchenPhoto`, `appealKitchen`, ...). Data: `lib/partners/data.ts` (`getKitchenApplication`), `lib/kitchen/data.ts`. Components: `components/partners/{KitchenApply,KitchenSetup,parts}.tsx`, `components/kitchen/VerificationPhotos.tsx`.
 - Links to `/partners/store`: `app/page.tsx:241`, `app/(order)/partners/page.tsx:17`, `components/site/SiteFooter.tsx:19`.
-- The pinned `api/openapi.json` (127 paths) is older than the backend; `lib/api/extra.ts` holds hand-written shims for newer endpoints. Types: `npm run api:types` -> `lib/api/schema.d.ts`.
+- The pinned `api/openapi.json` (127 paths) is older than the backend; `lib/api/extra.ts` holds hand-written shims for newer endpoints. Types: `bun run api:types` -> `lib/api/schema.d.ts`.
 - Ops panel: `app/(admin)/admin/(shell)/{kitchens,riders,...}`, queue code `lib/admin/queue.ts` (`QueueKind = "kitchens" | "riders"`), `components/admin/queue/{ReviewQueue,QueueDetail,KitchenProducts}.tsx`, data `lib/admin/data.ts`. **Will crash once the new backend is live:** `app/(admin)/admin/(shell)/audit/page.tsx` (`actor()` reads `e.actorKitchenStaff.kitchen.name`), `lib/admin/data.ts` ~l.49 (`staff.kitchen.name`), (`lib/admin/overview.ts` only reads the staff member's name, so it needs no change).
 - Public tracking today: `app/(order)/track/page.tsx` redirects to login unless the viewer is the customer; `?order=<id>`. Components `components/order/TrackOrder.tsx`, live socket `lib/live.ts`.
 - Addresses: `app/(order)/actions.ts` ~l.205 to 262 invents `MAKURDI = { lat: 7.7337, lng: 8.5214 }` when geocoding finds nothing. Form: `components/site/AddressForm.tsx`; areas from `lib/shop/areas.ts` (`listAreas`, `listAreaNames`).
@@ -46,7 +46,7 @@ A partner is now one **business**: one shared login (owner + staff) and one payo
 
 ## 3. Tasks, in order
 
-Do them in this order, one commit each (message in brackets). After each: `npx tsc --noEmit && npm run lint`, and `npm run build` when pages/routes changed. Tick the box in the Progress log.
+Do them in this order, one commit each (message in brackets). After each: `bunx tsc --noEmit` and changed-file `bunx eslint`, and `bun run build` when pages/routes changed. Tick the box in the Progress log.
 
 ### Task 1: Ops panel survives the new admin shapes [`fix(admin): read kitchen staff's kitchen through the business`]
 Create `lib/admin/staff.ts` with `staffLabel(staff)` returning `"Ada (Mama Put)"`: kitchen name if present (old `staff.kitchen` or new `staff.business.kitchen`), else the business name, else just the name. Use it in `audit/page.tsx` and `lib/admin/data.ts` (`loadTickets`); `overview.ts` needs no change. No direct `.kitchen.name` on a staff object may remain. Must accept both shapes (so web can deploy before or after the backend) without `any`.
@@ -67,7 +67,7 @@ Actions `registerStoreForBusiness({storeName, areaId})` -> `POST /kitchen-consol
 `StoreSetup` mirroring `KitchenSetup`: status (`PENDING` in review, `ACTIVE`, `SUSPENDED` with `rejectionNote` + appeal box), checklist: location, rider fee, payout account (done if the business already has one, show name + last 4), photos `x/6` (the kitchen's do not count). Actions: `saveStoreLocation` (lat+lng together), `saveStoreFee`, `saveStoreBank` (resolve account name first, as `saveKitchenBank` does), `uploadStorePhoto`/`deleteStorePhoto`, `appealStore`. Parametrise `components/kitchen/VerificationPhotos.tsx` by side instead of copying it. No products step (stores have no catalogue yet).
 
 ### Task 7: Regenerate API types [`chore(api): regenerate types from the business-model backend`]
-Generate the OpenAPI JSON from the backend (see section 5), copy to `api/openapi.json`, `npm run api:types`, fix all type errors it surfaces, delete shims in `lib/api/extra.ts` that `Schemas` now covers. Expect `/store-auth`, `/store-console`, `/admin/stores`, `/public/track/{token}`, `/public/stats`.
+Generate the OpenAPI JSON from the backend (see section 5), copy to `api/openapi.json`, `bun run api:types`, fix all type errors it surfaces, delete shims in `lib/api/extra.ts` that `Schemas` now covers. Expect `/store-auth`, `/store-console`, `/admin/stores`, `/public/track/{token}`, `/public/stats`.
 
 ### Task 8: Ops: review stores [`feat(admin): review stores`]
 Extend the queue to a third kind: `QueueKind = "kitchens" | "riders" | "stores"` in `lib/admin/queue.ts`; a `storeItem()` mapper from `/admin/stores` rows and `/admin/stores/:id` detail (fields: area, owner(s) from `staff`, payout account name/last 4, the same-business kitchen status if any, `rejectionNote`, appeal). Checks: location set, rider fee set, payout account, photos `n/6`. New page `app/(admin)/admin/(shell)/stores/page.tsx` (copy how `kitchens/page.tsx` loads the queue), nav entry (see `lib/admin/nav.ts`), actions to approve/suspend via `PATCH /admin/stores/:id/status` (mirror the kitchen moderation action in `app/(admin)/admin/moderation-actions.ts`; always `requireAdmin()` server-side; show the 422 `VERIFICATION_PHOTOS_REQUIRED` message; a note is required to suspend). Photos viewer: reuse the kitchen photo viewer with the signed URLs from the store detail. No payout/money UI for stores (they cannot have orders yet): hide those controls rather than showing zeros. Optional if time: a "Create store" form calling `POST /admin/stores` (SUPER_ADMIN, shows the one-time `temporaryPassword` once).
@@ -103,7 +103,7 @@ Backend is not deployed; the web's default `KARRIGO_API_URL` is `https://rx.karr
 2. Redis: `redis-server` (installed).
 3. From `karrigo-be`: `pnpm install` (pnpm, not npm), `pnpm prisma generate`, then run with env `DATABASE_URL=postgresql://postgres@localhost:54329/karrigo_dev REDIS_URL=redis://localhost:6379 JWT_ACCESS_SECRET=dev KITCHEN_JWT_ACCESS_SECRET=dev2 ADMIN_JWT_ACCESS_SECRET=dev3 PORT=3002 RIDER_PER_KM_NAIRA=200 pnpm start:dev` (check `karrigo-be/.env.example` for anything else required; OTP/mail providers can be left blank in development, read the OTP code from the server logs if the service logs it, otherwise insert/read it in Redis).
 4. Seed one admin: `pnpm seed:admin` (needs `ADMIN_SEED_EMAIL`, `ADMIN_SEED_PASSWORD`), and areas: `prisma/seed-areas.ts`.
-5. Web: `KARRIGO_API_URL=http://localhost:3002/v1 npm run dev`; the ops panel is at `http://admin.localhost:3000`.
+5. Web: `KARRIGO_API_URL=http://localhost:3002/v1 bun run dev`; the ops panel is at `http://admin.localhost:3000`.
 6. To regenerate `api/openapi.json` without a database: in `karrigo-be`, `pnpm exec nest build`, then a small node script using `NestFactory.create(AppModule, { preview: true, abortOnError: false, logger: false })`, `app.setGlobalPrefix('v1')`, `SwaggerModule.createDocument(app, new DocumentBuilder().addBearerAuth().build())` and write the JSON (dummy `DATABASE_URL`/`REDIS_URL` are fine). It gives about 163 paths.
 
 If the backend cannot be run, say so in the progress log and rely on typecheck/lint/build; do not claim the flows were verified.
@@ -131,9 +131,10 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 - [ ] Task 12 Run against the real backend
 
 Notes / surprises:
+- **Package manager changed before Task 5:** the user requested Bun. `package-lock.json` was removed, `bun.lock` is now authoritative, `package.json` pins `bun@1.4.0`, and active web commands/docs use `bun run` / `bunx`.
 - **Pre-existing gap fixed in Task 4:** the backend's register has required an email verification code (`emailOtpCode`, from `POST /kitchen-auth/email-otp/request`) for some time, but the web never sent one, so kitchen sign-up on the web was already failing against the current backend. `PartnerApply` now has a phone-code step and an email-code step (one `useCodeStep()` helper for both); actions are `requestPartnerOtp`, `requestPartnerEmailOtp`, `applyKitchen`, `applyStore` (the old `requestKitchenOtp` is gone).
 - Kitchen and store login pages now redirect a signed-in partner using `getPartner()` (kitchen: `/my-kitchen` if the business has a kitchen, else `/partners/kitchen`; store: `/partners/stores`).
 - Task 2 also changed `lib/kitchen/data.ts`: `getKitchen()` now treats 409 `NO_KITCHEN` as "no kitchen" (it used to throw), and `requireKitchen()` sends a signed-in store-only owner to `/partners/kitchen` (to register a kitchen) instead of the login form. `getPartner()` is `cache()`d so `/kitchen-auth/me` is read once per request.
-- `npm run lint` is red on the untouched repo (57 problems); lint only the files you change.
-- After moving/renaming a route, `npx tsc --noEmit` and `npm run build` can fail on stale generated types in `.next/dev/types` or `.next/types` (git-ignored). Delete those two folders and rebuild (check first that no `next dev` for *this* repo is running).
-- Verifying the build: `npm run build` works offline and lists routes; `npx next start -p 3911` then `curl -I` is a quick runtime check.
+- `bun run lint` is red on the untouched repo (57 problems); lint only the files you change.
+- After moving/renaming a route, `bunx tsc --noEmit` and `bun run build` can fail on stale generated types in `.next/dev/types` or `.next/types` (git-ignored). Delete those two folders and rebuild (check first that no `next dev` for *this* repo is running).
+- Verifying the build: `bun run build` works offline and lists routes; `bunx next start -p 3911` then `curl -I` is a quick runtime check.
