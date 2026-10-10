@@ -1,10 +1,10 @@
 import "server-only";
 
 import { api, type Schemas } from "@/lib/api/client";
-import type { KitchenRiderBaseFee } from "@/lib/api/extra";
 import type { Ticket } from "./types";
 import { ageLabel } from "./format";
-import { kitchenItem, riderItem, type QueueItem, type QueueKind } from "./queue";
+import { kitchenItem, riderItem, storeItem, type QueueItem, type QueueKind } from "./queue";
+import { staffWorkplace } from "./staff";
 
 /**
  * The queue for kitchens or riders, with what each is owed folded in from the
@@ -12,16 +12,30 @@ import { kitchenItem, riderItem, type QueueItem, type QueueKind } from "./queue"
  * so the figure on screen is the figure that will be sent.
  */
 export async function loadQueue(kind: QueueKind): Promise<QueueItem[]> {
+  if (kind === "stores") {
+    const stores = await api<Schemas["StoreResponseDto"][]>("/admin/stores", { scope: "admin" });
+    const details = await Promise.all(
+      stores.map((store) =>
+        api<Schemas["AdminStoreDetailDto"]>(`/admin/stores/${encodeURIComponent(store.id)}`, {
+          scope: "admin",
+        }),
+      ),
+    );
+    return stores
+      .map((store, index) => storeItem(store, details[index]))
+      .sort((a, b) => a.createdAt.localeCompare(b.createdAt));
+  }
+
   const [due, items] = await Promise.all([
     api<Schemas["PayoutsDueResponseDto"]>("/admin/payouts/due", { scope: "admin" }),
     kind === "kitchens"
-      ? api<(Schemas["KitchenResponseDto"] & KitchenRiderBaseFee)[]>("/admin/kitchens", { scope: "admin" })
+      ? api<Schemas["KitchenResponseDto"][]>("/admin/kitchens", { scope: "admin" })
       : api<Schemas["AdminRiderListItemDto"][]>("/admin/riders", { scope: "admin" }),
   ]);
 
   const built =
     kind === "kitchens"
-      ? (items as (Schemas["KitchenResponseDto"] & KitchenRiderBaseFee)[]).map((k) =>
+      ? (items as Schemas["KitchenResponseDto"][]).map((k) =>
           kitchenItem(k, due.kitchens.find((d) => d.kitchenId === k.id)),
         )
       : (items as Schemas["AdminRiderListItemDto"][]).map((r) =>
@@ -53,7 +67,9 @@ export async function loadTickets(): Promise<Ticket[]> {
       subject: t.subject,
       body: t.body ?? "No details were added.",
       fromType,
-      fromName: staff ? `${staff.name} · ${staff.kitchen.name}` : (t.user?.name ?? t.user?.phone ?? "Unknown"),
+      fromName: staff
+        ? [staff.name, staffWorkplace(staff)].filter(Boolean).join(" · ")
+        : (t.user?.name ?? t.user?.phone ?? "Unknown"),
       channel: t.channel,
       orderId: t.order?.code ?? null,
       status: t.status,

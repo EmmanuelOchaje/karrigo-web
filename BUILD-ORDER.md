@@ -16,7 +16,7 @@ Prompts below are written to paste directly into Claude Code.
 > Add Zod, an `env.ts` that validates environment variables at boot, and a seed
 > script using the seed hints at the bottom of SCHEMA.sql. Do not build any UI yet.
 
-**Done when:** `npx prisma studio` shows seeded areas, restaurants and menu items.
+**Done when:** `bunx prisma studio` shows seeded areas, restaurants and menu items.
 
 ---
 
@@ -141,7 +141,7 @@ status change live.
 **Where it is now.** The ops panel and the ordering flow run on the live
 `karrigo-be` API (`KARRIGO_API_URL`; the OpenAPI spec is saved in
 `api/openapi.json`, types in `lib/api/schema.d.ts`, regenerate with
-`npm run api:types`). Sign-in, kitchen and rider approvals, orders, refunds,
+`bun run api:types`). Sign-in, kitchen and rider approvals, orders, refunds,
 payouts, issues and the overview are real, and every mutation is a Server
 Action that re-checks the role. Tokens live in httpOnly cookies and
 `proxy.ts` rotates them before a page renders.

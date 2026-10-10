@@ -10,6 +10,7 @@ import { e164 } from "@/lib/phone";
 import { priceLines } from "@/lib/shop/catalog";
 import { getCustomer } from "@/lib/shop/session";
 import { basketIssue } from "@/lib/shop/limits";
+import { listAreas } from "@/lib/shop/areas";
 import type { Customer, PricedCart, Side } from "@/lib/shop/types";
 
 /**
@@ -210,22 +211,13 @@ export type PlaceInput = {
   coords?: { lat: number; lng: number };
 };
 
-/**
- * Last resort for the coordinates of a delivery address: the centre of
- * Makurdi, used only when the customer shared no location, picked no
- * suggestion, and the address could not be found by search either. An address
- * is free text plus an area — never a dropped pin — so the rider finds the
- * gate from the landmark; the coordinates feed distance and delivery fee.
- */
-const MAKURDI = { lat: 7.7337, lng: 8.5214 };
-
 /** Where an address is, best answer first: what the customer shared or
- *  picked, else the first place the backend finds for what they typed, else
- *  the fallback above. */
+ *  picked, else the first place the backend finds for what they typed. When
+ *  none is found, the chosen area's centre is resolved by the backend. */
 async function locate(
   given: { lat: number; lng: number } | undefined,
   text: string[],
-): Promise<{ lat: number; lng: number }> {
+): Promise<{ lat: number; lng: number } | undefined> {
   if (given) return given;
   for (const query of text) {
     const q = query.trim();
@@ -237,10 +229,11 @@ async function locate(
       });
       if (found[0]) return { lat: found[0].lat, lng: found[0].lng };
     } catch {
-      // Search being down must not stop an order; try the next, then fall back.
+      // Search being down must not stop an order; try the next query, then let
+      // the backend use the chosen area's centre.
     }
   }
-  return MAKURDI;
+  return undefined;
 }
 
 export async function placeOrder(
@@ -286,14 +279,22 @@ export async function placeOrder(
 
     const where = input.landmark.trim();
     const street = input.address.trim();
+    const coordinates = await locate(input.coords, [
+      [street, input.area].filter(Boolean).join(", "),
+      [where, input.area].filter(Boolean).join(", "),
+    ]);
+    const normalizedArea = input.area.trim().toLowerCase();
+    const areaId = (await listAreas()).find(
+      (area) => area.name.trim().toLowerCase() === normalizedArea,
+    )?.id;
+    if (!coordinates && !areaId) {
+      return { ok: false, error: "Pick one of the listed delivery areas so we can place it on the map." };
+    }
     const addressId = await saveAddress({
       line1: street || where,
       area: input.area,
       instructions: [where && street ? `Landmark: ${where}` : "", input.note.trim()].filter(Boolean).join(". ") || undefined,
-      ...(await locate(input.coords, [
-        [street, input.area].filter(Boolean).join(", "),
-        [where, input.area].filter(Boolean).join(", "),
-      ])),
+      ...(coordinates ?? { areaId: areaId! }),
     });
 
     const order = await api<Schemas["OrderWithDetailsResponseDto"]>("/orders", {
@@ -315,6 +316,19 @@ export async function placeOrder(
     // through `payForOrder`.
     return { ok: true, orderId: order.id };
   } catch (error) {
+    if (
+      error instanceof ApiError &&
+      error.status === 422 &&
+      error.body.code === "AREA_HAS_NO_LOCATION"
+    ) {
+      return {
+        ok: false,
+        error: "We can't place that area on the map yet. Pick the nearest area or add a landmark.",
+      };
+    }
+    if (error instanceof ApiError && error.status === 400) {
+      return { ok: false, error: error.message };
+    }
     if (error instanceof ApiError && error.status === 422) {
       // The backend's 422s (outside the delivery area, below the store's
       // minimum, too many items, mixed cart, kitchen too far) each carry a
@@ -332,8 +346,9 @@ async function saveAddress(a: {
   line1: string;
   area: string;
   instructions?: string;
-  lat: number;
-  lng: number;
+  areaId?: string;
+  lat?: number;
+  lng?: number;
 }): Promise<string> {
   const existing = await api<Schemas["AddressResponseDto"][]>("/addresses", { scope: "customer" });
   const norm = (text: string) => text.trim().toLowerCase().replace(/\s+/g, " ");
@@ -342,8 +357,8 @@ async function saveAddress(a: {
       norm(e.line1) === norm(a.line1) &&
       norm(e.area) === norm(a.area) &&
       // About a kilometre: the same landmark found by search or by GPS.
-      Math.abs(e.lat - a.lat) < 0.01 &&
-      Math.abs(e.lng - a.lng) < 0.01,
+      (a.lat == null || a.lng == null ||
+        (Math.abs(e.lat - a.lat) < 0.01 && Math.abs(e.lng - a.lng) < 0.01)),
   );
   if (same) {
     if ((same.instructions ?? "") !== (a.instructions ?? "")) {
@@ -454,6 +469,7 @@ export async function verifyPayment(orderId: string): Promise<Done> {
 export type TrackedOrder = {
   id: string;
   code: string;
+  trackingToken: string | null;
   status: Schemas["OrderWithDetailsResponseDto"]["status"];
   kitchen: string;
   kitchenSlug: string;
@@ -504,6 +520,7 @@ export async function fetchOrder(id: string): Promise<Done<{ order: TrackedOrder
       order: {
         id: o.id,
         code: o.code,
+        trackingToken: o.trackingToken,
         status: o.status,
         kitchen: o.kitchenOrders.map((k) => k.kitchen.name).join(" + "),
         kitchenSlug: kitchen?.slug ?? "",

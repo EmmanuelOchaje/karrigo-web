@@ -21,6 +21,7 @@ export const OPS_NAV: OpsSection[] = [
   { href: "/", label: "Overview" },
   { href: "/orders", label: "Live orders" },
   { href: "/kitchens", label: "Kitchens", badge: "kitchens" },
+  { href: "/stores", label: "Stores" },
   { href: "/flagged", label: "Flagged items" },
   { href: "/riders", label: "Riders", badge: "riders" },
   { href: "/customers", label: "Customers" },

@@ -19,10 +19,12 @@ import { Eyebrow } from "@/components/site/Eyebrow";
 import { Screen } from "@/components/ui/Screen";
 import { ButtonLink } from "@/components/ui/Button";
 import { kitchens, stores, heroStats } from "@/lib/fixtures";
+import { getPublicStats } from "@/lib/shop/public-stats";
 
-export default function HomePage() {
+export default async function HomePage() {
   const shownKitchens = kitchens.slice(0, 4);
   const shownStores = stores.slice(0, 4);
+  const publicStats = await getPublicStats();
 
   return (
     // grow so the ground colour fills the viewport on short pages — the body
@@ -143,9 +145,11 @@ export default function HomePage() {
       </section>
 
       {/* Growth — users and downloads, counting up from zero. */}
-      <section data-aos="rise" className="px-screen-x pt-section-sm md:pt-section">
-        <UsersPanel />
-      </section>
+      {publicStats && (
+        <section data-aos="rise" className="px-screen-x pt-section-sm md:pt-section">
+          <UsersPanel users={publicStats.users} downloads={publicStats.downloads} />
+        </section>
+      )}
 
       {/* Coverage — the question people arrive with, answered in one number. */}
       <section data-aos="rise" className="px-screen-x pt-section-sm md:pt-section">

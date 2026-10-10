@@ -18,7 +18,7 @@ import {
 import { RiderFeeForm } from "@/components/kitchen/Settings";
 import { SetupChecklist } from "@/components/kitchen/SetupChecklist";
 import { VerificationPhotos } from "@/components/kitchen/VerificationPhotos";
-import type { VerificationPhoto } from "@/lib/api/extra";
+import type { Schemas } from "@/lib/api/types";
 import { VERIFICATION_PHOTOS_REQUIRED } from "@/lib/kitchen/types";
 import { formatKobo } from "@/lib/money";
 import type { Bank, KitchenApplication } from "@/lib/partners/types";
@@ -41,7 +41,7 @@ export function KitchenSetup({
   kitchen: KitchenApplication;
   banks: Bank[];
   areas: string[];
-  photos: VerificationPhoto[];
+  photos: Schemas["VerificationPhotoResponseDto"][];
   /** The owner's photo list could not be read; fall back to the count. */
   photosFailed?: boolean;
 }) {
@@ -167,7 +167,7 @@ export function KitchenSetup({
           hint="Our team looks at these before approving your kitchen."
         >
           {kitchen.isOwner ? (
-            <VerificationPhotos photos={photos} failed={photosFailed} canEdit />
+            <VerificationPhotos side="kitchen" photos={photos} failed={photosFailed} canEdit />
           ) : (
             <p className="text-site-label text-text-secondary">
               {photoCount} of {VERIFICATION_PHOTOS_REQUIRED} added. Only the kitchen&rsquo;s owner can add or remove photos.

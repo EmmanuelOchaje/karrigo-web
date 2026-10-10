@@ -51,7 +51,15 @@ function isOver(status: Status) {
   return status === "DELIVERED" || status === "CANCELLED" || status === "REFUNDED";
 }
 
-export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; error: string | null }) {
+export function TrackOrder({
+  initial,
+  error,
+  siteUrl,
+}: {
+  initial: TrackedOrder | null;
+  error: string | null;
+  siteUrl: string;
+}) {
   const router = useRouter();
   const [order, setOrder] = useState(initial);
   const [problem, setProblem] = useState(error);
@@ -273,6 +281,23 @@ export function TrackOrder({ initial, error }: { initial: TrackedOrder | null; e
           )}
 
           <div className="mt-xl gap-sm flex flex-wrap">
+            {order.trackingToken && (
+              <button
+                type="button"
+                className="bg-accent text-on-accent rounded-pill text-nav-link px-xl py-md font-bold"
+                onClick={async () => {
+                  const link = `${siteUrl}/track/${order.trackingToken}`;
+                  try {
+                    await navigator.clipboard.writeText(link);
+                    say("Tracking link copied — anyone with it can follow this delivery");
+                  } catch {
+                    say(link);
+                  }
+                }}
+              >
+                Share tracking link
+              </button>
+            )}
             {canPay ? (
               <Button
                 type="button"

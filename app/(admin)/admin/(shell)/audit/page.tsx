@@ -2,6 +2,7 @@ import { OpsPage, OpsPageHeader } from "@/components/admin/OpsPage";
 import { EmptyState, LinkTab, Pager } from "@/components/admin/ui";
 import { api, type Schemas } from "@/lib/api/client";
 import { whenLabel } from "@/lib/admin/format";
+import { staffLabel } from "@/lib/admin/staff";
 import { requireAdmin } from "@/lib/admin/session";
 
 type Search = { entity?: string; page?: string };
@@ -21,7 +22,7 @@ const clock = new Intl.DateTimeFormat("en-GB", { timeZone: "Africa/Lagos", hour:
 
 function actor(e: Schemas["AuditLogEntryDto"]): string {
   if (e.actorAdmin) return e.actorAdmin.name;
-  if (e.actorKitchenStaff) return `${e.actorKitchenStaff.name} (${e.actorKitchenStaff.kitchen.name})`;
+  if (e.actorKitchenStaff) return staffLabel(e.actorKitchenStaff);
   if (e.actorUser) return e.actorUser.name ?? e.actorUser.phone;
   return "System";
 }

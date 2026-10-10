@@ -41,7 +41,7 @@ const colorNames = Object.keys(light).map(kebab);
 
 const out = `/*
  * GENERATED FILE — do not edit.
- * Run \`npm run tokens\` to regenerate from theme.ts.
+ * Run \`bun run tokens\` to regenerate from theme.ts.
  */
 
 /* Tailwind v4 has no --duration-* theme namespace, so these stay plain custom

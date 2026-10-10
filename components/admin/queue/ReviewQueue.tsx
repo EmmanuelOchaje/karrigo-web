@@ -17,6 +17,7 @@ import {
   payOut,
   setKitchenStatus,
   setRiderVerification,
+  setStoreStatus,
 } from "@/app/(admin)/admin/queue-actions";
 import type { AdminRole } from "@/lib/admin/types";
 import { CountTab, EmptyState, StatusChip, type Tone } from "@/components/admin/ui";
@@ -69,7 +70,9 @@ export function ReviewQueue({
     run(() =>
       kind === "kitchens"
         ? setKitchenStatus(item.id, status === "ACTIVE" ? "ACTIVE" : "SUSPENDED", note)
-        : setRiderVerification(item.id, status === "APPROVED" ? "APPROVED" : "REJECTED", note),
+        : kind === "stores"
+          ? setStoreStatus(item.id, status === "ACTIVE" ? "ACTIVE" : "SUSPENDED", note)
+          : setRiderVerification(item.id, status === "APPROVED" ? "APPROVED" : "REJECTED", note),
     );
   }
 
@@ -149,7 +152,11 @@ export function ReviewQueue({
             role={role}
             onDecide={decide}
             busy={busy}
-            onPayout={() => run(() => payOut(kind, selected.id))}
+            onPayout={
+              kind === "stores"
+                ? undefined
+                : () => run(() => payOut(kind, selected.id))
+            }
           />
         ) : (
           <div
