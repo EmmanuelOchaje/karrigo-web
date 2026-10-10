@@ -122,7 +122,7 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 - [x] Task 3  `/partners/stores` route + links (verified: `/partners/store` answers 308 to `/partners/stores`, query kept)
 - [x] Task 4  Shared sign-in + store sign-up (`components/partners/PartnerApply.tsx` has `PartnerApply` and `PartnerLogin`; `KitchenApply.tsx`/`StoreApply.tsx` are thin wrappers; `/partners/stores/login` exists)
 - [x] Task 5  Add the other side + pages (`AddOtherSide`, owner-only server actions, both partner pages branch through `getPartner`; Bun contract tests cover endpoints, payloads, and mapped API failures)
-- [ ] Task 6  Store setup checklist
+- [x] Task 6  Store setup checklist (location, rider fee, shared payout, side-specific 6-photo review, approval/suspension status and appeal; 9 Bun tests pass across partner registration and store progress)
 - [ ] Task 7  Regenerate API types
 - [ ] Task 8  Ops: review stores
 - [ ] Task 9  Public tracking by link

@@ -39,12 +39,13 @@ const RIDER_PAGE = "/partners/rider";
  *  in the form: the form is a courtesy, this is the rule. */
 const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const PHOTO_MAX_BYTES = 2.5 * 1024 * 1024;
+const VERIFICATION_PHOTO_MAX_BYTES = 8 * 1024 * 1024;
 
-function photoFrom(form: FormData): File | Failure {
+function photoFrom(form: FormData, maxBytes = PHOTO_MAX_BYTES): File | Failure {
   const file = form.get("file");
   if (!(file instanceof File) || file.size === 0) return { ok: false, error: "Choose a photo first." };
-  if (!PHOTO_TYPES.includes(file.type)) return { ok: false, error: "Use a JPG or PNG photo." };
-  if (file.size > PHOTO_MAX_BYTES) return { ok: false, error: "That photo is too large. Try a smaller one." };
+  if (!PHOTO_TYPES.includes(file.type)) return { ok: false, error: "Use a JPG, PNG or WebP photo." };
+  if (file.size > maxBytes) return { ok: false, error: "That photo is too large. Try a smaller one." };
   return file;
 }
 
@@ -263,11 +264,11 @@ export async function kitchenLogOut(): Promise<void> {
 
 export type Place = { label: string; lat: number; lng: number };
 
-export async function searchPlaces(query: string): Promise<Done<{ places: Place[] }>> {
+async function searchPartnerPlaces(path: string, query: string): Promise<Done<{ places: Place[] }>> {
   const q = query.trim();
   if (q.length < 3) return { ok: true, places: [] };
   try {
-    const places = await api<Schemas["GeocodeResultResponseDto"][]>("/kitchen-console/geocode", {
+    const places = await api<Schemas["GeocodeResultResponseDto"][]>(path, {
       scope: "kitchen",
       // Bias the search to the city: "Wadata market" means the one in Makurdi.
       query: { query: /makurdi/i.test(q) ? q : `${q}, Makurdi` },
@@ -276,6 +277,14 @@ export async function searchPlaces(query: string): Promise<Done<{ places: Place[
   } catch (error) {
     return failure(error);
   }
+}
+
+export async function searchPlaces(query: string): Promise<Done<{ places: Place[] }>> {
+  return searchPartnerPlaces("/kitchen-console/geocode", query);
+}
+
+export async function searchStorePlaces(query: string): Promise<Done<{ places: Place[] }>> {
+  return searchPartnerPlaces("/store-console/geocode", query);
 }
 
 /** Where the kitchen is. The point is what a customer's distance and the
@@ -332,6 +341,130 @@ async function saveBank(
 
 export async function saveKitchenBank(bankCode: string, accountNumber: string) {
   return saveBank("/kitchen-console/kitchen/payout-account", "kitchen", KITCHEN_PAGE, bankCode, accountNumber);
+}
+
+export async function saveStoreLocation(input: {
+  lat: number;
+  lng: number;
+  area?: string;
+  landmarkNote?: string;
+}): Promise<Done> {
+  if (!Number.isFinite(input.lat) || !Number.isFinite(input.lng)) {
+    return { ok: false, error: "Pick your store's spot first." };
+  }
+  try {
+    await api("/store-console/store", {
+      method: "PATCH",
+      scope: "kitchen",
+      body: {
+        lat: input.lat,
+        lng: input.lng,
+        ...(input.area?.trim() ? { area: input.area.trim() } : {}),
+        ...(input.landmarkNote?.trim() ? { landmarkNote: input.landmarkNote.trim() } : {}),
+      },
+    });
+    revalidatePath(STORE_PAGE);
+    return { ok: true };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+const storeFeeSchema = z.number().int().min(500).max(20_000);
+
+export async function saveStoreFee(riderBaseFeeNaira: number): Promise<Done> {
+  const fee = storeFeeSchema.safeParse(riderBaseFeeNaira);
+  if (!fee.success) return { ok: false, error: "Set the rider fee between ₦500 and ₦20,000." };
+  try {
+    await api("/store-console/store", {
+      method: "PATCH",
+      scope: "kitchen",
+      body: { riderBaseFeeNaira: fee.data },
+    });
+    revalidatePath(STORE_PAGE);
+    return { ok: true };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+export async function saveStoreBank(
+  bankCode: string,
+  accountNumber: string,
+): Promise<Done<{ accountName: string | null }>> {
+  if (!bankCode) return { ok: false, error: "Pick your bank." };
+  if (!/^\d{10}$/.test(accountNumber)) return { ok: false, error: "A bank account number is 10 digits." };
+  try {
+    const resolved = await api<{ accountName?: string | null }>("/store-console/store/payout-account/resolve", {
+      method: "POST",
+      scope: "kitchen",
+      body: { bankCode, accountNumber },
+    });
+    const saved = await api<{ payoutAccountName?: string | null }>("/store-console/store/payout-account", {
+      method: "PATCH",
+      scope: "kitchen",
+      body: { bankCode, accountNumber },
+    });
+    revalidatePath(STORE_PAGE);
+    return { ok: true, accountName: resolved.accountName ?? saved.payoutAccountName ?? null };
+  } catch (error) {
+    return failure(error);
+  }
+}
+
+export async function uploadStorePhoto(form: FormData): Promise<Done> {
+  const file = photoFrom(form, VERIFICATION_PHOTO_MAX_BYTES);
+  if (!(file instanceof File)) return file;
+  try {
+    const body = new FormData();
+    body.set("file", file, file.name || "store.jpg");
+    await api("/store-console/store/photos", { method: "POST", scope: "kitchen", body });
+    revalidatePath(STORE_PAGE);
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 409) {
+      revalidatePath(STORE_PAGE);
+      return { ok: false, error: "You already have 6 store photos." };
+    }
+    return failure(error);
+  }
+}
+
+export async function deleteStorePhoto(id: string): Promise<Done> {
+  try {
+    await api(`/store-console/store/photos/${encodeURIComponent(id)}`, {
+      method: "DELETE",
+      scope: "kitchen",
+    });
+    revalidatePath(STORE_PAGE);
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 404) {
+      revalidatePath(STORE_PAGE);
+      return { ok: false, error: "That photo is already gone. The list has been updated." };
+    }
+    return failure(error);
+  }
+}
+
+export async function appealStore(message: string): Promise<Done> {
+  const text = message.trim();
+  if (!text) return { ok: false, error: "Tell us what has changed." };
+  if (text.length > 500) return { ok: false, error: "Keep it under 500 characters." };
+  try {
+    await api("/store-console/store/appeal", {
+      method: "POST",
+      scope: "kitchen",
+      body: { message: text },
+    });
+    revalidatePath(STORE_PAGE);
+    return { ok: true };
+  } catch (error) {
+    if (error instanceof ApiError && error.status === 403) {
+      return { ok: false, error: "Only the business owner can send a store appeal. Ask them to log in." };
+    }
+    return failure(error);
+  }
 }
 
 export async function uploadKitchenPhoto(form: FormData): Promise<Done> {

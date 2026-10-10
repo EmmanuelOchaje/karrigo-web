@@ -167,7 +167,7 @@ export function KitchenSetup({
           hint="Our team looks at these before approving your kitchen."
         >
           {kitchen.isOwner ? (
-            <VerificationPhotos photos={photos} failed={photosFailed} canEdit />
+            <VerificationPhotos side="kitchen" photos={photos} failed={photosFailed} canEdit />
           ) : (
             <p className="text-site-label text-text-secondary">
               {photoCount} of {VERIFICATION_PHOTOS_REQUIRED} added. Only the kitchen&rsquo;s owner can add or remove photos.
