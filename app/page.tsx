@@ -238,7 +238,7 @@ export default function HomePage() {
               </span>
             </div>
             <div className="mt-auto pt-xxl">
-              <ButtonLink href="/partners/store" variant="dark" size="site">
+              <ButtonLink href="/partners/stores" variant="dark" size="site">
                 Register your store
               </ButtonLink>
             </div>

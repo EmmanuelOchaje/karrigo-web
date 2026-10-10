@@ -119,7 +119,7 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 
 - [x] Task 1  Ops panel shapes (`lib/admin/staff.ts` has `staffLabel` and `staffWorkplace`)
 - [x] Task 2  Partner identity helper (`getPartner`, `getStoreApplication`; shims `PartnerMe`, `StoreConsoleRow` in `lib/api/extra.ts` until Task 7)
-- [ ] Task 3  `/partners/stores` route + links
+- [x] Task 3  `/partners/stores` route + links (verified: `/partners/store` answers 308 to `/partners/stores`, query kept)
 - [ ] Task 4  Shared sign-in + store sign-up
 - [ ] Task 5  Add the other side + pages
 - [ ] Task 6  Store setup checklist
@@ -133,3 +133,5 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 Notes / surprises:
 - Task 2 also changed `lib/kitchen/data.ts`: `getKitchen()` now treats 409 `NO_KITCHEN` as "no kitchen" (it used to throw), and `requireKitchen()` sends a signed-in store-only owner to `/partners/kitchen` (to register a kitchen) instead of the login form. `getPartner()` is `cache()`d so `/kitchen-auth/me` is read once per request.
 - `npm run lint` is red on the untouched repo (57 problems); lint only the files you change.
+- After moving/renaming a route, `npx tsc --noEmit` and `npm run build` can fail on stale generated types in `.next/dev/types` or `.next/types` (git-ignored). Delete those two folders and rebuild (check first that no `next dev` for *this* repo is running).
+- Verifying the build: `npm run build` works offline and lists routes; `npx next start -p 3911` then `curl -I` is a quick runtime check.
