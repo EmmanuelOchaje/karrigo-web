@@ -1,9 +1,11 @@
 "use server";
 
 import { revalidatePath } from "next/cache";
+import { z } from "zod";
 
 import { ApiError, api, type Schemas } from "@/lib/api/client";
 import { clearTokens, readRefreshToken, storeTokens } from "@/lib/api/session";
+import { registrationFailureMessage, registrationRequest } from "@/lib/partners/register-side";
 import type { DocumentKind } from "@/lib/partners/types";
 import type { KitchenOtpRequested } from "@/lib/api/extra";
 import { e164 } from "@/lib/phone";
@@ -30,6 +32,7 @@ function failure(error: unknown): Failure {
 }
 
 const KITCHEN_PAGE = "/partners/kitchen";
+const STORE_PAGE = "/partners/stores";
 const RIDER_PAGE = "/partners/rider";
 
 /** What the browser is allowed to send as a photo. Checked here as well as
@@ -180,6 +183,57 @@ export async function applyStore(input: PartnerFields & { storeName: string }): 
     return { ok: true };
   } catch (error) {
     return applyFailure(error, "store");
+  }
+}
+
+const storeRegistrationSchema = z.object({
+  storeName: z.string().trim().min(2, "What is your store called?"),
+  areaId: z.string().min(1, "Pick the area your store is in."),
+});
+
+const kitchenRegistrationSchema = z.object({
+  kitchenName: z.string().trim().min(2, "What is your kitchen called?"),
+  areaId: z.string().min(1, "Pick the area your kitchen is in."),
+  cuisine: z.string().optional(),
+});
+
+function inputFailure(result: z.ZodSafeParseError<unknown>): Failure {
+  return { ok: false, error: result.error.issues[0]?.message ?? "Check what you entered and try again." };
+}
+
+/** Add a store to the business behind the current partner session. */
+export async function registerStoreForBusiness(input: { storeName: string; areaId: string }): Promise<Done> {
+  const parsed = storeRegistrationSchema.safeParse(input);
+  if (!parsed.success) return inputFailure(parsed);
+  const request = registrationRequest("store", parsed.data);
+
+  try {
+    await api(request.path, { method: "POST", scope: "kitchen", body: request.body });
+    revalidatePath(STORE_PAGE);
+    return { ok: true };
+  } catch (error) {
+    const message = registrationFailureMessage(error, "store");
+    return message ? { ok: false, error: message } : failure(error);
+  }
+}
+
+/** Add a kitchen to the business behind the current partner session. */
+export async function registerKitchenForBusiness(input: {
+  kitchenName: string;
+  areaId: string;
+  cuisine?: string;
+}): Promise<Done> {
+  const parsed = kitchenRegistrationSchema.safeParse(input);
+  if (!parsed.success) return inputFailure(parsed);
+  const request = registrationRequest("kitchen", parsed.data);
+
+  try {
+    await api(request.path, { method: "POST", scope: "kitchen", body: request.body });
+    revalidatePath(KITCHEN_PAGE);
+    return { ok: true };
+  } catch (error) {
+    const message = registrationFailureMessage(error, "kitchen");
+    return message ? { ok: false, error: message } : failure(error);
   }
 }
 
