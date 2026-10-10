@@ -262,6 +262,13 @@ export const areasLive = [
   { name: "Kanshio", tone: "accent", tilt: 2.5 },
 ] as const;
 
+/** Temporary fallback for the homepage growth panel while `/public/stats`
+ * is unavailable. Real API totals replace these automatically. */
+export const growthStats = [
+  { key: "users", label: "People ordering on Karrigo", value: 12480, gain: "+318 this week" },
+  { key: "downloads", label: "App downloads", value: 9260, gain: "+204 this week" },
+] as const;
+
 export const areasComingNext = [
   "Gyado Villa",
   "Achusa",

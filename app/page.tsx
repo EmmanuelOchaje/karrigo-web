@@ -145,11 +145,9 @@ export default async function HomePage() {
       </section>
 
       {/* Growth — users and downloads, counting up from zero. */}
-      {publicStats && (
-        <section data-aos="rise" className="px-screen-x pt-section-sm md:pt-section">
-          <UsersPanel users={publicStats.users} downloads={publicStats.downloads} />
-        </section>
-      )}
+      <section data-aos="rise" className="px-screen-x pt-section-sm md:pt-section">
+        <UsersPanel users={publicStats?.users} downloads={publicStats?.downloads} />
+      </section>
 
       {/* Coverage — the question people arrive with, answered in one number. */}
       <section data-aos="rise" className="px-screen-x pt-section-sm md:pt-section">
