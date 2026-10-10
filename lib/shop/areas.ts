@@ -1,7 +1,6 @@
 import "server-only";
 
-import { api } from "@/lib/api/client";
-import type { AreaPublic } from "@/lib/api/extra";
+import { api, type Schemas } from "@/lib/api/client";
 import { AREAS } from "@/lib/order/schema";
 
 /**
@@ -11,7 +10,7 @@ import { AREAS } from "@/lib/order/schema";
  */
 export async function listAreas(): Promise<{ id: string; name: string }[]> {
   try {
-    const areas = await api<AreaPublic[]>("/areas", { revalidate: 300 });
+    const areas = await api<Schemas["AreaResponseDto"][]>("/areas", { revalidate: 300 });
     return areas.filter((a) => a.id && a.name).map((a) => ({ id: a.id, name: a.name }));
   } catch {
     return [];

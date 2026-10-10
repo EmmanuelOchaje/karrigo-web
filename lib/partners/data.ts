@@ -3,7 +3,6 @@ import "server-only";
 import { cache } from "react";
 
 import { ApiError, api, type Schemas } from "@/lib/api/client";
-import type { KitchenReadiness, PartnerMe, StoreConsoleRow } from "@/lib/api/extra";
 import { nairaToKobo } from "@/lib/money";
 import type { Bank, KitchenApplication, Partner, RiderApplication, StoreApplication } from "./types";
 
@@ -23,7 +22,7 @@ const missingSide = (error: unknown, code: "NO_KITCHEN" | "NO_STORE") =>
  */
 export const getPartner = cache(async (): Promise<Partner | null> => {
   try {
-    const me = await api<PartnerMe>("/kitchen-auth/me", { scope: "kitchen" });
+    const me = await api<Schemas["AuthenticatedKitchenStaffResponseDto"]>("/kitchen-auth/me", { scope: "kitchen" });
     return {
       businessId: me.businessId,
       kitchenId: me.kitchenId,
@@ -41,7 +40,7 @@ export const getPartner = cache(async (): Promise<Partner | null> => {
 export async function getKitchenApplication(): Promise<KitchenApplication | null> {
   try {
     const [k, me] = await Promise.all([
-      api<Schemas["KitchenWithMenuResponseDto"] & KitchenReadiness>("/kitchen-console/kitchen", { scope: "kitchen" }),
+      api<Schemas["KitchenWithMenuResponseDto"]>("/kitchen-console/kitchen", { scope: "kitchen" }),
       api<Schemas["AuthenticatedKitchenStaffResponseDto"]>("/kitchen-auth/me", { scope: "kitchen" }),
     ]);
     return {
@@ -75,7 +74,7 @@ export async function getKitchenApplication(): Promise<KitchenApplication | null
 export async function getStoreApplication(): Promise<StoreApplication | null> {
   try {
     const [s, partner] = await Promise.all([
-      api<StoreConsoleRow>("/store-console/store", { scope: "kitchen" }),
+      api<Schemas["StoreConsoleResponseDto"]>("/store-console/store", { scope: "kitchen" }),
       getPartner(),
     ]);
     return {

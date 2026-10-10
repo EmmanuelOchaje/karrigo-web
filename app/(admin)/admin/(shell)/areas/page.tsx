@@ -1,8 +1,7 @@
 import { AreasBoard } from "@/components/admin/AreasBoard";
 import { OpsPage, OpsPageHeader } from "@/components/admin/OpsPage";
 import { Pager } from "@/components/admin/ui";
-import { api } from "@/lib/api/client";
-import type { AdminArea } from "@/lib/api/extra";
+import { api, type Schemas } from "@/lib/api/client";
 import { requireAdmin } from "@/lib/admin/session";
 
 const SIZES = [10, 25, 50, 100];
@@ -12,7 +11,7 @@ const DEFAULT_SIZE = 10;
  *  backend returns them all at once, so they are paged here, with a choice of rows per page. */
 export default async function AreasPage({ searchParams }: { searchParams: Promise<{ page?: string; size?: string }> }) {
   await requireAdmin();
-  const areas = await api<AdminArea[]>("/admin/areas", { scope: "admin" });
+  const areas = await api<Schemas["AdminAreaResponseDto"][]>("/admin/areas", { scope: "admin" });
   const live = areas.filter((a) => a.isActive).length;
 
   const query = await searchParams;

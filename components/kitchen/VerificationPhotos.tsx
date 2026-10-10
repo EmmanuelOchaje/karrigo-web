@@ -5,7 +5,7 @@ import { useState, useTransition } from "react";
 import { deleteStorePhoto, uploadStorePhoto } from "@/app/(order)/partners/actions";
 import { deleteVerificationPhoto, uploadVerificationPhoto } from "@/app/(order)/my-kitchen/actions";
 import { FormError, PhotoUpload } from "@/components/partners/parts";
-import type { VerificationPhoto } from "@/lib/api/extra";
+import type { Schemas } from "@/lib/api/types";
 import { VERIFICATION_PHOTOS_REQUIRED } from "@/lib/kitchen/types";
 
 /**
@@ -21,7 +21,7 @@ export function VerificationPhotos({
   failed = false,
 }: {
   side: "kitchen" | "store";
-  photos: VerificationPhoto[];
+  photos: Schemas["VerificationPhotoResponseDto"][];
   canEdit: boolean;
   /** The list could not be read: say so here rather than show "0 of 6". */
   failed?: boolean;

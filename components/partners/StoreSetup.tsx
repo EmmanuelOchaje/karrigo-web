@@ -14,7 +14,7 @@ import {
 } from "@/app/(order)/partners/actions";
 import { SetupChecklist } from "@/components/kitchen/SetupChecklist";
 import { VerificationPhotos } from "@/components/kitchen/VerificationPhotos";
-import type { VerificationPhoto } from "@/lib/api/extra";
+import type { Schemas } from "@/lib/api/types";
 import { cn } from "@/lib/cn";
 import { DEFAULT_RIDER_BASE_FEE_NAIRA, VERIFICATION_PHOTOS_REQUIRED } from "@/lib/kitchen/types";
 import { formatKobo } from "@/lib/money";
@@ -32,7 +32,7 @@ export function StoreSetup({
   store: StoreApplication;
   banks: Bank[];
   areas: string[];
-  photos: VerificationPhoto[];
+  photos: Schemas["StoreVerificationPhotoResponseDto"][];
   photosFailed?: boolean;
 }) {
   const router = useRouter();

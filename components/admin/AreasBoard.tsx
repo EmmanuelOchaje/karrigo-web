@@ -5,13 +5,13 @@ import { useState, useTransition } from "react";
 import { createArea, renameArea, setAreaActive } from "@/app/(admin)/admin/moderation-actions";
 import { ConfirmAction } from "@/components/admin/ConfirmAction";
 import { EmptyState, StatusChip } from "@/components/admin/ui";
-import type { AdminArea } from "@/lib/api/extra";
+import type { Schemas } from "@/lib/api/types";
 import { say } from "@/lib/admin/store";
 
 const input =
   "border-text/16 bg-ops-surface text-text placeholder:text-text/45 h-10 min-w-0 rounded-xl border px-3 text-[13px] outline-none";
 
-export function AreasBoard({ areas, footer }: { areas: AdminArea[]; footer?: React.ReactNode }) {
+export function AreasBoard({ areas, footer }: { areas: Schemas["AdminAreaResponseDto"][]; footer?: React.ReactNode }) {
   const [name, setName] = useState("");
   const [busy, startTransition] = useTransition();
 
@@ -57,7 +57,7 @@ export function AreasBoard({ areas, footer }: { areas: AdminArea[]; footer?: Rea
   );
 }
 
-function AreaRow({ area }: { area: AdminArea }) {
+function AreaRow({ area }: { area: Schemas["AdminAreaResponseDto"] }) {
   const [renaming, setRenaming] = useState(false);
   const [name, setName] = useState(area.name);
   const [busy, startTransition] = useTransition();

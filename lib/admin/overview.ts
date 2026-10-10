@@ -3,7 +3,6 @@ import "server-only";
 import { cache } from "react";
 
 import { api, type Schemas } from "@/lib/api/client";
-import type { KitchenRiderBaseFee } from "@/lib/api/extra";
 import { nairaToKobo } from "@/lib/money";
 import { formatKobo } from "@/lib/money";
 import { ageLabel, durationLabel } from "./format";
@@ -91,7 +90,7 @@ export async function loadOverview(): Promise<OverviewView> {
   const [summary, orderPage, kitchens, audit] = await Promise.all([
     getSummary(),
     api<Schemas["AdminOrderPageDto"]>("/admin/orders", { scope: "admin", query: { pageSize: 100 } }),
-    api<(Schemas["KitchenResponseDto"] & KitchenRiderBaseFee)[]>("/admin/kitchens", { scope: "admin", query: { status: "ACTIVE" } }),
+    api<Schemas["KitchenResponseDto"][]>("/admin/kitchens", { scope: "admin", query: { status: "ACTIVE" } }),
     api<Schemas["AuditLogPageDto"]>("/admin/audit-log", { scope: "admin", query: { pageSize: 8 } }),
   ]);
 

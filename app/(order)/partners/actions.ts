@@ -7,7 +7,6 @@ import { ApiError, api, type Schemas } from "@/lib/api/client";
 import { clearTokens, readRefreshToken, storeTokens } from "@/lib/api/session";
 import { registrationFailureMessage, registrationRequest } from "@/lib/partners/register-side";
 import type { DocumentKind } from "@/lib/partners/types";
-import type { KitchenOtpRequested } from "@/lib/api/extra";
 import { e164 } from "@/lib/phone";
 
 /**
@@ -73,7 +72,7 @@ function otpFailure(error: unknown, taken: string): Failure {
  *  same call for a kitchen and a store; the login is shared. */
 export async function requestPartnerOtp(phone: string): Promise<Done<{ resendCooldownSeconds: number }>> {
   try {
-    const result = await api<KitchenOtpRequested>("/kitchen-auth/otp/request", {
+    const result = await api<Schemas["RequestOtpResponseDto"]>("/kitchen-auth/otp/request", {
       method: "POST",
       body: { phone: e164(phone) },
     });
@@ -86,7 +85,7 @@ export async function requestPartnerOtp(phone: string): Promise<Done<{ resendCoo
 /** Step two: email a code, to prove the address is theirs. */
 export async function requestPartnerEmailOtp(email: string): Promise<Done<{ resendCooldownSeconds: number }>> {
   try {
-    const result = await api<KitchenOtpRequested>("/kitchen-auth/email-otp/request", {
+    const result = await api<Schemas["RequestOtpResponseDto"]>("/kitchen-auth/email-otp/request", {
       method: "POST",
       body: { email: email.trim().toLowerCase() },
     });

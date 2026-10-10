@@ -5,7 +5,6 @@
  * one set of rules about what can be done from which state.
  */
 
-import type { KitchenRiderBaseFee } from "@/lib/api/extra";
 import type { Schemas } from "@/lib/api/types";
 import { formatKobo, nairaToKobo } from "@/lib/money";
 import { whenLabel } from "./format";
@@ -81,7 +80,7 @@ export const QUEUE_STATUS_LABEL: Record<QueueStatus, string> = {
 };
 
 export function kitchenItem(
-  kitchen: Schemas["KitchenResponseDto"] & KitchenRiderBaseFee,
+  kitchen: Schemas["KitchenResponseDto"],
   due?: Schemas["KitchenPayoutDueDto"],
 ): QueueItem {
   const netKobo = due ? nairaToKobo(due.netNaira) : 0;

@@ -5,7 +5,6 @@ import { redirect } from "next/navigation";
 import { cache } from "react";
 
 import { ApiError, api, type Schemas } from "@/lib/api/client";
-import type { KitchenReadiness, VerificationPhoto } from "@/lib/api/extra";
 import { SCOPES } from "@/lib/api/scopes";
 import { nairaToKobo } from "@/lib/money";
 import { getPartner } from "@/lib/partners/data";
@@ -34,7 +33,7 @@ export const getKitchen = cache(async (): Promise<Kitchen | null> => {
 
   try {
     const [k, me] = await Promise.all([
-      api<Schemas["KitchenWithMenuResponseDto"] & KitchenReadiness>("/kitchen-console/kitchen", { scope: "kitchen" }),
+      api<Schemas["KitchenWithMenuResponseDto"]>("/kitchen-console/kitchen", { scope: "kitchen" }),
       api<Schemas["AuthenticatedKitchenStaffResponseDto"]>("/kitchen-auth/me", { scope: "kitchen" }),
     ]);
     return {
@@ -115,9 +114,14 @@ export async function requireOwner(): Promise<Kitchen> {
 /** `failed` is true when the list could not be read (a 5xx, the network):
  *  the photos section says so instead of the whole page crashing. Signed out
  *  is not a failure — there is simply nothing to show. */
-export async function listVerificationPhotos(): Promise<{ photos: VerificationPhoto[]; failed: boolean }> {
+export async function listVerificationPhotos(): Promise<{
+  photos: Schemas["VerificationPhotoResponseDto"][];
+  failed: boolean;
+}> {
   try {
-    const photos = await api<VerificationPhoto[]>("/kitchen-console/kitchen/photos", { scope: "kitchen" });
+    const photos = await api<Schemas["VerificationPhotoResponseDto"][]>("/kitchen-console/kitchen/photos", {
+      scope: "kitchen",
+    });
     return { photos, failed: false };
   } catch (error) {
     if (signedOut(error)) return { photos: [], failed: false };

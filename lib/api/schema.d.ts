@@ -294,6 +294,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/kitchen-auth/otp/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Text a verification code to the phone number a kitchen owner will register with. */
+        post: operations["KitchenAuthController_requestOtp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kitchen-auth/email-otp/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Email a verification code to the address a kitchen owner will register with. */
+        post: operations["KitchenAuthController_requestEmailOtp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/kitchen-auth/register": {
         parameters: {
             query?: never;
@@ -322,6 +356,40 @@ export interface paths {
         put?: never;
         /** Sign in a kitchen staff account. */
         post: operations["KitchenAuthController_login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kitchen-auth/password/forgot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Email a password-reset code. Always 200 — it never reveals whether the address has an account. */
+        post: operations["KitchenAuthController_forgotPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kitchen-auth/password/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset a forgotten password with the emailed code. Signs the account out everywhere. */
+        post: operations["KitchenAuthController_resetPassword"];
         delete?: never;
         options?: never;
         head?: never;
@@ -414,6 +482,417 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/store-auth/otp/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Text a verification code to the phone number a store owner will register with. */
+        post: operations["StoreAuthController_requestOtp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-auth/email-otp/request": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Email a verification code to the address a store owner will register with. */
+        post: operations["StoreAuthController_requestEmailOtp"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-auth/register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sign up through the store onboarding: creates the business, the OWNER login (the one shared partner login) and the Store (PENDING) in one call. */
+        post: operations["StoreAuthController_register"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Sign in. Same partner login as /kitchen-auth/login, whichever side registered first. */
+        post: operations["StoreAuthController_login"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-auth/password/forgot": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Email a password-reset code. Always 200 — it never reveals whether the address has an account. */
+        post: operations["StoreAuthController_forgotPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-auth/password/reset": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Reset a forgotten password with the emailed code. Signs the account out everywhere. */
+        post: operations["StoreAuthController_resetPassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-auth/refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Rotate a refresh token for a new token pair. */
+        post: operations["StoreAuthController_refresh"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Revoke a refresh token (sign out). */
+        post: operations["StoreAuthController_logout"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The signed-in kitchen staff member (JWT claims, not the full row). */
+        get: operations["StoreAuthController_me"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-auth/me/profile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The signed-in staff member's own row (name, email, contact phone) — GET /kitchen-auth/me stays JWT claims only. */
+        get: operations["StoreAuthController_getProfile"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the signed-in staff member's contact phone. */
+        patch: operations["StoreAuthController_updateProfile"];
+        trace?: never;
+    };
+    "/v1/store-auth/password/change": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Change the signed-in staff member's password. */
+        post: operations["StoreAuthController_changePassword"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-console/store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The caller's store, with what it still needs before it can open and how many verification photos it has. */
+        get: operations["StoreConsoleController_getOwnStore"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Update the store profile (name, area, location, rider fee, open/closed). Send lat and lng together. OWNER only. */
+        patch: operations["StoreConsoleController_updateProfile"];
+        trace?: never;
+    };
+    "/v1/store-console/geocode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Forward-geocode a typed address to candidate matches (Google). */
+        get: operations["StoreConsoleController_geocode"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-console/reverse-geocode": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Reverse-geocode coordinates to one formatted address (LocationIQ). */
+        get: operations["StoreConsoleController_reverseGeocode"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-console/store/appeal": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Appeal a suspension with a message (once per suspension). OWNER only. */
+        post: operations["StoreConsoleController_appeal"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-console/business/kitchen": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Register your business as a kitchen: the same owner and login, no new codes. Creates the kitchen (PENDING) for its own onboarding and ops approval. OWNER only. */
+        post: operations["StoreConsoleController_registerKitchen"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-console/store/payout-account/resolve": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Look up the account name for a bank + account number without saving it, so the owner can confirm it first. OWNER only. */
+        post: operations["StoreConsoleController_resolvePayoutAccount"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-console/store/payout-account": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        /** Set the store's payout bank account (Paystack NUBAN resolution). OWNER only. */
+        patch: operations["StoreConsoleController_submitPayoutAccount"];
+        trace?: never;
+    };
+    "/v1/store-console/store/hero-image": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Upload the store's hero image (public). OWNER only. */
+        post: operations["StoreConsoleController_uploadHeroImage"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-console/store/photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the store's verification photos (signed URLs), oldest first. OWNER only. */
+        get: operations["StoreConsoleController_listVerificationPhotos"];
+        put?: never;
+        /** Upload a private verification photo of the store (exactly 6 are required). OWNER only. */
+        post: operations["StoreConsoleController_uploadVerificationPhoto"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/store-console/store/photos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a verification photo. OWNER only. */
+        delete: operations["StoreConsoleController_deleteVerificationPhoto"];
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/payments/banks": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Paystack bank reference list (name + code), used by every payout-account form. */
+        get: operations["PaymentsController_listBanks"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/payments/orders/{orderId}/verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Ask Paystack whether the latest checkout was paid and, if so, confirm the order now. Call after the checkout closes; safe to repeat. Backs up the webhook, which can be late or unreachable. */
+        post: operations["PaymentsController_verify"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/payments/orders/{orderId}/pay": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Start a Paystack checkout. Only while the order is AWAITING_PAYMENT and before paymentDueAt. Each call returns a fresh checkout; the order is confirmed by Paystack’s webhook, never by the redirect, so re-read the order until it shows ACCEPTED. */
+        post: operations["PaymentsController_initialize"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/admin-auth/login": {
         parameters: {
             query?: never;
@@ -499,7 +978,25 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/admin/stores": {
+    "/v1/admin/areas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Every address-picker area, including archived ones, ordered by sortOrder then name. Any admin role. */
+        get: operations["AdminController_listAreas"];
+        put?: never;
+        /** Create an area. The slug is generated from the name. lat/lng come together or not at all. SUPER_ADMIN only. Writes an AuditLog row. */
+        post: operations["AdminController_createArea"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/areas/{id}": {
         parameters: {
             query?: never;
             header?: never;
@@ -508,12 +1005,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Create a store (ACTIVE, no approval step) with an OWNER login. It starts grocery-only (the owner can switch food on in the app); admins do not set its products. The temporary password is returned once and never stored in plain text. The owner must sign in with exactly the returned `ownerEmail` (case-sensitive, as stored). SUPER_ADMIN only. Writes an AuditLog row. */
-        post: operations["AdminController_createStore"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
+        /** Edit an area (name, centre, sortOrder, isActive). Renaming keeps the slug; `lat: null, lng: null` clears the centre; `isActive: false` archives. SUPER_ADMIN only. Writes an AuditLog row. */
+        patch: operations["AdminController_updateArea"];
         trace?: never;
     };
     "/v1/admin/kitchens": {
@@ -1081,15 +1578,33 @@ export interface paths {
         patch: operations["AdminGrowthController_updatePromoCode"];
         trace?: never;
     };
-    "/v1/payments/banks": {
+    "/v1/admin/stores": {
         parameters: {
             query?: never;
             header?: never;
             path?: never;
             cookie?: never;
         };
-        /** Paystack bank reference list (name + code), used by every payout-account form. */
-        get: operations["PaymentsController_listBanks"];
+        /** Every store, any status (the approval queue is `?status=PENDING`). `q` matches name, slug or area. */
+        get: operations["AdminStoresController_listStores"];
+        put?: never;
+        /** Create a store (ACTIVE, no approval step) with an OWNER login. The temporary password is returned once and never stored in plain text. The owner signs in with the returned `ownerEmail` (stored lowercased; login ignores case). SUPER_ADMIN only. Writes an AuditLog row. */
+        post: operations["AdminStoresController_createStore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/admin/stores/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** A store with every staff login (OWNER first), its verification photos (signed URLs) and its 10 latest audit entries. */
+        get: operations["AdminStoresController_getStore"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1098,7 +1613,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/v1/payments/orders/{orderId}/verify": {
+    "/v1/admin/stores/{id}/status": {
         parameters: {
             query?: never;
             header?: never;
@@ -1107,29 +1622,12 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** Ask Paystack whether the latest checkout was paid and, if so, confirm the order now. Call after the checkout closes; safe to repeat. Backs up the webhook, which can be late or unreachable. */
-        post: operations["PaymentsController_verify"];
+        post?: never;
         delete?: never;
         options?: never;
         head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/v1/payments/orders/{orderId}/pay": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** Start a Paystack checkout. Only while the order is AWAITING_PAYMENT and before paymentDueAt. Each call returns a fresh checkout; the order is confirmed by Paystack’s webhook, never by the redirect, so re-read the order until it shows ACCEPTED. */
-        post: operations["PaymentsController_initialize"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
+        /** Approve (→ ACTIVE, needs the required verification photos) or suspend/reject (→ SUSPENDED, `note` required) a store. Emails the owners. Writes an AuditLog row. */
+        patch: operations["AdminStoresController_updateStoreStatus"];
         trace?: never;
     };
     "/v1/reviews": {
@@ -1207,6 +1705,23 @@ export interface paths {
         };
         /** A kitchen's public page for one side (?type=, default FOOD) — profile plus that side's menu; flagged items omitted. */
         get: operations["KitchensController_getBySlug"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kitchens/{slug}/delivery-quote": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** The delivery fee for one of the caller's addresses from this kitchen. */
+        get: operations["KitchensController_quoteDelivery"];
         put?: never;
         post?: never;
         delete?: never;
@@ -1352,6 +1867,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/v1/kitchen-console/business/store": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Register your business as a store: the same owner and login, no new codes. Creates the store (PENDING) for its own onboarding and ops approval. OWNER only. */
+        post: operations["KitchenConsoleController_registerStore"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/v1/kitchen-console/kitchen/payout-account/resolve": {
         parameters: {
             query?: never;
@@ -1468,6 +2000,41 @@ export interface paths {
         /** Upload the kitchen's hero photo. OWNER only. */
         post: operations["KitchenConsoleController_uploadHeroImage"];
         delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kitchen-console/kitchen/photos": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List the kitchen's verification photos (signed URLs), oldest first. OWNER only. */
+        get: operations["KitchenConsoleController_listVerificationPhotos"];
+        put?: never;
+        /** Upload a private verification photo of the kitchen (exactly 6 are required). OWNER only. */
+        post: operations["KitchenConsoleController_uploadVerificationPhoto"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/kitchen-console/kitchen/photos/{id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** Delete a verification photo. OWNER only. */
+        delete: operations["KitchenConsoleController_deleteVerificationPhoto"];
         options?: never;
         head?: never;
         patch?: never;
@@ -1706,7 +2273,7 @@ export interface paths {
         /** List the caller's saved addresses. */
         get: operations["AddressesController_list"];
         put?: never;
-        /** Save a new address for the caller. */
+        /** Save a new address for the caller. `lat`/`lng` are optional: send an `areaId` (from GET /areas) instead and the area's own centre is used for distance and delivery fee. 422 AREA_HAS_NO_LOCATION if that area has no map position. */
         post: operations["AddressesController_create"];
         delete?: never;
         options?: never;
@@ -1724,12 +2291,63 @@ export interface paths {
         get?: never;
         put?: never;
         post?: never;
-        /** Delete one of the caller's addresses. */
+        /** Remove one of the caller's addresses. It is archived, not deleted, so past orders keep it. */
         delete: operations["AddressesController_remove"];
         options?: never;
         head?: never;
         /** Update one of the caller's addresses. */
         patch: operations["AddressesController_update"];
+        trace?: never;
+    };
+    "/v1/areas": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Active neighbourhoods for the address picker, ordered by sortOrder then name. No auth. */
+        get: operations["AreasController_list"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/track/{token}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Read-only order tracking for a shared link. Addressed by the order's `trackingToken` (returned when the order is placed), not its id. Returns status, kitchen names, rider first name and position, and a rough ETA, with no address, phone or payment data. The link stops working 24 hours after delivery or cancellation (PUBLIC_TRACKING_TTL_HOURS). No auth; rate-limited. */
+        get: operations["PublicController_track"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/v1/public/stats": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Platform totals for the marketing site: customers, delivered orders, active areas and the manually maintained download count. No auth. Cacheable for an hour. */
+        get: operations["PublicController_getStats"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/v1/orders": {
@@ -2281,15 +2899,24 @@ export interface components {
             /** Format: email */
             email?: string;
         };
+        RequestKitchenOtpDto: {
+            phone: string;
+        };
+        RequestKitchenEmailOtpDto: {
+            /** Format: email */
+            email: string;
+        };
         RegisterKitchenDto: {
             name: string;
             /** Format: email */
             email: string;
+            emailOtpCode: string;
             password: string;
-            phone?: string;
+            phone: string;
+            otpCode: string;
             kitchenName: string;
             cuisine?: string;
-            area?: string;
+            areaId: string;
         };
         KitchenResponseDto: {
             id: string;
@@ -2304,7 +2931,13 @@ export interface components {
             heroImageUrl: string | null;
             isOpen: boolean;
             noticeText: string | null;
+            /** @description Legacy, read-only: superseded by riderBaseFeeNaira. */
             feeNaira: number;
+            riderBaseFeeNaira: number | null;
+            /** @description What the kitchen still needs before it can open; empty = ready. */
+            missing: ("LOCATION" | "RIDER_FEE")[];
+            /** @description Verification photos uploaded so far; the kitchen needs exactly KITCHEN_PHOTOS_REQUIRED. */
+            verificationPhotoCount: number;
             ratingAvg: number;
             ratingsCount: number;
             servesFood: boolean;
@@ -2329,10 +2962,12 @@ export interface components {
         };
         KitchenStaffResponseDto: {
             id: string;
-            kitchenId: string;
+            businessId: string;
             email: string;
             name: string;
             phone: string | null;
+            /** Format: date-time */
+            emailVerifiedAt: string | null;
             /** @enum {string} */
             staffRole: "OWNER" | "STAFF";
             /** @enum {string} */
@@ -2355,14 +2990,162 @@ export interface components {
             email: string;
             password: string;
         };
+        ForgotKitchenPasswordDto: {
+            /** Format: email */
+            email: string;
+        };
+        ResetKitchenPasswordDto: {
+            /** Format: email */
+            email: string;
+            code: string;
+            newPassword: string;
+        };
         AuthenticatedKitchenStaffResponseDto: {
             kitchenStaffId: string;
-            kitchenId: string;
+            businessId: string;
+            /** @description Null when the business has no kitchen yet (register it as a kitchen). */
+            kitchenId: string | null;
+            /** @description Null when the business has no store yet (register it as a store). */
+            storeId: string | null;
             /** @enum {string} */
             staffRole: "OWNER" | "STAFF";
         };
         UpdateKitchenStaffProfileDto: {
             phone: string;
+        };
+        RegisterStoreDto: {
+            name: string;
+            /** Format: email */
+            email: string;
+            emailOtpCode: string;
+            password: string;
+            phone: string;
+            otpCode: string;
+            storeName: string;
+            areaId: string;
+        };
+        StoreResponseDto: {
+            id: string;
+            slug: string;
+            name: string;
+            area: string | null;
+            lat: number | null;
+            lng: number | null;
+            landmarkNote: string | null;
+            heroImageUrl: string | null;
+            isOpen: boolean;
+            noticeText: string | null;
+            riderBaseFeeNaira: number | null;
+            minOrderNaira: number | null;
+            maxItemsPerOrder: number | null;
+            /** @enum {string} */
+            status: "ACTIVE" | "SUSPENDED" | "PENDING";
+            rejectionNote: string | null;
+            appealNote: string | null;
+            /** Format: date-time */
+            appealedAt: string | null;
+            /** Format: date-time */
+            reviewedAt: string | null;
+            payoutBankCode: string | null;
+            payoutAccountNumber: string | null;
+            payoutAccountName: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+        };
+        RegisterStoreResponseDto: {
+            accessToken: string;
+            refreshToken: string;
+            store: components["schemas"]["StoreResponseDto"];
+            staff: components["schemas"]["KitchenStaffResponseDto"];
+        };
+        StoreConsoleResponseDto: {
+            id: string;
+            slug: string;
+            name: string;
+            area: string | null;
+            lat: number | null;
+            lng: number | null;
+            landmarkNote: string | null;
+            heroImageUrl: string | null;
+            isOpen: boolean;
+            noticeText: string | null;
+            riderBaseFeeNaira: number | null;
+            minOrderNaira: number | null;
+            maxItemsPerOrder: number | null;
+            /** @enum {string} */
+            status: "ACTIVE" | "SUSPENDED" | "PENDING";
+            rejectionNote: string | null;
+            appealNote: string | null;
+            /** Format: date-time */
+            appealedAt: string | null;
+            /** Format: date-time */
+            reviewedAt: string | null;
+            payoutBankCode: string | null;
+            payoutAccountNumber: string | null;
+            payoutAccountName: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            /** @description What the store still needs before it can open; empty = ready. */
+            missing: ("LOCATION" | "RIDER_FEE")[];
+            /** @description Verification photos uploaded so far; the store needs exactly STORE_PHOTOS_REQUIRED. */
+            verificationPhotoCount: number;
+        };
+        GeocodeResultResponseDto: {
+            label: string;
+            lat: number;
+            lng: number;
+        };
+        ReverseGeocodeResponseDto: {
+            address: string;
+        };
+        UpdateStoreProfileDto: {
+            name?: string;
+            area?: string;
+            lat?: number;
+            lng?: number;
+            landmarkNote?: string;
+            /** Format: uri */
+            heroImageUrl?: string;
+            noticeText?: string;
+            riderBaseFeeNaira?: number;
+            isOpen?: boolean;
+        };
+        AppealDto: {
+            message: string;
+        };
+        RegisterBusinessKitchenDto: {
+            kitchenName: string;
+            cuisine?: string;
+            areaId: string;
+        };
+        SubmitPayoutAccountDto: {
+            bankCode: string;
+            accountNumber: string;
+        };
+        StoreVerificationPhotoResponseDto: {
+            id: string;
+            /** @description Short-lived signed URL; the photos are private admin-review evidence. */
+            url: string;
+        };
+        BankResponseDto: {
+            name: string;
+            code: string;
+            currency: string;
+        };
+        InitializePaymentDto: {
+            /**
+             * @description Web clients only: the page Paystack returns the customer to after checkout (Paystack appends `?trxref=…&reference=…`). Its origin must be one of the server's CORS_ORIGINS. Omit on mobile to get the app deep link.
+             * @example https://eats.karrigo.app/checkout/complete
+             */
+            callbackUrl?: string;
+        };
+        InitializePaymentResponseDto: {
+            authorizationUrl: string;
+            reference: string;
         };
         AdminLoginDto: {
             /** Format: email */
@@ -2376,21 +3159,40 @@ export interface components {
             name: string;
             email: string;
         };
-        CreateStoreDto: {
+        AdminAreaResponseDto: {
+            id: string;
             name: string;
-            area: string;
-            ownerName: string;
-            /** Format: email */
-            ownerEmail: string;
-            ownerPhone: string;
-            maxItemsPerOrder?: number;
-            minOrderNaira?: number;
+            slug: string;
+            /** @example Makurdi */
+            city: string;
+            lat: number | null;
+            lng: number | null;
+            isActive: boolean;
+            sortOrder: number;
+            /** Format: date-time */
+            createdAt: string;
         };
-        CreateStoreResponseDto: {
-            kitchen: components["schemas"]["KitchenResponseDto"];
-            ownerEmail: string;
-            /** @description Shown exactly once; only its bcrypt hash is stored. */
-            temporaryPassword: string;
+        CreateAreaDto: {
+            /** @example High Level */
+            name: string;
+            lat?: number;
+            lng?: number;
+            /** @default 0 */
+            sortOrder: number;
+        };
+        UpdateAreaDto: {
+            name?: string;
+            /** @description null clears (with lng: null). */
+            lat?: number | null;
+            lng?: number | null;
+            sortOrder?: number;
+            /** @description false archives the area. */
+            isActive?: boolean;
+        };
+        AdminKitchenVerificationPhotoDto: {
+            id: string;
+            /** @description Short-lived signed read URL. */
+            url: string;
         };
         AdminKitchenStatsDto: {
             menuItemCount: number;
@@ -2448,7 +3250,13 @@ export interface components {
             heroImageUrl: string | null;
             isOpen: boolean;
             noticeText: string | null;
+            /** @description Legacy, read-only: superseded by riderBaseFeeNaira. */
             feeNaira: number;
+            riderBaseFeeNaira: number | null;
+            /** @description What the kitchen still needs before it can open; empty = ready. */
+            missing: ("LOCATION" | "RIDER_FEE")[];
+            /** @description Verification photos uploaded so far; the kitchen needs exactly KITCHEN_PHOTOS_REQUIRED. */
+            verificationPhotoCount: number;
             ratingAvg: number;
             ratingsCount: number;
             servesFood: boolean;
@@ -2470,6 +3278,8 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+            /** @description Verification photos, oldest first, as signed URLs. */
+            verificationPhotos: components["schemas"]["AdminKitchenVerificationPhotoDto"][];
             /** @description Every staff login, OWNER first. */
             staff: components["schemas"]["KitchenStaffResponseDto"][];
             stats: components["schemas"]["AdminKitchenStatsDto"];
@@ -2740,6 +3550,8 @@ export interface components {
             payments: components["schemas"]["AdminPaymentDto"][];
             id: string;
             code: string;
+            /** @description Unguessable token for the public tracking link, GET /public/track/:token. Null on orders placed before it existed. */
+            trackingToken: string | null;
             customerId: string;
             riderId: string | null;
             addressId: string;
@@ -2880,6 +3692,8 @@ export interface components {
             timeline: components["schemas"]["AdminOrderTimelineEventDto"][];
             id: string;
             code: string;
+            /** @description Unguessable token for the public tracking link, GET /public/track/:token. Null on orders placed before it existed. */
+            trackingToken: string | null;
             customerId: string;
             riderId: string | null;
             addressId: string;
@@ -3019,6 +3833,8 @@ export interface components {
         OrderResponseDto: {
             id: string;
             code: string;
+            /** @description Unguessable token for the public tracking link, GET /public/track/:token. Null on orders placed before it existed. */
+            trackingToken: string | null;
             customerId: string;
             riderId: string | null;
             addressId: string;
@@ -3259,12 +4075,17 @@ export interface components {
             /** @enum {string} */
             role: "CUSTOMER" | "RIDER";
         };
+        AdminBusinessSummaryDto: {
+            id: string;
+            name: string;
+            kitchen: components["schemas"]["AdminKitchenSummaryDto"] | null;
+        };
         AdminTicketStaffDto: {
             id: string;
             name: string;
             email: string;
             phone: string | null;
-            kitchen: components["schemas"]["AdminKitchenSummaryDto"];
+            business: components["schemas"]["AdminBusinessSummaryDto"];
         };
         AdminTicketOrderDto: {
             id: string;
@@ -3505,7 +4326,7 @@ export interface components {
             id: string;
             name: string;
             email: string;
-            kitchen: components["schemas"]["AdminKitchenSummaryDto"];
+            business: components["schemas"]["AdminBusinessSummaryDto"];
         };
         AuditLogEntryDto: {
             id: string;
@@ -3634,21 +4455,88 @@ export interface components {
             /** Format: date-time */
             expiresAt?: string | null;
         };
-        BankResponseDto: {
+        CreateStoreDto: {
             name: string;
-            code: string;
-            currency: string;
+            area: string;
+            ownerName: string;
+            /** Format: email */
+            ownerEmail: string;
+            ownerPhone: string;
+            maxItemsPerOrder?: number;
+            minOrderNaira?: number;
         };
-        InitializePaymentDto: {
-            /**
-             * @description Web clients only: the page Paystack returns the customer to after checkout (Paystack appends `?trxref=…&reference=…`). Its origin must be one of the server's CORS_ORIGINS. Omit on mobile to get the app deep link.
-             * @example https://eats.karrigo.app/checkout/complete
-             */
-            callbackUrl?: string;
+        CreateStoreResponseDto: {
+            store: components["schemas"]["StoreResponseDto"];
+            ownerEmail: string;
+            /** @description Shown exactly once; only its bcrypt hash is stored. */
+            temporaryPassword: string;
         };
-        InitializePaymentResponseDto: {
-            authorizationUrl: string;
-            reference: string;
+        AdminStoreBusinessDto: {
+            id: string;
+            name: string;
+        };
+        AdminStoreKitchenDto: {
+            id: string;
+            name: string;
+            status: string;
+        };
+        AdminStorePhotoDto: {
+            id: string;
+            /** @description Short-lived signed URL. */
+            url: string;
+        };
+        AdminStoreAuditEntryDto: {
+            id: string;
+            action: string;
+            entity: string;
+            entityId: string;
+            metadata: Record<string, never>;
+            actorAdminId: string | null;
+            /** Format: date-time */
+            createdAt: string;
+        };
+        AdminStoreDetailDto: {
+            id: string;
+            slug: string;
+            name: string;
+            area: string | null;
+            lat: number | null;
+            lng: number | null;
+            landmarkNote: string | null;
+            heroImageUrl: string | null;
+            isOpen: boolean;
+            noticeText: string | null;
+            riderBaseFeeNaira: number | null;
+            minOrderNaira: number | null;
+            maxItemsPerOrder: number | null;
+            /** @enum {string} */
+            status: "ACTIVE" | "SUSPENDED" | "PENDING";
+            rejectionNote: string | null;
+            appealNote: string | null;
+            /** Format: date-time */
+            appealedAt: string | null;
+            /** Format: date-time */
+            reviewedAt: string | null;
+            payoutBankCode: string | null;
+            payoutAccountNumber: string | null;
+            payoutAccountName: string | null;
+            /** Format: date-time */
+            createdAt: string;
+            /** Format: date-time */
+            updatedAt: string;
+            business: components["schemas"]["AdminStoreBusinessDto"];
+            /** @description The kitchen on the same business, or null if the business has none. */
+            kitchen: components["schemas"]["AdminStoreKitchenDto"] | null;
+            /** @description Every login of the business, OWNER first. */
+            staff: components["schemas"]["KitchenStaffResponseDto"][];
+            verificationPhotos: components["schemas"]["AdminStorePhotoDto"][];
+            recentAudit: components["schemas"]["AdminStoreAuditEntryDto"][];
+        };
+        UpdateStoreStatusDto: {
+            /** @enum {string} */
+            status: "ACTIVE" | "SUSPENDED";
+            /** @description Required (non-blank) when suspending; the service enforces that. */
+            note?: string;
         };
         SubmitReviewDto: {
             orderId: string;
@@ -3695,7 +4583,13 @@ export interface components {
             heroImageUrl: string | null;
             isOpen: boolean;
             noticeText: string | null;
+            /** @description Legacy, read-only: superseded by riderBaseFeeNaira. */
             feeNaira: number;
+            riderBaseFeeNaira: number | null;
+            /** @description What the kitchen still needs before it can open; empty = ready. */
+            missing: ("LOCATION" | "RIDER_FEE")[];
+            /** @description Verification photos uploaded so far; the kitchen needs exactly KITCHEN_PHOTOS_REQUIRED. */
+            verificationPhotoCount: number;
             ratingAvg: number;
             ratingsCount: number;
             servesFood: boolean;
@@ -3719,17 +4613,6 @@ export interface components {
             updatedAt: string;
             sections: components["schemas"]["MenuSectionWithItemsResponseDto"][];
         };
-        GeocodeResultResponseDto: {
-            label: string;
-            lat: number;
-            lng: number;
-        };
-        ReverseGeocodeResponseDto: {
-            address: string;
-        };
-        AppealDto: {
-            message: string;
-        };
         UpdateKitchenProfileDto: {
             name?: string;
             cuisine?: string;
@@ -3741,14 +4624,14 @@ export interface components {
             /** Format: uri */
             heroImageUrl?: string;
             noticeText?: string;
-            feeNaira?: number;
+            riderBaseFeeNaira?: number;
             isOpen?: boolean;
             servesFood?: boolean;
             servesGrocery?: boolean;
         };
-        SubmitPayoutAccountDto: {
-            bankCode: string;
-            accountNumber: string;
+        RegisterBusinessStoreDto: {
+            storeName: string;
+            areaId: string;
         };
         KitchenHoursResponseDto: {
             id: string;
@@ -3821,6 +4704,11 @@ export interface components {
             createdAt: string;
             /** Format: date-time */
             updatedAt: string;
+        };
+        VerificationPhotoResponseDto: {
+            id: string;
+            /** @description Short-lived signed URL; the photos are private admin-review evidence. */
+            url: string;
         };
         CreateMenuSectionDto: {
             label: string;
@@ -3986,11 +4874,15 @@ export interface components {
         CreateAddressDto: {
             label: string;
             line1: string;
-            area: string;
+            /** @description Neighbourhood name. Optional when `areaId` is given: defaults to that area's name. */
+            area?: string;
+            /** @description From GET /areas. Without `lat`/`lng`, the area's own centre is used for distance and delivery fee. */
+            areaId?: string;
             city?: string;
             state?: string;
-            lat: number;
-            lng: number;
+            /** @description Optional: send both `lat` and `lng`, or neither and send `areaId`. */
+            lat?: number;
+            lng?: number;
             isDefault?: boolean;
             instructions?: string;
         };
@@ -4004,6 +4896,49 @@ export interface components {
             lng?: number;
             isDefault?: boolean;
             instructions?: string;
+        };
+        AreaResponseDto: {
+            id: string;
+            /** @example High Level */
+            name: string;
+            /** @example high-level */
+            slug: string;
+            lat: number | null;
+            lng: number | null;
+        };
+        PublicTrackingKitchenDto: {
+            name: string;
+            /** @enum {string} */
+            status: "PLACED" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "CANCELLED";
+        };
+        PublicTrackingRiderDto: {
+            firstName: string | null;
+            /** @description Only while the order is on the road; null before pickup and after delivery. */
+            lat: number | null;
+            lng: number | null;
+        };
+        PublicTrackingResponseDto: {
+            code: string;
+            /** @enum {string} */
+            status: "PLACED" | "AWAITING_PAYMENT" | "ACCEPTED" | "PREPARING" | "READY" | "PICKED_UP" | "DELIVERING" | "DELIVERED" | "CANCELLED" | "REFUNDED";
+            /** Format: date-time */
+            placedAt: string;
+            /** Format: date-time */
+            deliveredAt: string | null;
+            kitchens: components["schemas"]["PublicTrackingKitchenDto"][];
+            rider: components["schemas"]["PublicTrackingRiderDto"] | null;
+            /** @description Rough minutes until arrival, from the rider's distance to the drop-off. Null unless the rider is on the road with a known position. */
+            etaMinutes: number | null;
+        };
+        PublicStatsResponseDto: {
+            /** @description Customer accounts that haven't been deleted. */
+            users: number;
+            /** @description Orders delivered so far. */
+            orders: number;
+            /** @description Neighbourhoods currently served. */
+            areas: number;
+            /** @description App installs. Not knowable from the database (Play Console and App Store Connect hold it), so this is the marketing-maintained PUBLIC_DOWNLOADS_COUNT, or null when unset. */
+            downloads: number | null;
         };
         OrderLineInputDto: {
             menuItemId: string;
@@ -4076,6 +5011,8 @@ export interface components {
         OrderWithDetailsResponseDto: {
             id: string;
             code: string;
+            /** @description Unguessable token for the public tracking link, GET /public/track/:token. Null on orders placed before it existed. */
+            trackingToken: string | null;
             customerId: string;
             riderId: string | null;
             addressId: string;
@@ -4294,6 +5231,8 @@ export interface components {
         AcceptedOrderResponseDto: {
             id: string;
             code: string;
+            /** @description Unguessable token for the public tracking link, GET /public/track/:token. Null on orders placed before it existed. */
+            trackingToken: string | null;
             customerId: string;
             riderId: string | null;
             addressId: string;
@@ -4947,6 +5886,70 @@ export interface operations {
             };
         };
     };
+    KitchenAuthController_requestOtp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestKitchenOtpDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        resendCooldownSeconds?: number;
+                    };
+                };
+            };
+            /** @description That phone number is already verified on a kitchen account. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KitchenAuthController_requestEmailOtp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestKitchenEmailOtpDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        resendCooldownSeconds?: number;
+                    };
+                };
+            };
+            /** @description An account with this email already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     KitchenAuthController_register: {
         parameters: {
             query?: never;
@@ -5000,6 +6003,52 @@ export interface operations {
             };
             /** @description Wrong email/password, or the account is not ACTIVE. */
             401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KitchenAuthController_forgotPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForgotKitchenPasswordDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        resendCooldownSeconds?: number;
+                    };
+                };
+            };
+        };
+    };
+    KitchenAuthController_resetPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetKitchenPasswordDto"];
+            };
+        };
+        responses: {
+            204: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -5147,6 +6196,894 @@ export interface operations {
             };
         };
     };
+    StoreAuthController_requestOtp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestKitchenOtpDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        resendCooldownSeconds?: number;
+                    };
+                };
+            };
+            /** @description That phone number is already verified on a partner account. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreAuthController_requestEmailOtp: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RequestKitchenEmailOtpDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        resendCooldownSeconds?: number;
+                    };
+                };
+            };
+            /** @description An account with this email already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreAuthController_register: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterStoreDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["RegisterStoreResponseDto"];
+                };
+            };
+            /** @description An account with this email already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreAuthController_login: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["KitchenLoginDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenPairResponseDto"];
+                };
+            };
+            /** @description Wrong email/password, or the account is not ACTIVE. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreAuthController_forgotPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ForgotKitchenPasswordDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        resendCooldownSeconds?: number;
+                    };
+                };
+            };
+        };
+    };
+    StoreAuthController_resetPassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ResetKitchenPasswordDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreAuthController_refresh: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshTokenDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["TokenPairResponseDto"];
+                };
+            };
+        };
+    };
+    StoreAuthController_logout: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RefreshTokenDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreAuthController_me: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuthenticatedKitchenStaffResponseDto"];
+                };
+            };
+            /** @description Missing or invalid partner access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreAuthController_getProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KitchenStaffResponseDto"];
+                };
+            };
+        };
+    };
+    StoreAuthController_updateProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateKitchenStaffProfileDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KitchenStaffResponseDto"];
+                };
+            };
+        };
+    };
+    StoreAuthController_changePassword: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ChangePasswordDto"];
+            };
+        };
+        responses: {
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Current password is incorrect. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreConsoleController_getOwnStore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreConsoleResponseDto"];
+                };
+            };
+            /** @description Missing or invalid partner access token. 409 NO_STORE if the business has no store yet. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreConsoleController_updateProfile: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStoreProfileDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreResponseDto"];
+                };
+            };
+            /** @description Only one of lat and lng was sent. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid partner access token. 409 NO_STORE if the business has no store yet. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreConsoleController_geocode: {
+        parameters: {
+            query: {
+                /** @description At least 3 characters. */
+                query: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["GeocodeResultResponseDto"][];
+                };
+            };
+            /** @description Type at least 3 characters to search. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid partner access token. 409 NO_STORE if the business has no store yet. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreConsoleController_reverseGeocode: {
+        parameters: {
+            query: {
+                lat: string;
+                lng: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReverseGeocodeResponseDto"];
+                };
+            };
+            /** @description lat and lng are required. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid partner access token. 409 NO_STORE if the business has no store yet. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreConsoleController_appeal: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["AppealDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreResponseDto"];
+                };
+            };
+            /** @description Missing or invalid partner access token. 409 NO_STORE if the business has no store yet. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The store is not suspended, or already appealed. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreConsoleController_registerKitchen: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterBusinessKitchenDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["KitchenResponseDto"];
+                };
+            };
+            /** @description Missing or invalid partner access token. 409 NO_STORE if the business has no store yet. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ALREADY_REGISTERED — the business already has a kitchen. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreConsoleController_resolvePayoutAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitPayoutAccountDto"];
+            };
+        };
+        responses: {
+            /** @description `{ accountNumber, accountName }` as confirmed by the bank. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid partner access token. 409 NO_STORE if the business has no store yet. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreConsoleController_submitPayoutAccount: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SubmitPayoutAccountDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreResponseDto"];
+                };
+            };
+            /** @description Missing or invalid partner access token. 409 NO_STORE if the business has no store yet. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreConsoleController_uploadHeroImage: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreResponseDto"];
+                };
+            };
+            /** @description Missing file, wrong MIME type, or over the size limit. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid partner access token. 409 NO_STORE if the business has no store yet. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreConsoleController_listVerificationPhotos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreVerificationPhotoResponseDto"][];
+                };
+            };
+            /** @description Missing or invalid partner access token. 409 NO_STORE if the business has no store yet. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreConsoleController_uploadVerificationPhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreVerificationPhotoResponseDto"];
+                };
+            };
+            /** @description Missing file, wrong MIME type, or over the size limit. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid partner access token. 409 NO_STORE if the business has no store yet. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The store already has the maximum number of photos. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    StoreConsoleController_deleteVerificationPhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Verification photo id. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid partner access token. 409 NO_STORE if the business has no store yet. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not one of this store's photos. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PaymentsController_listBanks: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["BankResponseDto"][];
+                };
+            };
+        };
+    };
+    PaymentsController_verify: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description The order status after verifying. */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Order not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PaymentsController_initialize: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                orderId: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["InitializePaymentDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["InitializePaymentResponseDto"];
+                };
+            };
+            /** @description Not a PAYSTACK-provider order, the customer has no email on file, or callbackUrl is not on an allowed web origin. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Order (or its payment) not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description `code`: AWAITING_KITCHEN (not accepted yet), PAYMENT_WINDOW_CLOSED (expired or cancelled), or ALREADY_PAID. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     AdminAuthController_login: {
         parameters: {
             query?: never;
@@ -5277,7 +7214,33 @@ export interface operations {
             };
         };
     };
-    AdminController_createStore: {
+    AdminController_listAreas: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAreaResponseDto"][];
+                };
+            };
+            /** @description Missing or invalid admin access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminController_createArea: {
         parameters: {
             query?: never;
             header?: never;
@@ -5286,7 +7249,7 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["CreateStoreDto"];
+                "application/json": components["schemas"]["CreateAreaDto"];
             };
         };
         responses: {
@@ -5295,7 +7258,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["CreateStoreResponseDto"];
+                    "application/json": components["schemas"]["AdminAreaResponseDto"];
                 };
             };
             /** @description Validation failed. */
@@ -5319,7 +7282,67 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description Owner email already in use. */
+            /** @description An area with this name already exists. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminController_updateArea: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateAreaDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminAreaResponseDto"];
+                };
+            };
+            /** @description Validation failed. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid admin access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Requires SUPER_ADMIN. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Area not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description An area with this name already exists. */
             409: {
                 headers: {
                     [name: string]: unknown;
@@ -6838,9 +8861,13 @@ export interface operations {
             };
         };
     };
-    PaymentsController_listBanks: {
+    AdminStoresController_listStores: {
         parameters: {
-            query?: never;
+            query?: {
+                status?: "ACTIVE" | "SUSPENDED" | "PENDING";
+                /** @description Matches part of the store name, slug, or area. */
+                q?: string;
+            };
             header?: never;
             path?: never;
             cookie?: never;
@@ -6852,31 +8879,11 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["BankResponseDto"][];
+                    "application/json": components["schemas"]["StoreResponseDto"][];
                 };
             };
-        };
-    };
-    PaymentsController_verify: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path: {
-                orderId: string;
-            };
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description The order status after verifying. */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content?: never;
-            };
-            /** @description Order not found. */
-            404: {
+            /** @description Missing or invalid admin access token. */
+            401: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -6884,18 +8891,16 @@ export interface operations {
             };
         };
     };
-    PaymentsController_initialize: {
+    AdminStoresController_createStore: {
         parameters: {
             query?: never;
             header?: never;
-            path: {
-                orderId: string;
-            };
+            path?: never;
             cookie?: never;
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["InitializePaymentDto"];
+                "application/json": components["schemas"]["CreateStoreDto"];
             };
         };
         responses: {
@@ -6904,32 +8909,120 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["InitializePaymentResponseDto"];
+                    "application/json": components["schemas"]["CreateStoreResponseDto"];
                 };
             };
-            /** @description Not a PAYSTACK-provider order, the customer has no email on file, or callbackUrl is not on an allowed web origin. */
+            /** @description Validation failed. */
             400: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description Missing or invalid access token. */
+            /** @description Missing or invalid admin access token. */
             401: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description Order (or its payment) not found. */
+            /** @description Requires SUPER_ADMIN. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Owner email already in use. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    AdminStoresController_getStore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AdminStoreDetailDto"];
+                };
+            };
+            /** @description Missing or invalid admin access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Store not found. */
             404: {
                 headers: {
                     [name: string]: unknown;
                 };
                 content?: never;
             };
-            /** @description `code`: AWAITING_KITCHEN (not accepted yet), PAYMENT_WINDOW_CLOSED (expired or cancelled), or ALREADY_PAID. */
-            409: {
+        };
+    };
+    AdminStoresController_updateStoreStatus: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["UpdateStoreStatusDto"];
+            };
+        };
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreResponseDto"];
+                };
+            };
+            /** @description Suspending without a note. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid admin access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Store not found. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description VERIFICATION_PHOTOS_REQUIRED — too few photos to approve. */
+            422: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -7096,6 +9189,40 @@ export interface operations {
                 };
             };
             /** @description Kitchen not found, not ACTIVE, or does not serve the requested side. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KitchensController_quoteDelivery: {
+        parameters: {
+            query: {
+                /** @description One of the caller's saved addresses. */
+                addressId: string;
+            };
+            header?: never;
+            path: {
+                slug: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        feeNaira?: number;
+                        distanceKm?: number | null;
+                    };
+                };
+            };
+            /** @description Kitchen not found or not ACTIVE, or the address isn't the caller's. */
             404: {
                 headers: {
                     [name: string]: unknown;
@@ -7415,6 +9542,50 @@ export interface operations {
             };
         };
     };
+    KitchenConsoleController_registerStore: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["RegisterBusinessStoreDto"];
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["StoreResponseDto"];
+                };
+            };
+            /** @description Missing or invalid kitchen access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ALREADY_REGISTERED — the business already has a store. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     KitchenConsoleController_resolvePayoutAccount: {
         parameters: {
             query?: never;
@@ -7720,6 +9891,135 @@ export interface operations {
             };
             /** @description Caller is STAFF, not OWNER. */
             403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KitchenConsoleController_listVerificationPhotos: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationPhotoResponseDto"][];
+                };
+            };
+            /** @description Missing or invalid kitchen access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KitchenConsoleController_uploadVerificationPhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "multipart/form-data": {
+                    /** Format: binary */
+                    file: string;
+                };
+            };
+        };
+        responses: {
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["VerificationPhotoResponseDto"];
+                };
+            };
+            /** @description Missing file, wrong MIME type, or over the size limit. */
+            400: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid kitchen access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description The kitchen already has the maximum number of photos. */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    KitchenConsoleController_deleteVerificationPhoto: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description Verification photo id. */
+                id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Deleted. */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Missing or invalid kitchen access token. */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Caller is STAFF, not OWNER. */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Not one of this kitchen’s photos. */
+            404: {
                 headers: {
                     [name: string]: unknown;
                 };
@@ -8419,6 +10719,73 @@ export interface operations {
             };
         };
     };
+    AreasController_list: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AreaResponseDto"][];
+                };
+            };
+        };
+    };
+    PublicController_track: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                /** @description The order's trackingToken. */
+                token: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicTrackingResponseDto"];
+                };
+            };
+            /** @description Unknown or expired link. */
+            404: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    PublicController_getStats: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PublicStatsResponseDto"];
+                };
+            };
+        };
+    };
     OrdersController_list: {
         parameters: {
             query?: never;
@@ -8487,7 +10854,7 @@ export interface operations {
                 };
                 content?: never;
             };
-            /** @description OUTSIDE_DELIVERY_AREA — the address is outside the delivery zone. CART_UNAVAILABLE — items/kitchens unavailable. KITCHEN_TOO_FAR — a kitchen in the cart is more than 15 km from the delivery address (details lists kitchen names). MIXED_CART — food and grocery in one cart. */
+            /** @description OUTSIDE_DELIVERY_AREA — the address is outside the delivery zone (only when ENFORCE_DELIVERY_AREA=true). CART_UNAVAILABLE — items/kitchens unavailable. KITCHEN_TOO_FAR — a kitchen in the cart is more than 15 km from the delivery address (details lists kitchen names; only when ENFORCE_DELIVERY_AREA=true). MIXED_CART — food and grocery in one cart. */
             422: {
                 headers: {
                     [name: string]: unknown;

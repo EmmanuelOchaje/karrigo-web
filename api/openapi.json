@@ -692,6 +692,86 @@
         ]
       }
     },
+    "/v1/kitchen-auth/otp/request": {
+      "post": {
+        "operationId": "KitchenAuthController_requestOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestKitchenOtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resendCooldownSeconds": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "That phone number is already verified on a kitchen account."
+          }
+        },
+        "summary": "Text a verification code to the phone number a kitchen owner will register with.",
+        "tags": [
+          "Auth — Kitchen Staff"
+        ]
+      }
+    },
+    "/v1/kitchen-auth/email-otp/request": {
+      "post": {
+        "operationId": "KitchenAuthController_requestEmailOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestKitchenEmailOtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resendCooldownSeconds": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "An account with this email already exists."
+          }
+        },
+        "summary": "Email a verification code to the address a kitchen owner will register with.",
+        "tags": [
+          "Auth — Kitchen Staff"
+        ]
+      }
+    },
     "/v1/kitchen-auth/register": {
       "post": {
         "operationId": "KitchenAuthController_register",
@@ -757,6 +837,68 @@
           }
         },
         "summary": "Sign in a kitchen staff account.",
+        "tags": [
+          "Auth — Kitchen Staff"
+        ]
+      }
+    },
+    "/v1/kitchen-auth/password/forgot": {
+      "post": {
+        "operationId": "KitchenAuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotKitchenPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resendCooldownSeconds": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Email a password-reset code. Always 200 — it never reveals whether the address has an account.",
+        "tags": [
+          "Auth — Kitchen Staff"
+        ]
+      }
+    },
+    "/v1/kitchen-auth/password/reset": {
+      "post": {
+        "operationId": "KitchenAuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetKitchenPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Reset a forgotten password with the emailed code. Signs the account out everywhere.",
         "tags": [
           "Auth — Kitchen Staff"
         ]
@@ -944,6 +1086,1042 @@
         ]
       }
     },
+    "/v1/store-auth/otp/request": {
+      "post": {
+        "operationId": "StoreAuthController_requestOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestKitchenOtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resendCooldownSeconds": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "That phone number is already verified on a partner account."
+          }
+        },
+        "summary": "Text a verification code to the phone number a store owner will register with.",
+        "tags": [
+          "Auth — Store onboarding (shared partner login)"
+        ]
+      }
+    },
+    "/v1/store-auth/email-otp/request": {
+      "post": {
+        "operationId": "StoreAuthController_requestEmailOtp",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestKitchenEmailOtpDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resendCooldownSeconds": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "An account with this email already exists."
+          }
+        },
+        "summary": "Email a verification code to the address a store owner will register with.",
+        "tags": [
+          "Auth — Store onboarding (shared partner login)"
+        ]
+      }
+    },
+    "/v1/store-auth/register": {
+      "post": {
+        "operationId": "StoreAuthController_register",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterStoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RegisterStoreResponseDto"
+                }
+              }
+            }
+          },
+          "409": {
+            "description": "An account with this email already exists."
+          }
+        },
+        "summary": "Sign up through the store onboarding: creates the business, the OWNER login (the one shared partner login) and the Store (PENDING) in one call.",
+        "tags": [
+          "Auth — Store onboarding (shared partner login)"
+        ]
+      }
+    },
+    "/v1/store-auth/login": {
+      "post": {
+        "operationId": "StoreAuthController_login",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/KitchenLoginDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPairResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Wrong email/password, or the account is not ACTIVE."
+          }
+        },
+        "summary": "Sign in. Same partner login as /kitchen-auth/login, whichever side registered first.",
+        "tags": [
+          "Auth — Store onboarding (shared partner login)"
+        ]
+      }
+    },
+    "/v1/store-auth/password/forgot": {
+      "post": {
+        "operationId": "StoreAuthController_forgotPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ForgotKitchenPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "resendCooldownSeconds": {
+                      "type": "number"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Email a password-reset code. Always 200 — it never reveals whether the address has an account.",
+        "tags": [
+          "Auth — Store onboarding (shared partner login)"
+        ]
+      }
+    },
+    "/v1/store-auth/password/reset": {
+      "post": {
+        "operationId": "StoreAuthController_resetPassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ResetKitchenPasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Reset a forgotten password with the emailed code. Signs the account out everywhere.",
+        "tags": [
+          "Auth — Store onboarding (shared partner login)"
+        ]
+      }
+    },
+    "/v1/store-auth/refresh": {
+      "post": {
+        "operationId": "StoreAuthController_refresh",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TokenPairResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Rotate a refresh token for a new token pair.",
+        "tags": [
+          "Auth — Store onboarding (shared partner login)"
+        ]
+      }
+    },
+    "/v1/store-auth/logout": {
+      "post": {
+        "operationId": "StoreAuthController_logout",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RefreshTokenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          }
+        },
+        "summary": "Revoke a refresh token (sign out).",
+        "tags": [
+          "Auth — Store onboarding (shared partner login)"
+        ]
+      }
+    },
+    "/v1/store-auth/me": {
+      "get": {
+        "operationId": "StoreAuthController_me",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthenticatedKitchenStaffResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid partner access token."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The signed-in kitchen staff member (JWT claims, not the full row).",
+        "tags": [
+          "Auth — Store onboarding (shared partner login)"
+        ]
+      }
+    },
+    "/v1/store-auth/me/profile": {
+      "get": {
+        "operationId": "StoreAuthController_getProfile",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenStaffResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The signed-in staff member's own row (name, email, contact phone) — GET /kitchen-auth/me stays JWT claims only.",
+        "tags": [
+          "Auth — Store onboarding (shared partner login)"
+        ]
+      },
+      "patch": {
+        "operationId": "StoreAuthController_updateProfile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateKitchenStaffProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenStaffResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update the signed-in staff member's contact phone.",
+        "tags": [
+          "Auth — Store onboarding (shared partner login)"
+        ]
+      }
+    },
+    "/v1/store-auth/password/change": {
+      "post": {
+        "operationId": "StoreAuthController_changePassword",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ChangePasswordDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "204": {
+            "description": ""
+          },
+          "401": {
+            "description": "Current password is incorrect."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Change the signed-in staff member's password.",
+        "tags": [
+          "Auth — Store onboarding (shared partner login)"
+        ]
+      }
+    },
+    "/v1/store-console/store": {
+      "get": {
+        "operationId": "StoreConsoleController_getOwnStore",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreConsoleResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid partner access token. 409 NO_STORE if the business has no store yet."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "The caller's store, with what it still needs before it can open and how many verification photos it has.",
+        "tags": [
+          "Store Console"
+        ]
+      },
+      "patch": {
+        "operationId": "StoreConsoleController_updateProfile",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateStoreProfileDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Only one of lat and lng was sent."
+          },
+          "401": {
+            "description": "Missing or invalid partner access token. 409 NO_STORE if the business has no store yet."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Update the store profile (name, area, location, rider fee, open/closed). Send lat and lng together. OWNER only.",
+        "tags": [
+          "Store Console"
+        ]
+      }
+    },
+    "/v1/store-console/geocode": {
+      "get": {
+        "operationId": "StoreConsoleController_geocode",
+        "parameters": [
+          {
+            "name": "query",
+            "required": true,
+            "in": "query",
+            "description": "At least 3 characters.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/GeocodeResultResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Type at least 3 characters to search."
+          },
+          "401": {
+            "description": "Missing or invalid partner access token. 409 NO_STORE if the business has no store yet."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Forward-geocode a typed address to candidate matches (Google).",
+        "tags": [
+          "Store Console"
+        ]
+      }
+    },
+    "/v1/store-console/reverse-geocode": {
+      "get": {
+        "operationId": "StoreConsoleController_reverseGeocode",
+        "parameters": [
+          {
+            "name": "lat",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "lng",
+            "required": true,
+            "in": "query",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ReverseGeocodeResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "lat and lng are required."
+          },
+          "401": {
+            "description": "Missing or invalid partner access token. 409 NO_STORE if the business has no store yet."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Reverse-geocode coordinates to one formatted address (LocationIQ).",
+        "tags": [
+          "Store Console"
+        ]
+      }
+    },
+    "/v1/store-console/store/appeal": {
+      "post": {
+        "operationId": "StoreConsoleController_appeal",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AppealDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid partner access token. 409 NO_STORE if the business has no store yet."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          },
+          "409": {
+            "description": "The store is not suspended, or already appealed."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Appeal a suspension with a message (once per suspension). OWNER only.",
+        "tags": [
+          "Store Console"
+        ]
+      }
+    },
+    "/v1/store-console/business/kitchen": {
+      "post": {
+        "operationId": "StoreConsoleController_registerKitchen",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterBusinessKitchenDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/KitchenResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid partner access token. 409 NO_STORE if the business has no store yet."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          },
+          "409": {
+            "description": "ALREADY_REGISTERED — the business already has a kitchen."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Register your business as a kitchen: the same owner and login, no new codes. Creates the kitchen (PENDING) for its own onboarding and ops approval. OWNER only.",
+        "tags": [
+          "Store Console"
+        ]
+      }
+    },
+    "/v1/store-console/store/payout-account/resolve": {
+      "post": {
+        "operationId": "StoreConsoleController_resolvePayoutAccount",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitPayoutAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "`{ accountNumber, accountName }` as confirmed by the bank."
+          },
+          "401": {
+            "description": "Missing or invalid partner access token. 409 NO_STORE if the business has no store yet."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Look up the account name for a bank + account number without saving it, so the owner can confirm it first. OWNER only.",
+        "tags": [
+          "Store Console"
+        ]
+      }
+    },
+    "/v1/store-console/store/payout-account": {
+      "patch": {
+        "operationId": "StoreConsoleController_submitPayoutAccount",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/SubmitPayoutAccountDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid partner access token. 409 NO_STORE if the business has no store yet."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Set the store's payout bank account (Paystack NUBAN resolution). OWNER only.",
+        "tags": [
+          "Store Console"
+        ]
+      }
+    },
+    "/v1/store-console/store/hero-image": {
+      "post": {
+        "operationId": "StoreConsoleController_uploadHeroImage",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing file, wrong MIME type, or over the size limit."
+          },
+          "401": {
+            "description": "Missing or invalid partner access token. 409 NO_STORE if the business has no store yet."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload the store's hero image (public). OWNER only.",
+        "tags": [
+          "Store Console"
+        ]
+      }
+    },
+    "/v1/store-console/store/photos": {
+      "post": {
+        "operationId": "StoreConsoleController_uploadVerificationPhoto",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreVerificationPhotoResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing file, wrong MIME type, or over the size limit."
+          },
+          "401": {
+            "description": "Missing or invalid partner access token. 409 NO_STORE if the business has no store yet."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          },
+          "409": {
+            "description": "The store already has the maximum number of photos."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload a private verification photo of the store (exactly 6 are required). OWNER only.",
+        "tags": [
+          "Store Console"
+        ]
+      },
+      "get": {
+        "operationId": "StoreConsoleController_listVerificationPhotos",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/StoreVerificationPhotoResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid partner access token. 409 NO_STORE if the business has no store yet."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the store's verification photos (signed URLs), oldest first. OWNER only.",
+        "tags": [
+          "Store Console"
+        ]
+      }
+    },
+    "/v1/store-console/store/photos/{id}": {
+      "delete": {
+        "operationId": "StoreConsoleController_deleteVerificationPhoto",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Verification photo id.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted."
+          },
+          "401": {
+            "description": "Missing or invalid partner access token. 409 NO_STORE if the business has no store yet."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          },
+          "404": {
+            "description": "Not one of this store's photos."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a verification photo. OWNER only.",
+        "tags": [
+          "Store Console"
+        ]
+      }
+    },
+    "/v1/payments/banks": {
+      "get": {
+        "operationId": "PaymentsController_listBanks",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/BankResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Paystack bank reference list (name + code), used by every payout-account form.",
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/v1/payments/orders/{orderId}/verify": {
+      "post": {
+        "operationId": "PaymentsController_verify",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "The order status after verifying."
+          },
+          "404": {
+            "description": "Order not found."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Ask Paystack whether the latest checkout was paid and, if so, confirm the order now. Call after the checkout closes; safe to repeat. Backs up the webhook, which can be late or unreachable.",
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
+    "/v1/payments/orders/{orderId}/pay": {
+      "post": {
+        "operationId": "PaymentsController_initialize",
+        "parameters": [
+          {
+            "name": "orderId",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/InitializePaymentDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/InitializePaymentResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Not a PAYSTACK-provider order, the customer has no email on file, or callbackUrl is not on an allowed web origin."
+          },
+          "401": {
+            "description": "Missing or invalid access token."
+          },
+          "404": {
+            "description": "Order (or its payment) not found."
+          },
+          "409": {
+            "description": "`code`: AWAITING_KITCHEN (not accepted yet), PAYMENT_WINDOW_CLOSED (expired or cancelled), or ALREADY_PAID."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Start a Paystack checkout. Only while the order is AWAITING_PAYMENT and before paymentDueAt. Each call returns a fresh checkout; the order is confirmed by Paystack’s webhook, never by the redirect, so re-read the order until it shows ACCEPTED.",
+        "tags": [
+          "Payments"
+        ]
+      }
+    },
     "/v1/admin-auth/login": {
       "post": {
         "operationId": "AdminAuthController_login",
@@ -1106,16 +2284,47 @@
         ]
       }
     },
-    "/v1/admin/stores": {
+    "/v1/admin/areas": {
+      "get": {
+        "operationId": "AdminController_listAreas",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AdminAreaResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid admin access token."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Every address-picker area, including archived ones, ordered by sortOrder then name. Any admin role.",
+        "tags": [
+          "Admin"
+        ]
+      },
       "post": {
-        "operationId": "AdminController_createStore",
+        "operationId": "AdminController_createArea",
         "parameters": [],
         "requestBody": {
           "required": true,
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/CreateStoreDto"
+                "$ref": "#/components/schemas/CreateAreaDto"
               }
             }
           }
@@ -1126,7 +2335,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/CreateStoreResponseDto"
+                  "$ref": "#/components/schemas/AdminAreaResponseDto"
                 }
               }
             }
@@ -1141,7 +2350,7 @@
             "description": "Requires SUPER_ADMIN."
           },
           "409": {
-            "description": "Owner email already in use."
+            "description": "An area with this name already exists."
           }
         },
         "security": [
@@ -1149,7 +2358,68 @@
             "bearer": []
           }
         ],
-        "summary": "Create a store (ACTIVE, no approval step) with an OWNER login. It starts grocery-only (the owner can switch food on in the app); admins do not set its products. The temporary password is returned once and never stored in plain text. The owner must sign in with exactly the returned `ownerEmail` (case-sensitive, as stored). SUPER_ADMIN only. Writes an AuditLog row.",
+        "summary": "Create an area. The slug is generated from the name. lat/lng come together or not at all. SUPER_ADMIN only. Writes an AuditLog row.",
+        "tags": [
+          "Admin"
+        ]
+      }
+    },
+    "/v1/admin/areas/{id}": {
+      "patch": {
+        "operationId": "AdminController_updateArea",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/UpdateAreaDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminAreaResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed."
+          },
+          "401": {
+            "description": "Missing or invalid admin access token."
+          },
+          "403": {
+            "description": "Requires SUPER_ADMIN."
+          },
+          "404": {
+            "description": "Area not found."
+          },
+          "409": {
+            "description": "An area with this name already exists."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Edit an area (name, centre, sortOrder, isActive). Renaming keeps the slug; `lat: null, lng: null` clears the centre; `isActive: false` archives. SUPER_ADMIN only. Writes an AuditLog row.",
         "tags": [
           "Admin"
         ]
@@ -3447,10 +4717,81 @@
         ]
       }
     },
-    "/v1/payments/banks": {
-      "get": {
-        "operationId": "PaymentsController_listBanks",
+    "/v1/admin/stores": {
+      "post": {
+        "operationId": "AdminStoresController_createStore",
         "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CreateStoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CreateStoreResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Validation failed."
+          },
+          "401": {
+            "description": "Missing or invalid admin access token."
+          },
+          "403": {
+            "description": "Requires SUPER_ADMIN."
+          },
+          "409": {
+            "description": "Owner email already in use."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Create a store (ACTIVE, no approval step) with an OWNER login. The temporary password is returned once and never stored in plain text. The owner signs in with the returned `ownerEmail` (stored lowercased; login ignores case). SUPER_ADMIN only. Writes an AuditLog row.",
+        "tags": [
+          "Admin — Stores"
+        ]
+      },
+      "get": {
+        "operationId": "AdminStoresController_listStores",
+        "parameters": [
+          {
+            "name": "status",
+            "required": false,
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "enum": [
+                "ACTIVE",
+                "SUSPENDED",
+                "PENDING"
+              ]
+            }
+          },
+          {
+            "name": "q",
+            "required": false,
+            "in": "query",
+            "description": "Matches part of the store name, slug, or area.",
+            "schema": {
+              "maxLength": 64,
+              "type": "string"
+            }
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -3459,25 +4800,33 @@
                 "schema": {
                   "type": "array",
                   "items": {
-                    "$ref": "#/components/schemas/BankResponseDto"
+                    "$ref": "#/components/schemas/StoreResponseDto"
                   }
                 }
               }
             }
+          },
+          "401": {
+            "description": "Missing or invalid admin access token."
           }
         },
-        "summary": "Paystack bank reference list (name + code), used by every payout-account form.",
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Every store, any status (the approval queue is `?status=PENDING`). `q` matches name, slug or area.",
         "tags": [
-          "Payments"
+          "Admin — Stores"
         ]
       }
     },
-    "/v1/payments/orders/{orderId}/verify": {
-      "post": {
-        "operationId": "PaymentsController_verify",
+    "/v1/admin/stores/{id}": {
+      "get": {
+        "operationId": "AdminStoresController_getStore",
         "parameters": [
           {
-            "name": "orderId",
+            "name": "id",
             "required": true,
             "in": "path",
             "schema": {
@@ -3487,10 +4836,20 @@
         ],
         "responses": {
           "200": {
-            "description": "The order status after verifying."
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AdminStoreDetailDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid admin access token."
           },
           "404": {
-            "description": "Order not found."
+            "description": "Store not found."
           }
         },
         "security": [
@@ -3498,18 +4857,18 @@
             "bearer": []
           }
         ],
-        "summary": "Ask Paystack whether the latest checkout was paid and, if so, confirm the order now. Call after the checkout closes; safe to repeat. Backs up the webhook, which can be late or unreachable.",
+        "summary": "A store with every staff login (OWNER first), its verification photos (signed URLs) and its 10 latest audit entries.",
         "tags": [
-          "Payments"
+          "Admin — Stores"
         ]
       }
     },
-    "/v1/payments/orders/{orderId}/pay": {
-      "post": {
-        "operationId": "PaymentsController_initialize",
+    "/v1/admin/stores/{id}/status": {
+      "patch": {
+        "operationId": "AdminStoresController_updateStoreStatus",
         "parameters": [
           {
-            "name": "orderId",
+            "name": "id",
             "required": true,
             "in": "path",
             "schema": {
@@ -3522,33 +4881,33 @@
           "content": {
             "application/json": {
               "schema": {
-                "$ref": "#/components/schemas/InitializePaymentDto"
+                "$ref": "#/components/schemas/UpdateStoreStatusDto"
               }
             }
           }
         },
         "responses": {
-          "201": {
+          "200": {
             "description": "",
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/InitializePaymentResponseDto"
+                  "$ref": "#/components/schemas/StoreResponseDto"
                 }
               }
             }
           },
           "400": {
-            "description": "Not a PAYSTACK-provider order, the customer has no email on file, or callbackUrl is not on an allowed web origin."
+            "description": "Suspending without a note."
           },
           "401": {
-            "description": "Missing or invalid access token."
+            "description": "Missing or invalid admin access token."
           },
           "404": {
-            "description": "Order (or its payment) not found."
+            "description": "Store not found."
           },
-          "409": {
-            "description": "`code`: AWAITING_KITCHEN (not accepted yet), PAYMENT_WINDOW_CLOSED (expired or cancelled), or ALREADY_PAID."
+          "422": {
+            "description": "VERIFICATION_PHOTOS_REQUIRED — too few photos to approve."
           }
         },
         "security": [
@@ -3556,9 +4915,9 @@
             "bearer": []
           }
         ],
-        "summary": "Start a Paystack checkout. Only while the order is AWAITING_PAYMENT and before paymentDueAt. Each call returns a fresh checkout; the order is confirmed by Paystack’s webhook, never by the redirect, so re-read the order until it shows ACCEPTED.",
+        "summary": "Approve (→ ACTIVE, needs the required verification photos) or suspend/reject (→ SUSPENDED, `note` required) a store. Emails the owners. Writes an AuditLog row.",
         "tags": [
-          "Payments"
+          "Admin — Stores"
         ]
       }
     },
@@ -3774,6 +5133,58 @@
           }
         },
         "summary": "A kitchen's public page for one side (?type=, default FOOD) — profile plus that side's menu; flagged items omitted.",
+        "tags": [
+          "Kitchens (public catalog)"
+        ]
+      }
+    },
+    "/v1/kitchens/{slug}/delivery-quote": {
+      "get": {
+        "operationId": "KitchensController_quoteDelivery",
+        "parameters": [
+          {
+            "name": "slug",
+            "required": true,
+            "in": "path",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "addressId",
+            "required": true,
+            "in": "query",
+            "description": "One of the caller's saved addresses.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "properties": {
+                    "feeNaira": {
+                      "type": "integer"
+                    },
+                    "distanceKm": {
+                      "type": "number",
+                      "nullable": true
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Kitchen not found or not ACTIVE, or the address isn't the caller's."
+          }
+        },
+        "summary": "The delivery fee for one of the caller's addresses from this kitchen.",
         "tags": [
           "Kitchens (public catalog)"
         ]
@@ -4140,6 +5551,52 @@
         ]
       }
     },
+    "/v1/kitchen-console/business/store": {
+      "post": {
+        "operationId": "KitchenConsoleController_registerStore",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RegisterBusinessStoreDto"
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/StoreResponseDto"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid kitchen access token."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          },
+          "409": {
+            "description": "ALREADY_REGISTERED — the business already has a store."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Register your business as a store: the same owner and login, no new codes. Creates the store (PENDING) for its own onboarding and ops approval. OWNER only.",
+        "tags": [
+          "Kitchen Console"
+        ]
+      }
+    },
     "/v1/kitchen-console/kitchen/payout-account/resolve": {
       "post": {
         "operationId": "KitchenConsoleController_resolvePayoutAccount",
@@ -4489,6 +5946,137 @@
           }
         ],
         "summary": "Upload the kitchen's hero photo. OWNER only.",
+        "tags": [
+          "Kitchen Console"
+        ]
+      }
+    },
+    "/v1/kitchen-console/kitchen/photos": {
+      "post": {
+        "operationId": "KitchenConsoleController_uploadVerificationPhoto",
+        "parameters": [],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "file": {
+                    "type": "string",
+                    "format": "binary"
+                  }
+                },
+                "required": [
+                  "file"
+                ]
+              }
+            }
+          }
+        },
+        "responses": {
+          "201": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/VerificationPhotoResponseDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing file, wrong MIME type, or over the size limit."
+          },
+          "401": {
+            "description": "Missing or invalid kitchen access token."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          },
+          "409": {
+            "description": "The kitchen already has the maximum number of photos."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Upload a private verification photo of the kitchen (exactly 6 are required). OWNER only.",
+        "tags": [
+          "Kitchen Console"
+        ]
+      },
+      "get": {
+        "operationId": "KitchenConsoleController_listVerificationPhotos",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/VerificationPhotoResponseDto"
+                  }
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Missing or invalid kitchen access token."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "List the kitchen's verification photos (signed URLs), oldest first. OWNER only.",
+        "tags": [
+          "Kitchen Console"
+        ]
+      }
+    },
+    "/v1/kitchen-console/kitchen/photos/{id}": {
+      "delete": {
+        "operationId": "KitchenConsoleController_deleteVerificationPhoto",
+        "parameters": [
+          {
+            "name": "id",
+            "required": true,
+            "in": "path",
+            "description": "Verification photo id.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Deleted."
+          },
+          "401": {
+            "description": "Missing or invalid kitchen access token."
+          },
+          "403": {
+            "description": "Caller is STAFF, not OWNER."
+          },
+          "404": {
+            "description": "Not one of this kitchen’s photos."
+          }
+        },
+        "security": [
+          {
+            "bearer": []
+          }
+        ],
+        "summary": "Delete a verification photo. OWNER only.",
         "tags": [
           "Kitchen Console"
         ]
@@ -5267,7 +6855,7 @@
             "bearer": []
           }
         ],
-        "summary": "Save a new address for the caller.",
+        "summary": "Save a new address for the caller. `lat`/`lng` are optional: send an `areaId` (from GET /areas) instead and the area's own centre is used for distance and delivery fee. 422 AREA_HAS_NO_LOCATION if that area has no map position.",
         "tags": [
           "Addresses"
         ]
@@ -5352,9 +6940,91 @@
             "bearer": []
           }
         ],
-        "summary": "Delete one of the caller's addresses.",
+        "summary": "Remove one of the caller's addresses. It is archived, not deleted, so past orders keep it.",
         "tags": [
           "Addresses"
+        ]
+      }
+    },
+    "/v1/areas": {
+      "get": {
+        "operationId": "AreasController_list",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "array",
+                  "items": {
+                    "$ref": "#/components/schemas/AreaResponseDto"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "summary": "Active neighbourhoods for the address picker, ordered by sortOrder then name. No auth.",
+        "tags": [
+          "Areas (public)"
+        ]
+      }
+    },
+    "/v1/public/track/{token}": {
+      "get": {
+        "operationId": "PublicController_track",
+        "parameters": [
+          {
+            "name": "token",
+            "required": true,
+            "in": "path",
+            "description": "The order's trackingToken.",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicTrackingResponseDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Unknown or expired link."
+          }
+        },
+        "summary": "Read-only order tracking for a shared link. Addressed by the order's `trackingToken` (returned when the order is placed), not its id. Returns status, kitchen names, rider first name and position, and a rough ETA, with no address, phone or payment data. The link stops working 24 hours after delivery or cancellation (PUBLIC_TRACKING_TTL_HOURS). No auth; rate-limited.",
+        "tags": [
+          "Public"
+        ]
+      }
+    },
+    "/v1/public/stats": {
+      "get": {
+        "operationId": "PublicController_getStats",
+        "parameters": [],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PublicStatsResponseDto"
+                }
+              }
+            }
+          }
+        },
+        "summary": "Platform totals for the marketing site: customers, delivered orders, active areas and the manually maintained download count. No auth. Cacheable for an hour.",
+        "tags": [
+          "Public"
         ]
       }
     },
@@ -5393,7 +7063,7 @@
             "description": "Address not found."
           },
           "422": {
-            "description": "OUTSIDE_DELIVERY_AREA — the address is outside the delivery zone. CART_UNAVAILABLE — items/kitchens unavailable. KITCHEN_TOO_FAR — a kitchen in the cart is more than 15 km from the delivery address (details lists kitchen names). MIXED_CART — food and grocery in one cart."
+            "description": "OUTSIDE_DELIVERY_AREA — the address is outside the delivery zone (only when ENFORCE_DELIVERY_AREA=true). CART_UNAVAILABLE — items/kitchens unavailable. KITCHEN_TOO_FAR — a kitchen in the cart is more than 15 km from the delivery address (details lists kitchen names; only when ENFORCE_DELIVERY_AREA=true). MIXED_CART — food and grocery in one cart."
           }
         },
         "security": [
@@ -6922,6 +8592,29 @@
           }
         }
       },
+      "RequestKitchenOtpDto": {
+        "type": "object",
+        "properties": {
+          "phone": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "phone"
+        ]
+      },
+      "RequestKitchenEmailOtpDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
       "RegisterKitchenDto": {
         "type": "object",
         "properties": {
@@ -6932,11 +8625,17 @@
             "type": "string",
             "format": "email"
           },
+          "emailOtpCode": {
+            "type": "string"
+          },
           "password": {
             "type": "string",
             "minLength": 8
           },
           "phone": {
+            "type": "string"
+          },
+          "otpCode": {
             "type": "string"
           },
           "kitchenName": {
@@ -6945,15 +8644,19 @@
           "cuisine": {
             "type": "string"
           },
-          "area": {
+          "areaId": {
             "type": "string"
           }
         },
         "required": [
           "name",
           "email",
+          "emailOtpCode",
           "password",
-          "kitchenName"
+          "phone",
+          "otpCode",
+          "kitchenName",
+          "areaId"
         ]
       },
       "KitchenResponseDto": {
@@ -7004,7 +8707,27 @@
             "nullable": true
           },
           "feeNaira": {
-            "type": "number"
+            "type": "number",
+            "description": "Legacy, read-only: superseded by riderBaseFeeNaira."
+          },
+          "riderBaseFeeNaira": {
+            "type": "number",
+            "nullable": true
+          },
+          "missing": {
+            "type": "array",
+            "description": "What the kitchen still needs before it can open; empty = ready.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "LOCATION",
+                "RIDER_FEE"
+              ]
+            }
+          },
+          "verificationPhotoCount": {
+            "type": "number",
+            "description": "Verification photos uploaded so far; the kitchen needs exactly KITCHEN_PHOTOS_REQUIRED."
           },
           "ratingAvg": {
             "type": "number"
@@ -7087,6 +8810,9 @@
           "isOpen",
           "noticeText",
           "feeNaira",
+          "riderBaseFeeNaira",
+          "missing",
+          "verificationPhotoCount",
           "ratingAvg",
           "ratingsCount",
           "servesFood",
@@ -7111,7 +8837,7 @@
           "id": {
             "type": "string"
           },
-          "kitchenId": {
+          "businessId": {
             "type": "string"
           },
           "email": {
@@ -7121,6 +8847,11 @@
             "type": "string"
           },
           "phone": {
+            "type": "string",
+            "nullable": true
+          },
+          "emailVerifiedAt": {
+            "format": "date-time",
             "type": "string",
             "nullable": true
           },
@@ -7156,10 +8887,11 @@
         },
         "required": [
           "id",
-          "kitchenId",
+          "businessId",
           "email",
           "name",
           "phone",
+          "emailVerifiedAt",
           "staffRole",
           "status",
           "mfaEnabled",
@@ -7208,26 +8940,71 @@
           "password"
         ]
       },
+      "ForgotKitchenPasswordDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          }
+        },
+        "required": [
+          "email"
+        ]
+      },
+      "ResetKitchenPasswordDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "code": {
+            "type": "string"
+          },
+          "newPassword": {
+            "type": "string",
+            "minLength": 8
+          }
+        },
+        "required": [
+          "email",
+          "code",
+          "newPassword"
+        ]
+      },
       "AuthenticatedKitchenStaffResponseDto": {
         "type": "object",
         "properties": {
           "kitchenStaffId": {
             "type": "string"
           },
-          "kitchenId": {
+          "businessId": {
             "type": "string"
           },
-          "staffRole": {
+          "kitchenId": {
             "type": "string",
+            "nullable": true,
+            "description": "Null when the business has no kitchen yet (register it as a kitchen)."
+          },
+          "storeId": {
+            "type": "string",
+            "nullable": true,
+            "description": "Null when the business has no store yet (register it as a store)."
+          },
+          "staffRole": {
             "enum": [
               "OWNER",
               "STAFF"
-            ]
+            ],
+            "type": "string"
           }
         },
         "required": [
           "kitchenStaffId",
+          "businessId",
           "kitchenId",
+          "storeId",
           "staffRole"
         ]
       },
@@ -7240,6 +9017,509 @@
         },
         "required": [
           "phone"
+        ]
+      },
+      "RegisterStoreDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "email": {
+            "type": "string",
+            "format": "email"
+          },
+          "emailOtpCode": {
+            "type": "string"
+          },
+          "password": {
+            "type": "string",
+            "minLength": 8
+          },
+          "phone": {
+            "type": "string"
+          },
+          "otpCode": {
+            "type": "string"
+          },
+          "storeName": {
+            "type": "string"
+          },
+          "areaId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "email",
+          "emailOtpCode",
+          "password",
+          "phone",
+          "otpCode",
+          "storeName",
+          "areaId"
+        ]
+      },
+      "StoreResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string",
+            "nullable": true
+          },
+          "lat": {
+            "type": "number",
+            "nullable": true
+          },
+          "lng": {
+            "type": "number",
+            "nullable": true
+          },
+          "landmarkNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "heroImageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isOpen": {
+            "type": "boolean"
+          },
+          "noticeText": {
+            "type": "string",
+            "nullable": true
+          },
+          "riderBaseFeeNaira": {
+            "type": "number",
+            "nullable": true
+          },
+          "minOrderNaira": {
+            "type": "number",
+            "nullable": true
+          },
+          "maxItemsPerOrder": {
+            "type": "number",
+            "nullable": true
+          },
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED",
+              "PENDING"
+            ],
+            "type": "string"
+          },
+          "rejectionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "appealNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "appealedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "reviewedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "payoutBankCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "payoutAccountNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "payoutAccountName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "area",
+          "lat",
+          "lng",
+          "landmarkNote",
+          "heroImageUrl",
+          "isOpen",
+          "noticeText",
+          "riderBaseFeeNaira",
+          "minOrderNaira",
+          "maxItemsPerOrder",
+          "status",
+          "rejectionNote",
+          "appealNote",
+          "appealedAt",
+          "reviewedAt",
+          "payoutBankCode",
+          "payoutAccountNumber",
+          "payoutAccountName",
+          "createdAt",
+          "updatedAt"
+        ]
+      },
+      "RegisterStoreResponseDto": {
+        "type": "object",
+        "properties": {
+          "accessToken": {
+            "type": "string"
+          },
+          "refreshToken": {
+            "type": "string"
+          },
+          "store": {
+            "$ref": "#/components/schemas/StoreResponseDto"
+          },
+          "staff": {
+            "$ref": "#/components/schemas/KitchenStaffResponseDto"
+          }
+        },
+        "required": [
+          "accessToken",
+          "refreshToken",
+          "store",
+          "staff"
+        ]
+      },
+      "StoreConsoleResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string",
+            "nullable": true
+          },
+          "lat": {
+            "type": "number",
+            "nullable": true
+          },
+          "lng": {
+            "type": "number",
+            "nullable": true
+          },
+          "landmarkNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "heroImageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isOpen": {
+            "type": "boolean"
+          },
+          "noticeText": {
+            "type": "string",
+            "nullable": true
+          },
+          "riderBaseFeeNaira": {
+            "type": "number",
+            "nullable": true
+          },
+          "minOrderNaira": {
+            "type": "number",
+            "nullable": true
+          },
+          "maxItemsPerOrder": {
+            "type": "number",
+            "nullable": true
+          },
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED",
+              "PENDING"
+            ],
+            "type": "string"
+          },
+          "rejectionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "appealNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "appealedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "reviewedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "payoutBankCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "payoutAccountNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "payoutAccountName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "missing": {
+            "type": "array",
+            "description": "What the store still needs before it can open; empty = ready.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "LOCATION",
+                "RIDER_FEE"
+              ]
+            }
+          },
+          "verificationPhotoCount": {
+            "type": "number",
+            "description": "Verification photos uploaded so far; the store needs exactly STORE_PHOTOS_REQUIRED."
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "area",
+          "lat",
+          "lng",
+          "landmarkNote",
+          "heroImageUrl",
+          "isOpen",
+          "noticeText",
+          "riderBaseFeeNaira",
+          "minOrderNaira",
+          "maxItemsPerOrder",
+          "status",
+          "rejectionNote",
+          "appealNote",
+          "appealedAt",
+          "reviewedAt",
+          "payoutBankCode",
+          "payoutAccountNumber",
+          "payoutAccountName",
+          "createdAt",
+          "updatedAt",
+          "missing",
+          "verificationPhotoCount"
+        ]
+      },
+      "GeocodeResultResponseDto": {
+        "type": "object",
+        "properties": {
+          "label": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "label",
+          "lat",
+          "lng"
+        ]
+      },
+      "ReverseGeocodeResponseDto": {
+        "type": "object",
+        "properties": {
+          "address": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "address"
+        ]
+      },
+      "UpdateStoreProfileDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string"
+          },
+          "lat": {
+            "type": "number"
+          },
+          "lng": {
+            "type": "number"
+          },
+          "landmarkNote": {
+            "type": "string"
+          },
+          "heroImageUrl": {
+            "type": "string",
+            "format": "uri"
+          },
+          "noticeText": {
+            "type": "string"
+          },
+          "riderBaseFeeNaira": {
+            "type": "number",
+            "minimum": 500,
+            "maximum": 20000
+          },
+          "isOpen": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AppealDto": {
+        "type": "object",
+        "properties": {
+          "message": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "message"
+        ]
+      },
+      "RegisterBusinessKitchenDto": {
+        "type": "object",
+        "properties": {
+          "kitchenName": {
+            "type": "string"
+          },
+          "cuisine": {
+            "type": "string"
+          },
+          "areaId": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "kitchenName",
+          "areaId"
+        ]
+      },
+      "SubmitPayoutAccountDto": {
+        "type": "object",
+        "properties": {
+          "bankCode": {
+            "type": "string",
+            "minLength": 1
+          },
+          "accountNumber": {
+            "type": "string",
+            "minLength": 10
+          }
+        },
+        "required": [
+          "bankCode",
+          "accountNumber"
+        ]
+      },
+      "StoreVerificationPhotoResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "description": "Short-lived signed URL; the photos are private admin-review evidence."
+          }
+        },
+        "required": [
+          "id",
+          "url"
+        ]
+      },
+      "BankResponseDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "code": {
+            "type": "string"
+          },
+          "currency": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "code",
+          "currency"
+        ]
+      },
+      "InitializePaymentDto": {
+        "type": "object",
+        "properties": {
+          "callbackUrl": {
+            "type": "string",
+            "maxLength": 2048,
+            "description": "Web clients only: the page Paystack returns the customer to after checkout (Paystack appends `?trxref=…&reference=…`). Its origin must be one of the server's CORS_ORIGINS. Omit on mobile to get the app deep link.",
+            "example": "https://eats.karrigo.app/checkout/complete"
+          }
+        }
+      },
+      "InitializePaymentResponseDto": {
+        "type": "object",
+        "properties": {
+          "authorizationUrl": {
+            "type": "string"
+          },
+          "reference": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "authorizationUrl",
+          "reference"
         ]
       },
       "AdminLoginDto": {
@@ -7286,62 +9566,125 @@
           "email"
         ]
       },
-      "CreateStoreDto": {
+      "AdminAreaResponseDto": {
         "type": "object",
         "properties": {
+          "id": {
+            "type": "string"
+          },
           "name": {
             "type": "string"
           },
-          "area": {
+          "slug": {
             "type": "string"
           },
-          "ownerName": {
+          "city": {
+            "type": "string",
+            "example": "Makurdi"
+          },
+          "lat": {
+            "type": "number",
+            "nullable": true
+          },
+          "lng": {
+            "type": "number",
+            "nullable": true
+          },
+          "isActive": {
+            "type": "boolean"
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "createdAt": {
+            "format": "date-time",
             "type": "string"
-          },
-          "ownerEmail": {
-            "type": "string",
-            "format": "email"
-          },
-          "ownerPhone": {
-            "type": "string",
-            "pattern": "^\\+234\\d{10}$"
-          },
-          "maxItemsPerOrder": {
-            "type": "number",
-            "minimum": 1,
-            "maximum": 200
-          },
-          "minOrderNaira": {
-            "type": "number",
-            "minimum": 0
           }
         },
         "required": [
+          "id",
           "name",
-          "area",
-          "ownerName",
-          "ownerEmail",
-          "ownerPhone"
+          "slug",
+          "city",
+          "lat",
+          "lng",
+          "isActive",
+          "sortOrder",
+          "createdAt"
         ]
       },
-      "CreateStoreResponseDto": {
+      "CreateAreaDto": {
         "type": "object",
         "properties": {
-          "kitchen": {
-            "$ref": "#/components/schemas/KitchenResponseDto"
-          },
-          "ownerEmail": {
-            "type": "string"
-          },
-          "temporaryPassword": {
+          "name": {
             "type": "string",
-            "description": "Shown exactly once; only its bcrypt hash is stored."
+            "minLength": 2,
+            "maxLength": 60,
+            "example": "High Level"
+          },
+          "lat": {
+            "type": "number",
+            "minimum": -90,
+            "maximum": 90
+          },
+          "lng": {
+            "type": "number",
+            "minimum": -180,
+            "maximum": 180
+          },
+          "sortOrder": {
+            "type": "number",
+            "default": 0
           }
         },
         "required": [
-          "kitchen",
-          "ownerEmail",
-          "temporaryPassword"
+          "name"
+        ]
+      },
+      "UpdateAreaDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 2,
+            "maxLength": 60
+          },
+          "lat": {
+            "type": "number",
+            "nullable": true,
+            "minimum": -90,
+            "maximum": 90,
+            "description": "null clears (with lng: null)."
+          },
+          "lng": {
+            "type": "number",
+            "nullable": true,
+            "minimum": -180,
+            "maximum": 180
+          },
+          "sortOrder": {
+            "type": "number"
+          },
+          "isActive": {
+            "type": "boolean",
+            "description": "false archives the area."
+          }
+        }
+      },
+      "AdminKitchenVerificationPhotoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "description": "Short-lived signed read URL."
+          }
+        },
+        "required": [
+          "id",
+          "url"
         ]
       },
       "AdminKitchenStatsDto": {
@@ -7566,7 +9909,27 @@
             "nullable": true
           },
           "feeNaira": {
-            "type": "number"
+            "type": "number",
+            "description": "Legacy, read-only: superseded by riderBaseFeeNaira."
+          },
+          "riderBaseFeeNaira": {
+            "type": "number",
+            "nullable": true
+          },
+          "missing": {
+            "type": "array",
+            "description": "What the kitchen still needs before it can open; empty = ready.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "LOCATION",
+                "RIDER_FEE"
+              ]
+            }
+          },
+          "verificationPhotoCount": {
+            "type": "number",
+            "description": "Verification photos uploaded so far; the kitchen needs exactly KITCHEN_PHOTOS_REQUIRED."
           },
           "ratingAvg": {
             "type": "number"
@@ -7634,6 +9997,13 @@
             "format": "date-time",
             "type": "string"
           },
+          "verificationPhotos": {
+            "description": "Verification photos, oldest first, as signed URLs.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminKitchenVerificationPhotoDto"
+            }
+          },
           "staff": {
             "description": "Every staff login, OWNER first.",
             "type": "array",
@@ -7673,6 +10043,9 @@
           "isOpen",
           "noticeText",
           "feeNaira",
+          "riderBaseFeeNaira",
+          "missing",
+          "verificationPhotoCount",
           "ratingAvg",
           "ratingsCount",
           "servesFood",
@@ -7689,6 +10062,7 @@
           "payoutAccountName",
           "createdAt",
           "updatedAt",
+          "verificationPhotos",
           "staff",
           "stats",
           "recentOrders",
@@ -8743,6 +11117,11 @@
           "code": {
             "type": "string"
           },
+          "trackingToken": {
+            "type": "string",
+            "nullable": true,
+            "description": "Unguessable token for the public tracking link, GET /public/track/:token. Null on orders placed before it existed."
+          },
           "customerId": {
             "type": "string"
           },
@@ -8885,6 +11264,7 @@
           "payments",
           "id",
           "code",
+          "trackingToken",
           "customerId",
           "riderId",
           "addressId",
@@ -9240,6 +11620,11 @@
           "code": {
             "type": "string"
           },
+          "trackingToken": {
+            "type": "string",
+            "nullable": true,
+            "description": "Unguessable token for the public tracking link, GET /public/track/:token. Null on orders placed before it existed."
+          },
           "customerId": {
             "type": "string"
           },
@@ -9387,6 +11772,7 @@
           "timeline",
           "id",
           "code",
+          "trackingToken",
           "customerId",
           "riderId",
           "addressId",
@@ -9728,6 +12114,11 @@
           "code": {
             "type": "string"
           },
+          "trackingToken": {
+            "type": "string",
+            "nullable": true,
+            "description": "Unguessable token for the public tracking link, GET /public/track/:token. Null on orders placed before it existed."
+          },
           "customerId": {
             "type": "string"
           },
@@ -9866,6 +12257,7 @@
         "required": [
           "id",
           "code",
+          "trackingToken",
           "customerId",
           "riderId",
           "addressId",
@@ -10621,6 +13013,31 @@
           "role"
         ]
       },
+      "AdminBusinessSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "kitchen": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminKitchenSummaryDto"
+              }
+            ]
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "kitchen"
+        ]
+      },
       "AdminTicketStaffDto": {
         "type": "object",
         "properties": {
@@ -10637,8 +13054,8 @@
             "type": "string",
             "nullable": true
           },
-          "kitchen": {
-            "$ref": "#/components/schemas/AdminKitchenSummaryDto"
+          "business": {
+            "$ref": "#/components/schemas/AdminBusinessSummaryDto"
           }
         },
         "required": [
@@ -10646,7 +13063,7 @@
           "name",
           "email",
           "phone",
-          "kitchen"
+          "business"
         ]
       },
       "AdminTicketOrderDto": {
@@ -11603,15 +14020,15 @@
           "email": {
             "type": "string"
           },
-          "kitchen": {
-            "$ref": "#/components/schemas/AdminKitchenSummaryDto"
+          "business": {
+            "$ref": "#/components/schemas/AdminBusinessSummaryDto"
           }
         },
         "required": [
           "id",
           "name",
           "email",
-          "kitchen"
+          "business"
         ]
       },
       "AuditLogEntryDto": {
@@ -12058,49 +14475,330 @@
           }
         }
       },
-      "BankResponseDto": {
+      "CreateStoreDto": {
         "type": "object",
         "properties": {
           "name": {
             "type": "string"
           },
-          "code": {
+          "area": {
             "type": "string"
           },
-          "currency": {
+          "ownerName": {
             "type": "string"
+          },
+          "ownerEmail": {
+            "type": "string",
+            "format": "email"
+          },
+          "ownerPhone": {
+            "type": "string",
+            "pattern": "^\\+234\\d{10}$"
+          },
+          "maxItemsPerOrder": {
+            "type": "number",
+            "minimum": 1,
+            "maximum": 200
+          },
+          "minOrderNaira": {
+            "type": "number",
+            "minimum": 0
           }
         },
         "required": [
           "name",
-          "code",
-          "currency"
+          "area",
+          "ownerName",
+          "ownerEmail",
+          "ownerPhone"
         ]
       },
-      "InitializePaymentDto": {
+      "CreateStoreResponseDto": {
         "type": "object",
         "properties": {
-          "callbackUrl": {
-            "type": "string",
-            "maxLength": 2048,
-            "description": "Web clients only: the page Paystack returns the customer to after checkout (Paystack appends `?trxref=…&reference=…`). Its origin must be one of the server's CORS_ORIGINS. Omit on mobile to get the app deep link.",
-            "example": "https://eats.karrigo.app/checkout/complete"
-          }
-        }
-      },
-      "InitializePaymentResponseDto": {
-        "type": "object",
-        "properties": {
-          "authorizationUrl": {
+          "store": {
+            "$ref": "#/components/schemas/StoreResponseDto"
+          },
+          "ownerEmail": {
             "type": "string"
           },
-          "reference": {
+          "temporaryPassword": {
+            "type": "string",
+            "description": "Shown exactly once; only its bcrypt hash is stored."
+          }
+        },
+        "required": [
+          "store",
+          "ownerEmail",
+          "temporaryPassword"
+        ]
+      },
+      "AdminStoreBusinessDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
             "type": "string"
           }
         },
         "required": [
-          "authorizationUrl",
-          "reference"
+          "id",
+          "name"
+        ]
+      },
+      "AdminStoreKitchenDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "status"
+        ]
+      },
+      "AdminStorePhotoDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "description": "Short-lived signed URL."
+          }
+        },
+        "required": [
+          "id",
+          "url"
+        ]
+      },
+      "AdminStoreAuditEntryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "action": {
+            "type": "string"
+          },
+          "entity": {
+            "type": "string"
+          },
+          "entityId": {
+            "type": "string"
+          },
+          "metadata": {
+            "type": "object"
+          },
+          "actorAdminId": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          }
+        },
+        "required": [
+          "id",
+          "action",
+          "entity",
+          "entityId",
+          "metadata",
+          "actorAdminId",
+          "createdAt"
+        ]
+      },
+      "AdminStoreDetailDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "slug": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "area": {
+            "type": "string",
+            "nullable": true
+          },
+          "lat": {
+            "type": "number",
+            "nullable": true
+          },
+          "lng": {
+            "type": "number",
+            "nullable": true
+          },
+          "landmarkNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "heroImageUrl": {
+            "type": "string",
+            "nullable": true
+          },
+          "isOpen": {
+            "type": "boolean"
+          },
+          "noticeText": {
+            "type": "string",
+            "nullable": true
+          },
+          "riderBaseFeeNaira": {
+            "type": "number",
+            "nullable": true
+          },
+          "minOrderNaira": {
+            "type": "number",
+            "nullable": true
+          },
+          "maxItemsPerOrder": {
+            "type": "number",
+            "nullable": true
+          },
+          "status": {
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED",
+              "PENDING"
+            ],
+            "type": "string"
+          },
+          "rejectionNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "appealNote": {
+            "type": "string",
+            "nullable": true
+          },
+          "appealedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "reviewedAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "payoutBankCode": {
+            "type": "string",
+            "nullable": true
+          },
+          "payoutAccountNumber": {
+            "type": "string",
+            "nullable": true
+          },
+          "payoutAccountName": {
+            "type": "string",
+            "nullable": true
+          },
+          "createdAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "updatedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "business": {
+            "$ref": "#/components/schemas/AdminStoreBusinessDto"
+          },
+          "kitchen": {
+            "nullable": true,
+            "description": "The kitchen on the same business, or null if the business has none.",
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/AdminStoreKitchenDto"
+              }
+            ]
+          },
+          "staff": {
+            "description": "Every login of the business, OWNER first.",
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/KitchenStaffResponseDto"
+            }
+          },
+          "verificationPhotos": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminStorePhotoDto"
+            }
+          },
+          "recentAudit": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/AdminStoreAuditEntryDto"
+            }
+          }
+        },
+        "required": [
+          "id",
+          "slug",
+          "name",
+          "area",
+          "lat",
+          "lng",
+          "landmarkNote",
+          "heroImageUrl",
+          "isOpen",
+          "noticeText",
+          "riderBaseFeeNaira",
+          "minOrderNaira",
+          "maxItemsPerOrder",
+          "status",
+          "rejectionNote",
+          "appealNote",
+          "appealedAt",
+          "reviewedAt",
+          "payoutBankCode",
+          "payoutAccountNumber",
+          "payoutAccountName",
+          "createdAt",
+          "updatedAt",
+          "business",
+          "kitchen",
+          "staff",
+          "verificationPhotos",
+          "recentAudit"
+        ]
+      },
+      "UpdateStoreStatusDto": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "ACTIVE",
+              "SUSPENDED"
+            ]
+          },
+          "note": {
+            "type": "string",
+            "description": "Required (non-blank) when suspending; the service enforces that.",
+            "maxLength": 500
+          }
+        },
+        "required": [
+          "status"
         ]
       },
       "SubmitReviewDto": {
@@ -12277,7 +14975,27 @@
             "nullable": true
           },
           "feeNaira": {
-            "type": "number"
+            "type": "number",
+            "description": "Legacy, read-only: superseded by riderBaseFeeNaira."
+          },
+          "riderBaseFeeNaira": {
+            "type": "number",
+            "nullable": true
+          },
+          "missing": {
+            "type": "array",
+            "description": "What the kitchen still needs before it can open; empty = ready.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "LOCATION",
+                "RIDER_FEE"
+              ]
+            }
+          },
+          "verificationPhotoCount": {
+            "type": "number",
+            "description": "Verification photos uploaded so far; the kitchen needs exactly KITCHEN_PHOTOS_REQUIRED."
           },
           "ratingAvg": {
             "type": "number"
@@ -12366,6 +15084,9 @@
           "isOpen",
           "noticeText",
           "feeNaira",
+          "riderBaseFeeNaira",
+          "missing",
+          "verificationPhotoCount",
           "ratingAvg",
           "ratingsCount",
           "servesFood",
@@ -12383,49 +15104,6 @@
           "createdAt",
           "updatedAt",
           "sections"
-        ]
-      },
-      "GeocodeResultResponseDto": {
-        "type": "object",
-        "properties": {
-          "label": {
-            "type": "string"
-          },
-          "lat": {
-            "type": "number"
-          },
-          "lng": {
-            "type": "number"
-          }
-        },
-        "required": [
-          "label",
-          "lat",
-          "lng"
-        ]
-      },
-      "ReverseGeocodeResponseDto": {
-        "type": "object",
-        "properties": {
-          "address": {
-            "type": "string"
-          }
-        },
-        "required": [
-          "address"
-        ]
-      },
-      "AppealDto": {
-        "type": "object",
-        "properties": {
-          "message": {
-            "type": "string",
-            "minLength": 1,
-            "maxLength": 500
-          }
-        },
-        "required": [
-          "message"
         ]
       },
       "UpdateKitchenProfileDto": {
@@ -12459,9 +15137,10 @@
           "noticeText": {
             "type": "string"
           },
-          "feeNaira": {
+          "riderBaseFeeNaira": {
             "type": "number",
-            "minimum": 0
+            "minimum": 500,
+            "maximum": 20000
           },
           "isOpen": {
             "type": "boolean"
@@ -12474,21 +15153,19 @@
           }
         }
       },
-      "SubmitPayoutAccountDto": {
+      "RegisterBusinessStoreDto": {
         "type": "object",
         "properties": {
-          "bankCode": {
-            "type": "string",
-            "minLength": 1
+          "storeName": {
+            "type": "string"
           },
-          "accountNumber": {
-            "type": "string",
-            "minLength": 10
+          "areaId": {
+            "type": "string"
           }
         },
         "required": [
-          "bankCode",
-          "accountNumber"
+          "storeName",
+          "areaId"
         ]
       },
       "KitchenHoursResponseDto": {
@@ -12767,6 +15444,22 @@
           "attachmentPath",
           "createdAt",
           "updatedAt"
+        ]
+      },
+      "VerificationPhotoResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "url": {
+            "type": "string",
+            "description": "Short-lived signed URL; the photos are private admin-review evidence."
+          }
+        },
+        "required": [
+          "id",
+          "url"
         ]
       },
       "CreateMenuSectionDto": {
@@ -13299,7 +15992,12 @@
             "type": "string"
           },
           "area": {
-            "type": "string"
+            "type": "string",
+            "description": "Neighbourhood name. Optional when `areaId` is given: defaults to that area's name."
+          },
+          "areaId": {
+            "type": "string",
+            "description": "From GET /areas. Without `lat`/`lng`, the area's own centre is used for distance and delivery fee."
           },
           "city": {
             "type": "string"
@@ -13308,7 +16006,8 @@
             "type": "string"
           },
           "lat": {
-            "type": "number"
+            "type": "number",
+            "description": "Optional: send both `lat` and `lng`, or neither and send `areaId`."
           },
           "lng": {
             "type": "number"
@@ -13322,10 +16021,7 @@
         },
         "required": [
           "label",
-          "line1",
-          "area",
-          "lat",
-          "lng"
+          "line1"
         ]
       },
       "UpdateAddressDto": {
@@ -13359,6 +16055,172 @@
             "type": "string"
           }
         }
+      },
+      "AreaResponseDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string",
+            "example": "High Level"
+          },
+          "slug": {
+            "type": "string",
+            "example": "high-level"
+          },
+          "lat": {
+            "type": "number",
+            "nullable": true
+          },
+          "lng": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "id",
+          "name",
+          "slug",
+          "lat",
+          "lng"
+        ]
+      },
+      "PublicTrackingKitchenDto": {
+        "type": "object",
+        "properties": {
+          "name": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PLACED",
+              "ACCEPTED",
+              "PREPARING",
+              "READY",
+              "PICKED_UP",
+              "CANCELLED"
+            ]
+          }
+        },
+        "required": [
+          "name",
+          "status"
+        ]
+      },
+      "PublicTrackingRiderDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "nullable": true
+          },
+          "lat": {
+            "type": "number",
+            "nullable": true,
+            "description": "Only while the order is on the road; null before pickup and after delivery."
+          },
+          "lng": {
+            "type": "number",
+            "nullable": true
+          }
+        },
+        "required": [
+          "firstName",
+          "lat",
+          "lng"
+        ]
+      },
+      "PublicTrackingResponseDto": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string"
+          },
+          "status": {
+            "type": "string",
+            "enum": [
+              "PLACED",
+              "AWAITING_PAYMENT",
+              "ACCEPTED",
+              "PREPARING",
+              "READY",
+              "PICKED_UP",
+              "DELIVERING",
+              "DELIVERED",
+              "CANCELLED",
+              "REFUNDED"
+            ]
+          },
+          "placedAt": {
+            "format": "date-time",
+            "type": "string"
+          },
+          "deliveredAt": {
+            "format": "date-time",
+            "type": "string",
+            "nullable": true
+          },
+          "kitchens": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PublicTrackingKitchenDto"
+            }
+          },
+          "rider": {
+            "nullable": true,
+            "type": "object",
+            "allOf": [
+              {
+                "$ref": "#/components/schemas/PublicTrackingRiderDto"
+              }
+            ]
+          },
+          "etaMinutes": {
+            "type": "number",
+            "nullable": true,
+            "description": "Rough minutes until arrival, from the rider's distance to the drop-off. Null unless the rider is on the road with a known position."
+          }
+        },
+        "required": [
+          "code",
+          "status",
+          "placedAt",
+          "deliveredAt",
+          "kitchens",
+          "rider",
+          "etaMinutes"
+        ]
+      },
+      "PublicStatsResponseDto": {
+        "type": "object",
+        "properties": {
+          "users": {
+            "type": "number",
+            "description": "Customer accounts that haven't been deleted."
+          },
+          "orders": {
+            "type": "number",
+            "description": "Orders delivered so far."
+          },
+          "areas": {
+            "type": "number",
+            "description": "Neighbourhoods currently served."
+          },
+          "downloads": {
+            "type": "number",
+            "nullable": true,
+            "description": "App installs. Not knowable from the database (Play Console and App Store Connect hold it), so this is the marketing-maintained PUBLIC_DOWNLOADS_COUNT, or null when unset."
+          }
+        },
+        "required": [
+          "users",
+          "orders",
+          "areas",
+          "downloads"
+        ]
       },
       "OrderLineInputDto": {
         "type": "object",
@@ -13605,6 +16467,11 @@
           "code": {
             "type": "string"
           },
+          "trackingToken": {
+            "type": "string",
+            "nullable": true,
+            "description": "Unguessable token for the public tracking link, GET /public/track/:token. Null on orders placed before it existed."
+          },
           "customerId": {
             "type": "string"
           },
@@ -13767,6 +16634,7 @@
         "required": [
           "id",
           "code",
+          "trackingToken",
           "customerId",
           "riderId",
           "addressId",
@@ -14384,6 +17252,11 @@
           "code": {
             "type": "string"
           },
+          "trackingToken": {
+            "type": "string",
+            "nullable": true,
+            "description": "Unguessable token for the public tracking link, GET /public/track/:token. Null on orders placed before it existed."
+          },
           "customerId": {
             "type": "string"
           },
@@ -14540,6 +17413,7 @@
         "required": [
           "id",
           "code",
+          "trackingToken",
           "customerId",
           "riderId",
           "addressId",

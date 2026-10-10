@@ -1,7 +1,6 @@
 import "server-only";
 
 import { api, ApiError, type Schemas } from "@/lib/api/client";
-import type { KitchenRiderBaseFee } from "@/lib/api/extra";
 import { DEFAULT_RIDER_BASE_FEE_NAIRA } from "@/lib/kitchen/types";
 import { nairaToKobo } from "@/lib/money";
 import type { PricedCart, ShopKitchen, ShopMenu, Side } from "./types";
@@ -9,12 +8,12 @@ import type { PricedCart, ShopKitchen, ShopMenu, Side } from "./types";
 /** Delivery = rider pay = max(base fee, km x per-km rate), worked out by the
  *  backend when the order is placed. Before then the base fee is the honest
  *  floor. Never the legacy `feeNaira` (0 for every new kitchen). */
-function deliveryFromKobo(k: KitchenRiderBaseFee): number {
+function deliveryFromKobo(k: Schemas["KitchenResponseDto"]): number {
   const base = k.riderBaseFeeNaira;
   return nairaToKobo(base != null && base > 0 ? base : DEFAULT_RIDER_BASE_FEE_NAIRA);
 }
 
-function kitchen(k: Schemas["KitchenResponseDto"] & KitchenRiderBaseFee, side: Side = "FOOD"): ShopKitchen {
+function kitchen(k: Schemas["KitchenResponseDto"], side: Side = "FOOD"): ShopKitchen {
   return {
     id: k.id,
     slug: k.slug,
@@ -37,14 +36,14 @@ function kitchen(k: Schemas["KitchenResponseDto"] & KitchenRiderBaseFee, side: S
 /** Every request is live: a kitchen changes a price or sells out and the next
  *  page load shows it (CLAUDE.md rule 5). Nothing here is cached. */
 export async function listKitchens(side: Side = "FOOD"): Promise<ShopKitchen[]> {
-  const rows = await api<(Schemas["KitchenResponseDto"] & KitchenRiderBaseFee)[]>("/kitchens", { query: { type: side } });
+  const rows = await api<Schemas["KitchenResponseDto"][]>("/kitchens", { query: { type: side } });
   // Open kitchens first; closed ones stay visible below, never hidden.
   return rows.map((k) => kitchen(k, side)).sort((a, b) => Number(b.open) - Number(a.open) || a.name.localeCompare(b.name));
 }
 
 export async function getKitchenMenu(slug: string, side: Side = "FOOD"): Promise<ShopMenu | null> {
   try {
-    const k = await api<Schemas["KitchenWithMenuResponseDto"] & KitchenRiderBaseFee>(`/kitchens/${encodeURIComponent(slug)}`, {
+    const k = await api<Schemas["KitchenWithMenuResponseDto"]>(`/kitchens/${encodeURIComponent(slug)}`, {
       query: { type: side },
     });
     return {

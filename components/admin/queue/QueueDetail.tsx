@@ -14,7 +14,7 @@ import {
 } from "@/lib/admin/queue";
 import type { AdminRole } from "@/lib/admin/types";
 import { Eyebrow, StatusChip, type Tone } from "@/components/admin/ui";
-import type { VerificationPhoto } from "@/lib/api/extra";
+import type { Schemas } from "@/lib/api/types";
 import { VERIFICATION_PHOTOS_REQUIRED, photosNeededText } from "@/lib/kitchen/types";
 import { kitchenDetail, riderDocumentUrl } from "@/app/(admin)/admin/queue-actions";
 import { KitchenProducts } from "./KitchenProducts";
@@ -67,7 +67,7 @@ export function QueueDetail({
     id: string;
     fields: { key: string; value: string }[];
     menuItems: number;
-    photos: VerificationPhoto[];
+    photos: Schemas["AdminKitchenVerificationPhotoDto"][];
   } | null>(null);
 
   useEffect(() => {

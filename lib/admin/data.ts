@@ -1,7 +1,6 @@
 import "server-only";
 
 import { api, type Schemas } from "@/lib/api/client";
-import type { KitchenRiderBaseFee } from "@/lib/api/extra";
 import type { Ticket } from "./types";
 import { ageLabel } from "./format";
 import { kitchenItem, riderItem, type QueueItem, type QueueKind } from "./queue";
@@ -16,13 +15,13 @@ export async function loadQueue(kind: QueueKind): Promise<QueueItem[]> {
   const [due, items] = await Promise.all([
     api<Schemas["PayoutsDueResponseDto"]>("/admin/payouts/due", { scope: "admin" }),
     kind === "kitchens"
-      ? api<(Schemas["KitchenResponseDto"] & KitchenRiderBaseFee)[]>("/admin/kitchens", { scope: "admin" })
+      ? api<Schemas["KitchenResponseDto"][]>("/admin/kitchens", { scope: "admin" })
       : api<Schemas["AdminRiderListItemDto"][]>("/admin/riders", { scope: "admin" }),
   ]);
 
   const built =
     kind === "kitchens"
-      ? (items as (Schemas["KitchenResponseDto"] & KitchenRiderBaseFee)[]).map((k) =>
+      ? (items as Schemas["KitchenResponseDto"][]).map((k) =>
           kitchenItem(k, due.kitchens.find((d) => d.kitchenId === k.id)),
         )
       : (items as Schemas["AdminRiderListItemDto"][]).map((r) =>

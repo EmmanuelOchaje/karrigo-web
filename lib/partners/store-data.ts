@@ -1,7 +1,6 @@
 import "server-only";
 
-import { ApiError, api } from "@/lib/api/client";
-import type { VerificationPhoto } from "@/lib/api/extra";
+import { ApiError, api, type Schemas } from "@/lib/api/client";
 
 const unavailable = (error: unknown) =>
   error instanceof ApiError &&
@@ -13,11 +12,13 @@ const unavailable = (error: unknown) =>
  * request and never cached. Staff cannot list them, so their count comes from
  * the store application instead. */
 export async function listStoreVerificationPhotos(): Promise<{
-  photos: VerificationPhoto[];
+  photos: Schemas["StoreVerificationPhotoResponseDto"][];
   failed: boolean;
 }> {
   try {
-    const photos = await api<VerificationPhoto[]>("/store-console/store/photos", { scope: "kitchen" });
+    const photos = await api<Schemas["StoreVerificationPhotoResponseDto"][]>("/store-console/store/photos", {
+      scope: "kitchen",
+    });
     return { photos, failed: false };
   } catch (error) {
     if (unavailable(error)) return { photos: [], failed: false };

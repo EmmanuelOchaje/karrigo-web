@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 
 import { ApiError, api, type Schemas } from "@/lib/api/client";
-import type { AdminKitchenPhotos, VerificationPhoto } from "@/lib/api/extra";
 import { VERIFICATION_PHOTOS_REQUIRED, photosNeededText } from "@/lib/kitchen/types";
 import { requireAdmin, requireSuperAdmin } from "@/lib/admin/session";
 import { formatKobo, nairaToKobo } from "@/lib/money";
@@ -111,12 +110,17 @@ export async function riderDocumentUrl(
 /** What the list does not carry: the owner's login and how many dishes there
  *  are. Fetched when a kitchen is opened. */
 export async function kitchenDetail(id: string): Promise<
-  | { ok: true; fields: { key: string; value: string }[]; menuItems: number; photos: VerificationPhoto[] }
+  | {
+      ok: true;
+      fields: { key: string; value: string }[];
+      menuItems: number;
+      photos: Schemas["AdminKitchenVerificationPhotoDto"][];
+    }
   | { ok: false; error: string }
 > {
   try {
     await requireAdmin();
-    const k = await api<Schemas["AdminKitchenDetailDto"] & AdminKitchenPhotos>(`/admin/kitchens/${id}`, {
+    const k = await api<Schemas["AdminKitchenDetailDto"]>(`/admin/kitchens/${id}`, {
       scope: "admin",
     });
     const owner = k.staff.find((s) => s.staffRole === "OWNER") ?? k.staff[0];

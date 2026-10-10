@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 
 import { ApiError, api, type Schemas } from "@/lib/api/client";
-import type { AdminArea } from "@/lib/api/extra";
 import { requireAdmin } from "@/lib/admin/session";
 import { nairaToKobo } from "@/lib/money";
 
@@ -85,7 +84,11 @@ export async function createArea(input: { name: string }): Promise<ActionResult>
   return attempt(async () => {
     const name = input.name.trim();
     if (name.length < 2) throw new Error("Give the area a name of at least two letters.");
-    const area = await api<AdminArea>("/admin/areas", { method: "POST", scope: "admin", body: { name } });
+    const area = await api<Schemas["AdminAreaResponseDto"]>("/admin/areas", {
+      method: "POST",
+      scope: "admin",
+      body: { name },
+    });
     return `${area.name} added`;
   });
 }

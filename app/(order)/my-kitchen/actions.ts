@@ -2,8 +2,7 @@
 
 import { revalidatePath } from "next/cache";
 
-import { ApiError, api } from "@/lib/api/client";
-import type { KitchenMissing } from "@/lib/api/extra";
+import { ApiError, api, type Schemas } from "@/lib/api/client";
 import { APPLICATION, CONSOLE } from "@/lib/kitchen/data";
 import {
   appealSchema,
@@ -51,6 +50,8 @@ const PHOTO_TYPES = ["image/jpeg", "image/png", "image/webp"];
 const PHOTO_MAX_BYTES = 2.5 * 1024 * 1024;
 /** Verification photos are checked by people, so the backend allows more. */
 const VERIFICATION_PHOTO_MAX_BYTES = 8 * 1024 * 1024;
+
+type KitchenMissing = Schemas["KitchenResponseDto"]["missing"][number];
 
 const MISSING_TEXT: Record<KitchenMissing, string> = {
   LOCATION: "your kitchen's location",

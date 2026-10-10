@@ -1,8 +1,7 @@
 import { ConfirmAction } from "@/components/admin/ConfirmAction";
 import { OpsPage, OpsPageHeader } from "@/components/admin/OpsPage";
 import { EmptyState, LinkTab, StatusChip } from "@/components/admin/ui";
-import { api } from "@/lib/api/client";
-import type { FlaggedItem } from "@/lib/api/extra";
+import { api, type Schemas } from "@/lib/api/client";
 import { whenLabel } from "@/lib/admin/format";
 import { requireAdmin } from "@/lib/admin/session";
 import { clearProductFlag } from "../../moderation-actions";
@@ -17,7 +16,7 @@ type Search = { view?: string };
 export default async function FlaggedPage({ searchParams }: { searchParams: Promise<Search> }) {
   await requireAdmin();
   const { view = "" } = await searchParams;
-  const items = await api<FlaggedItem[]>("/admin/flagged-items", {
+  const items = await api<Schemas["FlaggedItemResponseDto"][]>("/admin/flagged-items", {
     scope: "admin",
     query: view === "appealed" ? { hasAppeal: true } : {},
   });
