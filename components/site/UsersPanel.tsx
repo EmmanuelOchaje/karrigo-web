@@ -1,5 +1,6 @@
 import { CountUp } from "@/components/site/CountUp";
 import { Eyebrow } from "@/components/site/Eyebrow";
+import { growthStats } from "@/lib/fixtures";
 
 /**
  * Social proof, in two numbers. Lime is a fill here with near-black type on
@@ -9,15 +10,18 @@ export function UsersPanel({
   users,
   downloads,
 }: {
-  users: number;
-  downloads: number | null;
+  users?: number;
+  downloads?: number | null;
 }) {
-  const stats = [
-    { key: "users", label: "People ordering on Karrigo", value: users },
-    ...(downloads == null
-      ? []
-      : [{ key: "downloads", label: "App downloads", value: downloads }]),
-  ];
+  const stats =
+    users === undefined
+      ? [...growthStats]
+      : [
+          { key: "users", label: "People ordering on Karrigo", value: users, gain: null },
+          ...(downloads == null
+            ? []
+            : [{ key: "downloads", label: "App downloads", value: downloads, gain: null }]),
+        ];
 
   return (
     <div className="bg-accent text-on-accent rounded-panel-lg p-xl md:p-pad-card relative mx-auto max-w-[1240px] overflow-hidden">
@@ -42,6 +46,11 @@ export function UsersPanel({
             <p className="text-display md:text-panel-small mt-sm text-balance">
               {stat.label}
             </p>
+            {stat.gain && (
+              <span className="bg-on-accent text-accent rounded-pill px-md py-xs text-site-chip mt-sm inline-block">
+                {stat.gain}
+              </span>
+            )}
           </div>
         ))}
       </div>
