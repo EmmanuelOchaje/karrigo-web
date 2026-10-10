@@ -5,6 +5,7 @@ import type { KitchenRiderBaseFee } from "@/lib/api/extra";
 import type { Ticket } from "./types";
 import { ageLabel } from "./format";
 import { kitchenItem, riderItem, type QueueItem, type QueueKind } from "./queue";
+import { staffWorkplace } from "./staff";
 
 /**
  * The queue for kitchens or riders, with what each is owed folded in from the
@@ -53,7 +54,9 @@ export async function loadTickets(): Promise<Ticket[]> {
       subject: t.subject,
       body: t.body ?? "No details were added.",
       fromType,
-      fromName: staff ? `${staff.name} · ${staff.kitchen.name}` : (t.user?.name ?? t.user?.phone ?? "Unknown"),
+      fromName: staff
+        ? [staff.name, staffWorkplace(staff)].filter(Boolean).join(" · ")
+        : (t.user?.name ?? t.user?.phone ?? "Unknown"),
       channel: t.channel,
       orderId: t.order?.code ?? null,
       status: t.status,
