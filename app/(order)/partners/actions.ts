@@ -47,8 +47,27 @@ function photoFrom(form: FormData): File | Failure {
 
 /* --------------------------------------------------------------- kitchen */
 
-/** Step one of applying: text a code to the number the kitchen will use. */
-export async function requestKitchenOtp(phone: string): Promise<Done<{ resendCooldownSeconds: number }>> {
+/** The two onboardings (kitchen and store) are one sign-up underneath: the
+ *  same codes, the same checks, the same login. Only the business details and
+ *  the endpoint differ. */
+type Side = "kitchen" | "store";
+
+function otpFailure(error: unknown, taken: string): Failure {
+  if (error instanceof ApiError && error.status === 409) return { ok: false, error: taken };
+  if (error instanceof ApiError && error.status === 429) {
+    const retryAfter = typeof error.body.retryAfterSeconds === "number" ? error.body.retryAfterSeconds : undefined;
+    return {
+      ok: false,
+      error: retryAfter ? `Too many codes requested. Try again in ${waitText(retryAfter)}.` : error.message,
+      retryAfter,
+    };
+  }
+  return failure(error);
+}
+
+/** Step one of applying: text a code to the number the owner will use. The
+ *  same call for a kitchen and a store; the login is shared. */
+export async function requestPartnerOtp(phone: string): Promise<Done<{ resendCooldownSeconds: number }>> {
   try {
     const result = await api<KitchenOtpRequested>("/kitchen-auth/otp/request", {
       method: "POST",
@@ -56,20 +75,20 @@ export async function requestKitchenOtp(phone: string): Promise<Done<{ resendCoo
     });
     return { ok: true, resendCooldownSeconds: result.resendCooldownSeconds };
   } catch (error) {
-    if (error instanceof ApiError && error.status === 409) {
-      return { ok: false, error: "That number already has a kitchen account. Log in instead." };
-    }
-    if (error instanceof ApiError && error.status === 429) {
-      const retryAfter = typeof error.body.retryAfterSeconds === "number" ? error.body.retryAfterSeconds : undefined;
-      return {
-        ok: false,
-        error: retryAfter
-          ? `Too many codes requested. Try again in ${waitText(retryAfter)}.`
-          : error.message,
-        retryAfter,
-      };
-    }
-    return failure(error);
+    return otpFailure(error, "That number already has a Karrigo partner account. Log in instead.");
+  }
+}
+
+/** Step two: email a code, to prove the address is theirs. */
+export async function requestPartnerEmailOtp(email: string): Promise<Done<{ resendCooldownSeconds: number }>> {
+  try {
+    const result = await api<KitchenOtpRequested>("/kitchen-auth/email-otp/request", {
+      method: "POST",
+      body: { email: email.trim().toLowerCase() },
+    });
+    return { ok: true, resendCooldownSeconds: result.resendCooldownSeconds };
+  } catch (error) {
+    return otpFailure(error, "That email already has a Karrigo partner account. Log in instead.");
   }
 }
 
@@ -79,58 +98,88 @@ function waitText(seconds: number): string {
   return `${Math.ceil(seconds / 3600)} hours`;
 }
 
-export async function applyKitchen(input: {
+type PartnerFields = {
   name: string;
   email: string;
   password: string;
   phone: string;
   otpCode: string;
-  kitchenName: string;
-  cuisine: string;
+  emailOtpCode: string;
   areaId: string;
-}): Promise<Done> {
+};
+
+/** What the backend's sign-up answers mean to the person filling the form. */
+function applyFailure(error: unknown, side: Side): Failure {
+  if (error instanceof ApiError) {
+    if (error.status === 401) {
+      const left = error.body.attemptsRemaining;
+      return {
+        ok: false,
+        error:
+          typeof left === "number"
+            ? `That code isn't right. ${left} ${left === 1 ? "try" : "tries"} left.`
+            : "That code isn't right.",
+      };
+    }
+    if (error.status === 400 && /expired/i.test(error.message)) {
+      return { ok: false, error: "That code expired. Request a new one." };
+    }
+    if (error.status === 409) {
+      return {
+        ok: false,
+        error:
+          error.message ||
+          `That email or phone already has a Karrigo partner account. Log in, then register your business as a ${side}.`,
+      };
+    }
+    if (error.status === 422 && error.body.code === "AREA_NOT_FOUND") {
+      return { ok: false, error: "That area isn't available any more. Reload the page and pick again." };
+    }
+  }
+  return failure(error);
+}
+
+function partnerBody(input: PartnerFields) {
+  return {
+    name: input.name.trim(),
+    email: input.email.trim().toLowerCase(),
+    password: input.password,
+    phone: e164(input.phone),
+    otpCode: input.otpCode,
+    emailOtpCode: input.emailOtpCode,
+    areaId: input.areaId,
+  };
+}
+
+export async function applyKitchen(input: PartnerFields & { kitchenName: string; cuisine: string }): Promise<Done> {
   try {
     const result = await api<Schemas["RegisterKitchenResponseDto"]>("/kitchen-auth/register", {
       method: "POST",
       body: {
-        name: input.name.trim(),
-        email: input.email.trim().toLowerCase(),
-        password: input.password,
-        phone: e164(input.phone),
-        otpCode: input.otpCode,
+        ...partnerBody(input),
         kitchenName: input.kitchenName.trim(),
-        areaId: input.areaId,
         ...(input.cuisine.trim() ? { cuisine: input.cuisine.trim() } : {}),
       },
     });
     await storeTokens("kitchen", result);
     return { ok: true };
   } catch (error) {
-    if (error instanceof ApiError) {
-      if (error.status === 401) {
-        const left = error.body.attemptsRemaining;
-        return {
-          ok: false,
-          error:
-            typeof left === "number"
-              ? `That code isn't right. ${left} ${left === 1 ? "try" : "tries"} left.`
-              : "That code isn't right.",
-        };
-      }
-      if (error.status === 400 && /expired/i.test(error.message)) {
-        return { ok: false, error: "That code expired. Request a new one." };
-      }
-      if (error.status === 409) {
-        return {
-          ok: false,
-          error: error.message || "That email or phone already has a kitchen account. Log in instead.",
-        };
-      }
-      if (error.status === 422 && error.body.code === "AREA_NOT_FOUND") {
-        return { ok: false, error: "That area isn't available any more. Reload the page and pick again." };
-      }
-    }
-    return failure(error);
+    return applyFailure(error, "kitchen");
+  }
+}
+
+/** Store sign-up. It signs the owner in with the same partner session as a
+ *  kitchen: it is one login for a business. */
+export async function applyStore(input: PartnerFields & { storeName: string }): Promise<Done> {
+  try {
+    const result = await api<{ accessToken: string; refreshToken: string }>("/store-auth/register", {
+      method: "POST",
+      body: { ...partnerBody(input), storeName: input.storeName.trim() },
+    });
+    await storeTokens("kitchen", result);
+    return { ok: true };
+  } catch (error) {
+    return applyFailure(error, "store");
   }
 }
 

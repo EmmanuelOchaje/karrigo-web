@@ -120,7 +120,7 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 - [x] Task 1  Ops panel shapes (`lib/admin/staff.ts` has `staffLabel` and `staffWorkplace`)
 - [x] Task 2  Partner identity helper (`getPartner`, `getStoreApplication`; shims `PartnerMe`, `StoreConsoleRow` in `lib/api/extra.ts` until Task 7)
 - [x] Task 3  `/partners/stores` route + links (verified: `/partners/store` answers 308 to `/partners/stores`, query kept)
-- [ ] Task 4  Shared sign-in + store sign-up
+- [x] Task 4  Shared sign-in + store sign-up (`components/partners/PartnerApply.tsx` has `PartnerApply` and `PartnerLogin`; `KitchenApply.tsx`/`StoreApply.tsx` are thin wrappers; `/partners/stores/login` exists)
 - [ ] Task 5  Add the other side + pages
 - [ ] Task 6  Store setup checklist
 - [ ] Task 7  Regenerate API types
@@ -131,6 +131,8 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 - [ ] Task 12 Run against the real backend
 
 Notes / surprises:
+- **Pre-existing gap fixed in Task 4:** the backend's register has required an email verification code (`emailOtpCode`, from `POST /kitchen-auth/email-otp/request`) for some time, but the web never sent one, so kitchen sign-up on the web was already failing against the current backend. `PartnerApply` now has a phone-code step and an email-code step (one `useCodeStep()` helper for both); actions are `requestPartnerOtp`, `requestPartnerEmailOtp`, `applyKitchen`, `applyStore` (the old `requestKitchenOtp` is gone).
+- Kitchen and store login pages now redirect a signed-in partner using `getPartner()` (kitchen: `/my-kitchen` if the business has a kitchen, else `/partners/kitchen`; store: `/partners/stores`).
 - Task 2 also changed `lib/kitchen/data.ts`: `getKitchen()` now treats 409 `NO_KITCHEN` as "no kitchen" (it used to throw), and `requireKitchen()` sends a signed-in store-only owner to `/partners/kitchen` (to register a kitchen) instead of the login form. `getPartner()` is `cache()`d so `/kitchen-auth/me` is read once per request.
 - `npm run lint` is red on the untouched repo (57 problems); lint only the files you change.
 - After moving/renaming a route, `npx tsc --noEmit` and `npm run build` can fail on stale generated types in `.next/dev/types` or `.next/types` (git-ignored). Delete those two folders and rebuild (check first that no `next dev` for *this* repo is running).
