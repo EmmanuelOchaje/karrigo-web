@@ -126,7 +126,7 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 - [x] Task 7  Regenerate API types (generated from local backend `d006735`: 163 paths; store auth/console, admin stores, public tracking/stats present; handwritten `lib/api/extra.ts` shims removed)
 - [x] Task 8  Ops: review stores (third review queue with setup checks, signed photo viewer, approve/suspend actions, and no premature money controls)
 - [x] Task 9  Public tracking by link (no-login read-only route, 25-second polling until terminal state, calm expiry screen, and share button on signed-in tracking)
-- [ ] Task 10 Homepage totals
+- [x] Task 10 Homepage totals (`getPublicStats()` caches real totals for an hour and fails closed; this branch has no totals panel, so no new design was invented)
 - [ ] Task 11 Addresses by area
 - [ ] Task 12 Run against the real backend
 
