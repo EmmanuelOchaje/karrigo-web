@@ -1,4 +1,3 @@
-import Link from "next/link";
 import Image from "next/image";
 import type { Kitchen } from "@/lib/fixtures";
 import { cn } from "@/lib/cn";
@@ -17,12 +16,8 @@ export function KitchenCard({
   const shut = Boolean(kitchen.closedUntil);
 
   return (
-    <Link
-      href={`/k/${kitchen.slug}`}
-      className={cn(
-        "bg-bg rounded-panel-sm p-sm group block transition-[transform,box-shadow] duration-(--duration-normal)",
-        shut ? "opacity-45" : "hover:-translate-y-1.5 hover:shadow-card",
-      )}
+    <div
+      className={cn("bg-bg rounded-panel-sm p-sm block", shut && "opacity-45")}
     >
       <div className="bg-surface-raised relative aspect-[4/3] overflow-hidden rounded-panel-xs">
         <Image
@@ -31,10 +26,7 @@ export function KitchenCard({
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 350px"
           priority={priority}
-          className={cn(
-            "object-cover transition-transform duration-(--duration-slow)",
-            !shut && "group-hover:scale-[1.03]",
-          )}
+          className="object-cover"
         />
         {shut ? (
           <span className="bg-danger text-bg absolute top-sm left-sm rounded-pill px-md py-xs text-eyebrow normal-case">
@@ -73,6 +65,6 @@ export function KitchenCard({
           </div>
         )}
       </div>
-    </Link>
+    </div>
   );
 }

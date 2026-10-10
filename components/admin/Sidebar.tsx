@@ -4,13 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 
 import { cn } from "@/lib/cn";
-import { SHIFT, formatClock } from "@/lib/admin/shift";
+import { SHIFT, formatClock, lagosSecondsNow } from "@/lib/admin/shift";
 import { isCurrent, OPS_NAV, type OpsSection } from "@/lib/admin/nav";
 import { say } from "@/lib/admin/store";
 import type { AdminUser } from "@/lib/admin/types";
 import type { OpsTheme } from "@/lib/admin/theme";
 
 import { ThemeToggle } from "./ThemeToggle";
+import { useNow } from "./useNow";
 import { Wordmark } from "./Wordmark";
 
 /** Matches the row height (40px) plus the gap (2px), so the pill lands on
@@ -200,11 +201,16 @@ function NavRow({
 
 /** How much of the shift is left. The bar is the clock a dispatcher actually
  *  watches — everything else on the screen is about right now. */
-function ShiftCard({ onDuty, nowMinutes }: { onDuty: string; nowMinutes: number }) {
-  const elapsed = nowMinutes - SHIFT.startMinutes;
-  const length = SHIFT.endMinutes - SHIFT.startMinutes;
-  const remaining = Math.max(0, length - elapsed);
-  const percent = Math.min(100, Math.max(0, (elapsed / length) * 100));
+function ShiftCard({ onDuty, nowMinutes: renderedMinutes }: { onDuty: string; nowMinutes: number }) {
+  // The server's reading until mounted, then the Lagos clock every second, so
+  // the bar creeps along instead of jumping once a minute.
+  const now = useNow();
+  const nowSeconds = now ? lagosSecondsNow(new Date(now)) : renderedMinutes * 60;
+  const startSeconds = SHIFT.startMinutes * 60;
+  const lengthSeconds = (SHIFT.endMinutes - SHIFT.startMinutes) * 60;
+  const elapsedSeconds = nowSeconds - startSeconds;
+  const remaining = Math.max(0, Math.floor((lengthSeconds - elapsedSeconds) / 60));
+  const percent = Math.min(100, Math.max(0, (elapsedSeconds / lengthSeconds) * 100));
 
   return (
     <div className="bg-ops-surface flex flex-col gap-2 rounded-[15px] p-3.5">
@@ -216,7 +222,7 @@ function ShiftCard({ onDuty, nowMinutes }: { onDuty: string; nowMinutes: number 
       </span>
       <div className="bg-text/10 h-1.5 overflow-hidden rounded-pill">
         <div
-          className="bg-accent h-full rounded-pill"
+          className="bg-accent h-full rounded-pill transition-[width] duration-1000 ease-linear"
           style={{ width: `${percent}%` }}
         />
       </div>

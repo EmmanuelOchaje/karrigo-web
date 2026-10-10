@@ -16,16 +16,16 @@ const columns = [
     heading: "Partner",
     links: [
       { href: "/partners/kitchen", label: "List your kitchen" },
-      { href: "/partners/stores", label: "Register your store" },
+      { href: "/partners/store", label: "Register your store" },
       { href: "/partners/rider", label: "Ride with us" },
     ],
   },
   {
     heading: "Company",
     links: [
-      { href: "/help#contact", label: "Contact" },
-      { href: "/help#terms", label: "Terms" },
-      { href: "/help#privacy", label: "Privacy" },
+      { href: "/contact", label: "Contact" },
+      { href: "/terms", label: "Terms" },
+      { href: "/privacy", label: "Privacy" },
       { href: "/credits", label: "Photo credits" },
     ],
   },

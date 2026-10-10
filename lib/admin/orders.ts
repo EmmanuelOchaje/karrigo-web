@@ -76,6 +76,14 @@ export function paymentMethodOf(payment: Schemas["AdminPaymentDto"] | undefined)
   }
 }
 
+/** Whether an order still in flight has run past its window. Shared with the
+ *  boards, which re-evaluate it every second as the clock ticks. */
+export function isLate(status: Status, elapsedMinutes: number): boolean {
+  return status === "PLACED"
+    ? elapsedMinutes > ACCEPT_WINDOW_MINUTES
+    : elapsedMinutes > LATE_AFTER_MINUTES;
+}
+
 export function liveOrder(o: Schemas["AdminOrderListItemDto"], now = new Date()): LiveOrder {
   const cancelled = o.status === "CANCELLED";
   const refunded = o.status === "REFUNDED";
@@ -93,11 +101,7 @@ export function liveOrder(o: Schemas["AdminOrderListItemDto"], now = new Date())
     stage: STAGE[o.status],
     cancelled,
     refunded,
-    late:
-      !over &&
-      (o.status === "PLACED"
-        ? elapsedMinutes > ACCEPT_WINDOW_MINUTES
-        : elapsedMinutes > LATE_AFTER_MINUTES),
+    late: !over && isLate(o.status, elapsedMinutes),
     elapsedMinutes,
     placedAt: o.placedAt,
     placedLabel: whenLabel(o.placedAt, now),

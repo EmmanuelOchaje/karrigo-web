@@ -1,9 +1,12 @@
+import type { Metadata } from "next";
 import Link from "next/link";
 
 import { Eyebrow } from "@/components/site/Eyebrow";
 import { LiveOrders } from "@/components/kitchen/LiveOrders";
 import { ConsoleTabs } from "@/components/kitchen/parts";
 import { listOrders, requireKitchen } from "@/lib/kitchen/data";
+
+export const metadata: Metadata = { robots: { index: false, follow: false } };
 
 /**
  * Where a live kitchen is run from: the door, the orders, the menu. Built

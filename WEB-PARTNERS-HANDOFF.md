@@ -54,11 +54,11 @@ Create `lib/admin/staff.ts` with `staffLabel(staff)` returning `"Ada (Mama Put)"
 ### Task 2: Partner identity helper [`feat(partners): read the partner's business, kitchen and store`]
 `lib/partners/types.ts`: `Partner = { businessId; kitchenId: string|null; storeId: string|null; isOwner: boolean }`, `StoreApplication` (like `KitchenApplication` without dishes/cuisine, plus `missing`). `lib/partners/data.ts`: `getPartner()` (`GET /kitchen-auth/me`, scope `kitchen`, null on 401/403), `getStoreApplication()` (`GET /store-console/store`, null on 401/403 and on 409 `NO_STORE`), and make `getKitchenApplication()` also return null on 409 `NO_KITCHEN`.
 
-### Task 3: Route `/partners/stores` [`feat(partners): /partners/stores, with the old URL redirecting`]
-Move `partners/store/page.tsx` to `partners/stores/page.tsx` (rewritten in Task 5). Permanent redirect `/partners/store` -> `/partners/stores` in `next.config.ts` (read the Next redirects docs first). Update the three links listed in section 2.
+### Task 3: Route `/partners/store` [`feat(partners): add the store partner route`]
+Keep store onboarding at `partners/store/page.tsx` (rewritten in Task 5) and update all store-partner links to that route.
 
 ### Task 4: Shared sign-in and store sign-up [`feat(partners): store sign-up on the shared partner login`]
-Extract the shared apply form from `KitchenApply.tsx` into `PartnerApply({ side, areas, onSubmit })`; keep `KitchenApply` a thin wrapper (kitchen page unchanged). Add `StoreApply`, action `applyStore` (mirror `applyKitchen`'s error mapping and token storage; store tokens with scope `kitchen`; redirect to `/partners/stores`), and `app/(partner-auth)/partners/stores/login/page.tsx` (same sign-in, redirect to `/partners/stores`).
+Extract the shared apply form from `KitchenApply.tsx` into `PartnerApply({ side, areas, onSubmit })`; keep `KitchenApply` a thin wrapper (kitchen page unchanged). Add `StoreApply`, action `applyStore` (mirror `applyKitchen`'s error mapping and token storage; store tokens with scope `kitchen`; redirect to `/partners/store`), and `app/(partner-auth)/partners/store/login/page.tsx` (same sign-in, redirect to `/partners/store`).
 
 ### Task 5: Add the other side + the two pages [`feat(partners): register your business as a kitchen or a store`]
 Actions `registerStoreForBusiness({storeName, areaId})` -> `POST /kitchen-console/business/store` and `registerKitchenForBusiness({kitchenName, areaId, cuisine?})` -> `POST /store-console/business/kitchen` (409 `ALREADY_REGISTERED`, 403, 422 mapped to friendly messages). Component `AddOtherSide({ side, areas, isOwner })` (non-owners get a plain "ask the owner" message). Both pages branch on `getPartner()`: signed out -> apply form; has the side -> setup; signed in without the side -> `AddOtherSide`. Headings: "Cook with Karrigo" / "Register your store"; for a signed-in owner without the side "Register your business as a kitchen/store".
@@ -82,11 +82,11 @@ Data function `getPublicStats()` in `lib/shop/` or `lib/live-stats.ts`: `api<{us
 In `app/(order)/actions.ts`: remove the `MAKURDI` fallback. Resolve the customer's chosen area to its `areaId` (`listAreas()` has `{id, name}`; match by name, or carry the id through `PlaceInput`/`AddressForm` if that is cleaner). When the customer shared or picked real coordinates, send them (both) together with the area. When geocoding finds nothing, **omit `lat`/`lng`** and send `areaId`. Map 422 `AREA_HAS_NO_LOCATION` to "We can't place that area on the map yet. Pick the nearest area or add a landmark." and 400 as a form error. Keep delivery fee/distance logic as is (the backend now computes from the area centre).
 
 ### Task 12: Run everything against the real backend [no commit unless fixes]
-See section 5. Walk: (a) store sign-up at `/partners/stores`; (b) from that account `/partners/kitchen` shows "register your business as a kitchen", submit it; (c) kitchen-first sign-up then "register as a store"; (d) a STAFF login sees no add-side form (create one in the DB); (e) `/partners/store` redirects; (f) a pre-migration kitchen account signs in with a capitalised email; (g) ops audit log + tickets render for a store-only staff entry; (h) ops can approve a store only with 6 photos and see the 422 message otherwise, and suspend with a note; (i) a placed order's `/track/<token>` works logged out and expires correctly; (j) homepage totals render or are hidden; (k) an order to an address typed with no location is accepted with the area centre. Fix what breaks, one commit each.
+See section 5. Walk: (a) store sign-up at `/partners/store`; (b) from that account `/partners/kitchen` shows "register your business as a kitchen", submit it; (c) kitchen-first sign-up then "register as a store"; (d) a STAFF login sees no add-side form (create one in the DB); (e) `/partners/store` opens the store onboarding; (f) a pre-migration kitchen account signs in with a capitalised email; (g) ops audit log + tickets render for a store-only staff entry; (h) ops can approve a store only with 6 photos and see the 422 message otherwise, and suspend with a note; (i) a placed order's `/track/<token>` works logged out and expires correctly; (j) homepage totals render or are hidden; (k) an order to an address typed with no location is accepted with the area centre. Fix what breaks, one commit each.
 
 ## 4. Review checklist (what a reviewer should confirm at the end)
 
-- Store-only owner on `/partners/kitchen` -> "register your business as a kitchen" (no crash on 409 `NO_KITCHEN`); kitchen-only owner on `/partners/stores` -> "register as a store".
+- Store-only owner on `/partners/kitchen` -> "register your business as a kitchen" (no crash on 409 `NO_KITCHEN`); kitchen-only owner on `/partners/store` -> "register as a store".
 - STAFF never sees the add-side form; 403 shows a message.
 - Signed-out visitors see their page's own sign-up and a link to the shared sign-in.
 - An already signed-in kitchen owner stays signed in after deploy; `/partners/store` still works.
@@ -111,7 +111,7 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 ## 6. Decisions already made (do not re-ask)
 
 - Keep cookie scope `kitchen` as the shared partner scope.
-- `/partners/kitchen` and `/partners/stores` (plural) are the two onboarding routes; old `/partners/store` redirects.
+- `/partners/kitchen` and `/partners/store` are the two onboarding routes.
 - Add store review to the ops panel in this round; add public tracking, homepage totals and area-based addresses in this round.
 - Ops store payouts/money UI is out of scope (stores cannot have orders yet).
 
@@ -119,8 +119,8 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 
 - [x] Task 1  Ops panel shapes (`lib/admin/staff.ts` has `staffLabel` and `staffWorkplace`)
 - [x] Task 2  Partner identity helper (`getPartner`, `getStoreApplication`; shims `PartnerMe`, `StoreConsoleRow` in `lib/api/extra.ts` until Task 7)
-- [x] Task 3  `/partners/stores` route + links (verified: `/partners/store` answers 308 to `/partners/stores`, query kept)
-- [x] Task 4  Shared sign-in + store sign-up (`components/partners/PartnerApply.tsx` has `PartnerApply` and `PartnerLogin`; `KitchenApply.tsx`/`StoreApply.tsx` are thin wrappers; `/partners/stores/login` exists)
+- [x] Task 3  `/partners/store` route + links
+- [x] Task 4  Shared sign-in + store sign-up (`components/partners/PartnerApply.tsx` has `PartnerApply` and `PartnerLogin`; `KitchenApply.tsx`/`StoreApply.tsx` are thin wrappers; `/partners/store/login` exists)
 - [x] Task 5  Add the other side + pages (`AddOtherSide`, owner-only server actions, both partner pages branch through `getPartner`; Bun contract tests cover endpoints, payloads, and mapped API failures)
 - [x] Task 6  Store setup checklist (location, rider fee, shared payout, side-specific 6-photo review, approval/suspension status and appeal; 9 Bun tests pass across partner registration and store progress)
 - [x] Task 7  Regenerate API types (generated from local backend `d006735`: 163 paths; store auth/console, admin stores, public tracking/stats present; handwritten `lib/api/extra.ts` shims removed)
@@ -133,7 +133,7 @@ If the backend cannot be run, say so in the progress log and rely on typecheck/l
 Notes / surprises:
 - **Package manager changed before Task 5:** the user requested Bun. `package-lock.json` was removed, `bun.lock` is now authoritative, `package.json` pins `bun@1.4.0`, and active web commands/docs use `bun run` / `bunx`.
 - **Pre-existing gap fixed in Task 4:** the backend's register has required an email verification code (`emailOtpCode`, from `POST /kitchen-auth/email-otp/request`) for some time, but the web never sent one, so kitchen sign-up on the web was already failing against the current backend. `PartnerApply` now has a phone-code step and an email-code step (one `useCodeStep()` helper for both); actions are `requestPartnerOtp`, `requestPartnerEmailOtp`, `applyKitchen`, `applyStore` (the old `requestKitchenOtp` is gone).
-- Kitchen and store login pages now redirect a signed-in partner using `getPartner()` (kitchen: `/my-kitchen` if the business has a kitchen, else `/partners/kitchen`; store: `/partners/stores`).
+- Kitchen and store login pages now redirect a signed-in partner using `getPartner()` (kitchen: `/my-kitchen` if the business has a kitchen, else `/partners/kitchen`; store: `/partners/store`).
 - Task 2 also changed `lib/kitchen/data.ts`: `getKitchen()` now treats 409 `NO_KITCHEN` as "no kitchen" (it used to throw), and `requireKitchen()` sends a signed-in store-only owner to `/partners/kitchen` (to register a kitchen) instead of the login form. `getPartner()` is `cache()`d so `/kitchen-auth/me` is read once per request.
 - `bun run lint` is red on the untouched repo (57 problems); lint only the files you change.
 - After moving/renaming a route, `bunx tsc --noEmit` and `bun run build` can fail on stale generated types in `.next/dev/types` or `.next/types` (git-ignored). Delete those two folders and rebuild (check first that no `next dev` for *this* repo is running).

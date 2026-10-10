@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import {
   dark,
   light,
+  forest,
   bodyWeightByMode,
   font,
   type,
@@ -61,6 +62,15 @@ ${palette(light, "light")}
 
 [data-theme="dark"] {
 ${palette(dark, "dark")}
+}
+
+/* The dark panels (Screen mode="dark") when the page itself is dark. See
+   FOREST in theme.ts. Only the roles that differ from the dark palette. */
+:root[data-theme="dark"] [data-panel="dark"] {
+${Object.entries(forest)
+  .filter(([k, v]) => dark[k] !== v)
+  .map(([k, v]) => `  --${kebab(k)}: ${v};`)
+  .join("\n")}
 }
 
 @theme inline {

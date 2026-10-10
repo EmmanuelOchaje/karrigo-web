@@ -31,7 +31,7 @@ function failure(error: unknown): Failure {
 }
 
 const KITCHEN_PAGE = "/partners/kitchen";
-const STORE_PAGE = "/partners/stores";
+const STORE_PAGE = "/partners/store";
 const RIDER_PAGE = "/partners/rider";
 
 /** What the browser is allowed to send as a photo. Checked here as well as

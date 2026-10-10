@@ -1,6 +1,33 @@
 @import "tailwindcss";
 @import "./tokens.css";
 
+/* Form controls, scrollbars and overscroll follow the page's palette. */
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* The highlighted step card: near-black on the light page, a raised dark
+   surface on the dark one (the text colour there is white, which would put
+   cream ink on a white card). Resolved once at the root, so it follows the
+   page's theme, not the card's. */
+:root {
+  --step-active: var(--text);
+}
+:root[data-theme="dark"] {
+  --step-active: var(--surface-raised);
+}
+
+/* The light-ground logo's dark twin: hidden until the page itself goes dark. */
+.logo-on-dark {
+  display: none;
+}
+:root[data-theme="dark"] .logo-on-light {
+  display: none;
+}
+:root[data-theme="dark"] .logo-on-dark {
+  display: block;
+}
+
 body {
   background: var(--bg);
   color: var(--text);
@@ -40,6 +67,23 @@ body {
 
 @utility rise {
   animation: rise var(--duration-slow) var(--default-transition-timing-function) both;
+}
+
+/* Scroll reveal for the landing page. AOS (see ScrollReveal) toggles
+   `aos-animate` as an element enters the viewport; this is the look it gets.
+   The hidden state only applies once the script has switched `data-reveal` on,
+   so no-JS visitors and reduced-motion users never meet an invisible section. */
+html[data-reveal] [data-aos="rise"] {
+  opacity: 0;
+  transform: translateY(var(--rise));
+  transition:
+    opacity var(--duration-slow) var(--default-transition-timing-function),
+    transform var(--duration-slow) var(--default-transition-timing-function);
+}
+
+html[data-reveal] [data-aos="rise"].aos-animate {
+  opacity: 1;
+  transform: none;
 }
 
 /* Stagger steps. `style` attributes would hardcode timings; these read the token. */
@@ -228,7 +272,7 @@ body {
   }
   3.5%,
   21% {
-    background-color: var(--text);
+    background-color: var(--step-active);
     color: var(--cream);
   }
   22% {
@@ -250,7 +294,7 @@ body {
   background-image: linear-gradient(
     90deg,
     transparent 33.334%,
-    var(--text) 33.334% 66.666%,
+    var(--step-active) 33.334% 66.666%,
     transparent 66.666%
   );
   background-size: 300% 100%;

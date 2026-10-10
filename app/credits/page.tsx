@@ -10,7 +10,7 @@ export const metadata = {
 export default function CreditsPage() {
   return (
     <>
-      <SiteNav />
+      <SiteNav mode="dark" />
 
       <section className="px-screen-x mx-auto w-full max-w-[1100px] py-xxl">
         <h1 className="text-section-small md:text-section">Photo credits</h1>

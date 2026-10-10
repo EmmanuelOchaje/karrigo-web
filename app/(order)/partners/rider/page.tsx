@@ -6,7 +6,10 @@ import { RiderApply } from "@/components/partners/RiderApply";
 import { getRiderApplication, listBanks } from "@/lib/partners/data";
 import { getCustomer } from "@/lib/shop/session";
 
-export const metadata: Metadata = { title: "Ride with Karrigo" };
+export const metadata: Metadata = {
+  title: "Ride with Karrigo",
+  description: "Deliver with Karrigo in Makurdi.",
+};
 
 /** A rider is a Karrigo account with a rider profile attached, so this starts
  *  by making sure there is an account — verified by the SMS code — to attach

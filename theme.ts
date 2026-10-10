@@ -165,6 +165,37 @@ export const light = {
 } as const;
 
 /* ------------------------------------------------------------------
+   FOREST — the dark panels, when the whole site is in dark mode
+   In light mode the website's dark panels (hero, areas, footer, nav pill)
+   are near-black cards on a pale page. Switch the page to dark and those
+   same panels would melt into it, so they take a deep shade of the accent's
+   own hue instead: still unmistakably dark, still carrying lime and cream
+   at full strength, and recognisably Karrigo rather than a generic grey.
+
+   Hue 92, the lime's hue, desaturated and pulled right down in lightness.
+   Only what differs from `dark` is listed; everything else (status colours,
+   accents, the bezel) is inherited, because those roles do not change with
+   the ground they sit on.
+
+   Checked against WCAG: white on bg 15.2:1, textSecondary on bg 7.9:1 and
+   on surface 6.5:1, textTertiary on bg 5.6:1 and on surface 4.6:1, lime on
+   bg 11.8:1. All pass AA at body size.
+------------------------------------------------------------------ */
+
+export const forest = {
+  ...dark,
+  bg:              '#1B2A0F',
+  surface:         '#283918',
+  surfaceRaised:   '#344922',
+  border:          '#3E542B',
+  borderStrong:    '#4E6539',
+  fieldBorder:       '#5B6C4B',
+  fieldBorderActive: '#92A97E',
+  textSecondary:   '#B2BFA6',
+  textTertiary:    '#93A187',
+} as const;
+
+/* ------------------------------------------------------------------
    COMPONENT RULES — identical in both modes
    These are what keep the two themes feeling like one product.
 ------------------------------------------------------------------ */
@@ -340,4 +371,4 @@ export const motion = {
   bounce: 2400,
 } as const;
 
-export default { dark, light, rules, modeByScreen, font, type, space, radius, size, shadow, motion };
+export default { dark, light, forest, rules, modeByScreen, font, type, space, radius, size, shadow, motion };

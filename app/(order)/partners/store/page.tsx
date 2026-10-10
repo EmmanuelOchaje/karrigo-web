@@ -11,7 +11,7 @@ import { listAreaNames, listAreas } from "@/lib/shop/areas";
 export const metadata: Metadata = { title: "Sell on Karrigo" };
 
 /** Store sign-up, adding a store to an existing partner business, and the
- * store's setup status all live at the plural route. */
+ * store's setup status all live at this route. */
 export default async function StorePartnerPage() {
   const [partner, areas] = await Promise.all([getPartner(), listAreas()]);
   const store = partner?.storeId ? await getStoreApplication() : null;

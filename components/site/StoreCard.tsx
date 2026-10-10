@@ -1,7 +1,5 @@
-import Link from "next/link";
 import Image from "next/image";
 import type { Store } from "@/lib/fixtures";
-import { cn } from "@/lib/cn";
 import { formatKobo } from "@/lib/money";
 
 export function StoreCard({
@@ -12,10 +10,7 @@ export function StoreCard({
   priority?: boolean;
 }) {
   return (
-    <Link
-      href="/stores"
-      className="bg-bg rounded-panel-sm p-sm group block transition-[transform,box-shadow] duration-(--duration-normal) hover:-translate-y-1.5 hover:shadow-card"
-    >
+    <div className="bg-bg rounded-panel-sm p-sm block">
       <div className="bg-surface-raised relative aspect-[4/3] overflow-hidden rounded-panel-xs">
         <Image
           src={store.image}
@@ -23,10 +18,7 @@ export function StoreCard({
           fill
           sizes="(max-width: 640px) 100vw, (max-width: 1100px) 50vw, 350px"
           priority={priority}
-          className={cn(
-            "object-cover transition-transform duration-(--duration-slow)",
-            "group-hover:scale-[1.03]",
-          )}
+          className="object-cover"
         />
       </div>
 
@@ -57,6 +49,6 @@ export function StoreCard({
           )}
         </div>
       </div>
-    </Link>
+    </div>
   );
 }

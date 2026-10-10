@@ -4,7 +4,10 @@ import Link from "next/link";
 import { Eyebrow } from "@/components/site/Eyebrow";
 import { Screen } from "@/components/ui/Screen";
 
-export const metadata: Metadata = { title: "Partner with Karrigo" };
+export const metadata: Metadata = {
+  title: "Partner with Karrigo",
+  description: "Cook, sell or ride with Karrigo in Makurdi.",
+};
 
 const ways = [
   {
@@ -14,7 +17,7 @@ const ways = [
     action: "List my kitchen",
   },
   {
-    href: "/partners/stores",
+    href: "/partners/store",
     title: "Sell your groceries on Karrigo",
     text: "New customers nearby, without opening another branch. Karrigo keeps 10% of what you sell.",
     action: "Register my store",

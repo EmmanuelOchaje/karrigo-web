@@ -46,7 +46,7 @@ const COPY = {
     areaError: "Pick the area your store is in.",
     submit: "Start my application",
     working: "Setting up your store…",
-    loginHref: "/partners/stores/login",
+    loginHref: "/partners/store/login",
     loginText: "Log in to your store",
   },
 } as const;
@@ -332,9 +332,9 @@ const LOGIN_COPY = {
     title: "Log in to your store",
     lead: "Use the email and password you set up your account with.",
     placeholder: "you@yourstore.com",
-    after: "/partners/stores",
+    after: "/partners/store",
     newText: "Register your store",
-    newHref: "/partners/stores",
+    newHref: "/partners/store",
   },
 } as const;
 
