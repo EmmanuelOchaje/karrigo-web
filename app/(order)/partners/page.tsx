@@ -4,7 +4,10 @@ import Link from "next/link";
 import { Eyebrow } from "@/components/site/Eyebrow";
 import { Screen } from "@/components/ui/Screen";
 
-export const metadata: Metadata = { title: "Partner with Karrigo" };
+export const metadata: Metadata = {
+  title: "Partner with Karrigo",
+  description: "Cook, sell or ride with Karrigo in Makurdi.",
+};
 
 const ways = [
   {

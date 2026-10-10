@@ -7,7 +7,10 @@ import { listVerificationPhotos } from "@/lib/kitchen/data";
 import { getKitchenApplication, listBanks } from "@/lib/partners/data";
 import { listAreaNames, listAreas } from "@/lib/shop/areas";
 
-export const metadata: Metadata = { title: "Cook with Karrigo" };
+export const metadata: Metadata = {
+  title: "Cook with Karrigo",
+  description: "Put your kitchen in front of Makurdi. Take orders and let a Karrigo rider handle the delivery.",
+};
 
 /** One address for the whole application: the sign-up form until a kitchen is
  *  signed in, and its setup steps and status from then on. */

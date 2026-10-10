@@ -6,7 +6,7 @@ import { api, type Schemas } from "@/lib/api/client";
 import { formatKobo, nairaToKobo } from "@/lib/money";
 import { getCustomer } from "@/lib/shop/session";
 
-export const metadata: Metadata = { title: "My orders · Karrigo" };
+export const metadata: Metadata = { title: "My orders · Karrigo", robots: { index: false } };
 
 const LABEL: Record<Schemas["OrderWithDetailsResponseDto"]["status"], string> = {
   PLACED: "Waiting for the kitchen",

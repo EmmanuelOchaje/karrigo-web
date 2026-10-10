@@ -4,7 +4,7 @@ import { TrackOrder } from "@/components/order/TrackOrder";
 import { fetchOrder } from "@/app/(order)/actions";
 import { getCustomer } from "@/lib/shop/session";
 
-export const metadata: Metadata = { title: "Track your order · Karrigo" };
+export const metadata: Metadata = { title: "Track your order · Karrigo", robots: { index: false } };
 
 /** The order is loaded here, on the server, so the page opens already
  *  showing it; the component then keeps it current. Tracking needs the

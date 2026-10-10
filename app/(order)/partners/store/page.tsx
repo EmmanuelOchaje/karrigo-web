@@ -3,7 +3,10 @@ import type { Metadata } from "next";
 import { Eyebrow } from "@/components/site/Eyebrow";
 import { ButtonLink } from "@/components/ui/Button";
 
-export const metadata: Metadata = { title: "Sell on Karrigo" };
+export const metadata: Metadata = {
+  title: "Sell on Karrigo",
+  description: "List your store on Karrigo and deliver groceries across Makurdi.",
+};
 
 /**
  * No store onboarding backend yet — this is a holding page, not a form.

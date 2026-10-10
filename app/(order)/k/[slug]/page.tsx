@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { KitchenMenu } from "@/components/order/KitchenMenu";
 import { getKitchenMenu } from "@/lib/shop/catalog";
+import { SITE_URL } from "@/lib/app-links";
 import type { Side } from "@/lib/shop/types";
 
 const sideOf = (type: string | string[] | undefined): Side => (type === "GROCERY" ? "GROCERY" : "FOOD");
@@ -11,11 +12,33 @@ const sideOf = (type: string | string[] | undefined): Side => (type === "GROCERY
  *  grocery side of a place that serves both. */
 export async function generateMetadata({ params, searchParams }: PageProps<"/k/[slug]">): Promise<Metadata> {
   const menu = await getKitchenMenu((await params).slug, sideOf((await searchParams).type));
-  return { title: menu ? `${menu.name} · Karrigo` : "Not found · Karrigo" };
+  if (!menu) return { title: "Not found · Karrigo", robots: { index: false } };
+  const kind = menu.side === "GROCERY" ? "groceries" : `${menu.cuisine} food`;
+  return {
+    title: `${menu.name} · Karrigo`,
+    description: `Order ${kind} from ${menu.name} in ${menu.area}, Makurdi. Live menu and prices, delivered by a Karrigo rider.`,
+  };
 }
 
 export default async function KitchenPage({ params, searchParams }: PageProps<"/k/[slug]">) {
   const menu = await getKitchenMenu((await params).slug, sideOf((await searchParams).type));
   if (!menu) notFound();
-  return <KitchenMenu menu={menu} />;
+  const ld = {
+    "@context": "https://schema.org",
+    "@type": menu.side === "GROCERY" ? "GroceryStore" : "Restaurant",
+    name: menu.name,
+    url: `${SITE_URL}/k/${menu.slug}`,
+    ...(menu.side === "FOOD" && menu.cuisine ? { servesCuisine: menu.cuisine } : {}),
+    ...(menu.imageUrl ? { image: menu.imageUrl } : {}),
+    address: { "@type": "PostalAddress", addressLocality: "Makurdi", addressRegion: "Benue", addressCountry: "NG", streetAddress: menu.area },
+    ...(menu.ratingsCount > 0
+      ? { aggregateRating: { "@type": "AggregateRating", ratingValue: menu.rating, ratingCount: menu.ratingsCount } }
+      : {}),
+  };
+  return (
+    <>
+      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(ld).replace(/</g, "\\u003c") }} />
+      <KitchenMenu menu={menu} />
+    </>
+  );
 }
